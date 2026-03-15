@@ -20,6 +20,7 @@ const AUTO_SCAN_COOLDOWN = 10000; // 10 seconds cooldown between same plate logs
 const STABILITY_THRESHOLD = 2; // Number of consecutive frames required for a "lock"
 let currentStabilityCount = 0;
 let lastDraftPlate = null;
+let tesseractWorker = null;
 
 console.log("Scanner Logic Initialized");
 
@@ -57,25 +58,43 @@ async function init() {
   try {
     await startCamera();
     lucide.createIcons();
-    console.log("Camera started successfully");
+    await initWorker(); // Pre-load Tesseract AI
+    console.log("Scanner system ready");
     
     // Start automatic scanning loop
-    setTimeout(autoScanLoop, 2000); // Give camera a moment to stabilize
+    setTimeout(autoScanLoop, 1000); 
   } catch (e) {
     console.error("Init failure:", e);
     showToast("Initialization failed", "error");
   }
 }
 
+async function initWorker() {
+    try {
+        tesseractWorker = await Tesseract.createWorker("eng", 1, {
+            logger: m => console.log(m.status, Math.round(m.progress * 100) + "%"),
+        });
+        
+        await tesseractWorker.setParameters({
+            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+            tessedit_pageseg_mode: '7', // Treat the image as a single text line
+            tessjs_create_hocr: '0',
+            tessjs_create_tsv: '0',
+        });
+        console.log("Tesseract Worker ready");
+    } catch (err) {
+        console.error("Worker init failed:", err);
+    }
+}
+
 async function autoScanLoop() {
   if (autoScanActive && !isScanning && !detectedPlate && tabScan && tabScan.classList.contains('active-tab')) {
-    if (video && video.readyState >= 2) { 
+    if (video && video.readyState >= 2 && tesseractWorker) { 
         await triggerScan(true);
     }
   }
   
-  // Use a simpler loop to avoid memory/stack issues
-  setTimeout(autoScanLoop, 1200); 
+  setTimeout(autoScanLoop, 1000); 
 }
 
 // Camera
@@ -185,19 +204,13 @@ function showToast(message, type = 'default') {
 
 window.triggerScan = async function (arg) {
   const isAuto = arg === true;
-  if (isScanning) return;
-
-  if (typeof Tesseract === 'undefined') {
-      if (!isAuto) showToast("OCR Engine loading...", "default");
-      return;
-  }
+  if (isScanning || !tesseractWorker) return;
 
   if (video.readyState < 2) {
       if (!isAuto) showToast("Camera not ready", "error");
       return;
   }
 
-  // UI Loading (only show icon change if manual or high confidence)
   isScanning = true;
   if (!isAuto) {
     scanBtn.disabled = true;
@@ -205,22 +218,27 @@ window.triggerScan = async function (arg) {
     processingIcon.classList.remove('hidden');
   }
 
-  // Visual scan line pulse
   scanLine.classList.add('scanning-active');
 
-  // Capture
-  canvas.width = video.videoWidth || 640;
-  canvas.height = video.videoHeight || 480;
-  ctx.drawImage(video, 0, 0);
-  
-  if (isAuto) console.log("Auto-scanning frame...");
-  else console.log("Manual scan triggered...");
+  // ROI: Region of Interest (Center of Screen)
+  // We take 70% width and 30% height from center
+  const roiW = video.videoWidth * 0.7;
+  const roiH = video.videoHeight * 0.3;
+  const roiX = (video.videoWidth - roiW) / 2;
+  const roiY = (video.videoHeight - roiH) / 2;
 
-  // OCR
+  canvas.width = roiW;
+  canvas.height = roiH;
+  ctx.drawImage(video, roiX, roiY, roiW, roiH, 0, 0, roiW, roiH);
+
+  // Pre-processing (Grayscale & Contrast Boost)
+  preprocessImage(ctx, roiW, roiH);
+
+  if (isAuto) console.log("AI scanning ROI...");
+  else console.log("Manual ROI scan triggered...");
+
   try {
-    const { data: { text } } = await Tesseract.recognize(canvas, "eng", {
-      tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    });
+    const { data: { text } } = await tesseractWorker.recognize(canvas);
 
     const cleanText = text.replace(/[^A-Z0-9]/g, "");
     let match = cleanText.match(PLATE_REGEX_STRICT);
@@ -289,6 +307,27 @@ window.triggerScan = async function (arg) {
     }
   }
 };
+
+function preprocessImage(ctx, width, height) {
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    
+    for (let i = 0; i < data.length; i += 4) {
+        // Grayscale conversion
+        const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        
+        // Simple Contrast Boost (Scale 0-255 to be more polarized)
+        // Values below 100 go towards 0, values above 150 go towards 255
+        let v = avg;
+        if (v < 110) v = Math.max(0, v * 0.8);
+        if (v > 140) v = Math.min(255, v * 1.2);
+        
+        data[i] = v;
+        data[i + 1] = v;
+        data[i + 2] = v;
+    }
+    ctx.putImageData(imageData, 0, 0);
+}
 
 function showResult(text) {
   detectedText.textContent = text;

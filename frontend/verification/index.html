@@ -76,6 +76,19 @@
         <!-- Overlay -->
         <div class="absolute inset-0 pointer-events-none z-10 p-4 flex flex-col items-center justify-center">
           <div id="scan-line" class="scan-line hidden"></div>
+          
+          <!-- Scanning Zone ROI Guide -->
+          <div id="roi-guide" class="w-[70%] h-[30%] border-2 border-dashed border-white/30 rounded-2xl relative flex items-center justify-center">
+              <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-black/60 px-3 py-1 rounded-full text-[10px] text-white/70 font-bold uppercase tracking-widest whitespace-nowrap">
+                  Align plate here
+              </div>
+              <!-- Corner markers for better UX -->
+              <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-primary rounded-tl-lg"></div>
+              <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-primary rounded-tr-lg"></div>
+              <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-primary rounded-bl-lg"></div>
+              <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-primary rounded-br-lg"></div>
+          </div>
+
           <div id="loading-camera"
             class="flex flex-col items-center gap-4 text-white/50 bg-black/40 p-8 rounded-3xl backdrop-blur-xl">
             <i data-lucide="loader-2" class="animate-spin h-12 w-12 text-accent"></i>
