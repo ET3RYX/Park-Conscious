@@ -99,42 +99,13 @@
             background: #fef08a; /* Bright Yellow like Blinkit/Zomato */
             color: #000;
             font-family: 'Outfit', sans-serif;
-            overflow: visible;
+            overflow: hidden;
             position: relative;
-            margin: 0 10px 4rem 10px;
-        }
-
-        .ad-banner::before,
-        .ad-banner::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            width: 15px;
-            height: 100%;
-            background: #020617; /* Body background */
-            z-index: 10;
-        }
-
-        .ad-banner::before {
-            left: -1px;
-            -webkit-mask-image: radial-gradient(circle at 0px 50%, transparent 10px, black 10.5px);
-            mask-image: radial-gradient(circle at 0px 50%, transparent 10px, black 10.5px);
-            mask-size: 15px 20px;
-            -webkit-mask-size: 15px 20px;
-        }
-
-        .ad-banner::after {
-            right: -1px;
-            -webkit-mask-image: radial-gradient(circle at 15px 50%, transparent 10px, black 10.5px);
-            mask-image: radial-gradient(circle at 15px 50%, transparent 10px, black 10.5px);
-            mask-size: 15px 20px;
-            -webkit-mask-size: 15px 20px;
         }
 
         .ad-text-container {
             display: flex;
             transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
-            overflow: hidden; /* Keep content inside edges */
         }
 
         .ad-copy {
@@ -204,13 +175,11 @@
     </header>
 
     <!-- Creative Ad Banner -->
-    <div class="max-w-7xl mx-auto px-4">
-        <section class="ad-banner mb-16 shadow-2xl skew-y-1">
-            <div class="ad-text-container" id="ad-rotation-container">
-                <!-- Ad copies will be injected here -->
-            </div>
-        </section>
-    </div>
+    <section class="ad-banner mb-16 shadow-2xl">
+        <div class="ad-text-container" id="ad-rotation-container">
+            <!-- Ad copies will be injected here -->
+        </div>
+    </section>
 
     <!-- Filters -->
     <section class="max-w-7xl mx-auto px-4 mb-12">
