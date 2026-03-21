@@ -171,7 +171,13 @@ app.post('/api/contact', async (req, res) => {
     res.status(201).json(await Contact.create(req.body));
 });
 
-app.get('/api', (req, res) => res.json({ status: "API Live", db: mongoose.connection.readyState === 1 }));
+app.get('/api', (req, res) => {
+    res.json({ 
+        status: "API Live", 
+        db: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
+        databaseName: mongoose.connection.name
+    });
+});
 
 export default app;
 
