@@ -1,4 +1,7 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+import fs from 'fs';
+import path from 'path';
 
 // MongoDB connection with singleton pattern
 let cached = global.mongoose;
@@ -18,19 +21,15 @@ async function connectDB() {
             throw new Error('MONGODB_URI is not defined in environment variables');
         }
 
-        // Clean the URI (sometimes hidden characters or whitespace can cause issues)
         const cleanUri = uri.trim();
-
         const opts = {
             bufferCommands: false,
-            connectTimeoutMS: 10000, // 10 seconds timeout
+            connectTimeoutMS: 10000,
             socketTimeoutMS: 45000,
-            family: 4 // Force IPv4 to avoid some Vercel/Atlas networking quirks
+            family: 4
         };
 
-        console.log('Connecting to MongoDB...');
         cached.promise = mongoose.connect(cleanUri, opts).then((mongoose) => {
-            console.log('MongoDB connection established');
             return mongoose;
         });
     }
@@ -39,70 +38,91 @@ async function connectDB() {
         cached.conn = await cached.promise;
     } catch (e) {
         cached.promise = null;
-        console.error('MongoDB Initial Connection Error:', e.message);
         throw e;
     }
 
     return cached.conn;
 }
 
-// Waitlist Model
-const waitlistSchema = new mongoose.Schema({
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        match: [/\S+@\S+\.\S+/, 'is invalid'],
-    },
-}, {
-    timestamps: true,
+// Models
+const UserSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: { type: String },
+    googleId: { type: String },
+    createdAt: { type: Date, default: Date.now }
 });
+
+UserSchema.pre('save', async function (next) {
+    if (!this.isModified('password') || !this.password) return next();
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (error) { next(error); }
+});
+
+const User = mongoose.models.User || mongoose.model('User', UserSchema);
+
+const OwnerSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: { type: String },
+    googleId: { type: String },
+    role: { type: String, default: "owner" },
+    createdAt: { type: Date, default: Date.now }
+});
+
+OwnerSchema.pre('save', async function (next) {
+    if (!this.isModified('password') || !this.password) return next();
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (error) { next(error); }
+});
+
+const Owner = mongoose.models.Owner || mongoose.model('Owner', OwnerSchema);
+
+const EventSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    category: { type: String, required: true, lowercase: true },
+    venue: { type: String, required: true },
+    venueCity: { type: String, default: 'Delhi NCR' },
+    attendees: { type: String, default: 'Upcoming' },
+    image: { type: String, default: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14' },
+    badge: { type: String, default: 'NEW' },
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Event = mongoose.models.Event || mongoose.model('Event', EventSchema);
+
+const waitlistSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true },
+}, { timestamps: true });
 
 const Waitlist = mongoose.models.Waitlist || mongoose.model('Waitlist', waitlistSchema);
 
-// Contact Model
 const contactSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-        match: [/\S+@\S+\.\S+/, 'is invalid'],
-    },
+    name: { type: String, required: true },
+    email: { type: String, required: true },
     role: String,
     message: String,
-}, {
-    timestamps: true,
-});
+}, { timestamps: true });
 
 const Contact = mongoose.models.Contact || mongoose.model('Contact', contactSchema);
 
-// Access Log Model
 const accessLogSchema = new mongoose.Schema({
-    plateNumber: {
-        type: String,
-        required: true,
-    },
-    location: {
-        type: String,
-        default: "Main Entrance",
-    },
-    timestamp: {
-        type: Date,
-        default: Date.now,
-    },
+    plateNumber: { type: String, required: true },
+    location: { type: String, default: "Main Entrance" },
+    timestamp: { type: Date, default: Date.now },
     imageUrl: String,
-}, {
-    timestamps: true,
-});
+}, { timestamps: true });
 
 const AccessLog = mongoose.models.AccessLog || mongoose.model('AccessLog', accessLogSchema);
 
 // Main handler
 export default async function handler(req, res) {
-    // CORS
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
@@ -114,104 +134,129 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Connect to DB
         await connectDB();
-
         const { method, url } = req;
+        const body = req.body || {};
 
-        // Root/health check
-        if (method === 'GET' && (!url || url === '/' || url === '/api')) {
-            return res.status(200).json({
-                status: "✅ API running!",
-                connected: mongoose.connection.readyState === 1,
-                dbName: mongoose.connection.name
-            });
+        // Parking Info (Static JSON)
+        if (url && url.includes('parking')) {
+            try {
+                // In Vercel, paths are relative to root. We'll check multiple locations.
+                let dataPath = path.join(process.cwd(), 'backend', 'data', 'parkings.json');
+                if (!fs.existsSync(dataPath)) {
+                    dataPath = path.join(process.cwd(), 'data', 'parkings.json');
+                }
+                const rawData = fs.readFileSync(dataPath);
+                return res.status(200).json(JSON.parse(rawData));
+            } catch (e) {
+                return res.status(500).json({ message: "Error loading parking data" });
+            }
         }
 
-        // Waitlist endpoints
-        if (url && url.includes('waitlist')) {
-            if (method === 'POST') {
-                const { email } = req.body;
-
-                if (!email) {
-                    return res.status(400).json({ message: "Email is required" });
-                }
-
-                const existing = await Waitlist.findOne({ email });
-                if (existing) {
-                    return res.status(409).json({ message: "Email already on waitlist" });
-                }
-
-                const entry = await Waitlist.create({ email });
-                return res.status(201).json({
-                    message: "Successfully joined waitlist",
-                    data: entry
-                });
+        // Auth Endpoints (User)
+        if (url && url.includes('auth')) {
+            if (url.includes('signup') && method === 'POST') {
+                const { name, email, password } = body;
+                if (!name || !email || !password) return res.status(400).json({ message: "Missing fields" });
+                let user = await User.findOne({ email });
+                if (user) return res.status(400).json({ message: "User already exists" });
+                user = await User.create({ name, email, password });
+                return res.status(201).json({ message: "Success", user: { name: user.name, email: user.email }});
             }
+            if (url.includes('login') && method === 'POST') {
+                const { email, password } = body;
+                const user = await User.findOne({ email });
+                if (!user || !user.password) return res.status(400).json({ message: "Invalid credentials" });
+                const isMatch = await bcrypt.compare(password, user.password);
+                if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+                return res.status(200).json({ message: "Logged in", user: { name: user.name, email: user.email }});
+            }
+            if (url.includes('google') && method === 'POST') {
+                const { email, name, googleId } = body;
+                let user = await User.findOne({ email });
+                if (!user) user = await User.create({ name, email, googleId });
+                else if (!user.googleId) { user.googleId = googleId; await user.save(); }
+                return res.status(200).json({ message: "Google Auth Success", user: { name: user.name, email: user.email }});
+            }
+        }
 
+        // Owner Endpoints
+        if (url && url.includes('owner')) {
+            if (url.includes('signup') && method === 'POST') {
+                const { name, email, password } = body;
+                let owner = await Owner.findOne({ email });
+                if (owner) return res.status(400).json({ message: "Owner exists" });
+                owner = await Owner.create({ name, email, password });
+                return res.status(201).json({ message: "Success", user: { name: owner.name, email: owner.email }});
+            }
+            if (url.includes('login') && method === 'POST') {
+                const { email, password } = body;
+                const owner = await Owner.findOne({ email });
+                if (!owner || !owner.password) return res.status(400).json({ message: "Invalid credentials" });
+                const isMatch = await bcrypt.compare(password, owner.password);
+                if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+                return res.status(200).json({ message: "Logged in", user: { name: owner.name, email: owner.email }});
+            }
+            if (url.includes('google') && method === 'POST') {
+                const { email, name, googleId } = body;
+                let owner = await Owner.findOne({ email });
+                if (!owner) owner = await Owner.create({ name, email, googleId });
+                else if (!owner.googleId) { owner.googleId = googleId; await owner.save(); }
+                return res.status(200).json({ message: "Google Auth Success", user: { name: owner.name, email: owner.email }});
+            }
+        }
+
+        // Events
+        if (url && url.includes('events')) {
             if (method === 'GET') {
-                const list = await Waitlist.find().sort({ createdAt: -1 }).limit(100);
-                return res.status(200).json(list);
+                const events = await Event.find().sort({ createdAt: -1 });
+                return res.status(200).json(events);
             }
-        }
-
-        // Contact endpoints
-        if (url && url.includes('contact')) {
             if (method === 'POST') {
-                const { name, email, role, message } = req.body;
-
-                if (!email || !name) {
-                    return res.status(400).json({ message: "Name and Email are required" });
-                }
-
-                const entry = await Contact.create({ name, email, role, message });
-                return res.status(201).json({
-                    message: "Message sent successfully",
-                    data: entry
-                });
-            }
-
-            if (method === 'GET') {
-                const messages = await Contact.find().sort({ createdAt: -1 }).limit(100);
-                return res.status(200).json(messages);
+                const entry = await Event.create(body);
+                return res.status(201).json(entry);
             }
         }
 
-        // Access Log endpoints
+        // Logs
         if (url && url.includes('logs')) {
-            if (method === 'POST') {
-                const { plateNumber, location, imageUrl } = req.body;
-
-                if (!plateNumber) {
-                    return res.status(400).json({ message: "Plate number is required" });
-                }
-
-                const entry = await AccessLog.create({
-                    plateNumber: plateNumber.toUpperCase(),
-                    location,
-                    imageUrl
-                });
-
-                return res.status(201).json({
-                    message: "Detection logged successfully",
-                    data: entry
-                });
-            }
-
             if (method === 'GET') {
                 const logs = await AccessLog.find().sort({ timestamp: -1 }).limit(50);
                 return res.status(200).json(logs);
             }
+            if (method === 'POST') {
+                const entry = await AccessLog.create(body);
+                return res.status(201).json(entry);
+            }
         }
 
-        return res.status(404).json({ message: "Not found", url, method });
+        // Waitlist & Contact (legacy support)
+        if (url && url.includes('waitlist')) {
+            if (method === 'POST') {
+                const existing = await Waitlist.findOne({ email: body.email });
+                if (existing) return res.status(409).json({ message: "Already on list" });
+                const entry = await Waitlist.create({ email: body.email });
+                return res.status(201).json(entry);
+            }
+            const list = await Waitlist.find().sort({ createdAt: -1 });
+            return res.status(200).json(list);
+        }
+
+        if (url && url.includes('contact')) {
+            if (method === 'POST') {
+                const entry = await Contact.create(body);
+                return res.status(201).json(entry);
+            }
+            const list = await Contact.find().sort({ createdAt: -1 });
+            return res.status(200).json(list);
+        }
+
+        // Health Check
+        return res.status(200).json({ status: "API Live", db: mongoose.connection.readyState === 1 });
 
     } catch (error) {
         console.error('API Error:', error);
-        return res.status(500).json({
-            message: "Server Error",
-            error: error.message,
-            tip: "If this is a connection error, verify MONGODB_URI in Vercel and check Atlas IP whitelist (0.0.0.0/0)."
-        });
+        return res.status(500).json({ message: "Server Error", error: error.message });
     }
 }
+
