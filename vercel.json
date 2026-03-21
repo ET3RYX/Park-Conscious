@@ -7,12 +7,12 @@
       "destination": "/frontend/index.html"
     },
     {
-      "source": "/api/:path*",
+      "source": "/api/(.*)",
       "destination": "/api/index.js"
     },
     {
-      "source": "/:path((?!api/).*)",
-      "destination": "/frontend/:path"
+      "source": "/((?!api/).*)",
+      "destination": "/frontend/$1"
     }
   ]
 }
