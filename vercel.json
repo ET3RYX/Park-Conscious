@@ -1,18 +1,16 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
+  "outputDirectory": "frontend",
   "rewrites": [
     {
       "source": "/api/(.*)",
       "destination": "/api/handler.js"
-    },
-    {
-      "source": "/",
-      "destination": "/frontend/index.html"
-    },
-    {
-      "source": "/((?!api/).*)",
-      "destination": "/frontend/$1"
     }
-  ]
+  ],
+  "functions": {
+    "api/handler.js": {
+      "maxDuration": 10
+    }
+  }
 }
