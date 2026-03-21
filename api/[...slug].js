@@ -97,8 +97,9 @@ export default async function handler(req, res) {
 
     try {
         // ── Health check ──────────────────────────────────────────
+        // (Vercel routes /api to index.js or [...slug].js automatically)
         if (url === '/api' || url === '/api/' || url === '/') {
-            return json(res, 200, { status: 'API Live', db: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected' });
+            return json(res, 200, { status: 'API Live', db: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected', databaseName: mongoose.connection.name });
         }
 
         // ── Parking data ──────────────────────────────────────────

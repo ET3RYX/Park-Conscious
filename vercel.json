@@ -2,14 +2,8 @@
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "frontend",
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/handler.js"
-    }
-  ],
   "functions": {
-    "api/handler.js": {
+    "api/[...slug].js": {
       "maxDuration": 10
     }
   }
