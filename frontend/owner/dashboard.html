@@ -222,7 +222,8 @@
         // Fetch Live Stats
         async function updateStats() {
             try {
-                const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5050/api/logs' : '/api/logs';
+                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const API_URL = isLocal ? (window.location.port === '3000' ? '/api/logs' : 'http://localhost:5050/api/logs') : '/api/logs';
                 const response = await fetch(API_URL);
                 const data = await response.json();
 
