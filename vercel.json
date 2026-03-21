@@ -1,15 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "outputDirectory": ".",
   "buildCommand": "npm run build && cd api && npm ci --prefer-offline=false",
+  "outputDirectory": "frontend",
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/frontend/index.html"
-    },
-    {
       "source": "/((?!api/).*)",
-      "destination": "/frontend/$1"
+      "destination": "/$1"
     }
   ],
   "functions": {
