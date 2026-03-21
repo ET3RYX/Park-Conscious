@@ -77,7 +77,17 @@ export default async function handler(req, res) {
 
     const url = req.url || '';
     const method = req.method || 'GET';
-    const body = req.body || {};
+    
+    // Parse body manually for POST/PUT
+    let body = {};
+    if (method === 'POST' || method === 'PUT') {
+        try {
+            const chunks = [];
+            for await (const chunk of req) chunks.push(chunk);
+            const raw = Buffer.concat(chunks).toString();
+            if (raw) body = JSON.parse(raw);
+        } catch (e) { console.error("Body parse error:", e); }
+    }
 
     try {
         await connectDB();

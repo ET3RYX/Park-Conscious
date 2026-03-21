@@ -1,21 +1,18 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build && cd api && npm ci --prefer-offline=false",
-  "outputDirectory": "frontend",
+  "version": 2,
+  "buildCommand": "npm run build",
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
-      "destination": "/$1"
-    }
-  ],
-  "functions": {
-    "api/index.js": {
-      "memory": 256,
-      "maxDuration": 10
+      "source": "/api/(.*)",
+      "destination": "/api/handler.js"
     },
-    "api/[...path].js": {
-      "memory": 256,
-      "maxDuration": 10
+    {
+      "source": "/",
+      "destination": "/frontend/index.html"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/frontend/$1"
     }
-  }
+  ]
 }

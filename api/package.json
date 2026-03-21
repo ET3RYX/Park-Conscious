@@ -1,9 +1,0 @@
-{
-    "name": "park-conscious-api",
-    "version": "1.0.0",
-    "type": "module",
-    "dependencies": {
-        "mongoose": "^8.0.3",
-        "bcryptjs": "^2.4.3"
-    }
-}
