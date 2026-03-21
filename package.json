@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "node frontend/scripts/generate-config.js"
+    "build": "node scripts/generate-config.js"
   },
   "dependencies": {
     "express": "^4.18.2",
