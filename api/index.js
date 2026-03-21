@@ -1,53 +1,36 @@
-import express from 'express';
 import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
 
-dotenv.config();
-
-const app = express();
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// MongoDB connection with singleton pattern
-let cached = global.mongoose;
-if (!cached) {
-    cached = global.mongoose = { conn: null, promise: null };
-}
+// ─── DB Connection ───────────────────────────────────────────────
+let cached = global.mongoose || (global.mongoose = { conn: null, promise: null });
 
 async function connectDB() {
     if (cached.conn) return cached.conn;
     if (!cached.promise) {
         const uri = process.env.MONGODB_URI;
-        if (!uri) throw new Error('MONGODB_URI is missing');
-        cached.promise = mongoose.connect(uri.trim(), {
-            bufferCommands: false,
-            connectTimeoutMS: 10000,
-        }).then(m => m);
+        if (!uri) throw new Error('MONGODB_URI not set');
+        cached.promise = mongoose.connect(uri, { bufferCommands: false, connectTimeoutMS: 10000 });
     }
     cached.conn = await cached.promise;
     return cached.conn;
 }
 
-// Models
+// ─── Models ──────────────────────────────────────────────────────
 const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String },
-    googleId: { type: String }
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: String,
+    googleId: String
 }, { timestamps: true }));
 
 const Owner = mongoose.models.Owner || mongoose.model('Owner', new mongoose.Schema({
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String },
-    googleId: { type: String },
-    role: { type: String, default: "owner" }
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: String,
+    googleId: String,
+    role: { type: String, default: 'owner' }
 }, { timestamps: true }));
 
 const Event = mongoose.models.Event || mongoose.model('Event', new mongoose.Schema({
@@ -62,7 +45,7 @@ const Event = mongoose.models.Event || mongoose.model('Event', new mongoose.Sche
 
 const AccessLog = mongoose.models.AccessLog || mongoose.model('AccessLog', new mongoose.Schema({
     plateNumber: { type: String, required: true },
-    location: { type: String, default: "Main Entrance" },
+    location: { type: String, default: 'Main Entrance' },
     timestamp: { type: Date, default: Date.now }
 }, { timestamps: true }));
 
@@ -74,125 +57,128 @@ const Contact = mongoose.models.Contact || mongoose.model('Contact', new mongoos
     name: String, email: String, role: String, message: String
 }, { timestamps: true }));
 
-// DB Connection Middleware
-app.use(async (req, res, next) => {
+// ─── Helper ──────────────────────────────────────────────────────
+function json(res, status, data) {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.statusCode = status;
+    res.end(JSON.stringify(data));
+}
+
+// ─── Main Handler ────────────────────────────────────────────────
+export default async function handler(req, res) {
+    // CORS preflight
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
+
+    const url = req.url || '';
+    const method = req.method || 'GET';
+    const body = req.body || {};
+
     try {
         await connectDB();
-        next();
-    } catch (err) {
-        res.status(500).json({ message: "Database Connection Error", error: err.message });
+    } catch (e) {
+        return json(res, 500, { message: 'DB connection failed', error: e.message });
     }
-});
 
-// Helper to match routes with or without /api prefix
-const apiRoute = (path) => [`/api${path}`, path];
-
-// Routes
-app.get(apiRoute('/parking'), (req, res) => {
     try {
-        let dataPath = path.join(process.cwd(), 'backend', 'data', 'parkings.json');
-        if (!fs.existsSync(dataPath)) dataPath = path.join(process.cwd(), 'data', 'parkings.json');
-        res.json(JSON.parse(fs.readFileSync(dataPath)));
-    } catch (e) { res.status(500).json({ message: "Data Error" }); }
-});
+        // ── Health check ──────────────────────────────────────────
+        if (url === '/api' || url === '/api/' || url === '/') {
+            return json(res, 200, { status: 'API Live', db: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected' });
+        }
 
-app.post(apiRoute('/auth/signup'), async (req, res) => {
-    const { name, email, password } = req.body;
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ message: "User exists" });
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    user = await User.create({ name, email, password: hashedPassword });
-    res.status(201).json({ user: { name: user.name, email: user.email }});
-});
+        // ── Parking data ──────────────────────────────────────────
+        if (url.includes('/parking')) {
+            let p = path.join(process.cwd(), 'backend', 'data', 'parkings.json');
+            if (!fs.existsSync(p)) p = path.join(process.cwd(), 'data', 'parkings.json');
+            return json(res, 200, JSON.parse(fs.readFileSync(p)));
+        }
 
-app.post(apiRoute('/auth/login'), async (req, res) => {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user || !user.password) return res.status(400).json({ message: "Invalid credentials" });
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
-    res.json({ user: { name: user.name, email: user.email }});
-});
+        // ── User signup ───────────────────────────────────────────
+        if (url.includes('/auth/signup') && method === 'POST') {
+            const { name, email, password } = body;
+            if (!name || !email || !password) return json(res, 400, { message: 'Missing fields' });
+            if (await User.findOne({ email })) return json(res, 400, { message: 'User already exists' });
+            const hashed = await bcrypt.hash(password, 10);
+            const user = await User.create({ name, email, password: hashed });
+            return json(res, 201, { user: { name: user.name, email: user.email } });
+        }
 
-app.post(apiRoute('/auth/google'), async (req, res) => {
-    const { email, name, googleId } = req.body;
-    let user = await User.findOne({ email });
-    if (!user) user = await User.create({ name, email, googleId });
-    res.json({ user: { name: user.name, email: user.email }});
-});
+        // ── User login ────────────────────────────────────────────
+        if (url.includes('/auth/login') && method === 'POST') {
+            const { email, password } = body;
+            const user = await User.findOne({ email });
+            if (!user || !user.password) return json(res, 400, { message: 'Invalid credentials' });
+            if (!await bcrypt.compare(password, user.password)) return json(res, 400, { message: 'Invalid credentials' });
+            return json(res, 200, { user: { name: user.name, email: user.email } });
+        }
 
-app.post(apiRoute('/owner/signup'), async (req, res) => {
-    const { name, email, password } = req.body;
-    let owner = await Owner.findOne({ email });
-    if (owner) return res.status(400).json({ message: "Owner exists" });
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    owner = await Owner.create({ name, email, password: hashedPassword });
-    res.status(201).json({ user: { name: owner.name, email: owner.email }});
-});
+        // ── User Google login ─────────────────────────────────────
+        if (url.includes('/auth/google') && method === 'POST') {
+            const { email, name, googleId } = body;
+            let user = await User.findOne({ email });
+            if (!user) user = await User.create({ name, email, googleId });
+            return json(res, 200, { user: { name: user.name, email: user.email } });
+        }
 
-app.post(apiRoute('/owner/login'), async (req, res) => {
-    const { email, password } = req.body;
-    const owner = await Owner.findOne({ email });
-    if (!owner || !owner.password) return res.status(400).json({ message: "Invalid credentials" });
-    const isMatch = await bcrypt.compare(password, owner.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
-    res.json({ user: { name: owner.name, email: owner.email }});
-});
+        // ── Owner signup ──────────────────────────────────────────
+        if (url.includes('/owner/signup') && method === 'POST') {
+            const { name, email, password } = body;
+            if (await Owner.findOne({ email })) return json(res, 400, { message: 'Owner already exists' });
+            const hashed = await bcrypt.hash(password, 10);
+            const owner = await Owner.create({ name, email, password: hashed });
+            return json(res, 201, { user: { name: owner.name, email: owner.email } });
+        }
 
-app.post(apiRoute('/owner/google'), async (req, res) => {
-    const { email, name, googleId } = req.body;
-    let owner = await Owner.findOne({ email });
-    if (!owner) owner = await Owner.create({ name, email, googleId });
-    res.json({ user: { name: owner.name, email: owner.email }});
-});
+        // ── Owner login ───────────────────────────────────────────
+        if (url.includes('/owner/login') && method === 'POST') {
+            const { email, password } = body;
+            const owner = await Owner.findOne({ email });
+            if (!owner || !owner.password) return json(res, 400, { message: 'Invalid credentials' });
+            if (!await bcrypt.compare(password, owner.password)) return json(res, 400, { message: 'Invalid credentials' });
+            return json(res, 200, { user: { name: owner.name, email: owner.email } });
+        }
 
-app.get(apiRoute('/events'), async (req, res) => {
-    res.json(await Event.find().sort({ createdAt: -1 }));
-});
+        // ── Owner Google login ────────────────────────────────────
+        if (url.includes('/owner/google') && method === 'POST') {
+            const { email, name, googleId } = body;
+            let owner = await Owner.findOne({ email });
+            if (!owner) owner = await Owner.create({ name, email, googleId });
+            return json(res, 200, { user: { name: owner.name, email: owner.email } });
+        }
 
-app.post(apiRoute('/events'), async (req, res) => {
-    res.status(201).json(await Event.create(req.body));
-});
+        // ── Events ────────────────────────────────────────────────
+        if (url.includes('/events')) {
+            if (method === 'GET') return json(res, 200, await Event.find().sort({ createdAt: -1 }));
+            if (method === 'POST') return json(res, 201, await Event.create(body));
+        }
 
-app.get(apiRoute('/logs'), async (req, res) => {
-    res.json(await AccessLog.find().sort({ timestamp: -1 }).limit(50));
-});
+        // ── Access logs ───────────────────────────────────────────
+        if (url.includes('/logs')) {
+            if (method === 'GET') return json(res, 200, await AccessLog.find().sort({ timestamp: -1 }).limit(50));
+            if (method === 'POST') return json(res, 201, await AccessLog.create(body));
+        }
 
-app.post(apiRoute('/logs'), async (req, res) => {
-    res.status(201).json(await AccessLog.create(req.body));
-});
+        // ── Waitlist ──────────────────────────────────────────────
+        if (url.includes('/waitlist') && method === 'POST') {
+            if (await Waitlist.findOne({ email: body.email })) return json(res, 409, { message: 'Already on waitlist' });
+            return json(res, 201, await Waitlist.create({ email: body.email }));
+        }
 
-app.post(apiRoute('/waitlist'), async (req, res) => {
-    const existing = await Waitlist.findOne({ email: req.body.email });
-    if (existing) return res.status(409).json({ message: "Already on list" });
-    res.status(201).json(await Waitlist.create({ email: req.body.email }));
-});
+        // ── Contact ───────────────────────────────────────────────
+        if (url.includes('/contact') && method === 'POST') {
+            return json(res, 201, await Contact.create(body));
+        }
 
-app.post(apiRoute('/contact'), async (req, res) => {
-    res.status(201).json(await Contact.create(req.body));
-});
+        // ── 404 fallback ──────────────────────────────────────────
+        return json(res, 404, { message: 'Route not found', url, method });
 
-app.get(['/api', '/api/'], (req, res) => {
-    res.json({ 
-        status: "API Live", 
-        db: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
-        databaseName: mongoose.connection.name,
-        requestedUrl: req.url,
-        method: req.method
-    });
-});
-
-// Catch-all to help debug 404/405
-app.all('/api/*', (req, res) => {
-    res.status(404).json({ 
-        message: "Route not found", 
-        url: req.url, 
-        method: req.method,
-        note: "This is the catch-all handler"
-    });
-});
-
-export default app;
-
+    } catch (err) {
+        console.error('Handler error:', err);
+        return json(res, 500, { message: 'Server error', error: err.message });
+    }
+}
