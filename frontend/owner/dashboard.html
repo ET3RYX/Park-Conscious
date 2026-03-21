@@ -85,7 +85,7 @@
         </nav>
 
         <div class="p-4 border-t border-white/5">
-            <button onclick="window.location.href='index.html'"
+            <button onclick="logoutOwner()"
                 class="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-red-400 hover:bg-red-500/10 transition-colors text-sm font-medium">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -103,9 +103,8 @@
             class="h-16 flex items-center justify-between px-8 border-b border-white/5 bg-gray-900/50 backdrop-blur-md sticky top-0 z-10">
             <h2 class="text-xl font-bold text-white">Overview</h2>
             <div class="flex items-center gap-4">
-                <span class="text-sm text-gray-400">Welcome, <span class="text-white font-medium">Piyush
-                        Kumar</span></span>
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-teal-500"></div>
+                <span class="text-sm text-gray-400">Welcome, <span class="text-white font-medium" id="owner-name-display">Demo User</span></span>
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-white font-bold" id="owner-avatar">D</div>
             </div>
         </header>
 
@@ -198,6 +197,28 @@
     </main>
 
     <script>
+        // Check Authentication
+        const ownerToken = localStorage.getItem('park_owner');
+        const isDemo = sessionStorage.getItem('park_owner_demo');
+
+        if (!ownerToken && !isDemo) {
+            window.location.href = 'login.html';
+        }
+
+        if (ownerToken) {
+            try {
+                const owner = JSON.parse(ownerToken);
+                document.getElementById('owner-name-display').innerText = owner.name;
+                document.getElementById('owner-avatar').innerText = owner.name.charAt(0).toUpperCase();
+            } catch (e) {}
+        }
+
+        function logoutOwner() {
+            localStorage.removeItem('park_owner');
+            sessionStorage.removeItem('park_owner_demo');
+            window.location.href = '../index.html';
+        }
+
         // Fetch Live Stats
         async function updateStats() {
             try {

@@ -378,21 +378,27 @@
         AOS.init({ once: true });
         lucide.createIcons();
 
-        // --- Data & State ---
-        let events = [
-            { id: 1, name: "YE (Kanye West) Live", category: "concert", venue: "Jawaharlal Nehru Stadium", venueCity: "Delhi", attendees: "70,000+", image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745", badge: "Live Now" },
-            { id: 2, name: "Travis Scott: Maximus", category: "concert", venue: "Jawaharlal Nehru Stadium", venueCity: "Delhi", attendees: "50,000+", image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30", badge: "Trending" },
-            { id: 3, name: "Comic Con India", category: "festival", venue: "NSIC Grounds", venueCity: "Okhla", attendees: "30,000+", image: "Comic-con.webp", badge: "Viral" },
-            { id: 4, name: "Karan Aujla: P-POP", category: "concert", venue: "Indira Gandhi Arena", venueCity: "Delhi", attendees: "75,000+", image: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14", badge: "Selling Fast" },
-            { id: 8, name: "Global AI Summit (GPAI)", category: "summit", venue: "Bharat Mandapam", venueCity: "Delhi", attendees: "10,000+", image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e", badge: "World Event" },
-            { id: 5, name: "Horn OK Please", category: "festival", venue: "Jawaharlal Nehru Stadium", venueCity: "Delhi", attendees: "25,000+", image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1", badge: "Must Visit" },
-            { id: 9, name: "SATTE 2024", category: "summit", venue: "India Expo Mart", venueCity: "Greater Noida", attendees: "35,000+", image: "https://images.unsplash.com/photo-1511578314322-379afb476865", badge: "Business" },
-            { id: 6, name: "Sunburn Arena", category: "festival", venue: "Gurgaon Venue", venueCity: "Gurgaon", attendees: "40,000+", image: "https://images.unsplash.com/photo-1514525253361-bee8718a34a1", badge: "EDM" },
-            { id: 7, name: "Navratri Garba Night", category: "culture", venue: "Major Dhyan Chand", venueCity: "Delhi", attendees: "20,000+", image: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3", badge: "Tradition" },
-            { id: 10, name: "India Mobile Congress", category: "summit", venue: "Bharat Mandapam", venueCity: "Delhi", attendees: "100,000+", image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c", badge: "Tech Leader" }
-        ];
-
+        let events = [];
         let selectedEvent = null;
+        const API_URL = 'http://localhost:5050/api'; // Adjust if hosted differently
+
+        // --- Data & State ---
+        async function fetchEvents() {
+            try {
+                const response = await fetch(`${API_URL}/events`);
+                events = await response.json();
+                
+                // If database is empty, show a message or keep an empty list
+                if (events.length === 0) {
+                    console.log("No events found in database.");
+                }
+                
+                renderEvents();
+            } catch (error) {
+                console.error("Failed to fetch events:", error);
+                // Fallback or error UI
+            }
+        }
 
         // --- Init ---
         function renderEvents(filter = "all") {
@@ -497,11 +503,10 @@
         };
 
         // --- Add Event Flow ---
-        document.getElementById('add-event-form').addEventListener('submit', (e) => {
+        document.getElementById('add-event-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const newEvent = {
-                id: Date.now(),
                 name: formData.get('name'),
                 category: formData.get('category'),
                 venue: formData.get('venue'),
@@ -511,13 +516,30 @@
                 badge: "NEW"
             };
             
-            events.unshift(newEvent);
-            renderEvents();
-            closeModal('add-event-modal');
-            e.target.reset();
+            try {
+                const response = await fetch(`${API_URL}/events`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newEvent)
+                });
+                
+                if (response.ok) {
+                    await fetchEvents(); // Refresh list
+                    closeModal('add-event-modal');
+                    e.target.reset();
+                } else {
+                    alert("Failed to create event.");
+                }
+            } catch (error) {
+                console.error("Error creating event:", error);
+            }
         });
 
         // --- Modal Helpers ---
+        window.openAddEventModal = () => {
+            openModal('add-event-modal');
+        };
+
         window.openModal = (id) => {
             document.getElementById(id).classList.remove('hidden');
             document.body.style.overflow = 'hidden';
@@ -569,7 +591,7 @@
         }
 
         // Start
-        renderEvents();
+        fetchEvents();
         initAdRotation();
     </script>
 </body>
