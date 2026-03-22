@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "node generate-config.js"
+    "build": "mkdir -p public/scripts public/styles public/assets public/owner public/verification && cp -r *.html favicon* public/ && cp -r scripts/* public/scripts/ && cp -r styles/* public/styles/ && cp -r assets/* public/assets/ && cp -r owner/* public/owner/ && cp -r verification/* public/verification/ && node generate-config.js"
   },
   "dependencies": {
     "mongoose": "^8.0.3",
