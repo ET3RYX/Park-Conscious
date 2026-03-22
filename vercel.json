@@ -1,6 +1,12 @@
 {
   "version": 2,
   "outputDirectory": "public",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    }
+  ],
   "functions": {
     "api/**/*.js": {
       "maxDuration": 10
