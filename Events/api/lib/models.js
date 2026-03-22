@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const commentSchema = new mongoose.Schema(
   {
     discussionId: { type: mongoose.Schema.Types.ObjectId, ref: "Discussion", required: true },
+    parentId: { type: mongoose.Schema.Types.ObjectId, ref: "Comment", default: null },
     text: { type: String, required: true, maxlength: 2000 },
     authorName: { type: String, required: true },
     authorPhoto: { type: String, default: "" },

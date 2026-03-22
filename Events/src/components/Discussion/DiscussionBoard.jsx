@@ -116,43 +116,11 @@ const DiscussionBoard = () => {
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const userInfo = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-        }).then((r) => r.json());
-
-        try {
-          const res = await fetch("/api/auth/google", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token: tokenResponse.access_token, userInfo }),
-          });
-
-          const contentType = res.headers.get("content-type");
-          if (!contentType || !contentType.includes("application/json")) {
-            const text = await res.text();
-            console.error("Non-JSON response from server:", text.substring(0, 100));
-            alert(`Auth Error: Server returned non-JSON response (${res.status}). Check Vercel logs.`);
-            return;
-          }
-
-          const data = await res.json();
-          if (res.ok) {
-            localStorage.setItem("disc_token", data.token);
-            // Set a small timeout to ensure localStorage is written before reload
-            setTimeout(() => {
-              window.location.reload();
-            }, 100);
-          } else {
-            console.error("Server auth failed:", data.error, data.message);
-            alert("Login failed: " + (data.message || data.error || "Unknown server error"));
-          }
-        } catch (err) {
-          console.error("Sign in error:", err);
-          alert("Sign in error: " + err.message);
-        }
+        await signInWithGoogle(tokenResponse.access_token);
+        window.location.reload();
       } catch (err) {
-        console.error("Sign in error:", err);
-        alert("Sign in error: Unable to reach the authentication server.");
+        console.error("Login failed:", err);
+        alert("Login failed: " + err.message);
       }
     },
     flow: "implicit",

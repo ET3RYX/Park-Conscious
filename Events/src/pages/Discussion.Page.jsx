@@ -19,13 +19,27 @@ const formatDate = (d) =>
   new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 
 // Single comment row
-const CommentItem = ({ comment, onVote, currentUser }) => {
+const CommentItem = ({ comment, onVote, onReply, currentUser, isReply = false }) => {
+  const [showReplyForm, setShowReplyForm] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
   const score = comment.upvotes.length - comment.downvotes.length;
   const userUpvoted = currentUser && comment.upvotes.includes(currentUser.uid);
   const userDownvoted = currentUser && comment.downvotes.includes(currentUser.uid);
 
+  const handleReplySubmit = async (e) => {
+    e.preventDefault();
+    if (!replyText.trim()) return;
+    setSubmitting(true);
+    await onReply(comment._id, replyText.trim());
+    setReplyText("");
+    setShowReplyForm(false);
+    setSubmitting(false);
+  };
+
   return (
-    <div className="flex gap-3 py-4 border-b border-darkBackground-700 last:border-0">
+    <div className={`flex gap-3 py-4 ${isReply ? "ml-8 border-l-2 border-darkBackground-700 pl-4" : "border-b border-darkBackground-700"} last:border-0`}>
       <div className="flex flex-col items-center gap-1 min-w-[2rem]">
         <button
           onClick={() => onVote(comment._id, "upvote")}
@@ -51,7 +65,38 @@ const CommentItem = ({ comment, onVote, currentUser }) => {
           <span className="text-gray-300 text-sm font-medium">{comment.authorName}</span>
           <span className="text-gray-600 text-xs">· {formatDate(comment.createdAt)}</span>
         </div>
-        <p className="text-gray-300 text-sm leading-relaxed">{comment.text}</p>
+        <p className="text-gray-300 text-sm leading-relaxed mb-2">{comment.text}</p>
+        
+        {!isReply && currentUser && (
+          <button
+            onClick={() => setShowReplyForm(!showReplyForm)}
+            className="text-xs text-gray-500 hover:text-premier-700 font-semibold transition-colors"
+          >
+            {showReplyForm ? "Cancel" : "Reply"}
+          </button>
+        )}
+
+        {showReplyForm && (
+          <form onSubmit={handleReplySubmit} className="mt-3">
+            <textarea
+              className="w-full bg-darkBackground-900 border border-darkBackground-700 text-gray-100 rounded-lg px-3 py-2 text-xs resize-none focus:outline-none focus:border-premier-700 transition-colors"
+              rows={2}
+              placeholder="Write a reply..."
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              autoFocus
+            />
+            <div className="flex justify-end mt-1">
+              <button
+                type="submit"
+                disabled={submitting || !replyText.trim()}
+                className="px-3 py-1 text-[10px] bg-premier-700 hover:bg-premier-600 text-white font-bold rounded transition-colors disabled:opacity-40"
+              >
+                {submitting ? "Posting..." : "Post Reply"}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
@@ -69,18 +114,11 @@ const DiscussionPage = () => {
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await fetch("/api/auth/google", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: tokenResponse.access_token }),
-        });
-        const data = await res.json();
-        if (res.ok) {
-          localStorage.setItem("disc_token", data.token);
-          window.location.reload();
-        }
+        await signInWithGoogle(tokenResponse.access_token);
+        window.location.reload();
       } catch (err) {
-        console.error(err);
+        console.error("Login failed:", err);
+        alert("Login failed: " + err.message);
       }
     },
     flow: "implicit",
@@ -135,7 +173,7 @@ const DiscussionPage = () => {
   };
 
   const submitComment = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     if (!user) return googleLogin();
     if (!commentText.trim()) return;
     setSubmitting(true);
@@ -155,6 +193,24 @@ const DiscussionPage = () => {
       console.error(err);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleReply = async (parentId, text) => {
+    if (!user) return googleLogin();
+    try {
+      const res = await fetch(`/api/discussions/${id}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ text, parentId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setComments((prev) => [...prev, data]);
+        setPost((p) => ({ ...p, commentCount: (p.commentCount || 0) + 1 }));
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -181,6 +237,10 @@ const DiscussionPage = () => {
   const userUpvoted = user && post.upvotes.includes(user.uid);
   const userDownvoted = user && post.downvotes.includes(user.uid);
 
+  // Group comments for nested rendering
+  const parentComments = comments.filter(c => !c.parentId);
+  const getReplies = (parentId) => comments.filter(c => c.parentId === parentId);
+
   return (
     <div className="bg-darkBackground-900 min-h-screen pb-20">
       <div className="container mx-auto px-4 md:px-12 py-10 max-w-3xl">
@@ -188,6 +248,8 @@ const DiscussionPage = () => {
         <Link to="/" className="flex items-center gap-1 text-gray-500 hover:text-gray-300 text-sm mb-8 transition-colors">
           <BiArrowBack /> Back to discussions
         </Link>
+... (rest of the file)
+
 
         {/* Post */}
         <div className="bg-darkBackground-800 border border-darkBackground-700 rounded-2xl p-6 mb-8">
@@ -272,18 +334,30 @@ const DiscussionPage = () => {
 
         {/* Comments list */}
         <div className="bg-darkBackground-800 border border-darkBackground-700 rounded-2xl px-5 divide-y divide-darkBackground-700">
-          {comments.length === 0 ? (
+          {parentComments.length === 0 ? (
             <p className="text-gray-500 text-sm text-center py-10">
               No comments yet. Be the first!
             </p>
           ) : (
-            comments.map((c) => (
-              <CommentItem
-                key={c._id}
-                comment={c}
-                onVote={handleCommentVote}
-                currentUser={user}
-              />
+            parentComments.map((c) => (
+              <React.Fragment key={c._id}>
+                <CommentItem
+                  comment={c}
+                  onVote={handleCommentVote}
+                  onReply={handleReply}
+                  currentUser={user}
+                />
+                {getReplies(c._id).map((reply) => (
+                  <CommentItem
+                    key={reply._id}
+                    comment={reply}
+                    onVote={handleCommentVote}
+                    onReply={handleReply}
+                    currentUser={user}
+                    isReply={true}
+                  />
+                ))}
+              </React.Fragment>
             ))
           )}
         </div>

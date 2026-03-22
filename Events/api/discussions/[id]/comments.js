@@ -1,7 +1,7 @@
-import connectToDatabase from "../../../lib/mongodb.js";
-import { Comment, Discussion } from "../../../lib/models.js";
-import { requireAuth } from "../../../lib/auth.js";
-import mongoose from "mongoose";
+const connectToDatabase = require("../../../lib/mongodb.js");
+const { Comment, Discussion } = require("../../../lib/models.js");
+const { requireAuth } = require("../../../lib/auth.js");
+const mongoose = require("mongoose");
 
 function setCors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -9,7 +9,7 @@ function setCors(res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   setCors(res);
   if (req.method === "OPTIONS") return res.status(200).end();
 
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     const user = requireAuth(req, res);
     if (!user) return;
 
-    const { text } = req.body;
+    const { text, parentId } = req.body;
     if (!text || text.trim().length === 0) {
       return res.status(400).json({ error: "Comment text required" });
     }
@@ -49,6 +49,7 @@ export default async function handler(req, res) {
       const [comment] = await Promise.all([
         Comment.create({
           discussionId: id,
+          parentId: parentId || null,
           text: text.trim(),
           authorName: user.name,
           authorPhoto: user.picture,

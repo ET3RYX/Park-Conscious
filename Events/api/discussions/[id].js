@@ -1,7 +1,7 @@
-import connectToDatabase from "../../lib/mongodb.js";
-import { Discussion } from "../../lib/models.js";
-import { requireAuth } from "../../lib/auth.js";
-import mongoose from "mongoose";
+const connectToDatabase = require("../../lib/mongodb.js");
+const { Discussion } = require("../../lib/models.js");
+const { requireAuth } = require("../../lib/auth.js");
+const mongoose = require("mongoose");
 
 function setCors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -9,7 +9,7 @@ function setCors(res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   setCors(res);
   if (req.method === "OPTIONS") return res.status(200).end();
 
