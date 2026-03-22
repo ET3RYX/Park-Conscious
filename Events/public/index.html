@@ -32,20 +32,19 @@
     <div style="position:fixed; top:0; left:0; background:yellow; color:black; z-index:9999; padding:5px; font-size:12px;">DEBUG: HTML LOADED v4</div>
     <div id="debug-error-log" style="position:fixed; bottom:0; left:0; width:100%; max-height:200px; overflow-y:auto; background:rgba(255,0,0,0.8); color:white; font-family:monospace; font-size:12px; z-index:10000; padding:10px; display:none;"></div>
     <script>
-      window.onerror = function(message, source, lineno, colno, error) {
+      (function() {
         var el = document.getElementById('debug-error-log');
         el.style.display = 'block';
-        el.innerHTML += '<div>ERROR: ' + message + ' (' + source + ':' + lineno + ')</div>';
-        return false;
-      };
-      console.log = (function(oldLog) {
-        return function() {
-          oldLog.apply(console, arguments);
-          var el = document.getElementById('debug-error-log');
-          el.style.display = 'block';
-          el.innerHTML += '<div style="color:yellow">LOG: ' + Array.from(arguments).join(' ') + '</div>';
-        };
-      })(console.log);
+        el.innerHTML += '<div style="color:cyan">LOG: Debug script initialized</div>';
+        
+        window.addEventListener('load', function() {
+          var scripts = document.getElementsByTagName('script');
+          el.innerHTML += '<div style="color:cyan">LOG: Total scripts found: ' + scripts.length + '</div>';
+          for (var i = 0; i < scripts.length; i++) {
+            el.innerHTML += '<div style="color:gray; font-size:10px;">Script ' + i + ': ' + scripts[i].src + '</div>';
+          }
+        });
+      })();
     </script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <!--
