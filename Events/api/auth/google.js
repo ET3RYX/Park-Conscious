@@ -69,8 +69,10 @@ module.exports = async function handler(req, res) {
 
     await connectToDatabase();
 
+    // Upsert user in DB using EMAIL as the unique identifier since the DB index requires it
+    console.log(`Auth: Upserting user ${email || uid} in database...`);
     await User.findOneAndUpdate(
-      { uid },
+      { email: email }, // Try to find by email first
       { uid, name, email, picture },
       { upsert: true, new: true }
     );
