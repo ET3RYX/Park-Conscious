@@ -1,6 +1,6 @@
-const connectToDatabase = require("../lib/mongodb.js");
-const { Discussion } = require("../lib/models.js");
-const { requireAuth } = require("../lib/auth.js");
+const connectToDatabase = require("../../lib/mongodb.js");
+const { Discussion } = require("../../lib/models.js");
+const { requireAuth } = require("../../lib/auth.js");
 const mongoose = require("mongoose");
 
 function setCors(res) {
