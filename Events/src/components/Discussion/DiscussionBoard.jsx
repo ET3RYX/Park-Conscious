@@ -135,7 +135,7 @@ const DiscussionBoard = () => {
   const handleVote = async (postId, action) => {
     if (!user) return googleLogin();
     try {
-      const res = await fetch(`/api/discussions/${postId}`, {
+      const res = await fetch(`/api/discussions/details?id=${postId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

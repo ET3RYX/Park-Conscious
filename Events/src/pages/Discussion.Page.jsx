@@ -105,11 +105,12 @@ const CommentItem = ({ comment, onVote, onReply, currentUser, isReply = false })
 const DiscussionPage = () => {
   const { id } = useParams();
   const { user, token, signInWithGoogle } = useAuth();
-  const [post, setPost] = useState(null);
+  const [discussion, setDiscussion] = useState(null);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [loadingPost, setLoadingPost] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -118,36 +119,35 @@ const DiscussionPage = () => {
         window.location.reload();
       } catch (err) {
         console.error("Login failed:", err);
-        alert("Login failed: " + err.message);
       }
     },
     flow: "implicit",
   });
 
   const fetchData = useCallback(async () => {
-      try {
-        const [disRes, comRes] = await Promise.all([
-          fetch(`/api/discussions/details?id=${id}`),
-          fetch(`/api/discussions/comments?id=${id}`),
-        ]);
-        
-        if (!disRes.ok) {
-          if (disRes.status === 404) throw new Error("Discussion not found");
-          throw new Error("Failed to load discussion");
-        }
-        const disData = await disRes.json();
-        
-        if (!comRes.ok) throw new Error("Failed to load comments");
-        const comData = await comRes.json();
-        
-        setDiscussion(disData);
-        setComments(comData);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+    try {
+      const [disRes, comRes] = await Promise.all([
+        fetch(`/api/discussions/details?id=${id}`),
+        fetch(`/api/discussions/comments?id=${id}`),
+      ]);
+      
+      if (!disRes.ok) {
+        if (disRes.status === 404) throw new Error("Discussion not found");
+        throw new Error("Failed to load discussion");
       }
-    }, [id]);
+      const disData = await disRes.json();
+      
+      if (!comRes.ok) throw new Error("Failed to load comments");
+      const comData = await comRes.json();
+      
+      setDiscussion(disData);
+      setComments(comData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
 
   useEffect(() => {
     fetchData();
@@ -155,29 +155,39 @@ const DiscussionPage = () => {
 
   const handlePostVote = async (action) => {
     if (!user) return googleLogin();
-    const res = await fetch(`/api/discussions/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ action }),
-    });
-    const data = await res.json();
-    if (res.ok) setDiscussion((p) => ({ ...p, upvotes: data.upvotes, downvotes: data.downvotes }));
+    try {
+      const res = await fetch(`/api/discussions/details?id=${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setDiscussion((p) => ({ ...p, upvotes: data.upvotes, downvotes: data.downvotes }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleCommentVote = async (commentId, action) => {
     if (!user) return googleLogin();
-    const res = await fetch(`/api/discussions/${id}/comments`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ commentId, action }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setComments((prev) =>
-        prev.map((c) =>
-          c._id === commentId ? { ...c, upvotes: data.upvotes, downvotes: data.downvotes } : c
-        )
-      );
+    try {
+      const res = await fetch(`/api/discussions/comments?id=${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ commentId, action }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setComments((prev) =>
+          prev.map((c) =>
+            c._id === commentId ? { ...c, upvotes: data.upvotes, downvotes: data.downvotes } : c
+          )
+        );
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -187,14 +197,18 @@ const DiscussionPage = () => {
     if (!commentText.trim()) return;
     setSubmitting(true);
     try {
-      const res = await axios.post(`/api/discussions/comments?id=${id}`, { text: commentText.trim() }, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch(`/api/discussions/comments?id=${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ text: commentText.trim() }),
       });
-      setComments([...comments, res.data]);
-      setDiscussion({ ...discussion, commentCount: discussion.commentCount + 1 });
-      setCommentText("");
+      const data = await res.json();
+      if (res.ok) {
+        setComments((prev) => [...prev, data]);
+        setCommentText("");
+        setDiscussion((p) => ({ ...p, commentCount: (p.commentCount || 0) + 1 }));
+      }
     } catch (err) {
-      alert("Failed to add comment");
       console.error(err);
     } finally {
       setSubmitting(false);
@@ -204,7 +218,7 @@ const DiscussionPage = () => {
   const handleReply = async (parentId, text) => {
     if (!user) return googleLogin();
     try {
-      const res = await fetch(`/api/discussions/${id}/comments`, {
+      const res = await fetch(`/api/discussions/comments?id=${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ text, parentId }),
@@ -212,14 +226,14 @@ const DiscussionPage = () => {
       const data = await res.json();
       if (res.ok) {
         setComments((prev) => [...prev, data]);
-        setPost((p) => ({ ...p, commentCount: (p.commentCount || 0) + 1 }));
+        setDiscussion((p) => ({ ...p, commentCount: (p.commentCount || 0) + 1 }));
       }
     } catch (err) {
       console.error(err);
     }
   };
 
-  if (loadingPost) {
+  if (loading) {
     return (
       <div className="bg-darkBackground-900 min-h-screen flex items-center justify-center">
         <div className="w-10 h-10 border-4 border-premier-700 border-t-transparent rounded-full animate-spin" />
@@ -227,10 +241,10 @@ const DiscussionPage = () => {
     );
   }
 
-  if (!post || post.error) {
+  if (error || !discussion) {
     return (
       <div className="bg-darkBackground-900 min-h-screen flex flex-col items-center justify-center text-gray-400 gap-4">
-        <p className="text-xl">Discussion not found.</p>
+        <p className="text-xl">{error || "Discussion not found."}</p>
         <Link to="/" className="text-premier-700 hover:underline flex items-center gap-1">
           <BiArrowBack /> Back to home
         </Link>
@@ -238,9 +252,9 @@ const DiscussionPage = () => {
     );
   }
 
-  const score = post.upvotes.length - post.downvotes.length;
-  const userUpvoted = user && post.upvotes.includes(user.uid);
-  const userDownvoted = user && post.downvotes.includes(user.uid);
+  const score = discussion.upvotes.length - discussion.downvotes.length;
+  const userUpvoted = user && discussion.upvotes.includes(user.uid);
+  const userDownvoted = user && discussion.downvotes.includes(user.uid);
 
   // Group comments for nested rendering
   const parentComments = comments.filter(c => !c.parentId);
@@ -253,10 +267,8 @@ const DiscussionPage = () => {
         <Link to="/" className="flex items-center gap-1 text-gray-500 hover:text-gray-300 text-sm mb-8 transition-colors">
           <BiArrowBack /> Back to discussions
         </Link>
-... (rest of the file)
 
-
-        {/* Post */}
+        {/* Discussion Header */}
         <div className="bg-darkBackground-800 border border-darkBackground-700 rounded-2xl p-6 mb-8">
           <div className="flex gap-4">
             {/* Votes */}
@@ -280,41 +292,41 @@ const DiscussionPage = () => {
 
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
-                {post.moviePosterPath && (
+                {discussion.moviePosterPath && (
                   <img
-                    src={`https://image.tmdb.org/t/p/w92${post.moviePosterPath}`}
-                    alt={post.movieTitle}
+                    src={`https://image.tmdb.org/t/p/w92${discussion.moviePosterPath}`}
+                    alt={discussion.movieTitle}
                     className="w-10 h-14 rounded object-cover"
                   />
                 )}
                 <div>
-                  <span className="text-premier-700 font-semibold text-lg">{post.movieTitle}</span>
+                  <span className="text-premier-700 font-semibold text-lg">{discussion.movieTitle}</span>
                   <div className="mt-1">
-                    <StarRating rating={post.rating} />
+                    <StarRating rating={discussion.rating} />
                   </div>
                 </div>
               </div>
 
-              <p className="text-gray-200 leading-relaxed mb-4">{post.review}</p>
+              <p className="text-gray-200 leading-relaxed mb-4">{discussion.review}</p>
 
               <div className="flex items-center gap-2 text-xs text-gray-500">
-                {post.authorPhoto && (
-                  <img src={post.authorPhoto} alt={post.authorName} className="w-5 h-5 rounded-full" />
+                {discussion.authorPhoto && (
+                  <img src={discussion.authorPhoto} alt={discussion.authorName} className="w-5 h-5 rounded-full" />
                 )}
-                <span className="text-gray-400">{post.authorName}</span>
+                <span className="text-gray-400">{discussion.authorName}</span>
                 <span>·</span>
-                <span>{formatDate(post.createdAt)}</span>
+                <span>{formatDate(discussion.createdAt)}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Comments header */}
+        {/* Comments Section */}
         <h3 className="text-white font-bold text-lg mb-4">
           {comments.length} Comment{comments.length !== 1 ? "s" : ""}
         </h3>
 
-        {/* Add comment */}
+        {/* Add Comment Form */}
         <form onSubmit={submitComment} className="mb-8">
           <textarea
             className="w-full bg-darkBackground-800 border border-darkBackground-700 text-gray-100 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:border-premier-700 transition-colors"
@@ -337,7 +349,7 @@ const DiscussionPage = () => {
           </div>
         </form>
 
-        {/* Comments list */}
+        {/* Comments List */}
         <div className="bg-darkBackground-800 border border-darkBackground-700 rounded-2xl px-5 divide-y divide-darkBackground-700">
           {parentComments.length === 0 ? (
             <p className="text-gray-500 text-sm text-center py-10">
