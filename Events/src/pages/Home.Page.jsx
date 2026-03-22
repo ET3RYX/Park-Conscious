@@ -16,24 +16,36 @@ const HomePage = () => {
 
   useEffect(() => {
     const requestTopRatedMovies = async () => {
-      const getTopRatedMovies = await tmdbAxios.get("/discover/movie", {
-        params: {
-          with_origin_country: "IN",
-          with_original_language: "hi|kn|ml|ta|te",
-          sort_by: "popularity.desc",
-        },
-      });
-      setrecommendedMovies(getTopRatedMovies.data.results);
+      try {
+        const getTopRatedMovies = await tmdbAxios.get("/discover/movie", {
+          params: {
+            with_origin_country: "IN",
+            with_original_language: "hi|kn|ml|ta|te",
+            sort_by: "popularity.desc",
+          },
+        });
+        if (getTopRatedMovies.data && getTopRatedMovies.data.results) {
+          setrecommendedMovies(getTopRatedMovies.data.results);
+        }
+      } catch (err) {
+        console.error("Failed to fetch top rated movies:", err);
+      }
     };
     requestTopRatedMovies();
   }, []);
 
   useEffect(() => {
     const requestPopularMovies = async () => {
-      const getPopularMovies = await tmdbAxios.get("/movie/now_playing", {
-        params: { region: "IN" },
-      });
-      setpremierMovies(getPopularMovies.data.results);
+      try {
+        const getPopularMovies = await tmdbAxios.get("/movie/now_playing", {
+          params: { region: "IN" },
+        });
+        if (getPopularMovies.data && getPopularMovies.data.results) {
+          setpremierMovies(getPopularMovies.data.results);
+        }
+      } catch (err) {
+        console.error("Failed to fetch popular movies:", err);
+      }
     };
     requestPopularMovies();
   }, []);
