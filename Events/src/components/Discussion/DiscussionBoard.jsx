@@ -86,7 +86,11 @@ const DiscussionBoard = () => {
   useEffect(() => {
     tmdbAxios
       .get("/movie/upcoming", { params: { region: "IN" } })
-      .then((r) => setNewReleases(r.data.results.slice(0, 6)))
+      .then((r) => {
+        if (r.data && r.data.results) {
+          setNewReleases(r.data.results.slice(0, 6));
+        }
+      })
       .catch(() => {});
   }, []);
 
