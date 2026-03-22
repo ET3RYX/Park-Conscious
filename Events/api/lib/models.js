@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 // ─── Comment Schema ──────────────────────────────────────────────────────────
 const commentSchema = new mongoose.Schema(
@@ -8,7 +8,7 @@ const commentSchema = new mongoose.Schema(
     authorName: { type: String, required: true },
     authorPhoto: { type: String, default: "" },
     authorUid: { type: String, required: true },
-    upvotes: { type: [String], default: [] },   // array of UIDs
+    upvotes: { type: [String], default: [] },
     downvotes: { type: [String], default: [] },
   },
   { timestamps: true }
@@ -32,9 +32,11 @@ const discussionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const Discussion =
+const Discussion =
   mongoose.models.Discussion ||
   mongoose.model("Discussion", discussionSchema);
 
-export const Comment =
+const Comment =
   mongoose.models.Comment || mongoose.model("Comment", commentSchema);
+
+module.exports = { Discussion, Comment };

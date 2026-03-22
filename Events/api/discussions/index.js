@@ -1,20 +1,16 @@
-import connectToDatabase from "../lib/mongodb.js";
-import { Discussion } from "../lib/models.js";
-import { requireAuth } from "../lib/auth.js";
+const connectToDatabase = require("../lib/mongodb.js");
+const { Discussion } = require("../lib/models.js");
+const { requireAuth } = require("../lib/auth.js");
 
-function setCors(res) {
+module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-}
-
-export default async function handler(req, res) {
-  setCors(res);
+  
   if (req.method === "OPTIONS") return res.status(200).end();
 
   await connectToDatabase();
 
-  // ── GET: list recent discussions ─────────────────────────────────────────
   if (req.method === "GET") {
     try {
       const page = parseInt(req.query.page) || 1;
@@ -42,7 +38,6 @@ export default async function handler(req, res) {
     }
   }
 
-  // ── POST: create new discussion ──────────────────────────────────────────
   if (req.method === "POST") {
     const user = requireAuth(req, res);
     if (!user) return;
@@ -51,12 +46,6 @@ export default async function handler(req, res) {
 
     if (!movieTitle || !review || !rating) {
       return res.status(400).json({ error: "movieTitle, review, and rating are required" });
-    }
-    if (rating < 1 || rating > 5) {
-      return res.status(400).json({ error: "Rating must be between 1 and 5" });
-    }
-    if (review.length > 5000) {
-      return res.status(400).json({ error: "Review too long (max 5000 chars)" });
     }
 
     try {
@@ -79,4 +68,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ error: "Method not allowed" });
-}
+};

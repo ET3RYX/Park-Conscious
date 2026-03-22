@@ -1,5 +1,4 @@
 {
-  "type": "module",
   "dependencies": {
     "google-auth-library": "^10.6.2",
     "jsonwebtoken": "^9.0.3",
