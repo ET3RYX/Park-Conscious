@@ -3,9 +3,11 @@ import { Fragment, useState } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 
+import { useAuth } from "../../context/DiscussionAuth.context";
+
 const CustomModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-
+  const { signInWithGoogle, user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const closeModal = () => {
@@ -18,24 +20,28 @@ const CustomModal = () => {
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      // console.log(tokenResponse);
+      try {
+        const userInfoEndpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
+        const userInfoResponse = await fetch(userInfoEndpoint, {
+          headers: {
+            Authorization: `Bearer ${tokenResponse.access_token}`,
+          },
+        });
 
-      const userInfoEndpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
-      const userInfoResponse = await fetch(userInfoEndpoint, {
-        headers: {
-          Authorization: `Bearer ${tokenResponse.access_token}`,
-        },
-      });
-
-      if (userInfoResponse.ok) {
-        const userInfo = await userInfoResponse.json();
-        const userObject = {
-          given_name: userInfo.given_name,
-        };
-        localStorage.setItem("user", JSON.stringify(userObject));
-        navigate("/");
-      } else {
-        console.error("Failed to fetch user information");
+        if (userInfoResponse.ok) {
+          const userInfo = await userInfoResponse.json();
+          // Call our unified sign-in that talks to the backend
+          await signInWithGoogle(tokenResponse.access_token, userInfo);
+          closeModal();
+          // Force a reload or navigation to sync state if needed
+          window.location.reload();
+        } else {
+          console.error("Failed to fetch user information");
+          alert("Failed to fetch Google user info");
+        }
+      } catch (err) {
+        console.error("Login error:", err);
+        alert("Login failed: " + err.message);
       }
     },
   });
@@ -43,12 +49,18 @@ const CustomModal = () => {
   return (
     <>
       <button
-        onClick={openModal}
-        className="bg-premier-700 text-white px-2 py-1 text-sm rounded"
+        onClick={user ? signOut : openModal}
+        className="bg-premier-700 text-white px-2 py-1 text-sm rounded flex items-center gap-2"
       >
-        {localStorage.getItem("user")
-          ? `Hi, ${JSON.parse(localStorage.getItem("user")).given_name}`
-          : "Sign In"}
+        {user ? (
+          <>
+            {user.picture && <img src={user.picture} alt="profile" className="w-5 h-5 rounded-full" />}
+            <span className="hidden sm:inline">Hi, {user.name.split(" ")[0]}</span>
+            <span className="text-[10px] opacity-70">(Sign Out)</span>
+          </>
+        ) : (
+          "Sign In"
+        )}
       </button>
 
       <Transition appear show={isOpen} as={Fragment}>
@@ -104,7 +116,6 @@ const CustomModal = () => {
                 {/* Continue with Google */}
                 <button
                   onClick={() => {
-                    localStorage.clear();
                     googleLogin();
                     closeModal();
                   }}

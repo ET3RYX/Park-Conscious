@@ -1,24 +1,31 @@
 import { BiChevronDown, BiMenu, BiSearch } from "react-icons/bi";
 import CustomModal from "../Modal/Modal.Component";
+import { useAuth } from "../../context/DiscussionAuth.context";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
 const apiKey = process.env.REACT_APP_OPENCAGE_API_KEY;
 
 function NavSm({ defaultLocation }) {
+  const { user } = useAuth();
   return (
     <>
-      <div className="text-white flex items-center justify-between">
-        <div>
-          <h3 className="text-xl font-bold">It All Starts Here!</h3>
-          <span className="text-gray-400 text-xs flex items-center cursor-pointer hover:text-white">
-            {defaultLocation || "Select you..."} <BiChevronDown />
-          </span>
-        </div>
+    <div className="text-white flex items-center justify-between">
+      <div>
+        <h3 className="text-xl font-bold">It All Starts Here!</h3>
+        <span className="text-gray-400 text-xs flex items-center cursor-pointer hover:text-white">
+          {defaultLocation || "Select you..."} <BiChevronDown />
+        </span>
+      </div>
+      <div className="flex items-center gap-3">
+        {user && user.picture && (
+          <img src={user.picture} alt="profile" className="w-8 h-8 rounded-full border border-gray-600" />
+        )}
         <div className="w-8 h-8">
           <BiSearch className="w-full h-full" />
         </div>
       </div>
+    </div>
     </>
   );
 }
