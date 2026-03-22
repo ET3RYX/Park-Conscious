@@ -31,8 +31,15 @@ export const AuthProvider = ({ children }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: googleCredential }),
       });
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Non-JSON response from server:", text.substring(0, 100));
+        throw new Error(`Server returned non-JSON response (${res.status})`);
+      }
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Server error");
       localStorage.setItem("disc_token", data.token);
       setToken(data.token);
       setUser(data.user);
