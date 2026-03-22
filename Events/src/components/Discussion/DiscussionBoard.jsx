@@ -143,8 +143,8 @@ const DiscussionBoard = () => {
               window.location.reload();
             }, 100);
           } else {
-            console.error("Server auth failed:", data.error);
-            alert("Login failed: " + (data.error || "Unknown server error"));
+            console.error("Server auth failed:", data.error, data.message);
+            alert("Login failed: " + (data.message || data.error || "Unknown server error"));
           }
         } catch (err) {
           console.error("Sign in error:", err);
