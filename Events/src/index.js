@@ -7,7 +7,7 @@ import MovieProvider from "./context/Movie.context";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./context/DiscussionAuth.context";
 
-const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "missing-client-id";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
