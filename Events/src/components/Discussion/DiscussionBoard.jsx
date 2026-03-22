@@ -128,10 +128,17 @@ const DiscussionBoard = () => {
         const data = await res.json();
         if (res.ok) {
           localStorage.setItem("disc_token", data.token);
-          window.location.reload();
+          // Set a small timeout to ensure localStorage is written before reload
+          setTimeout(() => {
+            window.location.reload();
+          }, 100);
+        } else {
+          console.error("Server auth failed:", data.error);
+          alert("Login failed: " + (data.error || "Unknown server error"));
         }
       } catch (err) {
         console.error("Sign in error:", err);
+        alert("Sign in error: Unable to reach the authentication server.");
       }
     },
     flow: "implicit",
