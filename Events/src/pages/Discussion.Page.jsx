@@ -104,7 +104,7 @@ const CommentItem = ({ comment, onVote, onReply, currentUser, isReply = false })
 
 const DiscussionPage = () => {
   const { id } = useParams();
-  const { user, token } = useAuth();
+  const { user, token, signInWithGoogle } = useAuth();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");

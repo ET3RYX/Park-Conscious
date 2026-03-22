@@ -73,7 +73,7 @@ const MoviePromptCard = ({ movie, hookLine, onClick }) => {
 };
 
 const DiscussionBoard = () => {
-  const { user, token, signOut } = useAuth();
+  const { user, token, signOut, signInWithGoogle } = useAuth();
   const [discussions, setDiscussions] = useState([]);
   const [newReleases, setNewReleases] = useState([]);
   const [loadingDiscussions, setLoadingDiscussions] = useState(true);
