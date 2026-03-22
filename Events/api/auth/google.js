@@ -3,16 +3,8 @@ import jwt from "jsonwebtoken";
 import connectToDatabase from "../lib/mongodb.js";
 import mongoose from "mongoose";
 
-const client = new OAuth2Client(process.env.REACT_APP_GOOGLE_CLIENT_ID);
-
-// Simple User model (inline to keep things light)
-const userSchema = new mongoose.Schema({
-  uid: { type: String, unique: true, required: true },
-  name: String,
-  email: String,
-  picture: String,
-});
-const User = mongoose.models.User || mongoose.model("User", userSchema);
+let client;
+let User;
 
 export default async function handler(req, res) {
   // CORS headers
@@ -21,30 +13,43 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  const { token, userInfo } = req.body;
-  if (!token) return res.status(400).json({ error: "Token required" });
-
   try {
-    const { token, userInfo } = req.body;
-    if (!token) {
-      console.error("Auth error: No token provided");
-      return res.status(400).json({ error: "Token required" });
+    console.log("Auth attempt: starting...");
+
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
     }
 
-    console.log("Auth attempt: starting verification...");
-
-    let uid, name, email, picture;
+    const { token, userInfo } = req.body;
+    if (!token) {
+      return res.status(400).json({ error: "Token required" });
+    }
 
     // Use our provided variable or fall back to standard CRA prefix if that's what's available
     const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
 
     if (!googleClientId || googleClientId === "missing-client-id") {
-      console.error("Auth error: No GOOGLE_CLIENT_ID configured on backend");
+      console.warn("Auth warning: No GOOGLE_CLIENT_ID configured on backend");
     }
+
+    // Lazy initialization inside handler to catch errors
+    if (!client) {
+      console.log("Auth: Initializing OAuth client...");
+      client = new OAuth2Client(googleClientId);
+    }
+
+    if (!User) {
+      console.log("Auth: Initializing User model...");
+      const userSchema = new mongoose.Schema({
+        uid: { type: String, unique: true, required: true },
+        name: String,
+        email: String,
+        picture: String,
+      });
+      User = mongoose.models.User || mongoose.model("User", userSchema);
+    }
+
+    let uid, name, email, picture;
 
     // If userInfo was pre-fetched by the client (access token flow), use it directly
     if (userInfo && userInfo.sub) {
@@ -63,20 +68,15 @@ export default async function handler(req, res) {
       } catch (verifyErr) {
         console.log("Auth: ID Token verification failed, falling back to Access Token flow...");
         // Fall back: treat token as access token, fetch userinfo from Google
-        try {
-          const userinfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (!userinfoRes.ok) throw new Error(`Google Userinfo API returned ${userinfoRes.status}`);
-          const data = await userinfoRes.json();
-          uid = data.sub;
-          name = data.name;
-          email = data.email;
-          picture = data.picture;
-        } catch (fetchErr) {
-          console.error("Auth error: Both ID Token and Access Token verification failed:", fetchErr.message);
-          throw new Error("Unable to verify Google token: " + fetchErr.message);
-        }
+        const userinfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!userinfoRes.ok) throw new Error(`Google Userinfo API returned ${userinfoRes.status}`);
+        const data = await userinfoRes.json();
+        uid = data.sub;
+        name = data.name;
+        email = data.email;
+        picture = data.picture;
       }
     }
 
@@ -86,7 +86,7 @@ export default async function handler(req, res) {
     await connectToDatabase();
 
     // Upsert user in DB
-    console.log(`Auth: Upserting user ${email} in database...`);
+    console.log(`Auth: Upserting user ${email || uid} in database...`);
     await User.findOneAndUpdate(
       { uid },
       { uid, name, email, picture },
@@ -95,8 +95,7 @@ export default async function handler(req, res) {
 
     // Issue our own JWT (24h expiry)
     if (!process.env.JWT_SECRET) {
-      console.error("CRITICAL: JWT_SECRET is missing on the server!");
-      throw new Error("Server configuration error (JWT)");
+      throw new Error("Server configuration error: JWT_SECRET is missing");
     }
 
     const appToken = jwt.sign(
@@ -111,7 +110,13 @@ export default async function handler(req, res) {
       user: { uid, name, email, picture },
     });
   } catch (error) {
-    console.error("Auth complete crash trace:", error);
-    return res.status(500).json({ error: "Auth failed: " + error.message });
+    console.error("Auth CRASH trace:", error);
+    // Ensure we ALWAYS return JSON
+    res.setHeader("Content-Type", "application/json");
+    return res.status(500).json({ 
+      error: "Auth failed", 
+      message: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+    });
   }
 }
