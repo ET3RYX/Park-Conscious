@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events | Park Conscious - Urban Event Parking</title>
+    <meta name="description" content="Discover major concerts, festivals, and trending events in Delhi NCR and pre-book your parking in advance.">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background: #020617;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .events-gradient {
+            background: radial-gradient(circle at top right, #3b82f6 0%, transparent 40%),
+                        radial-gradient(circle at bottom left, #d946ef 0%, transparent 40%),
+                        radial-gradient(circle at center, #020617 0%, #000000 100%);
+            background-attachment: fixed;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(217, 70, 239, 0.5);
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(217, 70, 239, 0.2);
+        }
+
+        .text-neon-pink {
+            color: #ff00ff;
+            text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+        }
+
+        .btn-neon {
+            background: linear-gradient(135deg, #3b82f6 0%, #d946ef 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-neon:hover {
+            box-shadow: 0 0 25px rgba(217, 70, 239, 0.6);
+            transform: scale(1.05);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #d946ef 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        @keyframes pulse-neon {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .pulse-neon {
+            animation: pulse-neon 2s infinite;
+        }
+
+        /* Booking Steps */
+        .step-hidden { display: none; }
+
+        /* Ad Banner Styles */
+        .ad-banner {
+            background: #fef08a; /* Bright Yellow like Blinkit/Zomato */
+            color: #000;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ad-text-container {
+            display: flex;
+            transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .ad-copy {
+            min-width: 100%;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .ad-copy { font-size: 1.25rem; padding: 1.5rem; }
+        }
+
+        /* Custom Scrollbar for modern feel */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+    </style>
+</head>
+
+<body class="text-gray-200 events-gradient min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full top-0 z-50 bg-black/40 backdrop-blur-xl border-b border-white/10 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center cursor-pointer" onclick="window.location.href='index.html'">
+                    <div class="relative w-10 h-10 mr-3 flex items-center justify-center bg-gradient-to-br from-blue-600 to-fuchsia-600 rounded-lg shadow-lg overflow-hidden">
+                        <img src="./assets/logo.jpg" alt="Logo" class="w-full h-full object-cover">
+                    </div>
+                    <span class="text-xl font-bold text-white tracking-tight">Park <span class="text-fuchsia-400">Events</span></span>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Home</a>
+                    <a href="find-parking.html" class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Find Parking</a>
+                    <button onclick="openAddEventModal()" class="flex items-center gap-2 bg-fuchsia-600/20 hover:bg-fuchsia-600/40 text-fuchsia-400 border border-fuchsia-600/30 px-4 py-2 rounded-full text-xs font-bold transition-all">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Event
+                    </button>
+                    <button onclick="window.location.href='contact.html'" class="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-5 py-2 rounded-full text-sm font-medium transition-all">Support</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="relative pt-40 pb-10 overflow-hidden text-center">
+        <div class="max-w-4xl mx-auto px-4 relative z-10" data-aos="zoom-out" data-aos-duration="1200">
+            <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-6 pulse-neon">
+                Parking made smoother for events
+            </div>
+            <h1 class="text-5xl md:text-8xl font-black text-white mb-6 leading-[1] tracking-tighter">
+                DON'T MISS <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-fuchsia-500 to-purple-600">THE VIBE.</span>
+            </h1>
+            <p class="text-lg text-gray-400 mb-6 max-w-2xl mx-auto font-medium">
+                The biggest concerts and festivals in Delhi NCR are here. Pre-book your parking spot and walk straight to the front row.
+            </p>
+        </div>
+    </header>
+
+    <!-- Creative Ad Banner -->
+    <section class="ad-banner mb-16 shadow-2xl">
+        <div class="ad-text-container" id="ad-rotation-container">
+            <!-- Ad copies will be injected here -->
+        </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="max-w-7xl mx-auto px-4 mb-12">
+        <div class="flex flex-wrap justify-center gap-4" id="filters-container" data-aos="fade-up">
+            <button class="tab-btn active px-6 py-2 rounded-full glass border border-white/10 text-sm font-bold transition-all" data-filter="all">All Events</button>
+            <button class="tab-btn px-6 py-2 rounded-full glass border border-white/10 text-sm font-bold hover:bg-white/5 transition-colors" data-filter="concert">Concerts</button>
+            <button class="tab-btn px-6 py-2 rounded-full glass border border-white/10 text-sm font-bold hover:bg-white/5 transition-colors" data-filter="festival">Festivals</button>
+            <button class="tab-btn px-6 py-2 rounded-full glass border border-white/10 text-sm font-bold hover:bg-white/5 transition-colors" data-filter="summit">Summits</button>
+            <button class="tab-btn px-6 py-2 rounded-full glass border border-white/10 text-sm font-bold hover:bg-white/5 transition-colors" data-filter="culture">Culture</button>
+        </div>
+    </section>
+
+    <!-- Events Grid -->
+    <main class="max-w-7xl mx-auto px-4 pb-32">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="events-grid">
+            <!-- Events will be populated by JS -->
+        </div>
+    </main>
+
+    <!-- Venue Section -->
+    <section class="py-24 bg-black/40 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-3xl font-black text-white mb-12" data-aos="fade-right">PRIME VENUES</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="glass p-6 rounded-3xl" data-aos="fade-up">
+                    <h4 class="text-white font-bold mb-2">JLN Stadium</h4>
+                    <p class="text-xs text-gray-500">Delhi's Arena Hub</p>
+                </div>
+                <div class="glass p-6 rounded-3xl" data-aos="fade-up" data-aos-delay="100">
+                    <h4 class="text-white font-bold mb-2">CyberHub</h4>
+                    <p class="text-xs text-gray-500">Gurgaon Pulse</p>
+                </div>
+                <div class="glass p-6 rounded-3xl" data-aos="fade-up" data-aos-delay="200">
+                    <h4 class="text-white font-bold mb-2">India Expo Mart</h4>
+                    <p class="text-xs text-gray-500">Greater Noida</p>
+                </div>
+                <div class="glass p-6 rounded-3xl" data-aos="fade-up" data-aos-delay="300">
+                    <h4 class="text-white font-bold mb-2">Pragati Maidan</h4>
+                    <p class="text-xs text-gray-500">Central Delhi</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black py-20 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
+            <div>
+                <span class="text-2xl font-black text-white">PARK <span class="text-fuchsia-500">CONSCIOUS</span></span>
+                <p class="text-gray-500 text-sm mt-2 font-medium">Know where to park. Before you arrive</p>
+            </div>
+            <div class="flex gap-12 font-bold text-sm text-gray-400">
+                <a href="https://www.instagram.com/parkconscious.in/" target="_blank" class="hover:text-white">INSTAGRAM</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Booking Modal (Multi-step) -->
+    <div id="booking-modal" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[100] hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="glass-card max-w-xl w-full rounded-[3rem] p-8 md:p-12 relative my-auto">
+            <button onclick="closeModal('booking-modal')" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-8 h-8"></i>
+            </button>
+            
+            <!-- Step 1: Details -->
+            <div id="booking-step-1">
+                <div class="mb-8">
+                    <span class="text-neon-pink font-black text-[10px] uppercase tracking-widest mb-4 inline-block">Step 1 of 2: Details</span>
+                    <h2 id="modal-event-name" class="text-4xl font-black text-white mb-2 tracking-tighter">Event Name</h2>
+                    <p id="modal-venue-name" class="text-gray-500 font-bold text-xs uppercase tracking-widest">Venue Name</p>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-500 font-black text-[10px] uppercase mb-2 tracking-widest pl-2">Full Name</label>
+                            <input type="text" id="booking-name" placeholder="Piyush Sharma" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-fuchsia-500 transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-gray-500 font-black text-[10px] uppercase mb-2 tracking-widest pl-2">Vehicle Number</label>
+                            <input type="text" id="booking-plate" placeholder="DL 02 AB 1234" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-blue-500 transition-colors">
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-[2.5rem] border border-white/10">
+                        <span class="block text-gray-500 font-black text-[10px] uppercase mb-4 tracking-widest">Select Parking Zone</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <label class="block cursor-pointer">
+                                <input type="radio" name="slot" value="VIP Zone A (L1)" class="hidden peer" checked>
+                                <div class="p-4 rounded-3xl border border-white/5 bg-white/5 text-left peer-checked:border-fuchsia-500 peer-checked:bg-fuchsia-500/10 transition-all">
+                                    <div class="font-black text-sm text-fuchsia-400">VIP Zone A</div>
+                                    <div class="text-[10px] text-gray-400 italic">Level 1 - Direct Access</div>
+                                    <div class="mt-1 font-bold text-xs text-white">₹499.00</div>
+                                </div>
+                            </label>
+                            <label class="block cursor-pointer">
+                                <input type="radio" name="slot" value="Standard Zone B (L3)" class="hidden peer">
+                                <div class="p-4 rounded-3xl border border-white/5 bg-white/5 text-left peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition-all">
+                                    <div class="font-black text-sm text-blue-400">Standard B</div>
+                                    <div class="text-[10px] text-gray-400 italic">Level 3 - 5m Walk</div>
+                                    <div class="mt-1 font-bold text-xs text-white">₹199.00</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button onclick="nextBookingStep()" class="w-full btn-neon py-5 rounded-[2rem] text-white font-black text-lg uppercase tracking-[0.2em] shadow-2xl">
+                        Reserve Now
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Confirmation -->
+            <div id="booking-step-2" class="step-hidden text-center">
+                <div class="mb-10">
+                    <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="check" class="w-10 h-10 text-green-500"></i>
+                    </div>
+                    <h2 class="text-4xl font-black text-white mb-2 tracking-tighter uppercase">CONFIRMED!</h2>
+                    <p class="text-gray-400 font-medium">Your spot is ready for <span id="conf-event" class="text-white"></span></p>
+                </div>
+
+                <div class="glass p-8 rounded-[3rem] border border-white/10 mb-8 flex flex-col items-center">
+                    <div id="qr-code" class="p-4 bg-white rounded-2xl mb-6"></div>
+                    <div class="space-y-2">
+                        <div class="text-[10px] text-gray-500 font-black uppercase tracking-widest">Entry Code</div>
+                        <div class="text-3xl font-mono font-black text-white tracking-[0.3em]" id="conf-code">PK-XXXX</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-white/5 p-4 rounded-2xl">
+                        <div class="text-[9px] text-gray-500 font-black uppercase">Spot</div>
+                        <div class="text-sm font-bold text-white" id="conf-spot">L1-A24</div>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-2xl">
+                        <div class="text-[9px] text-gray-500 font-black uppercase">Vehicle</div>
+                        <div class="text-sm font-bold text-white" id="conf-plate">DL02...</div>
+                    </div>
+                </div>
+
+                <button onclick="closeModal('booking-modal')" class="w-full bg-white/10 hover:bg-white/20 border border-white/10 py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Event Modal -->
+    <div id="add-event-modal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] hidden flex items-center justify-center p-4">
+        <div class="glass-card max-w-lg w-full rounded-[3rem] p-10 relative">
+            <button onclick="closeModal('add-event-modal')" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-8 h-8"></i>
+            </button>
+            <div class="mb-8 text-center">
+                <h2 class="text-4xl font-black text-white mb-2 tracking-tighter uppercase">ADD NEW EVENT</h2>
+                <p class="text-gray-400 text-sm">Join the urban ecosystem. Add your viral event below.</p>
+            </div>
+            
+            <form id="add-event-form" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-500 font-black text-[10px] uppercase mb-2 tracking-widest">Event Name</label>
+                        <input type="text" name="name" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-fuchsia-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-gray-500 font-black text-[10px] uppercase mb-2 tracking-widest">Category</label>
+                        <select name="category" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-fuchsia-500 transition-colors appearance-none">
+                            <option value="concert">Concert</option>
+                            <option value="festival">Festival</option>
+                            <option value="summit">Summit</option>
+                            <option value="culture">Culture</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-500 font-black text-[10px] uppercase mb-2 tracking-widest">Venue</label>
+                        <input type="text" name="venue" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-fuchsia-500 transition-colors">
+                    </div>
+                </div>
+                
+                <div class="bg-fuchsia-500/5 p-4 rounded-2xl border border-fuchsia-500/10 text-xs text-fuchsia-300">
+                    <i data-lucide="info" class="w-4 h-4 inline-block mr-2 mb-1"></i>
+                    Upload image to <strong>frontend/assets/events/</strong> to use it here.
+                </div>
+
+                <button type="submit" class="w-full btn-neon py-5 rounded-3xl text-white font-black text-lg uppercase tracking-widest">
+                    Create Event
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- AOS Script -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ once: true });
+        lucide.createIcons();
+
+        let events = [];
+        let selectedEvent = null;
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const API_URL = isLocal ? (window.location.port === '3000' ? '/api' : 'http://localhost:5050/api') : '/api';
+
+        // --- Data & State ---
+        async function fetchEvents() {
+            try {
+                const response = await fetch(`${API_URL}/events`);
+                events = await response.json();
+                
+                // If database is empty, show a message or keep an empty list
+                if (events.length === 0) {
+                    console.log("No events found in database.");
+                }
+                
+                renderEvents();
+            } catch (error) {
+                console.error("Failed to fetch events:", error);
+                // Fallback or error UI
+            }
+        }
+
+        // --- Init ---
+        function renderEvents(filter = "all") {
+            const grid = document.getElementById("events-grid");
+            grid.innerHTML = "";
+
+            const filtered = filter === "all" ? events : events.filter(e => e.category === filter);
+
+            filtered.forEach((event, idx) => {
+                const card = document.createElement("div");
+                card.className = "glass-card rounded-[2.5rem] p-6 group";
+                card.setAttribute("data-aos", "fade-up");
+                card.setAttribute("data-aos-delay", (idx % 3) * 100);
+                
+                // Use default if image is unsplash id
+                const imgSrc = event.image.startsWith('http') ? event.image : `./assets/events/${event.image}`;
+
+                card.innerHTML = `
+                    <div class="relative h-64 mb-6 rounded-[2rem] overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent z-10"></div>
+                        <img src="${imgSrc}?auto=format&fit=crop&w=800&q=80" alt="${event.name}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                        <div class="absolute bottom-4 left-6 z-20">
+                            <span class="bg-gradient-to-r from-blue-600 to-fuchsia-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest mb-2 inline-block">${event.badge}</span>
+                            <h3 class="text-2xl font-black text-white">${event.name}</h3>
+                        </div>
+                    </div>
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-center gap-3 text-gray-400">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-fuchsia-500"></i>
+                            <span class="text-sm font-semibold">${event.venue}, ${event.venueCity}</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-gray-400">
+                            <i data-lucide="users" class="w-4 h-4 text-blue-500"></i>
+                            <span class="text-sm">${event.attendees} Event Vibes</span>
+                        </div>
+                    </div>
+                    <button onclick="prebookParking('${event.name}', '${event.venue}')" class="w-full btn-neon py-4 rounded-2xl text-white font-black text-sm uppercase tracking-widest">
+                        Pre-book Parking
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+            AOS.refresh();
+        }
+
+        // --- Filtering ---
+        document.querySelectorAll(".tab-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                renderEvents(btn.dataset.filter);
+            });
+        });
+
+        // --- Booking Flow ---
+        window.prebookParking = (eventName, venueName) => {
+            selectedEvent = { eventName, venueName };
+            document.getElementById('modal-event-name').textContent = eventName;
+            document.getElementById('modal-venue-name').textContent = venueName;
+            
+            // Reset modal steps
+            document.getElementById('booking-step-1').classList.remove('step-hidden');
+            document.getElementById('booking-step-2').classList.add('step-hidden');
+            
+            openModal('booking-modal');
+        };
+
+        window.nextBookingStep = () => {
+            const name = document.getElementById('booking-name').value;
+            const plate = document.getElementById('booking-plate').value;
+            const zone = document.querySelector('input[name="slot"]:checked').value;
+
+            if (!name || !plate) {
+                alert("Please fill in your details!");
+                return;
+            }
+
+            // Populate confirmation
+            document.getElementById('conf-event').textContent = selectedEvent.eventName;
+            document.getElementById('conf-spot').textContent = zone.split('(')[1]?.replace(')', '') || 'SEC-04';
+            document.getElementById('conf-plate').textContent = plate.toUpperCase();
+            
+            const randomCode = "PK-" + Math.random().toString(36).substr(2, 4).toUpperCase();
+            document.getElementById('conf-code').textContent = randomCode;
+
+            // Generate QR
+            document.getElementById('qr-code').innerHTML = "";
+            new QRCode(document.getElementById("qr-code"), {
+                text: "PARK-CONSCIOUS-" + randomCode,
+                width: 140,
+                height: 140,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            // Switch steps
+            document.getElementById('booking-step-1').classList.add('step-hidden');
+            document.getElementById('booking-step-2').classList.remove('step-hidden');
+            lucide.createIcons();
+        };
+
+        // --- Add Event Flow ---
+        document.getElementById('add-event-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const newEvent = {
+                name: formData.get('name'),
+                category: formData.get('category'),
+                venue: formData.get('venue'),
+                venueCity: "Delhi NCR",
+                attendees: "Upcoming",
+                image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4", // Default dynamic image
+                badge: "NEW"
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/events`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newEvent)
+                });
+                
+                if (response.ok) {
+                    await fetchEvents(); // Refresh list
+                    closeModal('add-event-modal');
+                    e.target.reset();
+                } else {
+                    alert("Failed to create event.");
+                }
+            } catch (error) {
+                console.error("Error creating event:", error);
+            }
+        });
+
+        // --- Modal Helpers ---
+        window.openAddEventModal = () => {
+            openModal('add-event-modal');
+        };
+
+        window.openModal = (id) => {
+            document.getElementById(id).classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            AOS.refresh();
+        }
+
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // --- Ad Rotation ---
+        const adCopies = [
+            "Travis Scott tonight. Your car shouldn't be doing 'Sicko Mode' in traffic.",
+            "The concert starts at 7. Delhi traffic started at 4.",
+            "Front row ticket? Nice. Parking plan? ...not so nice.",
+            "Three stages. Thousands of fans. Zero parking. Unless you booked it.",
+            "Music festival checklist: Tickets, Outfit, Friends. ❌ Parking. Fix that first.",
+            "You came for the music. Not the 2 km parking walk.",
+            "5000+ dishes waiting for you. Parking spots? Not that many.",
+            "Delhi loves food. Delhi hates parking. We solved one of those.",
+            "You handle the food coma. We'll handle the parking.",
+            "Batman found Gotham parking faster than you'll find Comic Con parking.",
+            "Cosplay ready. Camera ready. Parking ready?",
+            "Superheroes fly. Cars don't. Reserve your parking.",
+            "AI is solving complex problems. Parking shouldn't be one of them.",
+            "You're here to discuss the future of AI. Not circle the lot for 20 mins.",
+            "Your pitch is ready. Your parking plan should be too.",
+            "Concert starts in 30 mins. Parking vanished 2 hours ago.",
+            "You booked the ticket. Now book the parking.",
+            "Delhi traffic is the real opening act.",
+            "Great events. Terrible parking. Until now."
+        ];
+
+        function initAdRotation() {
+            const container = document.getElementById('ad-rotation-container');
+            adCopies.forEach(copy => {
+                const div = document.createElement('div');
+                div.className = 'ad-copy';
+                div.innerHTML = `<span>${copy}</span> <button onclick="window.scrollTo({top: 800, behavior: 'smooth'})" class="bg-black text-white px-4 py-1 rounded-full text-[10px] font-black hover:scale-105 transition-transform">BOOK NOW</button>`;
+                container.appendChild(div);
+            });
+
+            let currentAd = 0;
+            setInterval(() => {
+                currentAd = (currentAd + 1) % adCopies.length;
+                container.style.transform = `translateX(-${currentAd * 100}%)`;
+            }, 4000);
+        }
+
+        // Start
+        fetchEvents();
+        initAdRotation();
+    </script>
+</body>
+</html>

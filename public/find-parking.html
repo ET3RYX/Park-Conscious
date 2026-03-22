@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Parking | Park Conscious</title>
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.png">
+
+  <meta property="og:title" content="Find Parking | Park Conscious">
+  <meta property="og:image" content="/assets/logo.jpg">
+  <meta property="og:type" content="website">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #00C39A;
+      --slate-50: #F8FAFC;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .glass-header {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .glass-sidebar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-left: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.03);
+    }
+    .glass-card {
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(0, 195, 154, 0.3);
+      box-shadow: 0 10px 15px -3px rgba(0, 195, 154, 0.1);
+      transform: translateY(-2px);
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 h-screen flex flex-col">
+
+  <nav class="h-16 flex-none glass-header z-20 px-4 md:px-6 flex items-center justify-between">
+    <div class="flex items-center cursor-pointer" onclick="window.location.href='index.html'">
+      <div class="relative w-8 h-8 mr-3 flex items-center justify-center bg-white rounded-lg shadow-sm border border-slate-100 overflow-hidden">
+        <img src="./assets/logo.jpg" alt="Logo" class="w-full h-full object-cover">
+      </div>
+      <span class="text-lg font-bold text-slate-900 tracking-tight">Park <span class="text-[#00C39A]">Conscious</span></span>
+      <span class="ml-3 text-xs bg-[#00C39A]/10 text-[#00C39A] border border-[#00C39A]/20 px-2 py-0.5 rounded-full hidden sm:inline-block font-medium">Pilot Mode</span>
+    </div>
+
+    <div class="flex-1 max-w-xl mx-4 md:mx-8 hidden md:block">
+      <div class="relative group shadow-sm rounded-full">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 text-slate-400 group-focus-within:text-[#00C39A] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <input id="autocomplete-input" type="text" class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-full leading-5 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00C39A]/20 focus:border-[#00C39A] sm:text-sm transition-all" placeholder="Search location, address, or landmark...">
+      </div>
+    </div>
+
+    <button id="locate-btn" class="text-sm bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2 rounded-full transition-all shadow-sm flex items-center gap-2 font-medium">
+      <svg class="w-4 h-4 text-[#00C39A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      <span class="hidden sm:inline">My Location</span>
+    </button>
+  </nav>
+
+  <main class="flex-1 flex overflow-hidden relative">
+    <div id="map" class="flex-1 h-full bg-slate-100 relative z-0"></div>
+
+    <aside class="w-full md:w-[450px] glass-sidebar flex flex-col absolute md:relative z-10 h-full transition-transform transform translate-y-[calc(100%-60px)] md:translate-y-0 duration-300 ease-out" id="sidebar">
+      <div class="md:hidden w-full h-6 flex items-center justify-center cursor-pointer" onclick="toggleSidebar()">
+        <div class="w-12 h-1 bg-slate-300 rounded-full"></div>
+      </div>
+
+      <div class="p-4 border-b border-slate-100 flex-none bg-white/50">
+        <div class="flex items-center gap-4 mb-4">
+          <button id="tab-nearby" class="flex-1 pb-2 border-b-2 border-[#00C39A] text-[#00C39A] font-semibold text-sm transition-colors">Nearby Parking</button>
+          <button id="tab-bookings" class="flex-1 pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-medium text-sm transition-colors">My Bookings</button>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="text-slate-500 text-sm"><strong id="results-count" class="text-slate-900 font-bold">0</strong> spots found</div>
+          <div class="flex items-center gap-2">
+            <label class="text-xs text-slate-400 uppercase tracking-wider font-bold">Radius</label>
+            <select id="radius-select" class="bg-white text-slate-700 text-sm border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#00C39A] focus:border-[#00C39A] shadow-sm">
+              <option value="1">1 km</option>
+              <option value="3" selected>3 km</option>
+              <option value="5">5 km</option>
+              <option value="10">10 km</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="results-list" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
+        <div class="text-center py-10 text-slate-400 font-medium">Loading nearby spots...</div>
+      </div>
+    </aside>
+  </main>
+
+  <div id="modal-root" class="relative z-50"></div>
+
+  <script src="./scripts/main.js"></script>
+  <script src="./scripts/config.js"></script>
+  <script>
+    function loadGoogleMaps() {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${window.PARK_CONFIG.MAPS_KEY}&libraries=places&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+    if (window.PARK_CONFIG && window.PARK_CONFIG.MAPS_KEY) {
+      loadGoogleMaps();
+    } else {
+      console.error('Google Maps API Key not found in config.js');
+    }
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      sb.classList.toggle('translate-y-[calc(100%-60px)]');
+    }
+  </script>
+  <script>window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };</script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>
