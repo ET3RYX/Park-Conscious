@@ -124,25 +124,34 @@ const DiscussionPage = () => {
     flow: "implicit",
   });
 
-  const fetchPost = useCallback(async () => {
-    try {
-      const [postRes, commentsRes] = await Promise.all([
-        fetch(`/api/discussions/${id}`),
-        fetch(`/api/discussions/${id}/comments`),
-      ]);
-      const [postData, commentsData] = await Promise.all([postRes.json(), commentsRes.json()]);
-      setPost(postData);
-      setComments(commentsData);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingPost(false);
-    }
-  }, [id]);
+  const fetchData = useCallback(async () => {
+      try {
+        const [disRes, comRes] = await Promise.all([
+          fetch(`/api/discussions/details?id=${id}`),
+          fetch(`/api/discussions/comments?id=${id}`),
+        ]);
+        
+        if (!disRes.ok) {
+          if (disRes.status === 404) throw new Error("Discussion not found");
+          throw new Error("Failed to load discussion");
+        }
+        const disData = await disRes.json();
+        
+        if (!comRes.ok) throw new Error("Failed to load comments");
+        const comData = await comRes.json();
+        
+        setDiscussion(disData);
+        setComments(comData);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }, [id]);
 
   useEffect(() => {
-    fetchPost();
-  }, [fetchPost]);
+    fetchData();
+  }, [fetchData]);
 
   const handlePostVote = async (action) => {
     if (!user) return googleLogin();
@@ -152,7 +161,7 @@ const DiscussionPage = () => {
       body: JSON.stringify({ action }),
     });
     const data = await res.json();
-    if (res.ok) setPost((p) => ({ ...p, upvotes: data.upvotes, downvotes: data.downvotes }));
+    if (res.ok) setDiscussion((p) => ({ ...p, upvotes: data.upvotes, downvotes: data.downvotes }));
   };
 
   const handleCommentVote = async (commentId, action) => {
@@ -178,18 +187,14 @@ const DiscussionPage = () => {
     if (!commentText.trim()) return;
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/discussions/${id}/comments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ text: commentText.trim() }),
+      const res = await axios.post(`/api/discussions/comments?id=${id}`, { text: commentText.trim() }, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
-      if (res.ok) {
-        setComments((prev) => [...prev, data]);
-        setCommentText("");
-        setPost((p) => ({ ...p, commentCount: (p.commentCount || 0) + 1 }));
-      }
+      setComments([...comments, res.data]);
+      setDiscussion({ ...discussion, commentCount: discussion.commentCount + 1 });
+      setCommentText("");
     } catch (err) {
+      alert("Failed to add comment");
       console.error(err);
     } finally {
       setSubmitting(false);
