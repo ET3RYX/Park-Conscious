@@ -20,17 +20,11 @@ if (!rootElement) {
     root.render(
       <BrowserRouter>
         <MovieProvider>
-          {clientId && clientId !== "missing-client-id" ? (
-            <GoogleOAuthProvider clientId={clientId}>
-              <AuthProvider>
-                <App />
-              </AuthProvider>
-            </GoogleOAuthProvider>
-          ) : (
+          <GoogleOAuthProvider clientId={clientId}>
             <AuthProvider>
               <App />
             </AuthProvider>
-          )}
+          </GoogleOAuthProvider>
         </MovieProvider>
       </BrowserRouter>
     );
