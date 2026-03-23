@@ -1,3 +1,5 @@
+alert("PARK EVENTS: JS EXECUTING");
+console.log("PARK EVENTS: JS EXECUTING");
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
