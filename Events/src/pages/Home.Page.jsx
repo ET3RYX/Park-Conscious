@@ -71,7 +71,7 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="bg-darkBackground-900 min-h-screen text-white pb-12 w-full overflow-hidden">
+    <div className="bg-darkBackground-900 min-h-screen text-white pb-12 w-full">
       {/* Hero Section */}
       <div className="bg-radial-glow w-full text-center pt-24 pb-16 flex flex-col items-center justify-center">
         <div className="bg-white/5 border border-white/10 rounded-full px-5 py-2 mb-8 backdrop-blur-md">
