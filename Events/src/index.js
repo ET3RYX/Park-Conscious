@@ -9,9 +9,13 @@ import { AuthProvider } from "./context/DiscussionAuth.context";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "missing-client-id";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
+console.log("Park Events: App Mounting...");
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  console.error("Park Events: Root element not found!");
+} else {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
     <BrowserRouter>
       <MovieProvider>
         {clientId && clientId !== "missing-client-id" ? (
@@ -27,5 +31,5 @@ root.render(
         )}
       </MovieProvider>
     </BrowserRouter>
-  </React.StrictMode>
-);
+  );
+}
