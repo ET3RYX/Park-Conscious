@@ -1,42 +1,37 @@
-const { OAuth2Client } = require("google-auth-library");
-const jwt = require("jsonwebtoken");
-const connectToDatabase = require("../lib/mongodb.js");
-const mongoose = require("mongoose");
+import { OAuth2Client } from "google-auth-library";
+import jwt from "jsonwebtoken";
+import connectToDatabase from "./lib/mongodb.js";
+import { User } from "./lib/models.js";
 
 let client;
-let User;
 
-module.exports = async function handler(req, res) {
-  // CORS headers
+export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method === "OPTIONS") {
+    res.statusCode = 200;
+    res.end();
+    return;
+  }
 
   try {
     if (req.method !== "POST") {
-      return res.status(405).json({ error: "Method not allowed" });
+      res.statusCode = 405;
+      res.end(JSON.stringify({ error: "Method not allowed" }));
+      return;
     }
 
-    const { token, userInfo } = req.body;
+    const { token, userInfo } = req.body || {};
     if (!token) {
-      return res.status(400).json({ error: "Token required" });
+      res.statusCode = 400;
+      res.end(JSON.stringify({ error: "Token required" }));
+      return;
     }
 
     const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
-
     if (!client) {
       client = new OAuth2Client(googleClientId);
-    }
-
-    if (!User) {
-      const userSchema = new mongoose.Schema({
-        uid: { type: String, unique: true, required: true },
-        name: String,
-        email: String,
-        picture: String,
-      });
-      User = mongoose.models.User || mongoose.model("User", userSchema);
     }
 
     let uid, name, email, picture;
@@ -52,7 +47,6 @@ module.exports = async function handler(req, res) {
         const payload = ticket.getPayload();
         ({ sub: uid, name, email, picture } = payload);
       } catch (verifyErr) {
-        // Use global fetch (Node 18+) or a polyfill if needed
         const userinfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -69,17 +63,11 @@ module.exports = async function handler(req, res) {
 
     await connectToDatabase();
 
-    // Upsert user in DB using EMAIL as the unique identifier since the DB index requires it
-    console.log(`Auth: Upserting user ${email || uid} in database...`);
     await User.findOneAndUpdate(
-      { email: email }, // Try to find by email first
+      { email: email },
       { uid, name, email, picture },
       { upsert: true, new: true }
     );
-
-    if (!process.env.JWT_SECRET) {
-      throw new Error("Server configuration error: JWT_SECRET is missing");
-    }
 
     const appToken = jwt.sign(
       { uid, name, email, picture },
@@ -87,18 +75,15 @@ module.exports = async function handler(req, res) {
       { expiresIn: "24h" }
     );
 
-    return res.status(200).json({
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    res.end(JSON.stringify({
       token: appToken,
       user: { uid, name, email, picture },
-    });
+    }));
   } catch (error) {
-    console.error("Auth CRASH trace:", error);
-    res.setHeader("Content-Type", "application/json");
-    if (!res.headersSent) {
-      return res.status(500).json({ 
-        error: "Auth failed", 
-        message: error.message 
-      });
-    }
+    console.error("Auth CRASH:", error);
+    res.statusCode = 500;
+    res.end(JSON.stringify({ error: "Auth failed", message: error.message }));
   }
-};
+}

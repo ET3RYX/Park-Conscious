@@ -3,6 +3,7 @@ import CustomModal from "../Modal/Modal.Component";
 import { useAuth } from "../../context/DiscussionAuth.context";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import logo from "../../assets/logo.jpg";
 
 const apiKey = process.env.REACT_APP_OPENCAGE_API_KEY;
 
@@ -82,33 +83,23 @@ function NavLg({ defaultLocation }) {
 
   return (
     <>
-      <div className="container flex mx-auto px-4 items-center justify-between">
-        <div className="flex items-center w-1/2 gap-3">
-          <div className="w-10 h-10">
-            <img
-              src="/logo.png"
-              alt="logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
-          <div className="w-full flex items-center gap-3 bg-white px-3 py-1 rounded-md">
-            <BiSearch />
-            <input
-              type="search"
-              className="w-full bg-transparent border-none focus:outline-none"
-              placeholder="Search for movies, events, plays, sports and activities"
-            />
+      <div className="container flex mx-auto px-4 items-center justify-between py-2">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 cursor-pointer">
+            <img src={logo} alt="Park Events Logo" className="w-8 h-8 rounded object-cover" />
+            <h1 className="text-2xl font-black text-white uppercase tracking-tighter hidden lg:block">
+              Park <span className="text-gradient">Events</span>
+            </h1>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-gray-200 text-base flex items-center cursor-pointer hover:text-white ">
-            {location || "Select you..."} <BiChevronDown />
-          </span>
+        <div className="flex items-center gap-6">
+          <a href="/" className="nav-link text-sm font-medium">Home</a>
+          <a href="#" className="nav-link text-sm font-medium">Find Parking</a>
+          <button className="btn-secondary flex items-center gap-2 text-sm py-1.5 px-4">
+            <span className="text-premier-400 font-bold">+</span> Add Event
+          </button>
+          <a href="/contact.html" className="btn-secondary py-1.5 px-4 text-sm inline-block">Support</a>
           <CustomModal />
-
-          <div className="w-8 h-8 text-white">
-            <BiMenu className="w-full h-full" />
-          </div>
         </div>
       </div>
     </>

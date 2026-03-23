@@ -19,6 +19,66 @@ code {
 
 body{
   background-color: #040b17 !important;
+  color: #ffffff;
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #4e8ef7 0%, #a900e5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.bg-radial-glow {
+  background: 
+    radial-gradient(circle at 15% 50%, rgba(139, 47, 223, 0.4), transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(78, 142, 247, 0.4), transparent 50%),
+    #040b17;
+}
+
+.bg-radial-glow-darker {
+  background: 
+    radial-gradient(circle at 20% 60%, rgba(139, 47, 223, 0.25), transparent 40%),
+    radial-gradient(circle at 80% 40%, rgba(78, 142, 247, 0.25), transparent 40%),
+    #040b17;
+}
+
+.nav-link {
+  color: #d3d4e1;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ffffff;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #6a1ead 0%, #8b2fdf 100%);
+  color: white;
+  border-radius: 9999px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  transition: opacity 0.3s ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #d3d4e1;
+  border: 1px solid #4c4f66;
+  border-radius: 9999px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  border-color: #8b2fdf;
+  color: #ffffff;
 }
 
 .slick-prev{

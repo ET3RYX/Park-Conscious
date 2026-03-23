@@ -1,61 +1,8 @@
-import mongoose from 'mongoose';
+import connectDB from './lib/mongodb.js';
+import { User, Owner, Event, AccessLog, Waitlist, Contact } from './lib/models.js';
 import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
-
-// ─── DB Connection ───────────────────────────────────────────────
-let cached = global.mongoose || (global.mongoose = { conn: null, promise: null });
-
-async function connectDB() {
-    if (cached.conn) return cached.conn;
-    if (!cached.promise) {
-        const uri = process.env.MONGODB_URI;
-        if (!uri) throw new Error('MONGODB_URI not set');
-        cached.promise = mongoose.connect(uri, { bufferCommands: false, connectTimeoutMS: 10000 });
-    }
-    cached.conn = await cached.promise;
-    return cached.conn;
-}
-
-// ─── Models ──────────────────────────────────────────────────────
-const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true, lowercase: true },
-    password: String,
-    googleId: String
-}, { timestamps: true }));
-
-const Owner = mongoose.models.Owner || mongoose.model('Owner', new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true, lowercase: true },
-    password: String,
-    googleId: String,
-    role: { type: String, default: 'owner' }
-}, { timestamps: true }));
-
-const Event = mongoose.models.Event || mongoose.model('Event', new mongoose.Schema({
-    name: { type: String, required: true },
-    category: { type: String, required: true },
-    venue: { type: String, required: true },
-    venueCity: { type: String, default: 'Delhi NCR' },
-    attendees: { type: String, default: 'Upcoming' },
-    image: { type: String, default: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14' },
-    badge: { type: String, default: 'NEW' }
-}, { timestamps: true }));
-
-const AccessLog = mongoose.models.AccessLog || mongoose.model('AccessLog', new mongoose.Schema({
-    plateNumber: { type: String, required: true },
-    location: { type: String, default: 'Main Entrance' },
-    timestamp: { type: Date, default: Date.now }
-}, { timestamps: true }));
-
-const Waitlist = mongoose.models.Waitlist || mongoose.model('Waitlist', new mongoose.Schema({
-    email: { type: String, required: true, unique: true }
-}, { timestamps: true }));
-
-const Contact = mongoose.models.Contact || mongoose.model('Contact', new mongoose.Schema({
-    name: String, email: String, role: String, message: String
-}, { timestamps: true }));
 
 // ─── Helper ──────────────────────────────────────────────────────
 function json(res, status, data) {
@@ -97,9 +44,8 @@ export default async function handler(req, res) {
 
     try {
         // ── Health check ──────────────────────────────────────────
-        // (Vercel routes /api to index.js or [...slug].js automatically)
         if (url === '/api' || url === '/api/' || url === '/') {
-            return json(res, 200, { status: 'API Live', db: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected', databaseName: mongoose.connection.name });
+            return json(res, 200, { status: 'API Live', db: 'Connected' });
         }
 
         // ── Parking data ──────────────────────────────────────────
