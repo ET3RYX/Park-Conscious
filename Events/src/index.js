@@ -1,5 +1,3 @@
-alert("PARK EVENTS: JS EXECUTING");
-console.log("PARK EVENTS: JS EXECUTING");
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
@@ -8,6 +6,9 @@ import { BrowserRouter } from "react-router-dom";
 import MovieProvider from "./context/Movie.context";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./context/DiscussionAuth.context";
+
+alert("PARK EVENTS: JS EXECUTING");
+console.log("PARK EVENTS: JS EXECUTING");
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "missing-client-id";
 
