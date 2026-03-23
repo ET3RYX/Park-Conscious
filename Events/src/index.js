@@ -14,11 +14,17 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <MovieProvider>
-        <GoogleOAuthProvider clientId={clientId}>
+        {clientId && clientId !== "missing-client-id" ? (
+          <GoogleOAuthProvider clientId={clientId}>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </GoogleOAuthProvider>
+        ) : (
           <AuthProvider>
             <App />
           </AuthProvider>
-        </GoogleOAuthProvider>
+        )}
       </MovieProvider>
     </BrowserRouter>
   </React.StrictMode>
