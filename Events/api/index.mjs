@@ -40,6 +40,11 @@ const TicketPrice = mongoose.models.TicketPrice || mongoose.model('TicketPrice',
   vipPrice: { type: Number, default: 2999 },
 }, { timestamps: true }));
 
+const Admin = mongoose.models.Admin || mongoose.model('Admin', new mongoose.Schema({
+  username: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+}, { timestamps: true }));
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -203,6 +208,32 @@ export default async function handler(req, res) {
         );
         return json(res, 200, { success: true, event: ticket });
       }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ADMIN LOGIN
+    // ─────────────────────────────────────────────────────────────────────────
+    if (cleanUrl === '/api/admin/login' && method === 'POST') {
+      await connectDB();
+      const { username, password } = body;
+
+      // Seed default admin if empty
+      const adminCount = await Admin.countDocuments();
+      if (adminCount === 0) {
+        const hashedDefault = await bcrypt.hash('oliver@123', 10);
+        await Admin.create({ username: 'oliver', password: hashedDefault });
+        console.log('Seeded default admin: oliver');
+      }
+
+      if (!username || !password) return json(res, 400, { success: false, message: 'Username and password required' });
+
+      const admin = await Admin.findOne({ username });
+      if (!admin) return json(res, 401, { success: false, message: 'Invalid admin credentials' });
+
+      const isMatch = await bcrypt.compare(password, admin.password);
+      if (!isMatch) return json(res, 401, { success: false, message: 'Invalid admin credentials' });
+
+      return json(res, 200, { success: true, admin: { username: admin.username } });
     }
 
     // ─────────────────────────────────────────────────────────────────────────

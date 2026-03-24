@@ -153,9 +153,118 @@ const TicketManager = () => {
   );
 };
 
+const LoginPage = ({ onLogin }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const res = await axios.post(`${API_URL}/api/admin/login`, { username, password });
+      if (res.data && res.data.success) {
+        onLogin(res.data.admin);
+      } else {
+        setError('Invalid credentials. Access denied.');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Server error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-darkBackground-900 flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Decorative Blur Background */}
+      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-premier-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-vibrantBlue/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+      <div className="w-full max-w-md bg-darkBackground-800 border border-white/5 rounded-[3rem] p-10 shadow-2xl relative z-10 backdrop-blur-xl">
+        <div className="flex flex-col items-center mb-10">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-premier-400 to-vibrantBlue flex items-center justify-center shadow-lg shadow-premier-500/30 mb-6">
+            <Activity className="text-white" size={32} />
+          </div>
+          <h1 className="text-3xl font-black tracking-tight text-white uppercase text-center">Admin Nexus</h1>
+          <p className="text-gray-400 text-sm mt-2 font-medium">Verify credentials to proceed</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 ml-2 text-center items-center gap-2">Username</label>
+            <input 
+              type="text"
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="e.g. oliver"
+              className="w-full bg-darkBackground-900 border border-white/5 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-premier-400/50 transition-all font-medium placeholder:text-gray-700"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 ml-2 text-center items-center gap-2">Password</label>
+            <input 
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full bg-darkBackground-900 border border-white/5 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-premier-400/50 transition-all font-medium placeholder:text-gray-700"
+            />
+          </div>
+
+          {error && <p className="text-red-400 text-xs font-bold bg-red-400/10 p-4 rounded-xl border border-red-400/20 text-center animate-shake">{error}</p>}
+
+          <button 
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-premier-400 to-vibrantBlue text-white font-black py-5 rounded-2xl shadow-xl shadow-premier-500/20 hover:shadow-premier-500/40 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 uppercase tracking-wider"
+          >
+            {loading ? 'Authenticating...' : 'Sign In to Dashboard'}
+          </button>
+        </form>
+
+        <p className="mt-8 text-center text-[10px] text-gray-600 uppercase tracking-widest font-bold">
+          Park Events Control Center v2.0
+        </p>
+      </div>
+    </div>
+  );
+};
+
 function App() {
   const [activeTab, setActiveTab] = useState('tickets');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [admin, setAdmin] = useState(null);
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    const savedAdmin = localStorage.getItem('adminUser');
+    if (savedAdmin) {
+      setAdmin(JSON.parse(savedAdmin));
+    }
+    setInitialized(true);
+  }, []);
+
+  const handleLogin = (adminData) => {
+    setAdmin(adminData);
+    localStorage.setItem('adminUser', JSON.stringify(adminData));
+  };
+
+  const handleLogout = () => {
+    setAdmin(null);
+    localStorage.removeItem('adminUser');
+  };
+
+  if (!initialized) return null; // Wait for localStorage check
+
+  if (!admin) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
 
   return (
     <div className="min-h-screen bg-darkBackground-900 text-white flex overflow-hidden">
@@ -192,11 +301,14 @@ function App() {
         </nav>
 
         <div className="absolute bottom-8 left-0 right-0 px-8">
-          <div className="bg-darkBackground-900 border border-white/10 rounded-2xl p-4 flex items-center gap-3">
-            <img src="https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff" className="w-10 h-10 rounded-full" alt="Admin" />
-            <div>
-              <p className="text-sm font-bold">Admin User</p>
-              <p className="text-xs text-gray-400">Owner Access</p>
+          <div 
+            onClick={handleLogout}
+            className="bg-darkBackground-900 border border-white/10 rounded-2xl p-4 flex items-center gap-3 cursor-pointer hover:bg-white/5 transition-colors group"
+          >
+            <img src={`https://ui-avatars.com/api/?name=${admin.username}&background=3b82f6&color=fff`} className="w-10 h-10 rounded-full" alt="Admin" />
+            <div className="flex-1">
+              <p className="text-sm font-bold capitalize">{admin.username}</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-widest group-hover:text-red-400 transition-colors">Sign Out</p>
             </div>
           </div>
         </div>
