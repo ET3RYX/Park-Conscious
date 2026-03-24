@@ -1,117 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>PhonePe Payment</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f4ff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-    .card {
-      background: white;
-      padding: 40px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      width: 380px;
-    }
-    h2 { text-align: center; color: #5f259f; margin-bottom: 24px; }
-    label { font-size: 13px; color: #555; display: block; margin-bottom: 4px; }
-    input {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      font-size: 14px;
-    }
-    input:focus { outline: none; border-color: #5f259f; }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #5f259f;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    button:hover { background: #4a1d7a; }
-    button:disabled { background: #aaa; cursor: not-allowed; }
-    #msg { margin-top: 14px; text-align: center; font-size: 13px; color: red; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h2>💜 PhonePe Checkout</h2>
-
-    <label>Full Name</label>
-    <input type="text" id="name" placeholder="John Doe" />
-
-    <label>Mobile Number</label>
-    <input type="tel" id="phone" placeholder="9999999999" maxlength="10" />
-
-    <label>Amount (₹)</label>
-    <input type="number" id="amount" placeholder="100" min="1" />
-
-    <button id="payBtn" onclick="initiatePayment()">Pay with PhonePe</button>
-    <div id="msg"></div>
-  </div>
-
-  <script>
-    async function initiatePayment() {
-      const name   = document.getElementById("name").value.trim();
-      const phone  = document.getElementById("phone").value.trim();
-      const amount = document.getElementById("amount").value.trim();
-      const msg    = document.getElementById("msg");
-      const btn    = document.getElementById("payBtn");
-
-      // Basic validation
-      if (!name || !phone || !amount) {
-        msg.textContent = "Please fill in all fields.";
-        return;
-      }
-      if (!/^\d{10}$/.test(phone)) {
-        msg.textContent = "Enter a valid 10-digit mobile number.";
-        return;
-      }
-      if (parseInt(amount) < 1) {
-        msg.textContent = "Amount must be at least ₹1.";
-        return;
-      }
-
-      btn.disabled    = true;
-      btn.textContent = "Processing...";
-      msg.textContent = "";
-
-      try {
-        const res  = await fetch("/api/pay", {
-          method:  "POST",
-          headers: { "Content-Type": "application/json" },
-          body:    JSON.stringify({ name, phone, amount })
-        });
-        const data = await res.json();
-
-        if (data.success && data.redirectUrl) {
-          // Redirect user to PhonePe's payment page
-          window.location.href = data.redirectUrl;
-        } else {
-          msg.textContent = data.message || "Payment initiation failed.";
-          btn.disabled    = false;
-          btn.textContent = "Pay with PhonePe";
-        }
-      } catch (err) {
-        msg.textContent = "Network error. Please try again.";
-        btn.disabled    = false;
-        btn.textContent = "Pay with PhonePe";
-      }
-    }
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Park Conscious Events - Find parking for your favorite events in seconds."
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <title>Park Events</title>
+  </head>
+  <body class="bg-darkBackground-900 text-white font-sans antialiased">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
 </html>
