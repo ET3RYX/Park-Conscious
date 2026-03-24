@@ -104,6 +104,15 @@ const discussionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+const ticketPriceSchema = new mongoose.Schema(
+  {
+    eventId: { type: String, required: true, unique: true },
+    regularPrice: { type: Number, required: true, default: 1499 },
+    vipPrice: { type: Number, required: true, default: 2999 },
+  },
+  { timestamps: true }
+);
+
 export const User = mongoose.models.User || mongoose.model("User", userSchema);
 export const Owner = mongoose.models.Owner || mongoose.model("Owner", ownerSchema);
 export const Event = mongoose.models.Event || mongoose.model("Event", eventSchema);
@@ -112,3 +121,5 @@ export const Waitlist = mongoose.models.Waitlist || mongoose.model("Waitlist", w
 export const Contact = mongoose.models.Contact || mongoose.model("Contact", contactSchema);
 export const Comment = mongoose.models.Comment || mongoose.model("Comment", commentSchema);
 export const Discussion = mongoose.models.Discussion || mongoose.model("Discussion", discussionSchema);
+export const TicketPrice = mongoose.models.TicketPrice || mongoose.model("TicketPrice", ticketPriceSchema);
+
