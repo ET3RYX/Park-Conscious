@@ -9,7 +9,7 @@ import PosterSlider from "../components/PosterSlider/PosterSlider.Component";
 import DiscussionBoard from "../components/Discussion/DiscussionBoard";
 
 // Assets
-import collegeFarewellImg from "../assets/college_farewell.png";
+// collegeFarewellImg removed for Afsana 2026 redesign
 
 const adCopies = [
   "You planned the day. Parking planned chaos.",
@@ -52,16 +52,15 @@ const FeaturedEventCard = () => {
   return (
     <div 
       onClick={() => window.location.href = "/farewell-tickets"}
-      className="group relative w-full h-48 md:h-64 rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl transition-transform duration-500 hover:scale-[1.01]"
+      className="group relative w-full h-48 md:h-64 rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl transition-transform duration-500 hover:scale-[1.01] bg-gradient-to-tr from-[#0a0410] via-[#1a0b2e] to-[#2d0f54] border border-white/5 flex items-center"
     >
-      <img 
-        src={collegeFarewellImg} 
-        alt="College Farewell" 
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-      />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent flex flex-col justify-center px-8 md:px-16">
-        <div className="bg-premier-700 text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full w-fit mb-4 tracking-widest uppercase">Featured Event</div>
-        <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-2">College Farewell 2024</h2>
+      {/* Decorative glowing orbs */}
+      <div className="absolute top-0 left-0 w-64 h-64 bg-vibrantBlue/10 rounded-full blur-[80px] pointer-events-none"></div>
+      <div className="absolute bottom-0 right-0 w-64 h-64 bg-premier-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+
+      <div className="relative z-10 px-8 md:px-16 w-full">
+        <div className="bg-premier-700/80 backdrop-blur-sm text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full w-fit mb-4 tracking-widest uppercase border border-premier-400/20">Featured Event</div>
+        <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-2">AFSANA 2026</h2>
         <p className="text-gray-300 text-sm md:text-lg max-w-md font-medium">The final countdown begins. Join us for a night of memories, music, and magic.</p>
         <div className="mt-6 flex items-center gap-4">
           <button className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-premier-400 hover:text-white transition-colors uppercase tracking-wider">Get Tickets</button>
