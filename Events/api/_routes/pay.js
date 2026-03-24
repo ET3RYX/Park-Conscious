@@ -3,11 +3,11 @@ import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 
 // Sandbox vs Prod helper
-const isSandbox = (process.env.PHONEPE_MERCHANT_ID || "").includes("PGTEST");
 const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || "PGTESTPAYUAT86";
+const isSandbox   = MERCHANT_ID.includes("PGTEST");
 const SALT_KEY    = process.env.PHONEPE_SALT_KEY || "96434309-7796-489d-8924-ab56988a6076";
 const SALT_INDEX  = process.env.PHONEPE_SALT_INDEX || 1;
-// If user didn't set BASE_URL, auto-pick based on whether MERCHANT_ID looks like a test ID
+// Auto-pick based on whether MERCHANT_ID looks like a test ID
 const BASE_URL    = process.env.PHONEPE_BASE_URL || (isSandbox ? "https://api-preprod.phonepe.com/apis/pg-sandbox" : "https://api.phonepe.com/apis/hermes");
 
 // Helper: Generate Checksum
