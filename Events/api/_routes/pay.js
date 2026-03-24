@@ -2,11 +2,13 @@ import axios from "axios";
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 
-// Sandbox Credentials
+// Sandbox vs Prod helper
+const isSandbox = (process.env.PHONEPE_MERCHANT_ID || "").includes("PGTEST");
 const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || "PGTESTPAYUAT86";
 const SALT_KEY    = process.env.PHONEPE_SALT_KEY || "96434309-7796-489d-8924-ab56988a6076";
 const SALT_INDEX  = process.env.PHONEPE_SALT_INDEX || 1;
-const BASE_URL    = process.env.PHONEPE_BASE_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
+// If user didn't set BASE_URL, auto-pick based on whether MERCHANT_ID looks like a test ID
+const BASE_URL    = process.env.PHONEPE_BASE_URL || (isSandbox ? "https://api-preprod.phonepe.com/apis/pg-sandbox" : "https://api.phonepe.com/apis/hermes");
 
 // Helper: Generate Checksum
 function generateChecksum(base64Payload, endpoint) {
@@ -68,11 +70,12 @@ export default async function handler(req, res) {
         transactionId: merchantTransactionId
       });
     } else {
-      return res.status(400).json({ success: false, message: "Failed to initiate payment" });
+      return res.status(400).json({ success: false, message: "Failed to initiate payment", details: data });
     }
 
   } catch (error) {
-    console.error("Payment initiation error:", error?.response?.data || error.message);
-    return res.status(500).json({ success: false, message: "Server error" });
+    const errData = error?.response?.data || error.message;
+    console.error("Payment initiation error:", errData);
+    return res.status(500).json({ success: false, message: "Server error", details: errData });
   }
 }
