@@ -4,6 +4,17 @@ import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
 
+// Import all hidden routes
+import callbackHandler from './_routes/callback.js';
+import debugEnvHandler from './_routes/debug-env.js';
+import discussionCommentsHandler from './_routes/discussion-comments.js';
+import discussionDetailsHandler from './_routes/discussion-details.js';
+import discussionsHandler from './_routes/discussions.js';
+import googleAuthHandler from './_routes/google-auth.js';
+import payHandler from './_routes/pay.js';
+import paymentCallbackHandler from './_routes/payment-callback.js';
+import ticketsHandler from './_routes/tickets.js';
+
 // ─── Helper ──────────────────────────────────────────────────────
 function json(res, status, data) {
     res.setHeader('Content-Type', 'application/json');
@@ -25,14 +36,15 @@ export default async function handler(req, res) {
     const url = req.url || '';
     const method = req.method || 'GET';
     
-    // Parse body manually for POST/PUT
-    let body = {};
-    if (method === 'POST' || method === 'PUT') {
+    // Parse body manually for legacy routes if req.body is not already populated by Vercel
+    let body = req.body;
+    if (!body && (method === 'POST' || method === 'PUT')) {
         try {
             const chunks = [];
             for await (const chunk of req) chunks.push(chunk);
             const raw = Buffer.concat(chunks).toString();
             if (raw) body = JSON.parse(raw);
+            req.body = body; // Attach to req for nested handlers
         } catch (e) { console.error("Body parse error:", e); }
     }
 
@@ -43,19 +55,31 @@ export default async function handler(req, res) {
     }
 
     try {
-        // ── Health check ──────────────────────────────────────────
+        // ── Nested Router Dispatch ────────────────────────────────
+        const cleanUrl = url.split('?')[0]; // Remove query params for routing
+
+        if (cleanUrl === '/api/pay') return payHandler(req, res);
+        if (cleanUrl === '/api/payment-callback') return paymentCallbackHandler(req, res);
+        if (cleanUrl === '/api/callback') return callbackHandler(req, res);
+        if (cleanUrl === '/api/tickets') return ticketsHandler(req, res);
+        if (cleanUrl === '/api/discussions') return discussionsHandler(req, res);
+        if (cleanUrl === '/api/discussion-details') return discussionDetailsHandler(req, res);
+        if (cleanUrl === '/api/discussion-comments') return discussionCommentsHandler(req, res);
+        if (cleanUrl === '/api/google-auth') return googleAuthHandler(req, res);
+        if (cleanUrl === '/api/debug-env') return debugEnvHandler(req, res);
+
+        // ── Legacy Routes ─────────────────────────────────────────
+
         if (url === '/api' || url === '/api/' || url === '/') {
             return json(res, 200, { status: 'API Live', db: 'Connected' });
         }
 
-        // ── Parking data ──────────────────────────────────────────
         if (url.includes('/parking')) {
             let p = path.join(process.cwd(), 'backend', 'data', 'parkings.json');
             if (!fs.existsSync(p)) p = path.join(process.cwd(), 'data', 'parkings.json');
             return json(res, 200, JSON.parse(fs.readFileSync(p)));
         }
 
-        // ── User signup ───────────────────────────────────────────
         if (url.includes('/auth/signup') && method === 'POST') {
             const { name, email, password } = body;
             if (!name || !email || !password) return json(res, 400, { message: 'Missing fields' });
@@ -65,7 +89,6 @@ export default async function handler(req, res) {
             return json(res, 201, { user: { name: user.name, email: user.email } });
         }
 
-        // ── User login ────────────────────────────────────────────
         if (url.includes('/auth/login') && method === 'POST') {
             const { email, password } = body;
             const user = await User.findOne({ email });
@@ -74,7 +97,6 @@ export default async function handler(req, res) {
             return json(res, 200, { user: { name: user.name, email: user.email } });
         }
 
-        // ── User Google login ─────────────────────────────────────
         if (url.includes('/auth/google') && method === 'POST') {
             const { email, name, googleId } = body;
             let user = await User.findOne({ email });
@@ -82,7 +104,6 @@ export default async function handler(req, res) {
             return json(res, 200, { user: { name: user.name, email: user.email } });
         }
 
-        // ── Owner signup ──────────────────────────────────────────
         if (url.includes('/owner/signup') && method === 'POST') {
             const { name, email, password } = body;
             if (await Owner.findOne({ email })) return json(res, 400, { message: 'Owner already exists' });
@@ -91,7 +112,6 @@ export default async function handler(req, res) {
             return json(res, 201, { user: { name: owner.name, email: owner.email } });
         }
 
-        // ── Owner login ───────────────────────────────────────────
         if (url.includes('/owner/login') && method === 'POST') {
             const { email, password } = body;
             const owner = await Owner.findOne({ email });
@@ -100,7 +120,6 @@ export default async function handler(req, res) {
             return json(res, 200, { user: { name: owner.name, email: owner.email } });
         }
 
-        // ── Owner Google login ────────────────────────────────────
         if (url.includes('/owner/google') && method === 'POST') {
             const { email, name, googleId } = body;
             let owner = await Owner.findOne({ email });
@@ -108,25 +127,21 @@ export default async function handler(req, res) {
             return json(res, 200, { user: { name: owner.name, email: owner.email } });
         }
 
-        // ── Events ────────────────────────────────────────────────
         if (url.includes('/events')) {
             if (method === 'GET') return json(res, 200, await Event.find().sort({ createdAt: -1 }));
             if (method === 'POST') return json(res, 201, await Event.create(body));
         }
 
-        // ── Access logs ───────────────────────────────────────────
         if (url.includes('/logs')) {
             if (method === 'GET') return json(res, 200, await AccessLog.find().sort({ timestamp: -1 }).limit(50));
             if (method === 'POST') return json(res, 201, await AccessLog.create(body));
         }
 
-        // ── Waitlist ──────────────────────────────────────────────
         if (url.includes('/waitlist') && method === 'POST') {
             if (await Waitlist.findOne({ email: body.email })) return json(res, 409, { message: 'Already on waitlist' });
             return json(res, 201, await Waitlist.create({ email: body.email }));
         }
 
-        // ── Contact ───────────────────────────────────────────────
         if (url.includes('/contact') && method === 'POST') {
             return json(res, 201, await Contact.create(body));
         }
