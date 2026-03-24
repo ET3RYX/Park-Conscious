@@ -200,7 +200,7 @@ const LoginPage = ({ onLogin }) => {
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g. oliver"
+              placeholder="Username"
               className="w-full bg-darkBackground-900 border border-white/5 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-premier-400/50 transition-all font-medium placeholder:text-gray-700"
             />
           </div>
