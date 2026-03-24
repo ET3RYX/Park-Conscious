@@ -98,7 +98,7 @@ function NavLg({ defaultLocation }) {
           <button className="btn-secondary flex items-center gap-2 text-sm py-1.5 px-4">
             <span className="text-premier-400 font-bold">+</span> Add Event
           </button>
-          <a href="/contact.html" className="btn-secondary py-1.5 px-4 text-sm inline-block">Support</a>
+          <a href="https://parkconscious.in/contact.html" target="_blank" rel="noreferrer" className="btn-secondary py-1.5 px-4 text-sm inline-block">Support</a>
           <CustomModal />
         </div>
       </div>
@@ -109,7 +109,7 @@ function NavLg({ defaultLocation }) {
 // Main NavBar Component
 const Navbar = ({ defaultLocation }) => {
   return (
-    <nav className="bg-darkBackground-900 px-4 py-3">
+    <nav className="bg-darkBackground-900/80 backdrop-blur-md sticky top-0 z-50 px-4 py-3">
       {/* Mobile Screen Navbar */}
       <div className="md:hidden">
         <NavSm defaultLocation={defaultLocation} />

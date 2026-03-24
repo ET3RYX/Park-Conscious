@@ -51,7 +51,7 @@ const categories = ["All Events", "Concerts", "Festivals", "Summits", "Culture"]
 const FeaturedEventCard = () => {
   return (
     <div 
-      onClick={() => window.open("https://events.parkconscious.in/farewell-tickets", "_blank")}
+      onClick={() => window.location.href = "/farewell-tickets"}
       className="group relative w-full h-48 md:h-64 rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl transition-transform duration-500 hover:scale-[1.01]"
     >
       <img 
