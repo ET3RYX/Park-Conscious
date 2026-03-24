@@ -1,7 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
-import connectToDatabase from "./lib/mongodb.js";
-import { User } from "./lib/models.js";
+import connectToDatabase from "../lib/mongodb.js";
+import { User } from "../lib/models.js";
 
 let client;
 

@@ -1,5 +1,5 @@
-import connectToDatabase from "./lib/mongodb.js";
-import { Discussion } from "./lib/models.js";
+import connectToDatabase from "../lib/mongodb.js";
+import { Discussion } from "../lib/models.js";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");

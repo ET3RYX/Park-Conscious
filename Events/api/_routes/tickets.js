@@ -1,5 +1,5 @@
-import connectToDatabase from "./lib/mongodb.js";
-import { TicketPrice } from "./lib/models.js";
+import connectToDatabase from "../lib/mongodb.js";
+import { TicketPrice } from "../lib/models.js";
 
 // Ensure CORS headers for the Admin Panel domain
 const setCorsHeaders = (res) => {

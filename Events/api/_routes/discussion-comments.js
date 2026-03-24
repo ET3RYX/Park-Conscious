@@ -1,6 +1,6 @@
-import connectToDatabase from "./lib/mongodb.js";
-import { Discussion, Comment } from "./lib/models.js";
-import { requireAuth } from "./lib/auth.js";
+import connectToDatabase from "../lib/mongodb.js";
+import { Discussion, Comment } from "../lib/models.js";
+import { requireAuth } from "../lib/auth.js";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
