@@ -334,43 +334,53 @@
             <button onclick="closeModal('add-event-modal')" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
                 <i data-lucide="x" class="w-8 h-8"></i>
             </button>
-    <!-- List Your Event Modal -->
-    <div id="add-event-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-[9999] hidden items-center justify-center p-4">
-        <div class="glass-card max-w-lg w-full rounded-[2.5rem] p-8 md:p-10 relative border border-white/10 shadow-2xl animate-in zoom-in-95 duration-300 mx-auto mt-auto mb-auto">
-            <button onclick="closeModal('add-event-modal')" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-all">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-            <div class="mb-6 text-center">
-                <h2 class="text-3xl font-black text-white mb-2 tracking-tighter uppercase">LIST YOUR <span class="text-fuchsia-500">EVENT</span></h2>
-                <p class="text-gray-400 text-xs font-medium">Partner with us for smarter parking.</p>
-            </div>
-            
-            <form id="add-event-form" class="space-y-4">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-gray-500 font-black text-[10px] uppercase mb-1.5 ml-1">Event Title</label>
-                        <input type="text" name="eventName" required placeholder="e.g. Sunburn 2026" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-fuchsia-500/50 transition-all text-white text-sm">
+    <!-- List Your Event Screen -->
+    <div id="add-event-modal" class="fixed inset-0 bg-[#020617] z-[9999] hidden flex-col items-center justify-center p-6 md:p-12 overflow-y-auto">
+        <div class="max-w-xl w-full mx-auto my-auto h-fit">
+            <div class="flex justify-between items-center mb-12">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-fuchsia-600 flex items-center justify-center shadow-[0_0_20px_rgba(192,38,211,0.4)]">
+                        <i data-lucide="plus" class="text-white w-6 h-6"></i>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-gray-500 font-black text-[10px] uppercase mb-1.5 ml-1">Your Name</label>
-                            <input type="text" name="contactName" placeholder="Name" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500/50 transition-all text-white text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-gray-500 font-black text-[10px] uppercase mb-1.5 ml-1">Work Email</label>
-                            <input type="email" name="contactEmail" required placeholder="email@work.com" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-fuchsia-500/50 transition-all text-white text-sm">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-gray-500 font-black text-[10px] uppercase mb-1.5 ml-1">Details (Optional)</label>
-                        <textarea name="description" rows="2" placeholder="Briefly describe..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500/50 transition-all text-white text-sm resize-none"></textarea>
-                    </div>
+                    <h2 class="text-3xl font-black text-white tracking-tighter uppercase">List Your Event</h2>
                 </div>
-                
-                <button type="submit" class="w-full btn-neon py-4 rounded-2xl text-white font-black text-base uppercase tracking-widest shadow-lg hover:shadow-fuchsia-500/40 transition-all">
-                    Submit Proposal
+                <button onclick="closeModal('add-event-modal')" class="text-gray-500 hover:text-white transition-colors p-2">
+                    <i data-lucide="arrow-left" class="w-8 h-8 mr-2 inline-block"></i> <span class="text-xs font-bold uppercase tracking-widest">Back</span>
                 </button>
-            </form>
+            </div>
+
+            <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 md:p-12 shadow-2xl">
+                <p class="text-gray-400 font-medium mb-10 text-sm">Fill in the details below. Our team will review your proposal and get back to you within 24 hours.</p>
+                
+                <form id="add-event-form" class="space-y-8">
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Event Name</label>
+                            <input type="text" name="eventName" required placeholder="e.g. Neon Nights 2026" class="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-fuchsia-500 transition-all text-sm placeholder:text-gray-700">
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Full Name</label>
+                                <input type="text" name="contactName" required placeholder="John Doe" class="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-blue-500 transition-all text-sm placeholder:text-gray-700">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Email Address</label>
+                                <input type="email" name="contactEmail" required placeholder="john@company.com" class="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-fuchsia-500 transition-all text-sm placeholder:text-gray-700">
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Event Description & Estimated Crowd</label>
+                            <textarea name="description" rows="4" placeholder="Tell us about the vibes and expected audience..." class="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-blue-500 transition-all text-sm resize-none placeholder:text-gray-700"></textarea>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-fuchsia-600 hover:from-blue-500 hover:to-fuchsia-500 py-6 rounded-[2rem] text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl shadow-fuchsia-500/10 active:scale-[0.98]">
+                        Submit Event Proposal
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
         </div>
