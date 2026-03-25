@@ -36,7 +36,30 @@
 
 <body class="bg-gray-950 text-gray-200 main-gradient h-screen flex overflow-hidden">
 
-    <!-- Sidebar -->
+    <!-- Mobile Sidebar Drawer -->
+    <div id="mobile-sidebar" class="fixed inset-0 z-[100] hidden">
+        <div id="mobile-sidebar-overlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0"></div>
+        <div id="mobile-sidebar-drawer" class="absolute left-0 top-0 h-full w-[280px] glass-panel bg-gray-950 flex flex-col translate-x-full transition-transform duration-300 border-r border-white/10">
+            <div class="h-16 flex items-center justify-between px-6 border-b border-white/5">
+                <div class="flex items-center">
+                    <div class="relative w-8 h-8 mr-3 flex items-center justify-center bg-gradient-to-br from-blue-600 to-teal-600 rounded-lg shadow-lg overflow-hidden">
+                        <img src="../assets/logo.jpg" alt="Logo" class="w-full h-full object-cover">
+                    </div>
+                    <span class="text-base font-bold text-white tracking-tight">Park <span class="text-teal-400">Owner</span></span>
+                </div>
+                <button id="mobile-sidebar-close" class="p-2 text-gray-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Dashboard</a>
+                <a href="logs.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Access Logs</a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/10 text-white font-medium">Add Parking</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Sidebar (Desktop) -->
     <aside class="w-64 glass-panel flex-none hidden md:flex flex-col">
         <div class="h-16 flex items-center px-6 border-b border-white/5 cursor-pointer"
             onclick="window.location.href='../index.html'">
@@ -85,13 +108,15 @@
 
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto">
-        <div
-            class="h-16 flex items-center justify-between px-8 border-b border-white/5 bg-gray-900/50 backdrop-blur-md sticky top-0 z-10">
-            <h2 class="text-xl font-bold text-white">Add New Location</h2>
-        </div>
+        <header class="h-16 flex items-center gap-4 px-4 md:px-8 border-b border-white/5 bg-gray-900/50 backdrop-blur-md sticky top-0 z-10">
+            <button id="mobile-sidebar-open" class="md:hidden p-1 text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <h2 class="text-base md:text-xl font-bold text-white">Add New Location</h2>
+        </header>
 
-        <div class="p-8 max-w-3xl mx-auto">
-            <div class="glass-card p-8 rounded-2xl">
+        <div class="p-4 md:p-8 max-w-3xl mx-auto">
+            <div class="glass-card p-6 md:p-8 rounded-2xl">
                 <form class="space-y-6"
                     onsubmit="event.preventDefault(); alert('Location submitted for review!'); window.location.href='dashboard.html';">
                     <!-- Name -->
@@ -109,7 +134,7 @@
                     </div>
 
                     <!-- Details Grid -->
-                    <div class="grid grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-400 mb-2">Type</label>
                             <select
@@ -152,6 +177,32 @@
     <!-- Vercel Speed Insights -->
     <script>
         window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+        // Mobile sidebar logic
+        const openBtn = document.getElementById('mobile-sidebar-open');
+        const closeBtn = document.getElementById('mobile-sidebar-close');
+        const overlay = document.getElementById('mobile-sidebar-overlay');
+        const sidebar = document.getElementById('mobile-sidebar');
+        const drawer = document.getElementById('mobile-sidebar-drawer');
+
+        function openSidebar() {
+            sidebar.classList.remove('hidden');
+            setTimeout(() => {
+                overlay?.classList.remove('opacity-0');
+                drawer.classList.remove('translate-x-full');
+            }, 10);
+        }
+
+        function closeSidebar() {
+            overlay?.classList.add('opacity-0');
+            drawer.classList.add('translate-x-full');
+            setTimeout(() => {
+                sidebar.classList.add('hidden');
+            }, 300);
+        }
+
+        openBtn?.addEventListener('click', openSidebar);
+        closeBtn?.addEventListener('click', closeSidebar);
+        overlay?.addEventListener('click', closeSidebar);
     </script>
     <script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
