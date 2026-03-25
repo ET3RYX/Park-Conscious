@@ -226,8 +226,9 @@
           <div>
             <h4 class="text-white font-bold mb-6">Legal</h4>
             <ul class="space-y-4 text-slate-400 text-sm">
-              <li><a href="#" class="hover:text-[#00C39A] transition-colors">Privacy Policy</a></li>
-              <li><a href="#" class="hover:text-[#00C39A] transition-colors">Terms of Service</a></li>
+              <li><a href="javascript:void(0)" onclick="showLegal('privacy')" class="hover:text-[#00C39A] transition-colors">Privacy Policy</a></li>
+              <li><a href="javascript:void(0)" onclick="showLegal('terms')" class="hover:text-[#00C39A] transition-colors">Terms of Service</a></li>
+              <li><a href="javascript:void(0)" onclick="showLegal('refunds')" class="hover:text-[#00C39A] transition-colors">Refund Policy</a></li>
             </ul>
           </div>
         </div>
@@ -238,6 +239,9 @@
       </div>
     </div>
   </footer>
+
+  <!-- Legal Modal Script -->
+  <script src="./scripts/legal-modal.js"></script>
 
   <!-- Scripts -->
   <script>
