@@ -51,8 +51,8 @@ const RequestEventModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#020617] flex flex-col items-center justify-center p-6 md:p-12 overflow-y-auto animate-in fade-in duration-300">
-      <div className="max-w-xl w-full mx-auto my-auto h-fit">
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backgroundColor: '#020617', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', overflowY: 'auto' }} className="animate-in fade-in duration-300">
+      <div style={{ maxWidth: '36rem', width: '100%', margin: 'auto' }}>
         <div className="flex justify-between items-center mb-12">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-fuchsia-600 flex items-center justify-center shadow-[0_0_20px_rgba(192,38,211,0.4)]">

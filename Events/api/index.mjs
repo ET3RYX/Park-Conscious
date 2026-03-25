@@ -226,16 +226,24 @@ export default async function handler(req, res) {
     // ─────────────────────────────────────────────────────────────────────────
     // EVENT REQUESTS
     // ─────────────────────────────────────────────────────────────────────────
-    if (cleanUrl === '/api/event-request' && method === 'POST') {
-      await connectDB();
-      const { eventName, eventDate, eventLocation, description, contactName, contactEmail, contactPhone } = body;
-      if (!eventName || !contactEmail) {
-        return json(res, 400, { success: false, message: 'Event Name and Contact Email are required' });
+    if (cleanUrl.endsWith('/api/event-request') && method === 'POST') {
+      try {
+        await connectDB();
+        const { eventName, description, contactName, contactEmail } = body;
+        
+        if (!eventName || !contactEmail) {
+          return json(res, 400, { success: false, message: 'Event Name and Contact Email are required' });
+        }
+        
+        const request = await EventRequest.create({
+          eventName, description, contactName, contactEmail
+        });
+        
+        return json(res, 201, { success: true, message: 'Request submitted successfully', request });
+      } catch (error) {
+        console.error("Event Request Error:", error);
+        return json(res, 500, { success: false, message: 'Internal Server Error' });
       }
-      const request = await EventRequest.create({
-        eventName, eventDate, eventLocation, description, contactName, contactEmail, contactPhone
-      });
-      return json(res, 201, { success: true, message: 'Request submitted successfully', request });
     }
 
     // ─────────────────────────────────────────────────────────────────────────
