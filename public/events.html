@@ -150,7 +150,7 @@
                     <a href="index.html" class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Home</a>
                     <a href="find-parking.html" class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Find Parking</a>
                     <button onclick="openAddEventModal()" class="flex items-center gap-2 bg-fuchsia-600/20 hover:bg-fuchsia-600/40 text-fuchsia-400 border border-fuchsia-600/30 px-4 py-2 rounded-full text-xs font-bold transition-all">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Event
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> List Your Event
                     </button>
                     <button onclick="window.location.href='contact.html'" class="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-5 py-2 rounded-full text-sm font-medium transition-all">Support</button>
                 </div>
@@ -335,38 +335,28 @@
                 <i data-lucide="x" class="w-8 h-8"></i>
             </button>
             <div class="mb-8 text-center">
-                <h2 class="text-4xl font-black text-white mb-2 tracking-tighter uppercase">ADD NEW EVENT</h2>
-                <p class="text-gray-400 text-sm">Join the urban ecosystem. Add your viral event below.</p>
+                <h2 class="text-4xl font-black text-white mb-2 tracking-tighter uppercase">LIST YOUR EVENT</h2>
+                <p class="text-gray-400 text-sm">Submit your event details and we'll contact you for listing.</p>
             </div>
             
-            <form id="add-event-form" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form id="add-event-form" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="md:col-span-2">
-                        <label class="block text-gray-500 font-black text-[10px] uppercase mb-2 tracking-widest">Event Name</label>
-                        <input type="text" name="name" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-fuchsia-500 transition-colors">
+                        <label class="block text-gray-500 font-black text-[10px] uppercase mb-2 tracking-widest">Event Name *</label>
+                        <input type="text" name="eventName" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-fuchsia-500 transition-colors">
                     </div>
                     <div>
-                        <label class="block text-gray-500 font-black text-[10px] uppercase mb-2 tracking-widest">Category</label>
-                        <select name="category" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-fuchsia-500 transition-colors appearance-none">
-                            <option value="concert">Concert</option>
-                            <option value="festival">Festival</option>
-                            <option value="summit">Summit</option>
-                            <option value="culture">Culture</option>
-                        </select>
+                        <label class="block text-gray-500 font-black text-[10px] uppercase mb-2 tracking-widest">Contact Email *</label>
+                        <input type="email" name="contactEmail" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-fuchsia-500 transition-colors">
                     </div>
                     <div>
-                        <label class="block text-gray-500 font-black text-[10px] uppercase mb-2 tracking-widest">Venue</label>
-                        <input type="text" name="venue" required class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-fuchsia-500 transition-colors">
+                        <label class="block text-gray-500 font-black text-[10px] uppercase mb-2 tracking-widest">Contact Phone</label>
+                        <input type="text" name="contactPhone" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-fuchsia-500 transition-colors">
                     </div>
                 </div>
                 
-                <div class="bg-fuchsia-500/5 p-4 rounded-2xl border border-fuchsia-500/10 text-xs text-fuchsia-300">
-                    <i data-lucide="info" class="w-4 h-4 inline-block mr-2 mb-1"></i>
-                    Upload image to <strong>frontend/assets/events/</strong> to use it here.
-                </div>
-
                 <button type="submit" class="w-full btn-neon py-5 rounded-3xl text-white font-black text-lg uppercase tracking-widest">
-                    Create Event
+                    Submit Request
                 </button>
             </form>
         </div>
@@ -507,32 +497,29 @@
         document.getElementById('add-event-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
-            const newEvent = {
-                name: formData.get('name'),
-                category: formData.get('category'),
-                venue: formData.get('venue'),
-                venueCity: "Delhi NCR",
-                attendees: "Upcoming",
-                image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4", // Default dynamic image
-                badge: "NEW"
+            const requestData = {
+                eventName: formData.get('eventName'),
+                contactEmail: formData.get('contactEmail'),
+                contactPhone: formData.get('contactPhone'),
+                status: "pending"
             };
             
             try {
-                const response = await fetch(`${API_URL}/events`, {
+                const response = await fetch(`${API_URL}/event-request`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newEvent)
+                    body: JSON.stringify(requestData)
                 });
                 
                 if (response.ok) {
-                    await fetchEvents(); // Refresh list
+                    alert("Request submitted successfully! We will contact you soon.");
                     closeModal('add-event-modal');
                     e.target.reset();
                 } else {
-                    alert("Failed to create event.");
+                    alert("Failed to submit request.");
                 }
             } catch (error) {
-                console.error("Error creating event:", error);
+                console.error("Error submitting request:", error);
             }
         });
 

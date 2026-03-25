@@ -47,6 +47,17 @@ const Admin = mongoose.models.Admin || mongoose.model('Admin', new mongoose.Sche
   password: { type: String, required: true },
 }, { timestamps: true }));
 
+const EventRequest = mongoose.models.EventRequest || mongoose.model('EventRequest', new mongoose.Schema({
+  eventName: { type: String, required: true },
+  eventDate: String,
+  eventLocation: String,
+  description: String,
+  contactName: String,
+  contactEmail: { type: String, required: true },
+  contactPhone: String,
+  status: { type: String, default: "pending" },
+}, { timestamps: true }));
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -210,6 +221,21 @@ export default async function handler(req, res) {
         );
         return json(res, 200, { success: true, event: ticket });
       }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // EVENT REQUESTS
+    // ─────────────────────────────────────────────────────────────────────────
+    if (cleanUrl === '/api/event-request' && method === 'POST') {
+      await connectDB();
+      const { eventName, eventDate, eventLocation, description, contactName, contactEmail, contactPhone } = body;
+      if (!eventName || !contactEmail) {
+        return json(res, 400, { success: false, message: 'Event Name and Contact Email are required' });
+      }
+      const request = await EventRequest.create({
+        eventName, eventDate, eventLocation, description, contactName, contactEmail, contactPhone
+      });
+      return json(res, 201, { success: true, message: 'Request submitted successfully', request });
     }
 
     // ─────────────────────────────────────────────────────────────────────────
