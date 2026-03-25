@@ -20,92 +20,121 @@ const RequestEventModal = ({ isOpen, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setStatus({ type: '', message: '' });
 
     try {
       const response = await axios.post('/api/event-request', formData);
       if (response.data.success) {
-        setStatus({ type: 'success', message: 'Proposal sent! Our team will reach out shortly.' });
-        setTimeout(() => {
-          onClose(); // Automatically close modal
-          // Reset state *after* modal visually closes to prevent flashing
-          setTimeout(() => {
-            setFormData({
-              eventName: '',
-              description: '',
-              contactName: '',
-              contactEmail: '',
-            });
-            setStatus({ type: '', message: '' });
-          }, 300);
-        }, 2000);
+        alert("Success! Your event proposal has been submitted.");
+        
+        // Reset and close immediately
+        setFormData({ eventName: '', description: '', contactName: '', contactEmail: '' });
+        onClose();
       }
     } catch (error) {
-      setStatus({ 
-        type: 'error', 
-        message: error.response?.data?.message || 'Submission failed. Please try again.' 
-      });
+      alert("Error: " + (error.response?.data?.message || 'Submission failed. Please try again.'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backgroundColor: '#020617', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', overflowY: 'auto' }} className="animate-in fade-in duration-300">
-      <div style={{ maxWidth: '36rem', width: '100%', margin: 'auto' }}>
-        <div className="flex justify-between items-center mb-12">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-fuchsia-600 flex items-center justify-center shadow-[0_0_20px_rgba(192,38,211,0.4)]">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
-            </div>
-            <h2 className="text-3xl font-black text-white tracking-tighter uppercase">List Your Event</h2>
-          </div>
-          <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors p-2 flex items-center gap-2">
-            <svg className="w-6 h-6 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: '#040b17', // Match the darkest background color
+      zIndex: 999999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflowY: 'auto',
+      padding: '2rem'
+    }}>
+      <div style={{
+        backgroundColor: '#0f172a',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '2rem',
+        padding: '3rem',
+        maxWidth: '600px',
+        width: '100%',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+      }}>
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.875rem', fontWeight: 900, color: 'white', textTransform: 'uppercase', margin: 0 }}>List Your Event</h2>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+             X CLOSE
           </button>
         </div>
 
-        <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 md:p-12 shadow-2xl relative">
-            {status.message && (
-              <div className={`absolute -top-6 left-1/2 -translate-x-1/2 w-max px-6 py-2 rounded-full text-xs font-bold text-center border animate-in slide-in-from-bottom-4 duration-300 shadow-xl ${
-                status.type === 'success' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border-rose-500/30'
-              }`}>
-                {status.message}
-              </div>
-            )}
-            
-          <p className="text-slate-400 font-medium mb-10 text-sm">Fill in the details below. Our team will review your proposal and get back to you within 24 hours.</p>
+        <p style={{ color: '#94a3b8', marginBottom: '2rem', fontSize: '0.875rem' }}>
+          Fill in the details below. Our team will review your proposal and get back to you within 24 hours.
+        </p>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="space-y-6">
-                <div>
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 ml-1">Event Name</label>
-                  <input required name="eventName" value={formData.eventName} onChange={handleChange} className="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-fuchsia-500 transition-all text-sm placeholder:text-slate-700" placeholder="e.g. Neon Nights 2026" />
-                </div>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          <div>
+            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Event Name</label>
+            <input 
+              required name="eventName" value={formData.eventName} onChange={handleChange} 
+              style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', padding: '1rem 1.5rem', color: 'white', fontSize: '0.875rem' }} 
+              placeholder="e.g. Neon Nights 2026" 
+            />
+          </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 ml-1">Full Name</label>
-                    <input required name="contactName" value={formData.contactName} onChange={handleChange} className="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-blue-500 transition-all text-sm placeholder:text-slate-700" placeholder="John Doe" />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 ml-1">Email Address</label>
-                    <input required type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} className="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-fuchsia-500 transition-all text-sm placeholder:text-slate-700" placeholder="john@company.com" />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 ml-1">Event Description & Estimated Crowd</label>
-                  <textarea name="description" value={formData.description} onChange={handleChange} rows="4" className="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-blue-500 transition-all text-sm resize-none placeholder:text-slate-700" placeholder="Tell us about the vibes and expected audience..."></textarea>
-                </div>
+          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 200px' }}>
+              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Full Name</label>
+              <input 
+                required name="contactName" value={formData.contactName} onChange={handleChange} 
+                style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', padding: '1rem 1.5rem', color: 'white', fontSize: '0.875rem', boxSizing: 'border-box' }} 
+                placeholder="John Doe" 
+              />
             </div>
+            <div style={{ flex: '1 1 200px' }}>
+              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Email Address</label>
+              <input 
+                required type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} 
+                style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', padding: '1rem 1.5rem', color: 'white', fontSize: '0.875rem', boxSizing: 'border-box' }} 
+                placeholder="john@company.com" 
+              />
+            </div>
+          </div>
 
-            <button disabled={loading || status.type === 'success'} type="submit" className={`w-full bg-gradient-to-r ${status.type === 'success' ? 'from-emerald-500 to-teal-500' : 'from-blue-600 to-fuchsia-600 hover:from-blue-500 hover:to-fuchsia-500'} py-6 rounded-[2rem] text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl ${status.type === 'success' ? 'shadow-emerald-500/20' : 'shadow-fuchsia-500/10'} active:scale-[0.98] disabled:opacity-70`}>
-              {loading ? 'Processing...' : status.type === 'success' ? 'Submitted!' : 'Submit Event Proposal'}
-            </button>
-          </form>
-        </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Event Details</label>
+            <textarea 
+              name="description" value={formData.description} onChange={handleChange} rows="4" 
+              style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', padding: '1rem 1.5rem', color: 'white', fontSize: '0.875rem', resize: 'none' }} 
+              placeholder="Tell us about the vibes and expected audience..."
+            ></textarea>
+          </div>
+
+          <button 
+            disabled={loading} type="submit" 
+            style={{ 
+              width: '100%', 
+              background: 'linear-gradient(90deg, #2563eb 0%, #c026d3 100%)', 
+              color: 'white', 
+              fontWeight: 900, 
+              padding: '1.25rem', 
+              borderRadius: '9999px', 
+              fontSize: '1rem', 
+              textTransform: 'uppercase', 
+              letterSpacing: '0.1em', 
+              border: 'none', 
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+              marginTop: '1rem'
+            }}
+          >
+            {loading ? 'Processing...' : 'Submit Event Proposal'}
+          </button>
+        </form>
       </div>
     </div>
   );
