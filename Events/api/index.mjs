@@ -3,6 +3,8 @@ import crypto from 'crypto';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
+import { OAuth2Client } from "google-auth-library";
+import jwt from "jsonwebtoken";
 
 // ─── PhonePe Config ─────────────────────────────────────────────────────────
 const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || 'PGTESTPAYUAT86';
@@ -240,6 +242,63 @@ export default async function handler(req, res) {
     // LEGACY ROUTES — needs MongoDB
     // ─────────────────────────────────────────────────────────────────────────
     await connectDB();
+
+    // Google Auth
+    if (url.includes('/auth/google') && method === 'POST') {
+      const { token, userInfo } = body || {};
+      if (!token) return json(res, 400, { error: 'Token required' });
+
+      const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
+      const client = new OAuth2Client(googleClientId);
+
+      let uid, name, email, picture;
+
+      if (userInfo && userInfo.sub) {
+        ({ sub: uid, name, email, picture } = userInfo);
+      } else {
+        try {
+          const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: googleClientId,
+          });
+          const payload = ticket.getPayload();
+          ({ sub: uid, name, email, picture } = payload);
+        } catch (verifyErr) {
+          // Fallback to userInfo API
+          try {
+            const userinfoRes = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = userinfoRes.data;
+            uid = data.sub;
+            name = data.name;
+            email = data.email;
+            picture = data.picture;
+          } catch (fetchErr) {
+            throw new Error(`Google Verification failed: ${fetchErr.message}`);
+          }
+        }
+      }
+
+      if (!uid) throw new Error("Could not determine user ID from Google response");
+
+      await User.findOneAndUpdate(
+        { email },
+        { uid, name, email, picture },
+        { upsert: true, new: true }
+      );
+
+      const appToken = jwt.sign(
+        { uid, name, email, picture },
+        process.env.JWT_SECRET || 'fallback_secret',
+        { expiresIn: "24h" }
+      );
+
+      return json(res, 200, {
+        token: appToken,
+        user: { uid, name, email, picture },
+      });
+    }
 
     // Auth routes
     if (url.includes('/auth/signup') && method === 'POST') {
