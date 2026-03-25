@@ -328,61 +328,52 @@
         </div>
     </div>
 
-    <!-- Add Event Modal -->
-    <div id="add-event-modal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] hidden flex items-center justify-center p-4">
-        <div class="glass-card max-w-lg w-full rounded-[3rem] p-10 relative">
-            <button onclick="closeModal('add-event-modal')" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
-                <i data-lucide="x" class="w-8 h-8"></i>
-            </button>
-    <!-- List Your Event Screen -->
-    <div id="add-event-modal" class="fixed inset-0 bg-[#020617] z-[9999] hidden flex-col items-center justify-center p-6 md:p-12 overflow-y-auto">
-        <div class="max-w-xl w-full mx-auto my-auto h-fit">
-            <div class="flex justify-between items-center mb-12">
+
+    <!-- List Your Event Modal -->
+    <div id="add-event-modal" style="display:none; position:fixed; inset:0; background:#020617; z-index:9999; align-items:center; justify-content:center; padding:2rem; overflow-y:auto;">
+        <div class="max-w-xl w-full mx-auto my-auto">
+            <div class="flex justify-between items-center mb-10">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-fuchsia-600 flex items-center justify-center shadow-[0_0_20px_rgba(192,38,211,0.4)]">
                         <i data-lucide="plus" class="text-white w-6 h-6"></i>
                     </div>
                     <h2 class="text-3xl font-black text-white tracking-tighter uppercase">List Your Event</h2>
                 </div>
-                <button onclick="closeModal('add-event-modal')" class="text-gray-500 hover:text-white transition-colors p-2">
-                    <i data-lucide="arrow-left" class="w-8 h-8 mr-2 inline-block"></i> <span class="text-xs font-bold uppercase tracking-widest">Back</span>
+                <button onclick="closeModal('add-event-modal')" class="text-gray-500 hover:text-white transition-colors flex items-center gap-2">
+                    <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
 
-            <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 md:p-12 shadow-2xl">
-                <p class="text-gray-400 font-medium mb-10 text-sm">Fill in the details below. Our team will review your proposal and get back to you within 24 hours.</p>
+            <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 shadow-2xl">
+                <p class="text-gray-400 font-medium mb-8 text-sm">Fill in the details below. Our team will review and get back to you within 24 hours.</p>
                 
-                <form id="add-event-form" class="space-y-8">
-                    <div class="space-y-6">
-                        <div class="space-y-2">
-                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Event Name</label>
-                            <input type="text" name="eventName" required placeholder="e.g. Neon Nights 2026" class="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-fuchsia-500 transition-all text-sm placeholder:text-gray-700">
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-2">
-                                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Full Name</label>
-                                <input type="text" name="contactName" required placeholder="John Doe" class="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-blue-500 transition-all text-sm placeholder:text-gray-700">
-                            </div>
-                            <div class="space-y-2">
-                                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Email Address</label>
-                                <input type="email" name="contactEmail" required placeholder="john@company.com" class="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-fuchsia-500 transition-all text-sm placeholder:text-gray-700">
-                            </div>
-                        </div>
-
-                        <div class="space-y-2">
-                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Event Description & Estimated Crowd</label>
-                            <textarea name="description" rows="4" placeholder="Tell us about the vibes and expected audience..." class="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-6 py-5 text-white focus:outline-none focus:border-blue-500 transition-all text-sm resize-none placeholder:text-gray-700"></textarea>
-                        </div>
+                <form id="add-event-form" class="space-y-6">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">Event Name</label>
+                        <input type="text" name="eventName" required placeholder="e.g. Neon Nights 2026" class="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-fuchsia-500 transition-all text-sm placeholder:text-gray-700">
                     </div>
                     
-                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-fuchsia-600 hover:from-blue-500 hover:to-fuchsia-500 py-6 rounded-[2rem] text-white font-black text-lg uppercase tracking-[0.2em] transition-all shadow-xl shadow-fuchsia-500/10 active:scale-[0.98]">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">Full Name</label>
+                            <input type="text" name="contactName" placeholder="John Doe" class="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-blue-500 transition-all text-sm placeholder:text-gray-700">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">Email Address</label>
+                            <input type="email" name="contactEmail" required placeholder="john@company.com" class="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-fuchsia-500 transition-all text-sm placeholder:text-gray-700">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2 ml-1">Event Details & Crowd Size</label>
+                        <textarea name="description" rows="4" placeholder="Tell us about the event and expected crowd..." class="w-full bg-[#0F172A] border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-blue-500 transition-all text-sm resize-none placeholder:text-gray-700"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-fuchsia-600 hover:from-blue-500 hover:to-fuchsia-500 py-5 rounded-[2rem] text-white font-black text-base uppercase tracking-[0.2em] transition-all shadow-xl active:scale-[0.98]">
                         Submit Event Proposal
                     </button>
                 </form>
             </div>
-        </div>
-    </div>
         </div>
     </div>
 
@@ -563,21 +554,21 @@
 
         // --- Modal Helpers ---
         window.openAddEventModal = () => {
-            openModal('add-event-modal');
+            const el = document.getElementById('add-event-modal');
+            el.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
         };
 
         window.openModal = (id) => {
             const el = document.getElementById(id);
-            el.classList.remove('hidden');
-            el.classList.add('flex');
+            el.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             AOS.refresh();
         }
 
         window.closeModal = (id) => {
             const el = document.getElementById(id);
-            el.classList.add('hidden');
-            el.classList.remove('flex');
+            el.style.display = 'none';
             document.body.style.overflow = 'auto';
         }
 
