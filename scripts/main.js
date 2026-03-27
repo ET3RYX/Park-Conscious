@@ -450,6 +450,15 @@ function openBookingModal(item) {
 
     document.getElementById('confirm-book').addEventListener('click', async () => {
         const btn = document.getElementById('confirm-book');
+        const vehicleNumberInput = document.getElementById('vehicle-number');
+        const vehicleNumber = vehicleNumberInput.value.trim();
+
+        if (!vehicleNumber) {
+            alert("Vehicle Number is required to confirm booking.");
+            vehicleNumberInput.focus();
+            return;
+        }
+
         const originalText = btn.innerText;
         btn.innerText = 'Creating Secure Booking...';
         btn.disabled = true;
@@ -460,7 +469,7 @@ function openBookingModal(item) {
             userId: user.id || user.uid,
             locationName: item.Location,
             vehicleType: document.getElementById('vehicle-type').value,
-            vehicleNumber: document.getElementById('vehicle-number').value,
+            vehicleNumber: vehicleNumber,
             startTime: document.getElementById('start-time').value,
             endTime: document.getElementById('end-time').value,
             amount: document.getElementById('total-fare').innerText,
