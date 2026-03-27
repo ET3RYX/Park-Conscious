@@ -314,6 +314,7 @@ async function renderBookingsList() {
                     <div class="text-right">
                          <div class="text-[#00C39A] font-bold text-sm">${b.amount}</div>
                          <div class="text-[10px] text-slate-400 font-bold uppercase">${b.status || 'Confirmed'}</div>
+                         <button onclick="removeBooking('${bookingId}', this)" class="block ml-auto mt-1 text-[10px] font-bold text-red-400 hover:text-red-500 transition-colors uppercase tracking-widest bg-red-50 px-2 py-1 rounded-md">Cancel</button>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm my-3 py-2 border-y border-slate-50">
@@ -338,6 +339,26 @@ async function renderBookingsList() {
             `;
             listEl.appendChild(el);
         });
+    }
+}
+
+async function removeBooking(id, btn) {
+    if (!confirm('Are you sure you want to cancel this booking?')) return;
+    try {
+        const originalText = btn.innerText;
+        btn.innerText = 'Removing...';
+        btn.disabled = true;
+        const resp = await fetch(`/api/bookings/${id}`, { method: 'DELETE' });
+        if (resp.ok) {
+            renderBookingsList();
+        } else {
+            alert('Failed to remove booking');
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    } catch(err) {
+        alert('Server Error');
+        btn.disabled = false;
     }
 }
 
@@ -435,7 +456,7 @@ function openBookingModal(item) {
 
         const bookingData = {
             parkingId: item._id || item.ID,
-            ownerId: item.ownerId || null,
+            ownerId: item.owner || item.ownerId || null, // Support both schema naming conventions
             userId: user.id || user.uid,
             locationName: item.Location,
             vehicleType: document.getElementById('vehicle-type').value,

@@ -169,6 +169,19 @@ export default async function handler(req, res) {
             }
         }
 
+        // ── Delete Booking ───────────────────────────────────────
+        if (url.includes('/api/bookings/') && method === 'DELETE') {
+            const parts = url.split('/');
+            const bookingId = parts[parts.length - 1];
+            try {
+                const deleted = await Booking.findByIdAndDelete(bookingId);
+                if (!deleted) return json(res, 404, { message: 'Booking not found' });
+                return json(res, 200, { message: 'Booking removed successfully' });
+            } catch (err) {
+                return json(res, 500, { message: 'Failed to delete booking', error: err.message });
+            }
+        }
+
         // ── Owner signup ──────────────────────────────────────────
         if (url.includes('/owner/signup') && method === 'POST') {
             const { name, email, password } = body;
