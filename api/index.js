@@ -57,7 +57,10 @@ export default async function handler(req, res) {
                 const dbParkings = await Parking.find({});
                 if (dbParkings && dbParkings.length > 0) {
                     const mapped = dbParkings.map(p => ({
+                        _id: p._id,
                         ID: p.ID || p._id.toString(),
+                        owner: p.owner,
+                        ownerId: p.owner || p.ownerId, // Backward compatibility
                         Location: p.Location,
                         Latitude: p.Latitude,
                         Longitude: p.Longitude,
