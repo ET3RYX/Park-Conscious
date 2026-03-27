@@ -246,8 +246,11 @@
                 const data = await resp.json();
 
                 document.getElementById('stat-parkings').innerText = data.totalParkings;
-                document.getElementById('totalEntries').innerText = data.totalEntries;
+                document.getElementById('totalEntries').innerText = data.activeBookings || 0;
                 document.getElementById('stat-revenue').innerText = '₹' + data.revenueToday.toLocaleString('en-IN');
+                
+                // Update the "Total Bookings" label to "Active Now"
+                document.querySelector('#totalEntries + div').innerText = 'Active Now';
 
                 const listEl = document.getElementById('parkings-list');
                 listEl.innerHTML = '';

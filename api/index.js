@@ -213,32 +213,44 @@ export default async function handler(req, res) {
             }
         }
 
-        // ── Owner Dashboard Stats ─────────────────────────────────
+        // ── Owner Dashboard Stats ───────────────────────────────
         if (url.includes('/owner/') && url.includes('/dashboard') && method === 'GET') {
             const parts = url.split('/');
             const ownerIdx = parts.indexOf('owner');
             const ownerId = parts[ownerIdx + 1];
             
-            if (!ownerId || ownerId === 'dashboard') return json(res, 400, { message: 'Invalid owner ID' });
+            try {
+                const myParkings = await Parking.find({ ownerId });
+                const pCount = myParkings.length;
+                
+                // Get all bookings for this owner
+                const allBookings = await Booking.find({ ownerId });
+                const bCount = allBookings.length;
+                
+                // Calculate revenue and active counts
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                
+                const activeBookings = allBookings.filter(b => {
+                   const bd = new Date(b.createdAt || b.date);
+                   return bd >= today && b.status === "Confirmed";
+                }).length;
 
-            const parkings = await Parking.find({ owner: ownerId });
-            const bookings = await Booking.find({ ownerId: ownerId });
-            
-            let todayRevenue = 0;
-            let todayEntries = bookings.length;
-            
-            bookings.forEach(b => {
-                let amtStr = b.amount || '0';
-                amtStr = amtStr.replace(/[^0-9]/g, '');
-                todayRevenue += Number(amtStr);
-            });
-            
-            return json(res, 200, {
-                totalParkings: parkings.length,
-                totalEntries: todayEntries,
-                revenueToday: todayRevenue,
-                parkings: parkings
-            });
+                const rev = allBookings.reduce((sum, b) => {
+                    const amt = parseFloat(b.amount?.replace(/[^\d.]/g, '') || 0);
+                    return sum + amt;
+                }, 0);
+
+                return json(res, 200, {
+                    totalParkings: pCount,
+                    totalEntries: bCount,
+                    activeBookings: activeBookings,
+                    revenueToday: rev,
+                    parkings: myParkings
+                });
+            } catch (err) {
+                return json(res, 500, { message: 'Dashboard Error', error: err.message });
+            }
         }
 
         // ── Manage Owner Parkings ─────────────────────────────────

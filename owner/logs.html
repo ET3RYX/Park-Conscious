@@ -70,11 +70,14 @@
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="font-bold text-slate-900">All Bookings</h3>
-                    <button onclick="fetchLogs()" class="text-xs text-[#00C39A] font-bold hover:text-[#00A683] flex items-center gap-1">
+                <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
+                        <button onclick="switchTab('active')" id="tab-active" class="flex-1 sm:flex-none px-6 py-2 rounded-lg text-xs font-bold transition-all bg-white text-slate-900 shadow-sm">Active</button>
+                        <button onclick="switchTab('history')" id="tab-history" class="flex-1 sm:flex-none px-6 py-2 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-700">History</button>
+                    </div>
+                    <button onclick="fetchLogs()" class="text-xs text-[#00C39A] font-bold hover:text-[#00A683] flex items-center gap-1.5 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100 transition-colors">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                        Refresh
+                        Refresh Feed
                     </button>
                 </div>
                 <div class="overflow-x-auto">
@@ -157,40 +160,80 @@
 
         function logoutOwner() { localStorage.removeItem('park_owner'); sessionStorage.removeItem('park_owner_demo'); window.location.href = '../index.html'; }
 
+        let currentLogs = [];
+        let activeFilter = 'active';
+
+        function switchTab(tab) {
+            activeFilter = tab;
+            const btnActive = document.getElementById('tab-active');
+            const btnHistory = document.getElementById('tab-history');
+            
+            if (tab === 'active') {
+                btnActive.className = "flex-1 sm:flex-none px-6 py-2 rounded-lg text-xs font-bold transition-all bg-white text-slate-900 shadow-sm";
+                btnHistory.className = "flex-1 sm:flex-none px-6 py-2 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-700";
+            } else {
+                btnHistory.className = "flex-1 sm:flex-none px-6 py-2 rounded-lg text-xs font-bold transition-all bg-white text-slate-900 shadow-sm";
+                btnActive.className = "flex-1 sm:flex-none px-6 py-2 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-700";
+            }
+            renderLogs();
+        }
+
         async function fetchLogs(ownerId) {
+            if (!ownerId) {
+                const owner = await checkAuth();
+                ownerId = owner?.id;
+            }
+            if (!ownerId) return;
+
             try {
-                if (!ownerId) return;
                 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                 const API_URL = isLocal ? `http://localhost:5050/api/owner/${ownerId}/logs` : `/api/owner/${ownerId}/logs`;
                 const response = await fetch(API_URL);
                 if (!response.ok) throw new Error('Network error');
-                const data = await response.json();
-                const body = document.getElementById('logsBody');
-                body.innerHTML = '';
-                if (data.length === 0) {
-                    body.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 text-sm">No bookings yet. They will appear here once users start booking your locations.</td></tr>';
-                    return;
-                }
-                data.forEach(log => {
-                    const row = document.createElement('tr');
-                    row.className = 'hover:bg-slate-50/70 transition-colors';
-                    const vehicleTypeLabel = log.vehicleType === '2wheeler' ? '2-Wheel' : (log.vehicleType === 'heavy' ? 'Heavy' : '4-Wheel');
-                    
-                    row.innerHTML = `
-                        <td class="px-6 py-4 text-slate-500 font-mono text-[11px]">${new Date(log.createdAt || log.date).toLocaleDateString('en-IN', {day:'2-digit', month:'short'})}</td>
-                        <td class="px-6 py-4 font-bold text-slate-900">${log.locationName}</td>
-                        <td class="px-6 py-4">
-                            <div class="font-bold text-slate-800 uppercase tracking-tight">${log.vehicleNumber || '---'}</div>
-                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">${vehicleTypeLabel}</div>
-                        </td>
-                        <td class="px-6 py-4 text-slate-500 font-medium italic">${log.startTime} → ${log.endTime}</td>
-                        <td class="px-6 py-4 text-right"><span class="font-black text-slate-900">${log.amount}</span></td>
-                        <td class="px-6 py-4"><span class="inline-flex items-center gap-1.5 text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-2.5 py-1 rounded-full font-black uppercase tracking-wider"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Confirmed</span></td>`;
-                    body.appendChild(row);
-                });
+                currentLogs = await response.json();
+                renderLogs();
             } catch(e) { console.error('Logs load failed:', e); }
         }
-        setInterval(fetchLogs, 15000);
+
+        function renderLogs() {
+            const body = document.getElementById('logsBody');
+            body.innerHTML = '';
+            
+            const now = new Date();
+            const filtered = currentLogs.filter(log => {
+                const logDate = new Date(log.createdAt || log.date);
+                // Simplify: if log is from today or later, it's active. For real production, we'd check times.
+                const isPast = logDate < new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                return activeFilter === 'history' ? isPast : !isPast;
+            });
+
+            if (filtered.length === 0) {
+                body.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-400 text-sm">No ${activeFilter} bookings yet.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(log => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-slate-50/70 transition-colors';
+                const vehicleTypeLabel = log.vehicleType === '2wheeler' ? '2-Wheel' : (log.vehicleType === 'heavy' ? 'Heavy' : '4-Wheel');
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 text-slate-500 font-mono text-[11px]">${new Date(log.createdAt || log.date).toLocaleDateString('en-IN', {day:'2-digit', month:'short'})}</td>
+                    <td class="px-6 py-4 font-bold text-slate-900">${log.locationName}</td>
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-slate-800 uppercase tracking-tight">${log.vehicleNumber || '---'}</div>
+                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">${vehicleTypeLabel}</div>
+                    </td>
+                    <td class="px-6 py-4 text-slate-500 font-medium italic">${log.startTime} → ${log.endTime}</td>
+                    <td class="px-6 py-4 text-right"><span class="font-black text-slate-900">${log.amount}</span></td>
+                    <td class="px-6 py-4"><span class="inline-flex items-center gap-1.5 text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-2.5 py-1 rounded-full font-black uppercase tracking-wider"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 ${activeFilter === 'active' ? 'animate-pulse' : ''}"></span>Confirmed</span></td>`;
+                body.appendChild(row);
+            });
+        }
+        
+        setInterval(() => {
+            checkAuth().then(owner => { if (owner) fetchLogs(owner.id); });
+        }, 30000);
 
         const openBtn = document.getElementById('mobile-sidebar-open');
         const closeBtn = document.getElementById('mobile-sidebar-close');
