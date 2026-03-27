@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support | Park Events</title>
+    <title>Contact & Waitlist | Park Conscious</title>
 
     <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" sizes="any">
@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="/favicon.png">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Support | Park Events">
+    <meta property="og:title" content="Contact & Waitlist | Park Conscious">
     <meta property="og:image" content="/assets/logo.jpg">
     <meta property="og:type" content="website">
 
@@ -23,13 +23,12 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: #020617;
         }
 
-        .events-gradient {
-            background: radial-gradient(circle at top right, #3b82f6 0%, transparent 40%),
-                radial-gradient(circle at bottom left, #d946ef 0%, transparent 40%),
-                radial-gradient(circle at center, #020617 0%, #000000 100%);
+        .main-gradient {
+            background: radial-gradient(circle at top right, #1e40af 0%, transparent 40%),
+                radial-gradient(circle at bottom left, #0f766e 0%, transparent 40%),
+                radial-gradient(circle at center, #111827 0%, #000000 100%);
             background-attachment: fixed;
         }
 
@@ -38,60 +37,32 @@
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-
-        .input-glass {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .input-glass:focus {
-            background: rgba(15, 23, 42, 0.8);
-            border-color: #d946ef;
-            box-shadow: 0 0 15px rgba(217, 70, 239, 0.2);
-        }
-
-        .btn-neon {
-            background: linear-gradient(135deg, #3b82f6 0%, #d946ef 100%);
-            transition: all 0.3s ease;
-        }
-
-        .btn-neon:hover {
-            box-shadow: 0 0 25px rgba(217, 70, 239, 0.6);
-            transform: translateY(-2px);
-        }
-
-        .text-gradient {
-            background: linear-gradient(135deg, #3b82f6 0%, #d946ef 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
     </style>
 </head>
 
-<body class="text-gray-200 events-gradient min-h-screen flex flex-col">
-    <!-- Navigation -->
-    <nav class="fixed w-full top-0 z-50 py-6 bg-black/40 backdrop-blur-xl border-b border-white/10">
+<body class="bg-gray-950 text-gray-200 main-gradient min-h-screen flex flex-col">
+    <nav class="w-full z-50 py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <div class="flex items-center cursor-pointer" onclick="window.location.href='index.html'">
                 <div
-                    class="relative w-10 h-10 mr-3 flex items-center justify-center bg-gradient-to-br from-blue-600 to-fuchsia-600 rounded-lg shadow-lg overflow-hidden">
+                    class="relative w-10 h-10 mr-3 flex items-center justify-center bg-gradient-to-br from-blue-600 to-teal-600 rounded-lg shadow-lg overflow-hidden">
                     <img src="./assets/logo.jpg" alt="Logo"
                         class="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity">
                 </div>
-                <span class="text-xl font-bold text-white tracking-tight uppercase">Park <span
-                        class="text-fuchsia-400">Events</span></span>
+                <span class="text-xl font-bold text-white tracking-tight">Park <span
+                        class="text-teal-400">Conscious</span></span>
             </div>
             <div class="hidden md:flex items-center space-x-8">
-                <a href="index.html" class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Home</a>
-                <a href="find-parking.html" class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Find Parking</a>
-                <a href="events.html" class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Events</a>
+                <a href="about.html"
+                    class="text-gray-300 hover:text-white text-sm font-medium transition-colors">About</a>
+                <a href="technology.html"
+                    class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Technology</a>
                 <div class="h-6 w-px bg-white/10 mx-2"></div>
                 <button onclick="window.location.href='owner/login.html'"
                     class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Login</button>
                 <button onclick="window.location.href='contact.html'"
-                    class="btn-neon text-white px-6 py-2 rounded-full text-sm font-bold transition-all shadow-lg">Support</button>
+                    class="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-5 py-2 rounded-full text-sm font-medium transition-all backdrop-blur-sm">Contact
+                    Sales</button>
             </div>
             <!-- Mobile menu button -->
             <div class="md:hidden">
@@ -107,7 +78,7 @@
         <!-- Mobile Menu Drawer -->
         <div class="fixed inset-0 z-[60] hidden" id="mobile-menu">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="mobile-menu-overlay"></div>
-            <div class="absolute right-0 top-0 h-full w-64 bg-slate-900 border-l border-white/10 p-6 transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl"
+            <div class="absolute right-0 top-0 h-full w-64 bg-gray-900 border-l border-white/10 p-6 transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl"
                 id="mobile-menu-drawer">
                 <div class="flex justify-end mb-8">
                     <button class="text-gray-400 hover:text-white" id="mobile-menu-close">
@@ -118,198 +89,194 @@
                     </button>
                 </div>
                 <div class="flex flex-col space-y-6">
-                    <a href="index.html" class="text-lg font-medium text-white hover:text-fuchsia-400 transition-colors">Home</a>
-                    <a href="find-parking.html" class="text-lg font-medium text-white hover:text-fuchsia-400 transition-colors">Find Parking</a>
-                    <a href="events.html" class="text-lg font-medium text-white hover:text-fuchsia-400 transition-colors">Events</a>
+                    <a href="index.html"
+                        class="text-lg font-medium text-white hover:text-teal-400 transition-colors">Home</a>
+                    <a href="about.html"
+                        class="text-lg font-medium text-white hover:text-teal-400 transition-colors">About</a>
+                    <a href="technology.html"
+                        class="text-lg font-medium text-white hover:text-teal-400 transition-colors">Technology</a>
                     <div class="h-px bg-white/10 w-full"></div>
                     <button onclick="window.location.href='owner/login.html'"
                         class="w-full bg-white/5 hover:bg-white/10 text-white border border-white/20 py-3 rounded-xl text-sm font-medium transition-colors">
                         Login
+                    </button>
+                    <button onclick="window.location.href='contact.html'"
+                        class="w-full bg-gradient-to-r from-blue-600 to-teal-500 text-white py-3 rounded-xl text-sm font-semibold shadow-lg shadow-blue-500/30 transition-colors">
+                        Contact Sales
                     </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <!-- Left Side: Header & Contacts -->
-            <div class="space-y-12" data-aos="fade-right">
-                <div class="relative">
-                    <div class="absolute -left-8 top-0 w-1 h-32 bg-gradient-to-b from-blue-600 to-fuchsia-600 rounded-full hidden md:block"></div>
-                    <h1 class="text-6xl md:text-7xl font-black text-white tracking-tighter mb-6 leading-tight">
-                        WE'RE HERE <br>
-                        <span class="text-gradient">TO HELP.</span>
-                    </h1>
-                    <p class="text-gray-400 text-xl leading-relaxed max-w-md">
-                        Have a question about event booking, parking slots, or technical issues? Our support crew is on standby.
+    <div class="flex-1 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-lg p-8 rounded-2xl shadow-2xl">
+            <h1 class="text-3xl font-bold text-white mb-2">Join the Revolution</h1>
+            <p class="text-gray-400 mb-8">We are currently in pilot phase. Sign up to get invited.</p>
+
+            <form class="space-y-6" id="contactForm">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Full Name</label>
+                    <input type="text" name="name" required
+                        class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-teal-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Email Address</label>
+                    <input type="email" name="email" required
+                        class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-teal-500 transition-colors">
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <label
+                        class="flex items-center p-4 border border-white/10 rounded-xl cursor-pointer hover:bg-white/5 transition-colors flex-1">
+                        <input type="radio" name="role" value="User" checked
+                            class="text-teal-500 focus:ring-teal-500 h-4 w-4 bg-gray-800 border-gray-600">
+                        <span class="ml-3 text-sm font-medium text-white">I'm a User</span>
+                    </label>
+                    <label
+                        class="flex items-center p-4 border border-white/10 rounded-xl cursor-pointer hover:bg-white/5 transition-colors flex-1">
+                        <input type="radio" name="role" value="Parking Owner"
+                            class="text-teal-500 focus:ring-teal-500 h-4 w-4 bg-gray-800 border-gray-600">
+                        <span class="ml-3 text-sm font-medium text-white">I'm a Parking Owner</span>
+                    </label>
+                </div>
+
+                <button type="submit" id="submitBtn"
+                    class="w-full bg-gradient-to-r from-blue-600 to-teal-500 text-white font-bold py-4 rounded-xl hover:shadow-lg hover:shadow-blue-500/20 transition-all transform hover:-translate-y-0.5">
+                    Join Waitlist
+                </button>
+            </form>
+
+            <script>
+                document.getElementById('contactForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const btn = document.getElementById('submitBtn');
+                    const originalText = btn.innerText;
+                    btn.innerText = 'Sending...';
+                    btn.disabled = true;
+
+                    const formData = new FormData(e.target);
+                    const data = {
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        role: formData.get('role')
+                    };
+
+                    try {
+                        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                        const API_URL = isLocal ? (window.location.port === '3000' ? '' : 'http://localhost:5050') : '';
+
+                        const response = await fetch(`${API_URL}/api/contact`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+
+                        if (response.ok) {
+                            alert('Thanks for joining! We will be in touch.');
+                            window.location.href = 'index.html';
+                        } else {
+                            const err = await response.json();
+                            alert('Error: ' + (err.message || 'Something went wrong'));
+                            btn.innerText = originalText;
+                            btn.disabled = false;
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Failed to connect to server.');
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    }
+                });
+
+                // Mobile Menu Logic
+                const mobileMenuButton = document.getElementById('mobile-menu-button');
+                const mobileMenuClose = document.getElementById('mobile-menu-close');
+                const mobileMenu = document.getElementById('mobile-menu');
+                const mobileMenuDrawer = document.getElementById('mobile-menu-drawer');
+                const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+
+                function openMobileMenu() {
+                    mobileMenu.classList.remove('hidden');
+                    setTimeout(() => {
+                        mobileMenuDrawer.classList.remove('translate-x-full');
+                    }, 10);
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeMobileMenu() {
+                    mobileMenuDrawer.classList.add('translate-x-full');
+                    setTimeout(() => {
+                        mobileMenu.classList.add('hidden');
+                    }, 300);
+                    document.body.style.overflow = '';
+                }
+
+                mobileMenuButton?.addEventListener('click', openMobileMenu);
+                mobileMenuClose?.addEventListener('click', closeMobileMenu);
+                mobileMenuOverlay?.addEventListener('click', closeMobileMenu);
+            </script>
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer class="bg-gray-950 py-20 border-t border-white/5 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-16 mb-16">
+                <div class="max-w-xs">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="relative w-10 h-10 flex items-center justify-center bg-gradient-to-br from-blue-600 to-teal-600 rounded-lg shadow-lg overflow-hidden">
+                            <img src="./assets/logo.jpg" alt="Logo" class="w-full h-full object-cover">
+                        </div>
+                        <div class="text-2xl font-bold text-white tracking-tight">Park Conscious</div>
+                    </div>
+                    <p class="text-gray-500 text-sm leading-relaxed">
+                        Building the next generation of urban infrastructure through AI and intelligent automation.
                     </p>
                 </div>
-
-                <div class="space-y-10">
-                    <div class="flex gap-8 items-center group">
-                        <div class="w-16 h-16 rounded-[1.25rem] bg-blue-600/10 border border-blue-600/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform shadow-lg shadow-blue-600/10">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                        </div>
-                        <div>
-                            <h3 class="text-fuchsia-400 font-bold text-xs uppercase tracking-widest mb-1">Support Email</h3>
-                            <a href="mailto:support@parkconscious.in" class="text-2xl font-black hover:text-white transition-colors">support@parkconscious.in</a>
-                        </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-16 flex-1">
+                    <div>
+                        <h4 class="text-white font-bold mb-6">Product</h4>
+                        <ul class="space-y-4 text-gray-500 text-sm">
+                            <li><a href="find-parking.html" class="hover:text-teal-400 transition-colors">Find Parking</a></li>
+                            <li><a href="index.html#solution" class="hover:text-teal-400 transition-colors">Solutions</a></li>
+                            <li><a href="about.html" class="hover:text-teal-400 transition-colors">Infrastructure</a></li>
+                        </ul>
                     </div>
-
-                    <div class="flex gap-8 items-center group">
-                        <div class="w-16 h-16 rounded-[1.25rem] bg-fuchsia-600/10 border border-fuchsia-600/20 flex items-center justify-center text-fuchsia-400 group-hover:scale-110 transition-transform shadow-lg shadow-fuchsia-600/10">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                        </div>
-                        <div>
-                            <h3 class="text-blue-400 font-bold text-xs uppercase tracking-widest mb-1">Contact Number</h3>
-                            <a href="tel:+919876543210" class="text-2xl font-black hover:text-white transition-colors">+91 98765 43210</a>
-                        </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-6">Company</h4>
+                        <ul class="space-y-4 text-gray-500 text-sm">
+                            <li><a href="about.html" class="hover:text-teal-400 transition-colors">About Us</a></li>
+                            <li><a href="contact.html" class="hover:text-teal-400 transition-colors">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-6">Legal</h4>
+                        <ul class="space-y-4 text-gray-500 text-sm">
+                            <li><a href="javascript:void(0)" onclick="showLegal('privacy')" class="hover:text-teal-400 transition-colors">Privacy Policy</a></li>
+                            <li><a href="javascript:void(0)" onclick="showLegal('terms')" class="hover:text-teal-400 transition-colors">Terms of Service</a></li>
+                            <li><a href="javascript:void(0)" onclick="showLegal('refunds')" class="hover:text-teal-400 transition-colors">Refund Policy</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
-
-            <!-- Right Side: Form -->
-            <div class="relative" data-aos="fade-left">
-                <!-- Decorative Glows -->
-                <div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-600/20 rounded-full blur-[100px] pointer-events-none"></div>
-                <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-fuchsia-600/20 rounded-full blur-[100px] pointer-events-none"></div>
-
-                <div class="glass p-10 md:p-12 rounded-[3.5rem] shadow-2xl relative z-10 border border-white/10">
-                    <h2 class="text-3xl font-black text-white mb-10 tracking-tight">Drop us a line</h2>
-                    
-                    <form id="supportForm" class="space-y-8">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-3 ml-1 uppercase tracking-widest">Full Name</label>
-                            <input type="text" name="name" required placeholder="Enter your name"
-                                class="w-full input-glass rounded-2xl px-6 py-5 text-white placeholder:text-gray-600 focus:outline-none">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-3 ml-1 uppercase tracking-widest">Email Address</label>
-                            <input type="email" name="email" required placeholder="name@email.com"
-                                class="w-full input-glass rounded-2xl px-6 py-5 text-white placeholder:text-gray-600 focus:outline-none">
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-3 ml-1 uppercase tracking-widest">Inquiry Type</label>
-                                <select name="subject" class="w-full input-glass rounded-2xl px-6 py-5 text-white focus:outline-none appearance-none cursor-pointer">
-                                    <option value="General Query">General Query</option>
-                                    <option value="Booking Issue">Booking Issue</option>
-                                    <option value="Technical Support">Support</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-3 ml-1 uppercase tracking-widest">Priority</label>
-                                <select name="priority" class="w-full input-glass rounded-2xl px-6 py-5 text-white focus:outline-none appearance-none cursor-pointer">
-                                    <option value="Normal">Normal</option>
-                                    <option value="High">Urgent</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-3 ml-1 uppercase tracking-widest">Your Message</label>
-                            <textarea name="message" required rows="4" placeholder="How can our crew help you today?"
-                                class="w-full input-glass rounded-2xl px-6 py-5 text-white placeholder:text-gray-600 focus:outline-none resize-none"></textarea>
-                        </div>
-
-                        <button type="submit" id="submitBtn"
-                            class="w-full btn-neon text-white font-black py-6 rounded-[2rem] shadow-2xl shadow-fuchsia-600/30 hover:shadow-fuchsia-600/50 transition-all tracking-[0.2em] uppercase text-sm">
-                            Submit Inquiry
-                        </button>
-                    </form>
-                </div>
+            <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                <p class="text-gray-600 text-xs">© 2026 Park Conscious. All rights reserved.</p>
             </div>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-black/50 py-12 border-t border-white/5 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-gray-500 text-xs font-bold tracking-widest uppercase">© 2026 Park Events. All Rights Reserved.</p>
         </div>
     </footer>
 
-    <!-- AOS Script -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Legal Modal Script -->
+    <script src="./scripts/legal-modal.js"></script>
+
+    <!-- Vercel Speed Insights & Analytics -->
     <script>
-        AOS.init({ duration: 1000, once: true });
-
-        document.getElementById('supportForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = 'SENDING...';
-            btn.disabled = true;
-
-            const formData = new FormData(e.target);
-            const data = {
-                name: formData.get('name'),
-                email: formData.get('email'),
-                subject: formData.get('subject'),
-                message: formData.get('message')
-            };
-
-            try {
-                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                const API_URL = isLocal ? (window.location.port === '3000' ? '' : 'http://localhost:5050') : '';
-
-                const response = await fetch(`${API_URL}/api/contact`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    btn.innerHTML = 'SUCCESS!';
-                    btn.classList.add('bg-green-500');
-                    alert('Thanks! Our crew will get back to you shortly.');
-                    e.target.reset();
-                    setTimeout(() => {
-                        btn.innerHTML = originalText;
-                        btn.disabled = false;
-                        btn.classList.remove('bg-green-500');
-                    }, 3000);
-                } else {
-                    throw new Error('Server error');
-                }
-            } catch (error) {
-                alert('Message received! (Demo Mode: Action Logged)');
-                e.target.reset();
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        });
-
-        // Mobile Menu Logic
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenuClose = document.getElementById('mobile-menu-close');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobileMenuDrawer = document.getElementById('mobile-menu-drawer');
-        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-
-        function openMobileMenu() {
-            mobileMenu.classList.remove('hidden');
-            setTimeout(() => {
-                mobileMenuDrawer.classList.remove('translate-x-full');
-            }, 10);
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeMobileMenu() {
-            mobileMenuDrawer.classList.add('translate-x-full');
-            setTimeout(() => {
-                mobileMenu.classList.add('hidden');
-            }, 300);
-            document.body.style.overflow = '';
-        }
-
-        mobileMenuButton?.addEventListener('click', openMobileMenu);
-        mobileMenuClose?.addEventListener('click', closeMobileMenu);
-        mobileMenuOverlay?.addEventListener('click', closeMobileMenu);
+        window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
     </script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 
 </html>
