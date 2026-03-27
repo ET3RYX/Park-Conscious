@@ -117,28 +117,42 @@
 
     <script>
         const ownerToken = localStorage.getItem('park_owner');
+        const userToken = localStorage.getItem('park_user');
         const isDemo = sessionStorage.getItem('park_owner_demo');
 
-        // Safety: If logged in but no ID (from old session), force re-login
-        if (ownerToken) {
-            try {
-                const owner = JSON.parse(ownerToken);
-                if (!owner.id && !isDemo) {
-                    localStorage.removeItem('park_owner');
-                    window.location.href = 'login.html';
-                }
-            } catch(e) { window.location.href = 'login.html'; }
-        } else if (!isDemo) {
+        async function checkAuth() {
+            if (ownerToken) {
+                try {
+                    const owner = JSON.parse(ownerToken);
+                    if (owner.id || isDemo) return owner;
+                } catch(e) {}
+            }
+            if (isDemo) return { name: 'Demo Owner', id: 'demo' };
+            if (userToken) {
+                try {
+                    const user = JSON.parse(userToken);
+                    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                    const API_URL = isLocal ? `http://localhost:5050/api/owner/check-session?email=${user.email}` : `/api/owner/check-session?email=${user.email}`;
+                    const resp = await fetch(API_URL);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        localStorage.setItem('park_owner', JSON.stringify(data.user));
+                        return data.user;
+                    }
+                } catch(e) {}
+            }
             window.location.href = 'login.html';
         }
         
+        checkAuth().then(owner => {
+            if (owner) fetchLogs(owner.id);
+        });
+
         function logoutOwner() { localStorage.removeItem('park_owner'); sessionStorage.removeItem('park_owner_demo'); window.location.href = '../index.html'; }
 
-        async function fetchLogs() {
+        async function fetchLogs(ownerId) {
             try {
-                if (!ownerToken) return;
-                const owner = JSON.parse(ownerToken);
-                const ownerId = owner.id;
+                if (!ownerId) return;
                 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                 const API_URL = isLocal ? `http://localhost:5050/api/owner/${ownerId}/logs` : `/api/owner/${ownerId}/logs`;
                 const response = await fetch(API_URL);
@@ -161,9 +175,8 @@
                         <td class="px-6 py-4"><span class="inline-flex items-center gap-1.5 text-xs bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-1 rounded-full font-bold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Confirmed</span></td>`;
                     body.appendChild(row);
                 });
-            } catch(e) { console.error('Logs fetch failed:', e); }
+            } catch(e) { console.error('Logs load failed:', e); }
         }
-        fetchLogs();
         setInterval(fetchLogs, 15000);
 
         const openBtn = document.getElementById('mobile-sidebar-open');

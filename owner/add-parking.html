@@ -74,9 +74,18 @@
             <form id="add-parking-form" class="bg-white border border-slate-100 rounded-2xl shadow-sm p-8 space-y-6">
                 <!-- Name -->
                 <div>
-                    <label class="form-label" for="loc-name">Parking Name / Location</label>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="form-label mb-0" for="loc-name">Parking Name / Location</label>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Smart Search</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="smart-search-toggle" class="sr-only peer" checked onchange="toggleSmartSearch()">
+                                <div class="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#00C39A]"></div>
+                            </label>
+                        </div>
+                    </div>
                     <input id="loc-name" class="form-input" required type="text" placeholder="e.g. Central Mall Parking B2">
-                    <p class="text-[10px] text-slate-400 mt-1">Suggestions will appear as you type.</p>
+                    <p id="search-hint" class="text-[10px] text-slate-400 mt-1">Suggestions will appear as you type.</p>
                 </div>
 
                 <!-- Auto Extractor -->
@@ -137,13 +146,16 @@
 
                 <!-- Actions -->
                 <div class="flex gap-3 pt-2">
-                    <button type="submit" id="submit-btn" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                    <button type="submit" id="submit-btn" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-slate-900/20 hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                         Submit Location
                     </button>
                     <button type="button" onclick="window.history.back()" class="px-6 py-3.5 border border-slate-200 text-slate-500 font-medium rounded-xl hover:bg-slate-50 transition-all">
                         Cancel
                     </button>
+                </div>
+                <div id="demo-notice" class="hidden text-center text-xs font-bold text-amber-600 bg-amber-50 p-3 rounded-xl border border-amber-100">
+                    ⚠️ Demo Mode: You can explore the UI, but adding new locations is disabled.
                 </div>
             </form>
         </div>
@@ -197,6 +209,8 @@
         }
 
         let autocomplete;
+        let isSmartSearch = true;
+
         function initAutocomplete() {
             const input = document.getElementById('loc-name');
             autocomplete = new google.maps.places.Autocomplete(input, {
@@ -205,6 +219,7 @@
             });
 
             autocomplete.addListener('place_changed', () => {
+                if (!isSmartSearch) return;
                 const place = autocomplete.getPlace();
                 if (!place.geometry) return;
 
@@ -214,6 +229,17 @@
                 // Visual feedback
                 showStatusBadge('Location pinned from search');
             });
+        }
+
+        function toggleSmartSearch() {
+            isSmartSearch = document.getElementById('smart-search-toggle').checked;
+            const hint = document.getElementById('search-hint');
+            if (isSmartSearch) {
+                hint.innerText = "Suggestions will appear as you type.";
+                // Re-enable autocomplete if needed (it stays attached, we just ignore its results in logic)
+            } else {
+                hint.innerText = "Free-text mode. Latitude/Longitude will not be auto-filled.";
+            }
         }
 
         function extractFromUrl() {
@@ -255,21 +281,42 @@
         loadMapsScript();
 
         const ownerToken = localStorage.getItem('park_owner');
+        const userToken = localStorage.getItem('park_user');
         const isDemo = sessionStorage.getItem('park_owner_demo');
 
-        // Safety: If logged in but no ID (from old session), force re-login
-        if (ownerToken) {
-            try {
-                const owner = JSON.parse(ownerToken);
-                if (!owner.id && !isDemo) {
-                    localStorage.removeItem('park_owner');
-                    window.location.href = 'login.html';
-                }
-            } catch(e) { window.location.href = 'login.html'; }
-        } else if (!isDemo) {
+        async function checkAuth() {
+            if (ownerToken) {
+                try {
+                    const owner = JSON.parse(ownerToken);
+                    if (owner.id || isDemo) return owner;
+                } catch(e) {}
+            }
+            if (isDemo) return { name: 'Demo Owner', id: 'demo' };
+            if (userToken) {
+                try {
+                    const user = JSON.parse(userToken);
+                    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                    const API_URL = isLocal ? `http://localhost:5050/api/owner/check-session?email=${user.email}` : `/api/owner/check-session?email=${user.email}`;
+                    const resp = await fetch(API_URL);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        localStorage.setItem('park_owner', JSON.stringify(data.user));
+                        return data.user;
+                    }
+                } catch(e) {}
+            }
             window.location.href = 'login.html';
         }
-        
+
+        checkAuth().then(owner => {
+            if (isDemo) {
+                const btn = document.getElementById('submit-btn');
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'grayscale');
+                document.getElementById('demo-notice').classList.remove('hidden');
+            }
+        });
+
         function logoutOwner() { localStorage.removeItem('park_owner'); sessionStorage.removeItem('park_owner_demo'); window.location.href = '../index.html'; }
 
         document.getElementById('add-parking-form').addEventListener('submit', async (e) => {

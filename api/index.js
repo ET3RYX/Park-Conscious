@@ -86,7 +86,7 @@ export default async function handler(req, res) {
             if (await User.findOne({ email })) return json(res, 400, { message: 'User already exists' });
             const hashed = await bcrypt.hash(password, 10);
             const user = await User.create({ name, email, password: hashed });
-            return json(res, 201, { user: { name: user.name, email: user.email } });
+            return json(res, 201, { user: { id: user._id, name: user.name, email: user.email } });
         }
 
         // ── User login ────────────────────────────────────────────
@@ -95,7 +95,7 @@ export default async function handler(req, res) {
             const user = await User.findOne({ email });
             if (!user || !user.password) return json(res, 400, { message: 'Invalid credentials' });
             if (!await bcrypt.compare(password, user.password)) return json(res, 400, { message: 'Invalid credentials' });
-            return json(res, 200, { user: { name: user.name, email: user.email } });
+            return json(res, 200, { user: { id: user._id, name: user.name, email: user.email } });
         }
 
         // ── User Google login ─────────────────────────────────────
@@ -103,7 +103,7 @@ export default async function handler(req, res) {
             const { email, name, googleId } = body;
             let user = await User.findOne({ email });
             if (!user) user = await User.create({ name, email, googleId });
-            return json(res, 200, { user: { name: user.name, email: user.email } });
+            return json(res, 200, { user: { id: user._id, name: user.name, email: user.email } });
         }
 
         // ── Owner signup ──────────────────────────────────────────
@@ -129,6 +129,15 @@ export default async function handler(req, res) {
             const { email, name, googleId } = body;
             let owner = await Owner.findOne({ email });
             if (!owner) owner = await Owner.create({ name, email, googleId });
+            return json(res, 200, { user: { id: owner._id, name: owner.name, email: owner.email } });
+        }
+
+        // ── Owner Check Session (Bridge) ──────────────────────────
+        if (url.includes('/owner/check-session') && method === 'GET') {
+            const email = new URL(url, `http://${req.headers.host}`).searchParams.get('email');
+            if (!email) return json(res, 400, { message: 'Email required' });
+            const owner = await Owner.findOne({ email });
+            if (!owner) return json(res, 404, { message: 'Not an owner' });
             return json(res, 200, { user: { id: owner._id, name: owner.name, email: owner.email } });
         }
 

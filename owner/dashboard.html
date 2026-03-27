@@ -187,31 +187,50 @@
     </div>
 
     <script>
-        // Auth
         const ownerToken = localStorage.getItem('park_owner');
+        const userToken = localStorage.getItem('park_user');
         const isDemo = sessionStorage.getItem('park_owner_demo');
         
-        // Safety: If logged in but no ID (from old session), force re-login
-        if (ownerToken) {
-            try {
-                const owner = JSON.parse(ownerToken);
-                if (!owner.id && !isDemo) {
-                    localStorage.removeItem('park_owner');
-                    window.location.href = 'login.html';
-                }
-            } catch(e) { window.location.href = 'login.html'; }
-        } else if (!isDemo) {
+        async function checkAuth() {
+            // 1. Direct Owner Login
+            if (ownerToken) {
+                try {
+                    const owner = JSON.parse(ownerToken);
+                    if (owner.id || isDemo) return owner;
+                } catch(e) {}
+            }
+
+            // 2. Demo Mode
+            if (isDemo) return { name: 'Demo Owner', id: 'demo' };
+
+            // 3. User-to-Owner Bridge (Unified Login)
+            if (userToken) {
+                try {
+                    const user = JSON.parse(userToken);
+                    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                    const API_URL = isLocal ? `http://localhost:5050/api/owner/check-session?email=${user.email}` : `/api/owner/check-session?email=${user.email}`;
+                    
+                    const resp = await fetch(API_URL);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        localStorage.setItem('park_owner', JSON.stringify(data.user));
+                        return data.user;
+                    }
+                } catch(e) {}
+            }
+
+            // 4. Not logged in
             window.location.href = 'login.html';
         }
 
-        if (ownerToken) {
-            try {
-                const owner = JSON.parse(ownerToken);
+        checkAuth().then(owner => {
+            if (owner) {
                 document.getElementById('owner-name-display').innerText = owner.name;
                 document.getElementById('owner-name-sidebar').innerText = owner.name;
                 document.getElementById('owner-avatar').innerText = owner.name.charAt(0).toUpperCase();
-            } catch(e) {}
-        }
+                updateStats(owner.id);
+            }
+        });
 
         function logoutOwner() {
             localStorage.removeItem('park_owner');
@@ -219,11 +238,9 @@
             window.location.href = '../index.html';
         }
 
-        async function updateStats() {
+        async function updateStats(ownerId) {
             try {
-                if (!ownerToken) return;
-                const owner = JSON.parse(ownerToken);
-                const ownerId = owner.id;
+                if (!ownerId) return;
                 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                 const API_URL = isLocal ? `http://localhost:5050/api/owner/${ownerId}/dashboard` : `/api/owner/${ownerId}/dashboard`;
                 const resp = await fetch(API_URL);
@@ -256,7 +273,6 @@
                 }
             } catch(e) { console.error('Dashboard load failed:', e); }
         }
-        updateStats();
 
         // Chart
         const ctx = document.getElementById('revenueChart').getContext('2d');
