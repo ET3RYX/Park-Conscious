@@ -76,6 +76,21 @@
                 <div>
                     <label class="form-label" for="loc-name">Parking Name / Location</label>
                     <input id="loc-name" class="form-input" required type="text" placeholder="e.g. Central Mall Parking B2">
+                    <p class="text-[10px] text-slate-400 mt-1">Suggestions will appear as you type.</p>
+                </div>
+
+                <!-- Auto Extractor -->
+                <div class="p-5 bg-slate-50 border border-slate-100 rounded-xl space-y-3">
+                    <label class="form-label mb-0" for="maps-url">Or Paste Google Maps URL</label>
+                    <div class="flex gap-2">
+                        <input id="maps-url" class="form-input flex-1 !bg-white" type="text" placeholder="https://www.google.com/maps/place/...">
+                        <button type="button" onclick="extractFromUrl()" class="px-4 py-2 bg-[#00C39A] text-white text-xs font-bold rounded-lg hover:bg-[#00A683] transition-all">Extract</button>
+                    </div>
+                </div>
+
+                <!-- Status Banner (Hidden by default) -->
+                <div id="map-status-banner" class="hidden px-4 py-2 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-lg border border-emerald-100 flex items-center gap-2 animate-bounce">
+                    ✓ Coordinates extracted successfully
                 </div>
 
                 <!-- Coordinates -->
@@ -166,7 +181,79 @@
         </div>
     </div>
 
+    <script src="../scripts/config.js"></script>
     <script>
+        // Load Google Maps API with Places library
+        function loadMapsScript() {
+            if (!window.PARK_CONFIG || !window.PARK_CONFIG.MAPS_KEY) {
+                console.error("Maps API Key missing");
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${window.PARK_CONFIG.MAPS_KEY}&libraries=places&callback=initAutocomplete`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+
+        let autocomplete;
+        function initAutocomplete() {
+            const input = document.getElementById('loc-name');
+            autocomplete = new google.maps.places.Autocomplete(input, {
+                types: ['establishment', 'geocode'],
+                componentRestrictions: { country: 'in' }
+            });
+
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+                if (!place.geometry) return;
+
+                document.getElementById('loc-lat').value = place.geometry.location.lat().toFixed(6);
+                document.getElementById('loc-lng').value = place.geometry.location.lng().toFixed(6);
+                
+                // Visual feedback
+                showStatusBadge('Location pinned from search');
+            });
+        }
+
+        function extractFromUrl() {
+            const urlInput = document.getElementById('maps-url');
+            const url = urlInput.value;
+            if (!url) return;
+
+            // Regex for @lat,lng in Google Maps URLs
+            const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
+            const match = url.match(regex);
+
+            if (match) {
+                document.getElementById('loc-lat').value = match[1];
+                document.getElementById('loc-lng').value = match[2];
+                showStatusBadge('Coordinates extracted from URL');
+                urlInput.value = ''; // clear after success
+            } else {
+                // Secondary check for !3d...!4d format
+                const regex2 = /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/;
+                const match2 = url.match(regex2);
+                if (match2) {
+                    document.getElementById('loc-lat').value = match2[1];
+                    document.getElementById('loc-lng').value = match2[2];
+                    showStatusBadge('Coordinates extracted from URL');
+                    urlInput.value = '';
+                } else {
+                    alert('Could not find coordinates in this URL. Try right-clicking on the map and selecting "What\'s here?" to get a better link.');
+                }
+            }
+        }
+
+        function showStatusBadge(text) {
+            const banner = document.getElementById('map-status-banner');
+            banner.innerText = '✓ ' + text;
+            banner.classList.remove('hidden');
+            setTimeout(() => banner.classList.add('hidden'), 5000);
+        }
+
+        loadMapsScript();
+
         const ownerToken = localStorage.getItem('park_owner');
         const isDemo = sessionStorage.getItem('park_owner_demo');
 
