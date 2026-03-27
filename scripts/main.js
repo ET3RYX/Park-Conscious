@@ -1,5 +1,15 @@
-const PARKING_JSON = './assets/data/parkings.json';
 const DEFAULT_LOCATION = { lat: 28.644800, lng: 77.216721 };
+// Dynamic API URL: uses relative /api/parking on production (Vercel),
+// falls back to http://localhost:5050 when running locally without the node server on port 80.
+function getParkingApiUrl() {
+    const isLocalFile = window.location.protocol === 'file:';
+    if (isLocalFile) return './assets/data/parkings.json';
+    const hostname = window.location.hostname;
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+    const isBuildServer = window.location.port === '3000';
+    if (isLocal && !isBuildServer) return 'http://localhost:5050/api/parking';
+    return '/api/parking';
+}
 
 let map, userMarker, parkingData = [], markers = [], infoWindow;
 let userPosition = null;
@@ -29,7 +39,9 @@ function loadBookings() {
 
 async function loadParkingData() {
     try {
-        const resp = await fetch(PARKING_JSON);
+        const url = getParkingApiUrl();
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error('API failed: ' + resp.status);
         parkingData = await resp.json();
         parkingData = parkingData.map(p => ({
             ...p,
@@ -39,10 +51,24 @@ async function loadParkingData() {
             TotalSlots: p.TotalSlots !== undefined ? Number(p.TotalSlots) : null
         }));
     } catch (e) {
-        console.error('Failed to load parking-data.json', e);
-        parkingData = [];
+        console.warn('API unavailable, falling back to local JSON:', e);
+        // Graceful fallback to static JSON
+        try {
+            const resp = await fetch('./assets/data/parkings.json');
+            parkingData = await resp.json();
+            parkingData = parkingData.map(p => ({
+                ...p,
+                Latitude: Number(p.Latitude),
+                Longitude: Number(p.Longitude),
+            }));
+        } catch (e2) {
+            console.error('Fallback also failed:', e2);
+            parkingData = [];
+        }
     }
 }
+
+
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {

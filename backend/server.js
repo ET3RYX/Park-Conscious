@@ -8,6 +8,8 @@ import Waitlist from "./models/Waitlist.js";
 import Contact from "./models/Contact.js";
 import User from "./models/User.js";
 import Owner from "./models/Owner.js";
+import Parking from "./models/Parking.js";
+import Booking from "./models/Booking.js";
 import bcrypt from "bcrypt";
 
 dotenv.config();
@@ -24,12 +26,34 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// serve parking data
-app.get("/api/parking", (req, res) => {
-  const dataPath = path.join(process.cwd(), "data", "parkings.json");
-  const rawData = fs.readFileSync(dataPath);
-  const parkings = JSON.parse(rawData);
-  res.json(parkings);
+// serve parking data - from MongoDB (all parkings: seeded + owner-added)
+app.get("/api/parking", async (req, res) => {
+  try {
+    const dbParkings = await Parking.find({});
+    const mapped = dbParkings.map(p => ({
+      ID: p.ID || p._id.toString(),
+      Location: p.Location,
+      Latitude: p.Latitude,
+      Longitude: p.Longitude,
+      Authority: p.Authority,
+      Zone: p.Zone,
+      Status: p.Status,
+      Type: p.Type,
+      PricePerHour: p.PricePerHour,
+      TotalSlots: p.TotalSlots,
+    }));
+    res.json(mapped);
+  } catch (error) {
+    console.error("Fetch Parkings Error:", error);
+    // Fallback to local JSON if DB is unavailable
+    try {
+      const dataPath = path.join(process.cwd(), "data", "parkings.json");
+      const parkings = JSON.parse(fs.readFileSync(dataPath));
+      res.json(parkings);
+    } catch {
+      res.status(500).json({ message: "Server Error" });
+    }
+  }
 });
 
 // Waitlist API
@@ -211,7 +235,7 @@ app.post("/api/owner/signup", async (req, res) => {
     if (owner) return res.status(400).json({ message: "Owner already exists" });
 
     owner = await Owner.create({ name, email, password });
-    res.status(201).json({ message: "Created successfully", user: { name: owner.name, email: owner.email }});
+    res.status(201).json({ message: "Created successfully", user: { id: owner._id, name: owner.name, email: owner.email }});
   } catch (err) { res.status(500).json({ message: "Server error" }); }
 });
 
@@ -225,7 +249,7 @@ app.post("/api/owner/login", async (req, res) => {
     const isMatch = await bcrypt.compare(password, owner.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    res.json({ message: "Logged in successfully", user: { name: owner.name, email: owner.email }});
+    res.json({ message: "Logged in successfully", user: { id: owner._id, name: owner.name, email: owner.email }});
   } catch (err) { res.status(500).json({ message: "Server error" }); }
 });
 
@@ -239,9 +263,88 @@ app.post("/api/owner/google", async (req, res) => {
       owner.googleId = googleId;
       await owner.save();
     }
-    res.json({ message: "Logged in with Google", user: { name: owner.name, email: owner.email }});
+    res.json({ message: "Logged in with Google", user: { id: owner._id, name: owner.name, email: owner.email }});
   } catch (err) { res.status(500).json({ message: "Server error" }); }
 });
+
+// Advanced Owner Features
+// 1. Dashboard Stats
+app.get("/api/owner/:ownerId/dashboard", async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+    const parkings = await Parking.find({ owner: ownerId });
+    
+    // Extract parking IDs to find related bookings
+    const parkingIds = parkings.map(p => p._id);
+    const bookings = await Booking.find({ parkingId: { $in: parkingIds } });
+    
+    // Mocking revenue processing logic
+    let todayRevenue = 0;
+    let todayEntries = 0;
+    
+    // For realism, let's tally all completed/confirmed bookings
+    bookings.forEach(b => {
+      todayEntries += 1;
+      let amtStr = b.amount || '0';
+      amtStr = amtStr.replace(/[^0-9]/g, '');
+      todayRevenue += Number(amtStr);
+    });
+    
+    res.json({
+      totalParkings: parkings.length,
+      totalEntries: todayEntries,
+      revenueToday: todayRevenue,
+      parkings: parkings
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// 2. Manage Parkings
+app.post("/api/owner/:ownerId/parkings", async (req, res) => {
+  try {
+    const { ownerId } = req.params;
+    const { Location, Latitude, Longitude, PricePerHour, TotalSlots, Type } = req.body;
+    
+    if (!Location || !Latitude || !Longitude) {
+       return res.status(400).json({ message: "Location, Latitude, and Longitude are required." });
+    }
+    
+    const newParking = await Parking.create({
+       owner: ownerId,
+       Location,
+       Latitude: parseFloat(Latitude),
+       Longitude: parseFloat(Longitude),
+       PricePerHour: PricePerHour ? parseFloat(PricePerHour) : null,
+       TotalSlots: TotalSlots ? parseInt(TotalSlots) : null,
+       Type: Type || "Private Parking"
+    });
+    
+    res.status(201).json({ message: "Parking added successfully", parking: newParking });
+  } catch (error) {
+    console.error("Add Parking Error:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+app.get("/api/owner/:ownerId/parkings", async (req, res) => {
+  try {
+     const parkings = await Parking.find({ owner: req.params.ownerId });
+     res.json(parkings);
+  } catch (err) { res.status(500).json({ message: "Server Error" }); }
+});
+
+// 3. View Booking Logs
+app.get("/api/owner/:ownerId/logs", async (req, res) => {
+  try {
+     const bookings = await Booking.find({ ownerId: req.params.ownerId }).sort({ createdAt: -1 });
+     res.json(bookings);
+  } catch (error) {
+     res.status(500).json({ message: "Server Error" });
+  }
+});
+
 
 // health check
 app.get("/", (req, res) => res.send("✅ ParkFinder backend running!"));
