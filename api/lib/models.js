@@ -65,6 +65,48 @@ const contactSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+const parkingSchema = new mongoose.Schema(
+  {
+    ID: { type: String, default: null },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Owner",
+      default: null,
+    },
+    Location: { type: String, required: true },
+    Latitude: { type: Number, required: true },
+    Longitude: { type: Number, required: true },
+    PricePerHour: { type: Number, default: null },
+    TotalSlots: { type: Number, default: null },
+    Type: { type: String, default: "Public Parking" },
+    Authority: { type: String, default: "Public" },
+    Zone: { type: String, default: null },
+    Status: { type: String, default: "Active" },
+  },
+  { timestamps: true }
+);
+
+const bookingSchema = new mongoose.Schema(
+  {
+    parkingId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Parking",
+      required: true,
+    },
+    ownerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Owner",
+      required: true,
+    },
+    locationName: String,
+    startTime: String,
+    endTime: String,
+    amount: String,
+    date: { type: Date, default: Date.now },
+  },
+  { timestamps: true }
+);
+
 const commentSchema = new mongoose.Schema(
   {
     discussionId: {
@@ -112,3 +154,5 @@ export const Waitlist = mongoose.models.Waitlist || mongoose.model("Waitlist", w
 export const Contact = mongoose.models.Contact || mongoose.model("Contact", contactSchema);
 export const Comment = mongoose.models.Comment || mongoose.model("Comment", commentSchema);
 export const Discussion = mongoose.models.Discussion || mongoose.model("Discussion", discussionSchema);
+export const Parking = mongoose.models.Parking || mongoose.model("Parking", parkingSchema);
+export const Booking = mongoose.models.Booking || mongoose.model("Booking", bookingSchema);
