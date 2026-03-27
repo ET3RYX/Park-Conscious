@@ -12,7 +12,7 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, "../../.env") });
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 if (!process.env.MONGODB_URI) {
   console.error("❌  MONGODB_URI not found in .env");
