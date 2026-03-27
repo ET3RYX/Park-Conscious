@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import LegalModal from "../Modal/LegalModal";
 import {
   FaInstagram,
   FaLinkedin,
@@ -8,6 +9,14 @@ import {
 import { AiOutlineMail } from "react-icons/ai";
 
 const Footer = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [initialTab, setInitialTab] = useState('terms');
+
+  const openLegal = (tab) => {
+    setInitialTab(tab);
+    setModalOpen(true);
+  };
+
   return (
     <footer className="bg-darkBackground-900 border-t border-darkBackground-700 py-16 px-6 relative z-10 w-full mt-12">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
@@ -35,19 +44,25 @@ const Footer = () => {
         <div className="w-full md:w-1/3">
           <h4 className="text-white font-bold mb-6 tracking-wide uppercase text-sm">Legal</h4>
           <div className="flex flex-col space-y-4">
-            <Link to="/privacy-policy" className="text-gray-400 text-sm hover:text-vibrantBlue transition-colors">Privacy Policy</Link>
-            <Link to="/terms-of-service" className="text-gray-400 text-sm hover:text-vibrantBlue transition-colors">Terms of Service</Link>
+            <button onClick={() => openLegal('privacy')} className="text-left text-gray-400 text-sm hover:text-vibrantBlue transition-colors">Privacy Policy</button>
+            <button onClick={() => openLegal('terms')} className="text-left text-gray-400 text-sm hover:text-vibrantBlue transition-colors">Terms of Service</button>
+            <button onClick={() => openLegal('refunds')} className="text-left text-gray-400 text-sm hover:text-vibrantBlue transition-colors">Refund & Returns</button>
           </div>
         </div>
       </div>
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-darkBackground-700 flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="text-gray-500 text-xs tracking-wider uppercase">&copy; 2026 Park Conscious. All rights reserved.</p>
         <div className="flex gap-6 text-gray-500 text-xs text-center w-full justify-center md:w-auto">
-          <span>Privacy Policy</span>
-          <span>Terms of Service</span>
+          <button onClick={() => openLegal('privacy')} className="hover:text-vibrantBlue transition-colors">Privacy Policy</button>
+          <button onClick={() => openLegal('terms')} className="hover:text-vibrantBlue transition-colors">Terms of Service</button>
           <span>Contact</span>
         </div>
       </div>
+      <LegalModal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        initialTab={initialTab} 
+      />
     </footer>
   );
 };

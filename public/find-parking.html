@@ -13,7 +13,11 @@
   <meta property="og:image" content="/assets/logo.jpg">
   <meta property="og:type" content="website">
 
+  <!-- Legal Modal Script -->
+  <script src="./scripts/legal-modal.js"></script>
+
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
@@ -121,6 +125,13 @@
 
       <div id="results-list" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
         <div class="text-center py-10 text-slate-400 font-medium">Loading nearby spots...</div>
+      </div>
+
+      <div class="p-4 border-t border-slate-100 bg-white/50 flex justify-center gap-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+        <a href="javascript:void(0)" onclick="showLegal('privacy')" class="hover:text-[#00C39A] transition-colors">Privacy</a>
+        <a href="javascript:void(0)" onclick="showLegal('terms')" class="hover:text-[#00C39A] transition-colors">Terms</a>
+        <span class="text-slate-200">|</span>
+        <span>© 2026 PKC</span>
       </div>
     </aside>
   </main>

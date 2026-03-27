@@ -1,5 +1,6 @@
 import { BiChevronDown, BiMenu, BiSearch } from "react-icons/bi";
 import CustomModal from "../Modal/Modal.Component";
+import RequestEventModal from "../Modal/RequestEventModal";
 import { useAuth } from "../../context/DiscussionAuth.context";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -45,7 +46,7 @@ function NavMd() {
   );
 }
 
-function NavLg({ defaultLocation }) {
+function NavLg({ defaultLocation, onRequestOpen }) {
   const [location, setLocation] = useState("");
 
   useEffect(() => {
@@ -95,10 +96,13 @@ function NavLg({ defaultLocation }) {
         <div className="flex items-center gap-6">
           <a href="/" className="nav-link text-sm font-medium">Home</a>
           <a href="#" className="nav-link text-sm font-medium">Find Parking</a>
-          <button className="btn-secondary flex items-center gap-2 text-sm py-1.5 px-4">
-            <span className="text-premier-400 font-bold">+</span> Add Event
+          <button 
+            onClick={onRequestOpen}
+            className="btn-secondary flex items-center gap-2 text-sm py-1.5 px-4"
+          >
+            <span className="text-premier-400 font-bold">+</span> List Your Event
           </button>
-          <a href="/contact.html" className="btn-secondary py-1.5 px-4 text-sm inline-block">Support</a>
+          <a href="https://parkconscious.in/contact.html" target="_blank" rel="noreferrer" className="btn-secondary py-1.5 px-4 text-sm inline-block">Support</a>
           <CustomModal />
         </div>
       </div>
@@ -108,8 +112,10 @@ function NavLg({ defaultLocation }) {
 
 // Main NavBar Component
 const Navbar = ({ defaultLocation }) => {
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+
   return (
-    <nav className="bg-darkBackground-900 px-4 py-3">
+    <nav className="bg-darkBackground-900/80 backdrop-blur-md sticky top-0 z-50 px-4 py-3">
       {/* Mobile Screen Navbar */}
       <div className="md:hidden">
         <NavSm defaultLocation={defaultLocation} />
@@ -120,8 +126,15 @@ const Navbar = ({ defaultLocation }) => {
       </div>
       {/* Large Screen Size */}
       <div className="hidden md:hidden lg:flex">
-        <NavLg defaultLocation={defaultLocation} />
+        <NavLg 
+          defaultLocation={defaultLocation} 
+          onRequestOpen={() => setIsRequestModalOpen(true)}
+        />
       </div>
+      <RequestEventModal 
+        isOpen={isRequestModalOpen} 
+        onClose={() => setIsRequestModalOpen(false)} 
+      />
     </nav>
   );
 };

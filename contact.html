@@ -221,6 +221,56 @@
             </script>
         </div>
     </div>
+    <!-- Footer -->
+    <footer class="bg-gray-950 py-20 border-t border-white/5 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-16 mb-16">
+                <div class="max-w-xs">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="relative w-10 h-10 flex items-center justify-center bg-gradient-to-br from-blue-600 to-teal-600 rounded-lg shadow-lg overflow-hidden">
+                            <img src="./assets/logo.jpg" alt="Logo" class="w-full h-full object-cover">
+                        </div>
+                        <div class="text-2xl font-bold text-white tracking-tight">Park Conscious</div>
+                    </div>
+                    <p class="text-gray-500 text-sm leading-relaxed">
+                        Building the next generation of urban infrastructure through AI and intelligent automation.
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-16 flex-1">
+                    <div>
+                        <h4 class="text-white font-bold mb-6">Product</h4>
+                        <ul class="space-y-4 text-gray-500 text-sm">
+                            <li><a href="find-parking.html" class="hover:text-teal-400 transition-colors">Find Parking</a></li>
+                            <li><a href="index.html#solution" class="hover:text-teal-400 transition-colors">Solutions</a></li>
+                            <li><a href="about.html" class="hover:text-teal-400 transition-colors">Infrastructure</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-6">Company</h4>
+                        <ul class="space-y-4 text-gray-500 text-sm">
+                            <li><a href="about.html" class="hover:text-teal-400 transition-colors">About Us</a></li>
+                            <li><a href="contact.html" class="hover:text-teal-400 transition-colors">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-6">Legal</h4>
+                        <ul class="space-y-4 text-gray-500 text-sm">
+                            <li><a href="javascript:void(0)" onclick="showLegal('privacy')" class="hover:text-teal-400 transition-colors">Privacy Policy</a></li>
+                            <li><a href="javascript:void(0)" onclick="showLegal('terms')" class="hover:text-teal-400 transition-colors">Terms of Service</a></li>
+                            <li><a href="javascript:void(0)" onclick="showLegal('refunds')" class="hover:text-teal-400 transition-colors">Refund Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                <p class="text-gray-600 text-xs">© 2026 Park Conscious. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Legal Modal Script -->
+    <script src="./scripts/legal-modal.js"></script>
+
     <!-- Vercel Speed Insights & Analytics -->
     <script>
         window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };

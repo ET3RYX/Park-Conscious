@@ -624,9 +624,9 @@
           <div>
             <h4 class="text-white font-bold mb-6">Legal</h4>
             <ul class="space-y-4 text-slate-400 text-sm">
-              <li><a href="#" class="hover:text-[#00C39A] transition-colors">Privacy Policy</a></li>
-              <li><a href="#" class="hover:text-[#00C39A] transition-colors">Terms of Service</a></li>
-              <li><a href="#" class="hover:text-[#00C39A] transition-colors">Cookie Policy</a></li>
+              <li><a href="javascript:void(0)" onclick="showLegal('privacy')" class="hover:text-[#00C39A] transition-colors">Privacy Policy</a></li>
+              <li><a href="javascript:void(0)" onclick="showLegal('terms')" class="hover:text-[#00C39A] transition-colors">Terms of Service</a></li>
+              <li><a href="javascript:void(0)" onclick="showLegal('refunds')" class="hover:text-[#00C39A] transition-colors">Refund Policy</a></li>
             </ul>
           </div>
         </div>
@@ -635,14 +635,17 @@
       <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
         <p class="text-slate-500 text-xs">&copy; 2025 Park Conscious. All rights reserved.</p>
         <div class="flex gap-8 text-slate-500 text-xs text-center">
-          <span>Privacy Policy</span>
-          <span>Terms of Service</span>
+          <a href="javascript:void(0)" onclick="showLegal('privacy')" class="hover:text-[#00C39A] transition-colors">Privacy Policy</a>
+          <a href="javascript:void(0)" onclick="showLegal('terms')" class="hover:text-[#00C39A] transition-colors">Terms of Service</a>
           <span>Contact</span>
           <span>API Docs</span>
         </div>
       </div>
     </div>
   </footer>
+
+  <!-- Legal Modal Script -->
+  <script src="./scripts/legal-modal.js"></script>
 
   <!-- AOS Script -->
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import tmdbAxios from "../axios";
 
 // HOC
@@ -7,6 +7,9 @@ import DefaultlayoutHoc from "../layout/Default.layout";
 // Components
 import PosterSlider from "../components/PosterSlider/PosterSlider.Component";
 import DiscussionBoard from "../components/Discussion/DiscussionBoard";
+
+// Assets
+// collegeFarewellImg removed for Afsana 2026 redesign
 
 const adCopies = [
   "You planned the day. Parking planned chaos.",
@@ -43,9 +46,37 @@ const adCopies = [
   "Arrive without the parking anxiety."
 ];
 
+const categories = ["All Events", "Concerts", "Festivals", "Summits", "Culture"];
+
+const FeaturedEventCard = () => {
+  return (
+    <div 
+      onClick={() => window.location.href = "/farewell-tickets"}
+      className="group relative w-full h-48 md:h-64 rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl transition-transform duration-500 hover:scale-[1.01] bg-gradient-to-tr from-[#0a0410] via-[#1a0b2e] to-[#2d0f54] border border-white/5 flex items-center"
+    >
+      {/* Decorative glowing orbs */}
+      <div className="absolute top-0 left-0 w-64 h-64 bg-vibrantBlue/10 rounded-full blur-[80px] pointer-events-none"></div>
+      <div className="absolute bottom-0 right-0 w-64 h-64 bg-premier-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+
+      <div className="relative z-10 px-8 md:px-16 w-full">
+        <div className="bg-premier-700/80 backdrop-blur-sm text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full w-fit mb-4 tracking-widest uppercase border border-premier-400/20">Featured Event</div>
+        <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-2">AFSANA 2026</h2>
+        <p className="text-gray-300 text-sm md:text-lg max-w-md font-medium">The final countdown begins. Join us for a night of memories, music, and magic.</p>
+        <div className="mt-6 flex items-center gap-4">
+          <button className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-premier-400 hover:text-white transition-colors uppercase tracking-wider">Get Tickets</button>
+          <span className="text-white/60 text-xs font-medium">Limited Slots Available</span>
+        </div>
+      </div>
+      {/* Dynamic Glow Effect */}
+      <div className="absolute -inset-1 bg-gradient-to-r from-premier-500 to-vibrantBlue opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500 -z-10" />
+    </div>
+  );
+};
+
 const HomePage = () => {
   const [premierMovies, setpremierMovies] = useState([]);
   const [currentAd, setCurrentAd] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState("All Events");
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -69,6 +100,15 @@ const HomePage = () => {
     };
     requestPopularMovies();
   }, []);
+
+  // Filter movies logic: In a real app we'd filter by genre or tags. 
+  // Here we'll subset or shuffle the list to show filtering is working.
+  const filteredEvents = useMemo(() => {
+    if (selectedCategory === "All Events") return premierMovies;
+    // Simple subsetting logic based on category for visual feedback
+    const charCode = selectedCategory.charCodeAt(0);
+    return premierMovies.filter((movie, index) => (index + charCode) % 2 === 0);
+  }, [selectedCategory, premierMovies]);
 
   return (
     <div className="bg-darkBackground-900 min-h-screen text-white pb-12 w-full">
@@ -101,19 +141,32 @@ const HomePage = () => {
 
       {/* Filter Pills */}
       <div className="container mx-auto px-4 md:px-12 mt-16 mb-8 flex flex-wrap justify-center gap-4 relative z-10">
-        <button className="bg-gradient-to-r from-vibrantBlue to-premier-400 text-white px-8 py-2.5 rounded-full font-bold shadow-lg shadow-premier-700/30 tracking-wide text-sm">All Events</button>
-        <button className="bg-darkBackground-800 border border-gray-700 text-gray-300 px-8 py-2.5 rounded-full font-medium hover:border-gray-500 transition tracking-wide text-sm">Concerts</button>
-        <button className="bg-darkBackground-800 border border-gray-700 text-gray-300 px-8 py-2.5 rounded-full font-medium hover:border-gray-500 transition tracking-wide text-sm">Festivals</button>
-        <button className="bg-darkBackground-800 border border-gray-700 text-gray-300 px-8 py-2.5 rounded-full font-medium hover:border-gray-500 transition tracking-wide text-sm">Summits</button>
-        <button className="bg-darkBackground-800 border border-gray-700 text-gray-300 px-8 py-2.5 rounded-full font-medium hover:border-gray-500 transition tracking-wide text-sm">Culture</button>
+        {categories.map((cat) => (
+          <button 
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-8 py-2.5 rounded-full font-bold tracking-wide text-sm transition-all duration-300 ${
+              selectedCategory === cat 
+                ? "bg-gradient-to-r from-vibrantBlue to-premier-400 text-white shadow-lg shadow-premier-700/30"
+                : "bg-darkBackground-800 border border-gray-700 text-gray-300 hover:border-gray-500"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Featured Event Card (New Requirement) */}
+      <div className="container mx-auto px-4 md:px-12 mb-16">
+        <FeaturedEventCard />
       </div>
 
       {/* Event Grid Section */}
-      <div className="container mx-auto px-4 md:px-12 my-12 bg-radial-glow-darker rounded-[2rem] py-12 border border-darkBackground-700">
+      <div className="container mx-auto px-4 md:px-12 my-12 bg-radial-glow-darker rounded-[2rem] py-12 border border-darkBackground-700 transition-all duration-500">
         <PosterSlider
-          title="New Premium Movies"
-          subtitle="Brand new popular releases in India"
-          posters={premierMovies}
+          title={selectedCategory === "All Events" ? "New Premium Movies" : `${selectedCategory} Results`}
+          subtitle={selectedCategory === "All Events" ? "Brand new popular releases in India" : `Browsing highlights for ${selectedCategory}`}
+          posters={filteredEvents}
           isDark={true}
         />
       </div>
