@@ -126,19 +126,28 @@ export default async function handler(req, res) {
 
         // ── Owner Google login ────────────────────────────────────
         if (url.includes('/owner/google') && method === 'POST') {
-            const { email, name, googleId } = body;
-            let owner = await Owner.findOne({ email });
-            if (!owner) owner = await Owner.create({ name, email, googleId });
-            return json(res, 200, { user: { id: owner._id, name: owner.name, email: owner.email } });
+            try {
+                const { email, name, googleId } = body;
+                let owner = await Owner.findOne({ email });
+                if (!owner) owner = await Owner.create({ name, email, googleId });
+                return json(res, 200, { user: { id: owner._id, name: owner.name, email: owner.email } });
+            } catch (err) {
+                return json(res, 500, { message: 'Google login failed', error: err.message });
+            }
         }
 
         // ── Owner Check Session (Bridge) ──────────────────────────
         if (url.includes('/owner/check-session') && method === 'GET') {
-            const email = new URL(url, `http://${req.headers.host}`).searchParams.get('email');
-            if (!email) return json(res, 400, { message: 'Email required' });
-            const owner = await Owner.findOne({ email });
-            if (!owner) return json(res, 404, { message: 'Not an owner' });
-            return json(res, 200, { user: { id: owner._id, name: owner.name, email: owner.email } });
+            try {
+                const urlObj = new URL(url, `http://${req.headers.host || 'localhost'}`);
+                const email = urlObj.searchParams.get('email');
+                if (!email) return json(res, 400, { message: 'Email required' });
+                const owner = await Owner.findOne({ email });
+                if (!owner) return json(res, 404, { message: 'Not an owner' });
+                return json(res, 200, { user: { id: owner._id, name: owner.name, email: owner.email } });
+            } catch (err) {
+                return json(res, 500, { message: 'Session check failed', error: err.message });
+            }
         }
 
         // ── Owner Dashboard Stats ─────────────────────────────────

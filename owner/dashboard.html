@@ -192,24 +192,20 @@
         const isDemo = sessionStorage.getItem('park_owner_demo');
         
         async function checkAuth() {
-            // 1. Direct Owner Login
+            // 1. Priority: Real Owner Session
             if (ownerToken) {
                 try {
                     const owner = JSON.parse(ownerToken);
-                    if (owner.id || isDemo) return owner;
+                    if (owner.id && owner.id !== 'demo') return owner;
                 } catch(e) {}
             }
 
-            // 2. Demo Mode
-            if (isDemo) return { name: 'Demo Owner', id: 'demo' };
-
-            // 3. User-to-Owner Bridge (Unified Login)
+            // 2. Priority: Unified Login (Bridge)
             if (userToken) {
                 try {
                     const user = JSON.parse(userToken);
                     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                     const API_URL = isLocal ? `http://localhost:5050/api/owner/check-session?email=${user.email}` : `/api/owner/check-session?email=${user.email}`;
-                    
                     const resp = await fetch(API_URL);
                     if (resp.ok) {
                         const data = await resp.json();
@@ -219,7 +215,9 @@
                 } catch(e) {}
             }
 
-            // 4. Not logged in
+            // 3. Priority: Demo Mode (Only as fallback)
+            if (isDemo) return { name: 'Demo Owner', id: 'demo' };
+
             window.location.href = 'login.html';
         }
 
