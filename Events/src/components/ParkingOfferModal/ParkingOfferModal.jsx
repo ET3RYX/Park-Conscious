@@ -59,7 +59,7 @@ const ParkingOfferModal = ({ isOpen, closeModal, onConfirm, ticketPrice }) => {
               leaveFrom="opacity-100 scale-100 translate-y-0"
               leaveTo="opacity-0 scale-95 translate-y-8"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-[2rem] bg-[#0D0D12] border border-white/10 p-8 text-left align-middle shadow-2xl shadow-vibrantBlue/10 transition-all relative">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-3xl bg-[#111116] border border-white/5 p-8 text-left align-middle shadow-2xl transition-all relative">
                 
                 {/* Close Button */}
                 <button 
@@ -72,12 +72,7 @@ const ParkingOfferModal = ({ isOpen, closeModal, onConfirm, ticketPrice }) => {
                 {step === 1 ? (
                   /* STEP 1: The Offer */
                   <div className="space-y-6 mt-2">
-                    <div className="w-16 h-16 bg-vibrantBlue/10 rounded-full flex items-center justify-center border border-vibrantBlue/20 mb-6">
-                      <svg className="w-8 h-8 text-vibrantBlue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg> {/* Car icon abstraction */}
-                      <svg className="w-8 h-8 text-vibrantBlue absolute" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
-                    </div>
-                    
-                    <Dialog.Title as="h3" className="text-2xl font-bold leading-tight text-white">
+                    <Dialog.Title as="h3" className="text-xl font-semibold leading-tight text-white pb-2">
                       Arriving with a vehicle?
                     </Dialog.Title>
                     
@@ -85,36 +80,35 @@ const ParkingOfferModal = ({ isOpen, closeModal, onConfirm, ticketPrice }) => {
                       Event parking fills up fast. Pre-book your guaranteed parking spot now and skip the hassle on the event day.
                     </p>
 
-                    <div className="bg-[#16161C] border border-premier-500/30 rounded-2xl p-4 flex items-center justify-between mt-4 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-premier-500/10 rounded-full blur-2xl flex-shrink-0"></div>
-                      <div className="relative z-10">
-                        <span className="text-premier-400 text-xs font-bold uppercase tracking-wider mb-1 block flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-premier-400 animate-pulse"></span>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between mt-4">
+                      <div>
+                        <span className="text-fuchsia-400 text-[10px] font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400"></span>
                           Limited Space
                         </span>
-                        <h4 className="text-white font-bold">VIP Premium Spot</h4>
-                        <p className="text-gray-500 text-xs mt-1">Only {availableSlots} spots remaining</p>
+                        <h4 className="text-white font-medium">VIP Premium Spot</h4>
+                        <p className="text-gray-500 text-xs mt-0.5">Only {availableSlots} spots remaining</p>
                       </div>
-                      <div className="text-right relative z-10">
-                        <span className="block text-xl font-black text-white">+₹{parkingPrice}</span>
-                        <span className="text-[10px] text-gray-500 uppercase tracking-widest">Flat Rate</span>
+                      <div className="text-right">
+                        <span className="block text-lg font-bold text-white">+₹{parkingPrice}</span>
+                        <span className="text-[10px] text-gray-500 font-medium">Flat rate</span>
                       </div>
                     </div>
 
                     <div className="space-y-3 pt-4">
                       <button
                         type="button"
-                        className="w-full inline-flex justify-center items-center rounded-xl border border-transparent bg-vibrantBlue px-4 py-4 text-sm font-bold text-white shadow-lg shadow-vibrantBlue/30 hover:bg-blue-600 transition-all uppercase tracking-wider"
+                        className="w-full inline-flex justify-center items-center rounded-xl bg-blue-500 hover:bg-blue-600 px-4 py-3.5 text-sm font-medium text-white transition-all"
                         onClick={handleContinueToDetails}
                       >
-                        Yes, Add Parking (₹{parkingPrice})
+                        Yes, add parking (+₹{parkingPrice})
                       </button>
                       <button
                         type="button"
-                        className="w-full inline-flex justify-center items-center rounded-xl border border-white/10 bg-transparent px-4 py-4 text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-all uppercase tracking-wider"
+                        className="w-full inline-flex justify-center items-center rounded-xl px-4 py-3.5 text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all"
                         onClick={handleNoParking}
                       >
-                        No, Continue with Tickets Only
+                        No thanks, continue with tickets
                       </button>
                     </div>
                   </div>
@@ -126,9 +120,9 @@ const ParkingOfferModal = ({ isOpen, closeModal, onConfirm, ticketPrice }) => {
                       Back
                     </button>
 
-                    <Dialog.Title as="h3" className="text-2xl font-bold leading-tight text-white flex items-center gap-3">
-                      Vehicle Details
-                      <span className="text-[10px] bg-vibrantBlue/20 text-vibrantBlue border border-vibrantBlue/30 px-2 py-0.5 rounded-md uppercase tracking-wider">Step 2/2</span>
+                    <Dialog.Title as="h3" className="text-xl font-semibold leading-tight text-white flex items-center gap-3">
+                      Vehicle details
+                      <span className="text-xs text-gray-500 font-normal">2 of 2</span>
                     </Dialog.Title>
                     
                     <p className="text-sm text-gray-400">
@@ -136,13 +130,13 @@ const ParkingOfferModal = ({ isOpen, closeModal, onConfirm, ticketPrice }) => {
                     </p>
 
                     <div className="mt-4">
-                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">License Plate Number</label>
+                      <label className="block text-sm font-medium text-gray-400 mb-2 ml-1">License plate number</label>
                       <input 
                         type="text"
                         value={vehicleNumber}
                         onChange={(e) => setVehicleNumber(e.target.value)}
                         placeholder="e.g. DL 01 AB 1234"
-                        className="w-full bg-[#16161C] border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-vibrantBlue/50 focus:bg-[#1A1A24] transition-all uppercase font-medium tracking-widest"
+                        className="w-full bg-[#1A1A22] border border-white/5 rounded-2xl px-5 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-blue-500 transition-all font-medium uppercase"
                       />
                       {error && <p className="text-red-400 text-xs mt-2 font-medium bg-red-400/10 p-2 rounded-lg border border-red-400/20">{error}</p>}
                     </div>
@@ -156,20 +150,19 @@ const ParkingOfferModal = ({ isOpen, closeModal, onConfirm, ticketPrice }) => {
                         <span className="text-gray-400">VIP Parking Add-on</span>
                         <span className="text-white font-medium">₹{parkingPrice}</span>
                       </div>
-                      <div className="w-full h-px bg-white/10 my-2"></div>
-                      <div className="flex justify-between items-center text-lg">
-                        <span className="text-gray-300 font-bold">Total Amount</span>
-                        <span className="text-vibrantBlue font-black text-2xl">₹{ticketPrice + parkingPrice}</span>
+                      <div className="flex justify-between items-center text-lg mt-3 pt-3 border-t border-white/10">
+                        <span className="text-gray-300 font-medium">Total</span>
+                        <span className="text-white font-bold text-xl">₹{ticketPrice + parkingPrice}</span>
                       </div>
                     </div>
 
-                    <div className="pt-4">
+                    <div className="pt-2">
                       <button
                         type="button"
-                        className="w-full inline-flex justify-center items-center rounded-xl border border-transparent bg-gradient-to-r from-vibrantBlue to-indigo-600 px-4 py-4 text-sm font-black text-white shadow-xl shadow-vibrantBlue/20 hover:shadow-vibrantBlue/40 hover:-translate-y-0.5 transition-all uppercase tracking-wider"
+                        className="w-full inline-flex justify-center items-center rounded-xl bg-blue-500 hover:bg-blue-600 px-4 py-3.5 text-sm font-medium text-white transition-all"
                         onClick={handleConfirmWithParking}
                       >
-                        Confirm & Pay Total (₹{ticketPrice + parkingPrice})
+                        Confirm and pay ₹{ticketPrice + parkingPrice}
                       </button>
                     </div>
                   </div>
