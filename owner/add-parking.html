@@ -168,7 +168,21 @@
 
     <script>
         const ownerToken = localStorage.getItem('park_owner');
-        if (!ownerToken && !sessionStorage.getItem('park_owner_demo')) window.location.href = 'login.html';
+        const isDemo = sessionStorage.getItem('park_owner_demo');
+
+        // Safety: If logged in but no ID (from old session), force re-login
+        if (ownerToken) {
+            try {
+                const owner = JSON.parse(ownerToken);
+                if (!owner.id && !isDemo) {
+                    localStorage.removeItem('park_owner');
+                    window.location.href = 'login.html';
+                }
+            } catch(e) { window.location.href = 'login.html'; }
+        } else if (!isDemo) {
+            window.location.href = 'login.html';
+        }
+        
         function logoutOwner() { localStorage.removeItem('park_owner'); sessionStorage.removeItem('park_owner_demo'); window.location.href = '../index.html'; }
 
         document.getElementById('add-parking-form').addEventListener('submit', async (e) => {
