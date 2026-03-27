@@ -15,10 +15,6 @@
       "destination": "/api/discussion-comments.js"
     },
     {
-      "source": "/api/auth/google",
-      "destination": "/api/google-auth.js"
-    },
-    {
       "source": "/api/debug",
       "destination": "/api/debug-env.js"
     },
