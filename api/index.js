@@ -133,9 +133,13 @@ export default async function handler(req, res) {
 
         // ── Owner Dashboard Stats ─────────────────────────────────
         if (url.includes('/owner/') && url.includes('/dashboard') && method === 'GET') {
-            const ownerId = url.split('/')[3];
+            const parts = url.split('/');
+            const ownerIdx = parts.indexOf('owner');
+            const ownerId = parts[ownerIdx + 1];
+            
+            if (!ownerId || ownerId === 'dashboard') return json(res, 400, { message: 'Invalid owner ID' });
+
             const parkings = await Parking.find({ owner: ownerId });
-            const parkingIds = parkings.map(p => p._id);
             const bookings = await Booking.find({ ownerId: ownerId });
             
             let todayRevenue = 0;
@@ -157,7 +161,12 @@ export default async function handler(req, res) {
 
         // ── Manage Owner Parkings ─────────────────────────────────
         if (url.includes('/owner/') && url.includes('/parkings') && !url.includes('/dashboard')) {
-            const ownerId = url.split('/')[3];
+            const parts = url.split('/');
+            const ownerIdx = parts.indexOf('owner');
+            const ownerId = parts[ownerIdx + 1];
+
+            if (!ownerId || ownerId === 'parkings') return json(res, 400, { message: 'Invalid owner ID' });
+
             if (method === 'GET') {
                 const parkings = await Parking.find({ owner: ownerId });
                 return json(res, 200, parkings);
@@ -167,22 +176,32 @@ export default async function handler(req, res) {
                 if (!Location || !Latitude || !Longitude) {
                     return json(res, 400, { message: "Location, Latitude, and Longitude are required." });
                 }
-                const newParking = await Parking.create({
-                    owner: ownerId,
-                    Location,
-                    Latitude: parseFloat(Latitude),
-                    Longitude: parseFloat(Longitude),
-                    PricePerHour: PricePerHour ? parseFloat(PricePerHour) : null,
-                    TotalSlots: TotalSlots ? parseInt(TotalSlots) : null,
-                    Type: Type || "Private Parking"
-                });
-                return json(res, 201, { message: "Parking added successfully", parking: newParking });
+                try {
+                    const newParking = await Parking.create({
+                        owner: ownerId,
+                        Location,
+                        Latitude: parseFloat(Latitude),
+                        Longitude: parseFloat(Longitude),
+                        PricePerHour: PricePerHour ? parseFloat(PricePerHour) : null,
+                        TotalSlots: TotalSlots ? parseInt(TotalSlots) : null,
+                        Type: Type || "Private Parking"
+                    });
+                    return json(res, 201, { message: "Parking added successfully", parking: newParking });
+                } catch (err) {
+                    console.error("DB Create Error:", err);
+                    return json(res, 500, { message: "Database Error", error: err.message });
+                }
             }
         }
 
         // ── Owner Booking Logs ────────────────────────────────────
         if (url.includes('/owner/') && url.includes('/logs') && method === 'GET') {
-            const ownerId = url.split('/')[3];
+            const parts = url.split('/');
+            const ownerIdx = parts.indexOf('owner');
+            const ownerId = parts[ownerIdx + 1];
+
+            if (!ownerId || ownerId === 'logs') return json(res, 400, { message: 'Invalid owner ID' });
+
             const bookings = await Booking.find({ ownerId }).sort({ createdAt: -1 });
             return json(res, 200, bookings);
         }
