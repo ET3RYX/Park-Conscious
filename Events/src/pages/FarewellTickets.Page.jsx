@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import DefaultlayoutHoc from "../layout/Default.layout";
 import { useAuth } from "../context/DiscussionAuth.context";
+import ParkingOfferModal from "../components/ParkingOfferModal/ParkingOfferModal";
 
 const FarewellTicketsPage = () => {
   const { user } = useAuth();
@@ -14,6 +15,7 @@ const FarewellTicketsPage = () => {
   const [error, setError]     = useState("");
   const [prices, setPrices]   = useState({ regular: 1499, vip: 2999 });
   const [selectedTicket, setSelectedTicket] = useState("regular");
+  const [isParkingModalOpen, setIsParkingModalOpen] = useState(false);
 
   // Pre-fill user data if they are logged in
   useEffect(() => {
@@ -40,7 +42,7 @@ const FarewellTicketsPage = () => {
     fetchPrices();
   }, []);
 
-  const handlePayment = async () => {
+  const handlePaymentClick = () => {
     if (!name.trim()) {
       setError("Please enter your name.");
       return;
@@ -54,17 +56,25 @@ const FarewellTicketsPage = () => {
       return;
     }
 
-    const amount = selectedTicket === "vip" ? prices.vip : prices.regular;
-
     setError("");
+    setIsParkingModalOpen(true);
+  };
+
+  const processPayment = async (parkingDetails) => {
+    const baseAmount = selectedTicket === "vip" ? prices.vip : prices.regular;
+    const totalAmount = baseAmount + parkingDetails.addedCost;
+
+    setIsParkingModalOpen(false);
     setLoading(true);
 
     try {
       const response = await axios.post("/api/pay", {
         name: name,
         email: email, 
-        amount: amount,
-        phone: phone
+        amount: totalAmount,
+        phone: phone,
+        parkingIncluded: parkingDetails.wantsParking,
+        vehicleNumber: parkingDetails.vehicleNumber
       });
 
       if (response.data && response.data.success && response.data.redirectUrl) {
@@ -204,7 +214,7 @@ const FarewellTicketsPage = () => {
                 {error && <p className="text-red-400 text-sm mt-2 font-medium bg-red-400/10 p-3 rounded-xl border border-red-400/20">{error}</p>}
                 
                 <button 
-                  onClick={handlePayment}
+                  onClick={handlePaymentClick}
                   disabled={loading}
                   className={`w-full text-white font-black py-5 rounded-2xl shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4 tracking-wider uppercase ${selectedTicket === "vip" ? "bg-gradient-to-r from-premier-400 to-[#F2994A] shadow-premier-500/20 hover:shadow-premier-500/40 text-black" : "bg-gradient-to-r from-vibrantBlue to-indigo-500 shadow-vibrantBlue/20 hover:shadow-vibrantBlue/40"}`}
                 >
@@ -220,6 +230,13 @@ const FarewellTicketsPage = () => {
           </div>
         </div>
       </div>
+
+      <ParkingOfferModal 
+        isOpen={isParkingModalOpen} 
+        closeModal={() => setIsParkingModalOpen(false)} 
+        onConfirm={processPayment}
+        ticketPrice={selectedTicket === "vip" ? prices.vip : prices.regular}
+      />
     </div>
   );
 };
