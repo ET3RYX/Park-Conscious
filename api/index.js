@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import connectDB from './lib/mongodb.js';
 import { User, Owner, Event, AccessLog, Waitlist, Contact, Parking, Booking } from './lib/models.js';
 import bcrypt from 'bcryptjs';
@@ -177,19 +178,27 @@ export default async function handler(req, res) {
                     return json(res, 400, { message: "Location, Latitude, and Longitude are required." });
                 }
                 try {
-                    const newParking = await Parking.create({
-                        owner: ownerId,
+                    const parkingData = {
+                        owner: new mongoose.Types.ObjectId(ownerId),
                         Location,
                         Latitude: parseFloat(Latitude),
                         Longitude: parseFloat(Longitude),
                         PricePerHour: PricePerHour ? parseFloat(PricePerHour) : null,
                         TotalSlots: TotalSlots ? parseInt(TotalSlots) : null,
-                        Type: Type || "Private Parking"
-                    });
+                        Type: Type || "Private Parking",
+                        Status: "Active",
+                        Authority: "Owner"
+                    };
+                    
+                    const newParking = new Parking(parkingData);
+                    // Use the auto-generated _id as the display ID if not provided
+                    newParking.ID = "OWNER_" + newParking._id.toString().substring(18);
+                    await newParking.save();
+                    
                     return json(res, 201, { message: "Parking added successfully", parking: newParking });
                 } catch (err) {
                     console.error("DB Create Error:", err);
-                    return json(res, 500, { message: "Database Error", error: err.message });
+                    return json(res, 500, { message: "Database Error", error: err.message, details: err.errors });
                 }
             }
         }
