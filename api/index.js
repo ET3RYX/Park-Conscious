@@ -220,7 +220,8 @@ export default async function handler(req, res) {
             const ownerId = parts[ownerIdx + 1];
             
             try {
-                const myParkings = await Parking.find({ ownerId });
+                // Fetch parkings linked via 'owner' (new) or 'ownerId' (legacy)
+                const myParkings = await Parking.find({ $or: [{ owner: ownerId }, { ownerId: ownerId }] });
                 const pCount = myParkings.length;
                 
                 // Get all bookings for this owner
