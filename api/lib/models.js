@@ -89,18 +89,15 @@ const parkingSchema = new mongoose.Schema(
 const bookingSchema = new mongoose.Schema(
   {
     parkingId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Parking",
+      type: String, // Allow both ObjectId and numeric IDs from seeded data
       required: true,
     },
     ownerId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Owner",
+      type: String, // Allow both ObjectId and null/numeric IDs
       default: null,
     },
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
       default: null,
     },
     locationName: String,

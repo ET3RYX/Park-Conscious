@@ -140,14 +140,16 @@ export default async function handler(req, res) {
 
         // ── Create Booking ───────────────────────────────────────
         if (url.includes('/api/bookings') && method === 'POST') {
-            const { parkingId, ownerId, userId, locationName, vehicleType, vehicleNumber, startTime, endTime, amount } = body;
-            if (!parkingId || !locationName) return json(res, 400, { message: 'Parking ID and Location are required' });
-            
             try {
+                const { parkingId, ownerId, userId, locationName, vehicleType, vehicleNumber, startTime, endTime, amount } = body;
+                if (!parkingId || !locationName) {
+                    return json(res, 400, { message: 'Parking ID and Location are required' });
+                }
+                
                 const b = await Booking.create({
-                    parkingId,
-                    ownerId: ownerId || null,
-                    userId: userId || null,
+                    parkingId: String(parkingId),
+                    ownerId: ownerId ? String(ownerId) : null,
+                    userId: userId ? String(userId) : null,
                     locationName,
                     vehicleType,
                     vehicleNumber,
@@ -158,8 +160,12 @@ export default async function handler(req, res) {
                 });
                 return json(res, 201, { message: 'Booking created successfully', booking: b });
             } catch (err) {
-                console.error("Booking Create Error:", err);
-                return json(res, 500, { message: 'Database Error', error: err.message });
+                console.error("Booking Create Error Detailed:", err);
+                return json(res, 500, { 
+                    message: 'Database Error - Unable to save booking', 
+                    error: err.message,
+                    details: err.errors ? Object.keys(err.errors).map(k => err.errors[k].message) : null
+                });
             }
         }
 
