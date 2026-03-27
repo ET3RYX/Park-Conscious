@@ -100,10 +100,30 @@ export default async function handler(req, res) {
 
         // ── User Google login ─────────────────────────────────────
         if (url.includes('/auth/google') && method === 'POST') {
-            const { email, name, googleId } = body;
-            let user = await User.findOne({ email });
-            if (!user) user = await User.create({ name, email, googleId });
-            return json(res, 200, { user: { id: user._id, name: user.name, email: user.email } });
+            try {
+                const { email, name, googleId } = body;
+                if (!email) return json(res, 400, { message: 'Google email missing' });
+                
+                let user = await User.findOne({ email: email.toLowerCase() });
+                if (!user) {
+                    user = await User.create({ name, email, googleId });
+                } else if (!user.googleId && googleId) {
+                    // Link google account to existing email
+                    user.googleId = googleId;
+                    await user.save();
+                }
+                
+                return json(res, 200, { 
+                    user: { 
+                        id: user._id, 
+                        name: user.name, 
+                        email: user.email 
+                    } 
+                });
+            } catch (authErr) {
+                console.error("User Google Auth Error:", authErr);
+                return json(res, 500, { message: "Auth processing failed", error: authErr.message });
+            }
         }
 
         // ── Owner signup ──────────────────────────────────────────
