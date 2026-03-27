@@ -94,15 +94,15 @@ function NavLg({ defaultLocation, onRequestOpen }) {
           </div>
         </div>
         <div className="flex items-center gap-6">
-          <a href="/" className="nav-link text-sm font-medium">Home</a>
-          <a href="#" className="nav-link text-sm font-medium">Find Parking</a>
+          <a href="index.html" className="nav-link text-sm font-medium">Home</a>
+          <a href="find-parking.html" className="nav-link text-sm font-medium">Find Parking</a>
           <button 
             onClick={onRequestOpen}
             className="btn-secondary flex items-center gap-2 text-sm py-1.5 px-4"
           >
             <span className="text-premier-400 font-bold">+</span> List Your Event
           </button>
-          <a href="https://parkconscious.in/contact.html" target="_blank" rel="noreferrer" className="btn-secondary py-1.5 px-4 text-sm inline-block">Support</a>
+          <a href="contact.html" className="btn-secondary py-1.5 px-4 text-sm inline-block">Support</a>
           <CustomModal />
         </div>
       </div>
