@@ -141,6 +141,12 @@ const ParkingOfferModal = ({ isOpen, closeModal, onConfirm, ticketPrice }) => {
                       {error && <p className="text-red-400 text-xs mt-2 font-medium bg-red-400/10 p-2 rounded-lg border border-red-400/20">{error}</p>}
                     </div>
 
+                    <div className="mt-5 p-4 border border-blue-500/10 bg-blue-500/5 rounded-2xl">
+                      <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest block mb-1">Assigned Parking Spot</span>
+                      <h4 className="text-white font-medium text-sm">VIP Premium Zone (Level 1)</h4>
+                      <p className="text-gray-500 text-xs mt-1">Guaranteed entry directly to the venue gates.</p>
+                    </div>
+
                     <div className="bg-[#16161C] rounded-2xl p-4 border border-white/5 mt-4 space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-400">Tickets</span>

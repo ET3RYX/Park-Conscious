@@ -220,9 +220,9 @@ const FarewellTicketsPage = () => {
                 >
                   {loading ? "Initializing Secure Checkout..." : `PAY ₹${selectedTicket === "vip" ? prices.vip : prices.regular} SECURELY`}
                 </button>
-                <p className="text-center text-[10px] text-gray-600 mt-6 uppercase tracking-[0.2em] font-medium flex items-center justify-center gap-2">
+                <p className="text-center text-[10px] text-gray-500 mt-6 uppercase tracking-[0.2em] font-medium flex items-center justify-center gap-2">
                   <span className="w-4 h-px bg-gray-700"></span>
-                  Secured by PhonePe
+                  Powered by Park Conscious
                   <span className="w-4 h-px bg-gray-700"></span>
                 </p>
               </div>
