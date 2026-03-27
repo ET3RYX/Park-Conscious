@@ -94,7 +94,7 @@ const FarewellTicketsPage = () => {
     <div className="bg-darkBackground-900 min-h-screen text-white pt-24 pb-12 font-sans selection:bg-vibrantBlue/30">
       <div className="container mx-auto px-4 md:px-12">
         {/* Aesthetic Gradient Hero Section */}
-        <div className="relative w-full h-80 md:h-[28rem] rounded-[3rem] overflow-hidden mb-16 shadow-2xl shadow-premier-900/20 border border-white/5 flex items-center justify-center bg-gradient-to-tr from-[#0a0410] via-[#1a0b2e] to-[#2d0f54]">
+        <div className="relative w-full h-64 sm:h-80 md:h-[28rem] rounded-3xl md:rounded-[3rem] overflow-hidden mb-12 flex items-center justify-center bg-gradient-to-tr from-[#0a0410] via-[#1a0b2e] to-[#2d0f54]">
           {/* Decorative glowing orbs */}
           <div className="absolute -top-32 -left-32 w-96 h-96 bg-vibrantBlue/30 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
           <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-premier-500/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
@@ -143,8 +143,8 @@ const FarewellTicketsPage = () => {
           </div>
 
           {/* Right Column: Ticket Card */}
-          <div className="lg:col-span-5">
-            <div className="sticky top-28 bg-[#0D0D12] border border-white/10 rounded-[3rem] p-8 md:p-10 shadow-2xl">
+          <div className="lg:col-span-5 relative z-10 w-full mb-12">
+            <div className="sticky top-20 bg-[#0D0D12] border border-white/10 rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-10 shadow-2xl">
               <h3 className="text-2xl font-bold mb-8 text-white">Select Tickets</h3>
               
               {/* Ticket Selection Toggle */}

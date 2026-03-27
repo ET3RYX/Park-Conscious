@@ -59,12 +59,12 @@ const ParkingOfferModal = ({ isOpen, closeModal, onConfirm, ticketPrice }) => {
               leaveFrom="opacity-100 scale-100 translate-y-0"
               leaveTo="opacity-0 scale-95 translate-y-8"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-3xl bg-[#111116] border border-white/5 p-8 text-left align-middle shadow-2xl transition-all relative">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-3xl bg-[#111116] border border-white/5 p-6 md:p-8 text-left align-middle shadow-2xl transition-all relative">
                 
                 {/* Close Button */}
                 <button 
                   onClick={resetAndClose}
-                  className="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors"
+                  className="absolute top-4 right-4 md:top-6 md:right-6 text-gray-400 hover:text-white transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
