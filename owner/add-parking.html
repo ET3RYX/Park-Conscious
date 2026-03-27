@@ -207,11 +207,21 @@
             const API_URL = isLocal ? `http://localhost:5050/api/owner/${ownerId}/parkings` : `/api/owner/${ownerId}/parkings`;
 
             try {
-                const resp = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!resp.ok) throw new Error('Failed');
+                const resp = await fetch(API_URL, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(payload) 
+                });
+                
+                if (!resp.ok) {
+                    const errorData = await resp.json().catch(() => ({}));
+                    throw new Error(errorData.message || `Server error (${resp.status})`);
+                }
+                
                 document.getElementById('success-modal').classList.remove('hidden');
             } catch(err) {
-                alert('Error: ' + err.message);
+                console.error("Submission error:", err);
+                alert('Submission Failed: ' + err.message);
                 btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Submit Location';
                 btn.disabled = false;
             }
