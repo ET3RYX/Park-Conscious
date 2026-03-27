@@ -234,13 +234,30 @@
         function toggleSmartSearch() {
             isSmartSearch = document.getElementById('smart-search-toggle').checked;
             const hint = document.getElementById('search-hint');
+            const input = document.getElementById('loc-name');
+            
             if (isSmartSearch) {
                 hint.innerText = "Suggestions will appear as you type.";
-                // Re-enable autocomplete if needed (it stays attached, we just ignore its results in logic)
+                // Clear any manual blocking CSS if we had any
+                input.setAttribute('placeholder', 'e.g. Central Mall Parking B2');
             } else {
                 hint.innerText = "Free-text mode. Latitude/Longitude will not be auto-filled.";
+                input.setAttribute('placeholder', 'Enter a custom name here');
+                // Force closure of PAC container if it's open
+                const pac = document.querySelector('.pac-container');
+                if (pac) pac.style.display = 'none';
             }
         }
+        
+        // Add CSS to hide suggestions when smart search is off
+        const style = document.createElement('style');
+        style.innerHTML = `
+            #smart-search-toggle:not(:checked) ~ .pac-container,
+            body:has(#smart-search-toggle:not(:checked)) .pac-container {
+                display: none !important;
+            }
+        `;
+        document.head.appendChild(style);
 
         function extractFromUrl() {
             const urlInput = document.getElementById('maps-url');
