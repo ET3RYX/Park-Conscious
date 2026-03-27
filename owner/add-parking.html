@@ -298,24 +298,25 @@
             const url = urlInput.value;
             if (!url) return;
 
-            // Regex for @lat,lng in Google Maps URLs
-            const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
-            const match = url.match(regex);
+            // Primary check for !3d...!4d format (Actual Place Pin Coordinates)
+            const regexExact = /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/;
+            const matchExact = url.match(regexExact);
 
-            if (match) {
-                document.getElementById('loc-lat').value = match[1];
-                document.getElementById('loc-lng').value = match[2];
-                showStatusBadge('Coordinates extracted from URL');
-                urlInput.value = ''; // clear after success
+            if (matchExact) {
+                document.getElementById('loc-lat').value = matchExact[1];
+                document.getElementById('loc-lng').value = matchExact[2];
+                showStatusBadge('Location extracted accurately');
+                urlInput.value = '';
             } else {
-                // Secondary check for !3d...!4d format
-                const regex2 = /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/;
-                const match2 = url.match(regex2);
-                if (match2) {
-                    document.getElementById('loc-lat').value = match2[1];
-                    document.getElementById('loc-lng').value = match2[2];
-                    showStatusBadge('Coordinates extracted from URL');
-                    urlInput.value = '';
+                // Fallback check for @lat,lng in Google Maps URLs (Viewport Center)
+                const regexViewport = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
+                const matchViewport = url.match(regexViewport);
+                
+                if (matchViewport) {
+                    document.getElementById('loc-lat').value = matchViewport[1];
+                    document.getElementById('loc-lng').value = matchViewport[2];
+                    showStatusBadge('Viewport coordinates extracted from URL');
+                    urlInput.value = ''; // clear after success
                 } else {
                     alert('Could not find coordinates in this URL. Try right-clicking on the map and selecting "What\'s here?" to get a better link.');
                 }
