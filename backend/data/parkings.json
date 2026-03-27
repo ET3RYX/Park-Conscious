@@ -3713,7 +3713,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_001",
+    "Location": "Dilshad Garden Metro Parking",
+    "Latitude": 28.6816,
+    "Longitude": 77.3152,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_002",
@@ -3739,7 +3746,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_002",
+    "Location": "Jhilmil Metro Parking",
+    "Latitude": 28.6761,
+    "Longitude": 77.3056,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_003",
@@ -3765,7 +3779,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_003",
+    "Location": "Mansarovar Park Metro Parking",
+    "Latitude": 28.6715,
+    "Longitude": 77.2965,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_004",
@@ -3791,7 +3812,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_004",
+    "Location": "Shahdara Metro Parking",
+    "Latitude": 28.6672,
+    "Longitude": 77.288,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_005",
@@ -3817,7 +3845,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_005",
+    "Location": "Welcome Metro Parking",
+    "Latitude": 28.6659,
+    "Longitude": 77.2776,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_006",
@@ -3843,7 +3878,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_006",
+    "Location": "Seelampur Metro Parking",
+    "Latitude": 28.6599,
+    "Longitude": 77.2745,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_007",
@@ -3869,7 +3911,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_007",
+    "Location": "Shastri Park Metro Parking",
+    "Latitude": 28.6579,
+    "Longitude": 77.2688,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_008",
@@ -3895,7 +3944,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_008",
+    "Location": "Kashmere Gate Metro Parking",
+    "Latitude": 28.6677,
+    "Longitude": 77.2285,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_009",
@@ -3921,7 +3977,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_009",
+    "Location": "Tis Hazari Metro Parking",
+    "Latitude": 28.6681,
+    "Longitude": 77.2216,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_010",
@@ -3947,7 +4010,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_010",
+    "Location": "Pulbangash Metro Parking",
+    "Latitude": 28.671,
+    "Longitude": 77.2161,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_011",
@@ -3973,7 +4043,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_011",
+    "Location": "Pratap Nagar Metro Parking",
+    "Latitude": 28.6741,
+    "Longitude": 77.2105,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_012",
@@ -3999,7 +4076,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_012",
+    "Location": "Shastri Nagar Metro Parking",
+    "Latitude": 28.6772,
+    "Longitude": 77.2048,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_013",
@@ -4025,7 +4109,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_013",
+    "Location": "Inder Lok Metro Parking",
+    "Latitude": 28.6799,
+    "Longitude": 77.1982,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_014",
@@ -4051,7 +4142,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_014",
+    "Location": "Kanhaiya Nagar Metro Parking",
+    "Latitude": 28.6841,
+    "Longitude": 77.1912,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_015",
@@ -4077,7 +4175,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_015",
+    "Location": "Keshav Puram Metro Parking",
+    "Latitude": 28.6881,
+    "Longitude": 77.1855,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_016",
@@ -4103,7 +4208,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_016",
+    "Location": "Netaji Subhash Place Metro Parking",
+    "Latitude": 28.6952,
+    "Longitude": 77.1537,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_017",
@@ -4129,7 +4241,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_017",
+    "Location": "Kohat Enclave Metro Parking",
+    "Latitude": 28.703,
+    "Longitude": 77.1492,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_018",
@@ -4155,7 +4274,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_018",
+    "Location": "Pitampura Metro Parking",
+    "Latitude": 28.7063,
+    "Longitude": 77.1434,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_019",
@@ -4181,7 +4307,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_019",
+    "Location": "Rohini East Metro Parking",
+    "Latitude": 28.7143,
+    "Longitude": 77.1329,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_020",
@@ -4207,7 +4340,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_020",
+    "Location": "Rithala Metro Parking",
+    "Latitude": 28.7208,
+    "Longitude": 77.1072,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_021",
@@ -4233,7 +4373,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_021",
+    "Location": "Jahangirpuri Metro Parking",
+    "Latitude": 28.7307,
+    "Longitude": 77.1636,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_022",
@@ -4259,7 +4406,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_022",
+    "Location": "Azadpur Metro Parking",
+    "Latitude": 28.715,
+    "Longitude": 77.1788,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_023",
@@ -4285,7 +4439,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_023",
+    "Location": "GTB Nagar Metro Parking",
+    "Latitude": 28.7022,
+    "Longitude": 77.202,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_024",
@@ -4311,7 +4472,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_024",
+    "Location": "Vishwa Vidyalaya Metro Parking",
+    "Latitude": 28.6923,
+    "Longitude": 77.2117,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_025",
@@ -4337,7 +4505,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_025",
+    "Location": "Patel Chowk Metro Parking",
+    "Latitude": 28.6233,
+    "Longitude": 77.2096,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_026",
@@ -4363,7 +4538,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_026",
+    "Location": "Green Park Metro Parking",
+    "Latitude": 28.5601,
+    "Longitude": 77.2059,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_027",
@@ -4389,7 +4571,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_027",
+    "Location": "Malviya Nagar Metro Parking",
+    "Latitude": 28.5296,
+    "Longitude": 77.2072,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_028",
@@ -4415,7 +4604,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_028",
+    "Location": "Saket Metro Parking",
+    "Latitude": 28.5228,
+    "Longitude": 77.2073,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_029",
@@ -4441,7 +4637,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_029",
+    "Location": "Dronacharya Metro Parking",
+    "Latitude": 28.4935,
+    "Longitude": 77.089,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_030",
@@ -4467,7 +4670,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_030",
+    "Location": "MG Road Metro Parking",
+    "Latitude": 28.4801,
+    "Longitude": 77.0878,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_031",
@@ -4493,7 +4703,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_031",
+    "Location": "Sikandarpur Metro Parking",
+    "Latitude": 28.4817,
+    "Longitude": 77.0847,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_032",
@@ -4519,7 +4736,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_032",
+    "Location": "IFFCO Chowk Metro Parking",
+    "Latitude": 28.473,
+    "Longitude": 77.0732,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_033",
@@ -4545,7 +4769,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_033",
+    "Location": "HUDA City Centre Metro Parking",
+    "Latitude": 28.4595,
+    "Longitude": 77.0266,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_034",
@@ -4571,7 +4802,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_034",
+    "Location": "Qutub Minar Metro Parking",
+    "Latitude": 28.5296,
+    "Longitude": 77.1854,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_035",
@@ -4597,7 +4835,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_035",
+    "Location": "Chattarpur Metro Parking",
+    "Latitude": 28.5082,
+    "Longitude": 77.1597,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_036",
@@ -4623,7 +4868,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_036",
+    "Location": "Sultanpur Metro Parking",
+    "Latitude": 28.4991,
+    "Longitude": 77.1543,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_037",
@@ -4649,7 +4901,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_037",
+    "Location": "Ghitorni Metro Parking",
+    "Latitude": 28.4896,
+    "Longitude": 77.1406,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_038",
@@ -4675,7 +4934,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_038",
+    "Location": "Arjangarh Metro Parking",
+    "Latitude": 28.4771,
+    "Longitude": 77.1028,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_039",
@@ -4701,7 +4967,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_039",
+    "Location": "Hauz Khas Metro Parking",
+    "Latitude": 28.5431,
+    "Longitude": 77.2065,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_040",
@@ -4727,7 +5000,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_040",
+    "Location": "Yamuna Bank Metro Parking",
+    "Latitude": 28.6254,
+    "Longitude": 77.2829,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_041",
@@ -4753,7 +5033,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_041",
+    "Location": "Indraprastha Metro Parking",
+    "Latitude": 28.6327,
+    "Longitude": 77.2718,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_042",
@@ -4779,7 +5066,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_042",
+    "Location": "Pragati Maidan Metro Parking",
+    "Latitude": 28.619,
+    "Longitude": 77.249,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_043",
@@ -4805,7 +5099,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_043",
+    "Location": "RK Ashram Marg Metro Parking",
+    "Latitude": 28.6419,
+    "Longitude": 77.209,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_044",
@@ -4831,7 +5132,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_044",
+    "Location": "Rajendra Place Metro Parking",
+    "Latitude": 28.6456,
+    "Longitude": 77.1878,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_045",
@@ -4857,7 +5165,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_045",
+    "Location": "Patel Nagar Metro Parking",
+    "Latitude": 28.6516,
+    "Longitude": 77.1709,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_046",
@@ -4883,7 +5198,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_046",
+    "Location": "Shadipur Metro Parking",
+    "Latitude": 28.6527,
+    "Longitude": 77.161,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_047",
@@ -4909,7 +5231,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_047",
+    "Location": "Kirti Nagar Metro Parking",
+    "Latitude": 28.653,
+    "Longitude": 77.1513,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_048",
@@ -4935,7 +5264,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_048",
+    "Location": "Moti Nagar Metro Parking",
+    "Latitude": 28.6543,
+    "Longitude": 77.1395,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_049",
@@ -4961,7 +5297,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_049",
+    "Location": "Ramesh Nagar Metro Parking",
+    "Latitude": 28.6542,
+    "Longitude": 77.127,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_050",
@@ -4987,7 +5330,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_050",
+    "Location": "Rajouri Garden Metro Parking",
+    "Latitude": 28.6498,
+    "Longitude": 77.1192,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_051",
@@ -5013,7 +5363,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_051",
+    "Location": "Tagore Garden Metro Parking",
+    "Latitude": 28.649,
+    "Longitude": 77.1075,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_052",
@@ -5039,7 +5396,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_052",
+    "Location": "Subhash Nagar Metro Parking",
+    "Latitude": 28.6468,
+    "Longitude": 77.0986,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_053",
@@ -5065,7 +5429,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_053",
+    "Location": "Tilak Nagar Metro Parking",
+    "Latitude": 28.6434,
+    "Longitude": 77.0895,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_054",
@@ -5091,7 +5462,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_054",
+    "Location": "Janakpuri East Metro Parking",
+    "Latitude": 28.6341,
+    "Longitude": 77.0819,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_055",
@@ -5117,7 +5495,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_055",
+    "Location": "Janakpuri West Metro Parking",
+    "Latitude": 28.6272,
+    "Longitude": 77.0779,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_056",
@@ -5143,7 +5528,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_056",
+    "Location": "Uttam Nagar East Metro Parking",
+    "Latitude": 28.6204,
+    "Longitude": 77.0591,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_057",
@@ -5169,7 +5561,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_057",
+    "Location": "Uttam Nagar West Metro Parking",
+    "Latitude": 28.6192,
+    "Longitude": 77.0488,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_058",
@@ -5195,7 +5594,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_058",
+    "Location": "Nawada Metro Parking",
+    "Latitude": 28.617,
+    "Longitude": 77.0389,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_059",
@@ -5221,7 +5627,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_059",
+    "Location": "Dwarka Mor Metro Parking",
+    "Latitude": 28.6155,
+    "Longitude": 77.031,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_060",
@@ -5247,7 +5660,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_060",
+    "Location": "Dwarka Metro Parking",
+    "Latitude": 28.5921,
+    "Longitude": 77.0591,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_061",
@@ -5273,7 +5693,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_061",
+    "Location": "Dwarka Sector 14 Metro Parking",
+    "Latitude": 28.5876,
+    "Longitude": 77.047,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_062",
@@ -5299,7 +5726,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_062",
+    "Location": "Dwarka Sector 11 Metro Parking",
+    "Latitude": 28.5814,
+    "Longitude": 77.0382,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_063",
@@ -5325,7 +5759,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_063",
+    "Location": "Dwarka Sector 9 Metro Parking",
+    "Latitude": 28.576,
+    "Longitude": 77.0319,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_064",
@@ -5351,7 +5792,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_064",
+    "Location": "Akshardham Metro Parking",
+    "Latitude": 28.6175,
+    "Longitude": 77.2977,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_065",
@@ -5377,7 +5825,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_065",
+    "Location": "Mayur Vihar Phase 1 Metro Parking",
+    "Latitude": 28.6077,
+    "Longitude": 77.296,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_066",
@@ -5403,7 +5858,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_066",
+    "Location": "Mayur Vihar Extension Metro Parking",
+    "Latitude": 28.5981,
+    "Longitude": 77.3091,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_067",
@@ -5429,7 +5891,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_067",
+    "Location": "New Ashok Nagar Metro Parking",
+    "Latitude": 28.5938,
+    "Longitude": 77.3133,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_068",
@@ -5455,7 +5924,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_068",
+    "Location": "Noida Sector 15 Metro Parking",
+    "Latitude": 28.5851,
+    "Longitude": 77.3217,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_069",
@@ -5481,7 +5957,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_069",
+    "Location": "Botanical Garden Metro Parking",
+    "Latitude": 28.5638,
+    "Longitude": 77.3348,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_070",
@@ -5507,7 +5990,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_070",
+    "Location": "Noida City Centre Metro Parking",
+    "Latitude": 28.5749,
+    "Longitude": 77.359,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_071",
@@ -5533,7 +6023,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_071",
+    "Location": "Karkardooma Metro Parking",
+    "Latitude": 28.6472,
+    "Longitude": 77.3024,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_072",
@@ -5559,7 +6056,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_072",
+    "Location": "Anand Vihar Metro Parking",
+    "Latitude": 28.6469,
+    "Longitude": 77.3161,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_073",
@@ -5585,7 +6089,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_073",
+    "Location": "Kaushambi Metro Parking",
+    "Latitude": 28.6415,
+    "Longitude": 77.3262,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_074",
@@ -5611,7 +6122,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_074",
+    "Location": "Vaishali Metro Parking",
+    "Latitude": 28.6454,
+    "Longitude": 77.3374,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_075",
@@ -5637,7 +6155,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_075",
+    "Location": "Dwarka Sector 21 Metro Parking",
+    "Latitude": 28.5522,
+    "Longitude": 77.0586,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_076",
@@ -5663,7 +6188,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_076",
+    "Location": "Punjabi Bagh East Metro Parking",
+    "Latitude": 28.6687,
+    "Longitude": 77.1337,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_077",
@@ -5689,7 +6221,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_077",
+    "Location": "Madipur Metro Parking",
+    "Latitude": 28.666,
+    "Longitude": 77.1197,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_078",
@@ -5715,7 +6254,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_078",
+    "Location": "Paschim Vihar East Metro Parking",
+    "Latitude": 28.6711,
+    "Longitude": 77.1062,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_079",
@@ -5741,7 +6287,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_079",
+    "Location": "Peeragarhi Metro Parking",
+    "Latitude": 28.6779,
+    "Longitude": 77.0939,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_080",
@@ -5767,7 +6320,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_080",
+    "Location": "Udyog Nagar Metro Parking",
+    "Latitude": 28.6697,
+    "Longitude": 77.0768,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_081",
@@ -5793,7 +6353,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_081",
+    "Location": "Nangloi Metro Parking",
+    "Latitude": 28.6685,
+    "Longitude": 77.0614,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_082",
@@ -5819,7 +6386,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_082",
+    "Location": "Mundka Metro Parking",
+    "Latitude": 28.6824,
+    "Longitude": 77.027,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_083",
@@ -5845,7 +6419,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_083",
+    "Location": "Nehru Place Metro Parking",
+    "Latitude": 28.5491,
+    "Longitude": 77.2517,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_084",
@@ -5871,7 +6452,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_084",
+    "Location": "Kalkaji Mandir Metro Parking",
+    "Latitude": 28.5494,
+    "Longitude": 77.2588,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_085",
@@ -5897,7 +6485,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_085",
+    "Location": "Govindpuri Metro Parking",
+    "Latitude": 28.5397,
+    "Longitude": 77.2617,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_086",
@@ -5923,7 +6518,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_086",
+    "Location": "Okhla Metro Parking",
+    "Latitude": 28.531,
+    "Longitude": 77.2712,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_087",
@@ -5949,7 +6551,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_087",
+    "Location": "Jasola Metro Parking",
+    "Latitude": 28.5442,
+    "Longitude": 77.2857,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_088",
@@ -5975,7 +6584,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_088",
+    "Location": "Sarita Vihar Metro Parking",
+    "Latitude": 28.5342,
+    "Longitude": 77.2926,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_089",
@@ -6001,7 +6617,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_089",
+    "Location": "Mohan Estate Metro Parking",
+    "Latitude": 28.5173,
+    "Longitude": 77.2959,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_090",
@@ -6027,7 +6650,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_090",
+    "Location": "Tughlakabad Metro Parking",
+    "Latitude": 28.5041,
+    "Longitude": 77.2878,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_091",
@@ -6053,7 +6683,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_091",
+    "Location": "Badarpur Metro Parking",
+    "Latitude": 28.5023,
+    "Longitude": 77.2955,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_092",
@@ -6079,7 +6716,14 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_092",
+    "Location": "Lajpat Nagar Metro Parking",
+    "Latitude": 28.5703,
+    "Longitude": 77.2432,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   },
   {
     "id": "dmrc_093",
@@ -6105,6 +6749,13 @@
       "cycle_upto_12hrs": 4,
       "cycle_above_12hrs": 5,
       "cycle_monthly": 45
-    }
+    },
+    "ID": "dmrc_093",
+    "Location": "Moolchand Metro Parking",
+    "Latitude": 28.5697,
+    "Longitude": 77.2348,
+    "Authority": "DMRC",
+    "Type": "metro_parking",
+    "PricePerHour": 3
   }
 ]
