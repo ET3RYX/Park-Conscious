@@ -264,23 +264,34 @@ async function renderBookingsList() {
     const listEl = document.getElementById('results-list');
     listEl.innerHTML = '<div class="text-center p-6 text-slate-400 text-sm font-medium italic">Syncing with server...</div>';
     
-    // Fallback/Local list
-    let bookings = [];
-    
     const userStr = localStorage.getItem('park_user');
-    if (userStr) {
-        try {
-            const user = JSON.parse(userStr);
-            const resp = await fetch(`/api/user/${user.id}/bookings`);
-            if (resp.ok) {
-                bookings = await resp.json();
-            }
-        } catch (err) {
-            console.warn("Could not fetch remote bookings:", err);
-            // fallback to local
+    if (!userStr) {
+        listEl.innerHTML = `
+            <div class="flex flex-col items-center justify-center p-12 text-center space-y-6">
+                <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center shadow-inner">
+                    <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                </div>
+                <div>
+                    <h3 class="text-xl font-black text-slate-900 mb-2">Login Required</h3>
+                    <p class="text-slate-500 text-sm max-w-[200px] mx-auto font-medium leading-relaxed italic">Sign in to sync your bookings across devices & view your tickets.</p>
+                </div>
+                <a href="login.html" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">Login Now</a>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">or book a parking to start</p>
+            </div>
+        `;
+        return;
+    }
+
+    try {
+        const user = JSON.parse(userStr);
+        const resp = await fetch(`/api/user/${user.id}/bookings`);
+        if (resp.ok) {
+            bookings = await resp.json();
+        } else {
             bookings = loadBookings();
         }
-    } else {
+    } catch (err) {
+        console.warn("Could not fetch remote bookings:", err);
         bookings = loadBookings();
     }
 
