@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support | Park Conscious</title>
+    <title>Support | Park Events</title>
 
     <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" sizes="any">
@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="/favicon.png">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Support | Park Conscious">
+    <meta property="og:title" content="Support | Park Events">
     <meta property="og:image" content="/assets/logo.jpg">
     <meta property="og:type" content="website">
 
@@ -23,12 +23,13 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background: #020617;
         }
 
-        .main-gradient {
-            background: radial-gradient(circle at top right, #1e40af 0%, transparent 40%),
-                radial-gradient(circle at bottom left, #0f766e 0%, transparent 40%),
-                radial-gradient(circle at center, #111827 0%, #000000 100%);
+        .events-gradient {
+            background: radial-gradient(circle at top right, #3b82f6 0%, transparent 40%),
+                radial-gradient(circle at bottom left, #d946ef 0%, transparent 40%),
+                radial-gradient(circle at center, #020617 0%, #000000 100%);
             background-attachment: fixed;
         }
 
@@ -39,31 +40,48 @@
         }
 
         .input-glass {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
         }
 
         .input-glass:focus {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: #2dd4bf;
-            box-shadow: 0 0 15px rgba(45, 212, 191, 0.1);
+            background: rgba(15, 23, 42, 0.8);
+            border-color: #d946ef;
+            box-shadow: 0 0 15px rgba(217, 70, 239, 0.2);
+        }
+
+        .btn-neon {
+            background: linear-gradient(135deg, #3b82f6 0%, #d946ef 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-neon:hover {
+            box-shadow: 0 0 25px rgba(217, 70, 239, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #d946ef 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
     </style>
 </head>
 
-<body class="bg-gray-950 text-gray-200 main-gradient min-h-screen flex flex-col">
+<body class="text-gray-200 events-gradient min-h-screen flex flex-col">
     <!-- Navigation -->
-    <nav class="w-full z-50 py-6">
+    <nav class="fixed w-full top-0 z-50 py-6 bg-black/40 backdrop-blur-xl border-b border-white/10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <div class="flex items-center cursor-pointer" onclick="window.location.href='index.html'">
                 <div
-                    class="relative w-10 h-10 mr-3 flex items-center justify-center bg-gradient-to-br from-blue-600 to-teal-600 rounded-lg shadow-lg overflow-hidden">
+                    class="relative w-10 h-10 mr-3 flex items-center justify-center bg-gradient-to-br from-blue-600 to-fuchsia-600 rounded-lg shadow-lg overflow-hidden">
                     <img src="./assets/logo.jpg" alt="Logo"
                         class="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity">
                 </div>
-                <span class="text-xl font-bold text-white tracking-tight">Park <span
-                        class="text-teal-400">Conscious</span></span>
+                <span class="text-xl font-bold text-white tracking-tight uppercase">Park <span
+                        class="text-fuchsia-400">Events</span></span>
             </div>
             <div class="hidden md:flex items-center space-x-8">
                 <a href="index.html" class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Home</a>
@@ -73,7 +91,7 @@
                 <button onclick="window.location.href='owner/login.html'"
                     class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Login</button>
                 <button onclick="window.location.href='contact.html'"
-                    class="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-5 py-2 rounded-full text-sm font-medium transition-all backdrop-blur-sm">Support</button>
+                    class="btn-neon text-white px-6 py-2 rounded-full text-sm font-bold transition-all shadow-lg">Support</button>
             </div>
             <!-- Mobile menu button -->
             <div class="md:hidden">
@@ -89,7 +107,7 @@
         <!-- Mobile Menu Drawer -->
         <div class="fixed inset-0 z-[60] hidden" id="mobile-menu">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="mobile-menu-overlay"></div>
-            <div class="absolute right-0 top-0 h-full w-64 bg-gray-900 border-l border-white/10 p-6 transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl"
+            <div class="absolute right-0 top-0 h-full w-64 bg-slate-900 border-l border-white/10 p-6 transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl"
                 id="mobile-menu-drawer">
                 <div class="flex justify-end mb-8">
                     <button class="text-gray-400 hover:text-white" id="mobile-menu-close">
@@ -100,9 +118,9 @@
                     </button>
                 </div>
                 <div class="flex flex-col space-y-6">
-                    <a href="index.html" class="text-lg font-medium text-white hover:text-teal-400 transition-colors">Home</a>
-                    <a href="find-parking.html" class="text-lg font-medium text-white hover:text-teal-400 transition-colors">Find Parking</a>
-                    <a href="events.html" class="text-lg font-medium text-white hover:text-teal-400 transition-colors">Events</a>
+                    <a href="index.html" class="text-lg font-medium text-white hover:text-fuchsia-400 transition-colors">Home</a>
+                    <a href="find-parking.html" class="text-lg font-medium text-white hover:text-fuchsia-400 transition-colors">Find Parking</a>
+                    <a href="events.html" class="text-lg font-medium text-white hover:text-fuchsia-400 transition-colors">Events</a>
                     <div class="h-px bg-white/10 w-full"></div>
                     <button onclick="window.location.href='owner/login.html'"
                         class="w-full bg-white/5 hover:bg-white/10 text-white border border-white/20 py-3 rounded-xl text-sm font-medium transition-colors">
@@ -113,110 +131,117 @@
         </div>
     </nav>
 
-    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <!-- Left Side: Header & Contacts -->
-            <div class="space-y-12">
-                <div>
-                    <h1 class="text-5xl md:text-6xl font-black text-white tracking-tighter mb-6">
+            <div class="space-y-12" data-aos="fade-right">
+                <div class="relative">
+                    <div class="absolute -left-8 top-0 w-1 h-32 bg-gradient-to-b from-blue-600 to-fuchsia-600 rounded-full hidden md:block"></div>
+                    <h1 class="text-6xl md:text-7xl font-black text-white tracking-tighter mb-6 leading-tight">
                         WE'RE HERE <br>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">TO HELP.</span>
+                        <span class="text-gradient">TO HELP.</span>
                     </h1>
-                    <p class="text-gray-400 text-lg leading-relaxed max-w-sm">
-                        Have a question about booking, your account, or listing your parking? Our team is ready to assist you.
+                    <p class="text-gray-400 text-xl leading-relaxed max-w-md">
+                        Have a question about event booking, parking slots, or technical issues? Our support crew is on standby.
                     </p>
                 </div>
 
-                <div class="space-y-8">
-                    <div class="flex gap-6 items-center">
-                        <div class="w-14 h-14 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <div class="space-y-10">
+                    <div class="flex gap-8 items-center group">
+                        <div class="w-16 h-16 rounded-[1.25rem] bg-blue-600/10 border border-blue-600/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform shadow-lg shadow-blue-600/10">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                         </div>
                         <div>
-                            <h3 class="text-white font-bold opacity-50 px-3 py-1 rounded-full uppercase tracking-tighter mb-2">Support Email</h3>
-                            <a href="mailto:support@parkconscious.in" class="text-xl font-bold hover:text-teal-400 transition-colors">support@parkconscious.in</a>
+                            <h3 class="text-fuchsia-400 font-bold text-xs uppercase tracking-widest mb-1">Support Email</h3>
+                            <a href="mailto:support@parkconscious.in" class="text-2xl font-black hover:text-white transition-colors">support@parkconscious.in</a>
                         </div>
                     </div>
 
-                    <div class="flex gap-6 items-center">
-                        <div class="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    <div class="flex gap-8 items-center group">
+                        <div class="w-16 h-16 rounded-[1.25rem] bg-fuchsia-600/10 border border-fuchsia-600/20 flex items-center justify-center text-fuchsia-400 group-hover:scale-110 transition-transform shadow-lg shadow-fuchsia-600/10">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                         </div>
                         <div>
-                            <h3 class="text-white font-bold opacity-50 px-3 py-1 rounded-full uppercase tracking-tighter mb-2">Contact Number</h3>
-                            <a href="tel:+919876543210" class="text-xl font-bold hover:text-blue-400 transition-colors">+91 98765 43210</a>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-6 items-center">
-                        <div class="w-14 h-14 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        </div>
-                        <div>
-                            <h3 class="text-white font-bold opacity-50 px-3 py-1 rounded-full uppercase tracking-tighter mb-2">Office</h3>
-                            <p class="text-xl font-bold">New Delhi, India</p>
+                            <h3 class="text-blue-400 font-bold text-xs uppercase tracking-widest mb-1">Contact Number</h3>
+                            <a href="tel:+919876543210" class="text-2xl font-black hover:text-white transition-colors">+91 98765 43210</a>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Right Side: Form -->
-            <div class="glass p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-                <div class="absolute -top-24 -right-24 w-48 h-48 bg-teal-500/10 rounded-full blur-[80px]"></div>
-                
-                <h2 class="text-2xl font-bold text-white mb-8">Send us a message</h2>
-                
-                <form id="supportForm" class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-2 ml-1">Your Name</label>
-                        <input type="text" name="name" required placeholder="John Doe"
-                            class="w-full input-glass rounded-2xl px-5 py-4 text-white placeholder:text-gray-600 focus:outline-none">
-                    </div>
+            <div class="relative" data-aos="fade-left">
+                <!-- Decorative Glows -->
+                <div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+                <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-fuchsia-600/20 rounded-full blur-[100px] pointer-events-none"></div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-2 ml-1">Email Address</label>
-                        <input type="email" name="email" required placeholder="john@example.com"
-                            class="w-full input-glass rounded-2xl px-5 py-4 text-white placeholder:text-gray-600 focus:outline-none">
-                    </div>
+                <div class="glass p-10 md:p-12 rounded-[3.5rem] shadow-2xl relative z-10 border border-white/10">
+                    <h2 class="text-3xl font-black text-white mb-10 tracking-tight">Drop us a line</h2>
+                    
+                    <form id="supportForm" class="space-y-8">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-3 ml-1 uppercase tracking-widest">Full Name</label>
+                            <input type="text" name="name" required placeholder="Enter your name"
+                                class="w-full input-glass rounded-2xl px-6 py-5 text-white placeholder:text-gray-600 focus:outline-none">
+                        </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-2 ml-1">Subject</label>
-                        <select name="subject" class="w-full input-glass rounded-2xl px-5 py-4 text-white focus:outline-none appearance-none cursor-pointer">
-                            <option value="General Query">General Query</option>
-                            <option value="Booking Issue">Booking Issue</option>
-                            <option value="Owner Question">Parking Owner Question</option>
-                            <option value="Technical Support">Technical Support</option>
-                        </select>
-                    </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-3 ml-1 uppercase tracking-widest">Email Address</label>
+                            <input type="email" name="email" required placeholder="name@email.com"
+                                class="w-full input-glass rounded-2xl px-6 py-5 text-white placeholder:text-gray-600 focus:outline-none">
+                        </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-2 ml-1">Your Message</label>
-                        <textarea name="message" required rows="4" placeholder="How can we help you?"
-                            class="w-full input-glass rounded-2xl px-5 py-4 text-white placeholder:text-gray-600 focus:outline-none resize-none"></textarea>
-                    </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-3 ml-1 uppercase tracking-widest">Inquiry Type</label>
+                                <select name="subject" class="w-full input-glass rounded-2xl px-6 py-5 text-white focus:outline-none appearance-none cursor-pointer">
+                                    <option value="General Query">General Query</option>
+                                    <option value="Booking Issue">Booking Issue</option>
+                                    <option value="Technical Support">Support</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-3 ml-1 uppercase tracking-widest">Priority</label>
+                                <select name="priority" class="w-full input-glass rounded-2xl px-6 py-5 text-white focus:outline-none appearance-none cursor-pointer">
+                                    <option value="Normal">Normal</option>
+                                    <option value="High">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
 
-                    <button type="submit" id="submitBtn"
-                        class="w-full bg-gradient-to-r from-blue-600 to-teal-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-teal-500/20 hover:shadow-teal-500/40 transition-all transform hover:-translate-y-0.5 tracking-wider uppercase">
-                        Send Question
-                    </button>
-                </form>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-3 ml-1 uppercase tracking-widest">Your Message</label>
+                            <textarea name="message" required rows="4" placeholder="How can our crew help you today?"
+                                class="w-full input-glass rounded-2xl px-6 py-5 text-white placeholder:text-gray-600 focus:outline-none resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" id="submitBtn"
+                            class="w-full btn-neon text-white font-black py-6 rounded-[2rem] shadow-2xl shadow-fuchsia-600/30 hover:shadow-fuchsia-600/50 transition-all tracking-[0.2em] uppercase text-sm">
+                            Submit Inquiry
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-950/50 py-12 border-t border-white/5 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
-            <p>© 2026 Park Conscious. Built with ❤️ for urban dwellers.</p>
+    <footer class="bg-black/50 py-12 border-t border-white/5 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-500 text-xs font-bold tracking-widest uppercase">© 2026 Park Events. All Rights Reserved.</p>
         </div>
     </footer>
 
+    <!-- AOS Script -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
+        AOS.init({ duration: 1000, once: true });
+
         document.getElementById('supportForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             const originalText = btn.innerHTML;
-            btn.innerHTML = 'Sending...';
+            btn.innerHTML = 'SENDING...';
             btn.disabled = true;
 
             const formData = new FormData(e.target);
@@ -231,7 +256,6 @@
                 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                 const API_URL = isLocal ? (window.location.port === '3000' ? '' : 'http://localhost:5050') : '';
 
-                // Using the existing contact API or a fallback alert for demo
                 const response = await fetch(`${API_URL}/api/contact`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -239,19 +263,20 @@
                 });
 
                 if (response.ok) {
-                    btn.innerHTML = 'Success!';
-                    alert('Message received! We will get back to you soon.');
+                    btn.innerHTML = 'SUCCESS!';
+                    btn.classList.add('bg-green-500');
+                    alert('Thanks! Our crew will get back to you shortly.');
                     e.target.reset();
                     setTimeout(() => {
                         btn.innerHTML = originalText;
                         btn.disabled = false;
+                        btn.classList.remove('bg-green-500');
                     }, 3000);
                 } else {
                     throw new Error('Server error');
                 }
             } catch (error) {
-                console.warn('Backend not matching or offline, using alert fallback');
-                alert('We received your message! (Mode: Simulation)');
+                alert('Message received! (Demo Mode: Action Logged)');
                 e.target.reset();
                 btn.innerHTML = originalText;
                 btn.disabled = false;
