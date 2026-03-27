@@ -97,7 +97,6 @@ export default async function handler(req, res) {
             if (!await bcrypt.compare(password, user.password)) return json(res, 400, { message: 'Invalid credentials' });
             return json(res, 200, { user: { id: user._id, name: user.name, email: user.email } });
         }
-
         // ── User Google login ─────────────────────────────────────
         if (url.includes('/auth/google') && method === 'POST') {
             try {
@@ -123,6 +122,44 @@ export default async function handler(req, res) {
             } catch (authErr) {
                 console.error("User Google Auth Error:", authErr);
                 return json(res, 500, { message: "Auth processing failed", error: authErr.message });
+            }
+        }
+
+        // ── User Bookings Fetch ──────────────────────────────────
+        if (url.includes('/api/user/') && url.includes('/bookings') && method === 'GET') {
+            const parts = url.split('/');
+            const userIdx = parts.indexOf('user');
+            const userId = parts[userIdx + 1];
+            try {
+                const history = await Booking.find({ userId }).sort({ createdAt: -1 });
+                return json(res, 200, history);
+            } catch (err) {
+                return json(res, 500, { message: 'Failed to fetch bookings', error: err.message });
+            }
+        }
+
+        // ── Create Booking ───────────────────────────────────────
+        if (url.includes('/api/bookings') && method === 'POST') {
+            const { parkingId, ownerId, userId, locationName, vehicleType, vehicleNumber, startTime, endTime, amount } = body;
+            if (!parkingId || !locationName) return json(res, 400, { message: 'Parking ID and Location are required' });
+            
+            try {
+                const b = await Booking.create({
+                    parkingId,
+                    ownerId: ownerId || null,
+                    userId: userId || null,
+                    locationName,
+                    vehicleType,
+                    vehicleNumber,
+                    startTime,
+                    endTime,
+                    amount,
+                    status: "Confirmed"
+                });
+                return json(res, 201, { message: 'Booking created successfully', booking: b });
+            } catch (err) {
+                console.error("Booking Create Error:", err);
+                return json(res, 500, { message: 'Database Error', error: err.message });
             }
         }
 

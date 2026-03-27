@@ -83,13 +83,14 @@
                             <tr class="border-b border-slate-100 bg-slate-50">
                                 <th class="px-6 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Date</th>
                                 <th class="px-6 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Location</th>
+                                <th class="px-6 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Vehicle Details</th>
                                 <th class="px-6 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Time Slot</th>
-                                <th class="px-6 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Revenue</th>
+                                <th class="px-6 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Revenue</th>
                                 <th class="px-6 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="logsBody" class="divide-y divide-slate-50">
-                            <tr><td colspan="5" class="px-6 py-10 text-center text-slate-400 text-sm">Loading...</td></tr>
+                        <tbody id="logsBody" class="divide-y divide-slate-50 text-sm">
+                            <tr><td colspan="6" class="px-6 py-10 text-center text-slate-400 text-sm italic">Initializing logs...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -173,12 +174,18 @@
                 data.forEach(log => {
                     const row = document.createElement('tr');
                     row.className = 'hover:bg-slate-50/70 transition-colors';
+                    const vehicleTypeLabel = log.vehicleType === '2wheeler' ? '2-Wheel' : (log.vehicleType === 'heavy' ? 'Heavy' : '4-Wheel');
+                    
                     row.innerHTML = `
-                        <td class="px-6 py-4 text-sm text-slate-500 font-mono">${new Date(log.createdAt || log.date).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'})}</td>
-                        <td class="px-6 py-4 text-sm font-semibold text-slate-900">${log.locationName}</td>
-                        <td class="px-6 py-4 text-sm text-slate-500">${log.startTime} → ${log.endTime}</td>
-                        <td class="px-6 py-4"><span class="text-sm font-bold text-emerald-600">${log.amount}</span></td>
-                        <td class="px-6 py-4"><span class="inline-flex items-center gap-1.5 text-xs bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-1 rounded-full font-bold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Confirmed</span></td>`;
+                        <td class="px-6 py-4 text-slate-500 font-mono text-[11px]">${new Date(log.createdAt || log.date).toLocaleDateString('en-IN', {day:'2-digit', month:'short'})}</td>
+                        <td class="px-6 py-4 font-bold text-slate-900">${log.locationName}</td>
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-slate-800 uppercase tracking-tight">${log.vehicleNumber || '---'}</div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">${vehicleTypeLabel}</div>
+                        </td>
+                        <td class="px-6 py-4 text-slate-500 font-medium italic">${log.startTime} → ${log.endTime}</td>
+                        <td class="px-6 py-4 text-right"><span class="font-black text-slate-900">${log.amount}</span></td>
+                        <td class="px-6 py-4"><span class="inline-flex items-center gap-1.5 text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-2.5 py-1 rounded-full font-black uppercase tracking-wider"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Confirmed</span></td>`;
                     body.appendChild(row);
                 });
             } catch(e) { console.error('Logs load failed:', e); }

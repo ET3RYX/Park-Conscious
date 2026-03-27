@@ -96,12 +96,20 @@ const bookingSchema = new mongoose.Schema(
     ownerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Owner",
-      required: true,
+      default: null,
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     },
     locationName: String,
+    vehicleType: String,
+    vehicleNumber: String,
     startTime: String,
     endTime: String,
     amount: String,
+    status: { type: String, default: "Confirmed" },
     date: { type: Date, default: Date.now },
   },
   { timestamps: true }
