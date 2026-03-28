@@ -77,7 +77,7 @@ const parkingSchema = new mongoose.Schema(
     Latitude: { type: Number, required: true },
     Longitude: { type: Number, required: true },
     PricePerHour: { type: Number, default: null },
-    TotalSlots: { type: Number, default: null },
+    TotalSlots: { type: Number, default: null, min: 0 },
     Type: { type: String, default: "Public Parking" },
     Authority: { type: String, default: "Public" },
     Zone: { type: String, default: null },

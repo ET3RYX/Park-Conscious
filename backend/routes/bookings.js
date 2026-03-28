@@ -1,5 +1,6 @@
 import express from 'express';
 import Booking from '../models/Booking.js';
+import Parking from '../models/Parking.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -13,6 +14,21 @@ router.post('/', protect, async (req, res) => {
     
     if (!parkingId || !locationName || !vehicleNumber) {
         return res.status(400).json({ message: 'Parking ID, Location, and Vehicle Number are required' });
+    }
+
+    // Availability Check (Overbooking Prevention)
+    const parking = await Parking.findById(parkingId).catch(() => null);
+    if (parking && parking.TotalSlots !== null) {
+      const activeBookingsCount = await Booking.countDocuments({ 
+        parkingId: String(parkingId), 
+        status: "Confirmed" 
+      });
+      
+      if (activeBookingsCount >= parking.TotalSlots) {
+        return res.status(400).json({ 
+          message: `Parking is full. Only ${parking.TotalSlots} slots were available and all are currently booked.` 
+        });
+      }
     }
     
     const booking = await Booking.create({

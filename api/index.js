@@ -148,6 +148,21 @@ export default async function handler(req, res) {
                 if (!parkingId || !locationName) {
                     return json(res, 400, { message: 'Parking ID and Location are required' });
                 }
+
+                // Availability Check (Overbooking Prevention)
+                const parking = await Parking.findById(parkingId).catch(() => null);
+                if (parking && parking.TotalSlots !== null) {
+                    const activeCount = await Booking.countDocuments({ 
+                        parkingId: String(parkingId), 
+                        status: "Confirmed" 
+                    });
+                    
+                    if (activeCount >= parking.TotalSlots) {
+                        return json(res, 400, { 
+                            message: `Parking is full. Only ${parking.TotalSlots} slots were available and all are currently booked.` 
+                        });
+                    }
+                }
                 
                 const b = await Booking.create({
                     parkingId: String(parkingId),
