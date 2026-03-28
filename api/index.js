@@ -297,6 +297,14 @@ export default async function handler(req, res) {
                 const parkings = await Parking.find({ owner: ownerId });
                 return json(res, 200, parkings);
             }
+            if (method === 'DELETE') {
+                const parkingId = parts[parts.length - 1];
+                const parking = await Parking.findById(parkingId);
+                if (!parking) return json(res, 404, { message: 'Parking not found' });
+                if (parking.owner?.toString() !== ownerId) return json(res, 401, { message: 'Unauthorized' });
+                await Parking.findByIdAndDelete(parkingId);
+                return json(res, 200, { message: 'Parking removed' });
+            }
             if (method === 'POST') {
                 const { Location, Latitude, Longitude, PricePerHour, TotalSlots, Type } = body;
                 if (!Location || !Latitude || !Longitude) {

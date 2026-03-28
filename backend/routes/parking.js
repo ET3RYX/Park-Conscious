@@ -139,4 +139,30 @@ router.get('/owner/:ownerId/parkings', protect, async (req, res) => {
   }
 });
 
+// @desc    Remove a parking
+// @route   DELETE /api/owner/:ownerId/parkings/:parkingId
+// @access  Private (Owner)
+router.delete('/owner/:ownerId/parkings/:parkingId', protect, async (req, res) => {
+  try {
+    const { ownerId, parkingId } = req.params;
+    
+    if (req.user._id.toString() !== ownerId) {
+       return res.status(401).json({ message: "Not authorized" });
+    }
+
+    const parking = await Parking.findById(parkingId);
+    if (!parking) return res.status(404).json({ message: "Parking not found" });
+
+    if (parking.owner?.toString() !== ownerId) {
+       return res.status(401).json({ message: "You do not own this parking" });
+    }
+
+    await Parking.findByIdAndDelete(parkingId);
+    res.json({ message: "Parking removed successfully" });
+  } catch (error) {
+    console.error("Remove Parking Error:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
 export default router;
