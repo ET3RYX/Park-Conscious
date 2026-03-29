@@ -3,12 +3,17 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/database.js";
 import rateLimit from "express-rate-limit";
+import helmet from "helmet";
+import morgan from "morgan";
+
 
 // Route Imports
 import publicRoutes from "./routes/public.js";
 import authRoutes from "./routes/auth.js";
 import parkingRoutes from "./routes/parking.js";
 import bookingRoutes from "./routes/bookings.js";
+import eventRoutes from "./routes/events.js";
+
 
 dotenv.config();
 
@@ -22,8 +27,12 @@ if (process.env.MONGODB_URI) {
 const app = express();
 
 // --- Middleware ---
+app.use(helmet());
+app.use(morgan("dev"));
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 // --- Rate Limiting ---
 const authLimiter = rateLimit({
@@ -34,11 +43,13 @@ const authLimiter = rateLimit({
 
 // --- Routes ---
 app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/events", eventRoutes);
 app.use("/api/parking", parkingRoutes); // Base parking fetch
 app.use("/api/owner", parkingRoutes);   // Owner specific parking/dashboard
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/user", bookingRoutes);    // User specific bookings
-app.use("/api", publicRoutes);          // Public info: events, waitlist, contact
+app.use("/api", publicRoutes);          // Public info: waitlist, contact
+
 
 // Health check
 app.get("/", (req, res) => res.send("✅ Park Conscious Backend (Refactored) is live!"));

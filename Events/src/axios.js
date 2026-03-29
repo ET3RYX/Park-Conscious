@@ -7,4 +7,9 @@ const tmdbAxios = axios.create({
   },
 });
 
+const backendAxios = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:5050",
+});
+
+export { tmdbAxios, backendAxios };
 export default tmdbAxios;

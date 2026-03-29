@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     // Will be populated for users logging in via Google
   },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user'
+  },
   createdAt: {
     type: Date,
     default: Date.now,

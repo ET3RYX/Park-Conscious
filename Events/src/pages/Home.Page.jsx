@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import tmdbAxios from "../axios";
+import { tmdbAxios, backendAxios } from "../axios";
 
 // HOC
 import DefaultlayoutHoc from "../layout/Default.layout";
@@ -7,9 +7,6 @@ import DefaultlayoutHoc from "../layout/Default.layout";
 // Components
 import PosterSlider from "../components/PosterSlider/PosterSlider.Component";
 import DiscussionBoard from "../components/Discussion/DiscussionBoard";
-
-// Assets
-// collegeFarewellImg removed for Afsana 2026 redesign
 
 const adCopies = [
   "You planned the day. Parking planned chaos.",
@@ -86,28 +83,32 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    const requestPopularMovies = async () => {
+    const fetchCurrentEvents = async () => {
       try {
-        const getPopularMovies = await tmdbAxios.get("/movie/now_playing", {
-          params: { region: "IN" },
-        });
-        if (getPopularMovies.data && getPopularMovies.data.results) {
-          setpremierMovies(getPopularMovies.data.results);
-        }
+        const { data } = await backendAxios.get("/api/events");
+        // Mapping our event schema to the PosterSlider expected schema if necessary
+        // Our schema: { title, images: [], ... }
+        // TMDB schema: { original_title, poster_path, ... }
+        // Poster component probably uses 'poster_path' or 'image'
+        const mappedEvents = data.map(event => ({
+            ...event,
+            original_title: event.title,
+            poster_path: event.images[0],
+            backdrop_path: event.images[0]
+        }));
+        setpremierMovies(mappedEvents);
       } catch (err) {
-        console.error("Failed to fetch popular movies:", err);
+        console.error("Failed to fetch Park Conscious events:", err);
       }
     };
-    requestPopularMovies();
+    fetchCurrentEvents();
   }, []);
 
-  // Filter movies logic: In a real app we'd filter by genre or tags. 
-  // Here we'll subset or shuffle the list to show filtering is working.
   const filteredEvents = useMemo(() => {
     if (selectedCategory === "All Events") return premierMovies;
-    // Simple subsetting logic based on category for visual feedback
-    const charCode = selectedCategory.charCodeAt(0);
-    return premierMovies.filter((movie, index) => (index + charCode) % 2 === 0);
+    return premierMovies.filter(event => 
+        event.category && event.category.some(cat => cat.toLowerCase() === selectedCategory.toLowerCase())
+    );
   }, [selectedCategory, premierMovies]);
 
   return (
@@ -156,7 +157,7 @@ const HomePage = () => {
         ))}
       </div>
 
-      {/* Featured Event Card (New Requirement) */}
+      {/* Featured Event Card */}
       <div className="container mx-auto px-4 md:px-12 mb-16">
         <FeaturedEventCard />
       </div>
@@ -164,8 +165,8 @@ const HomePage = () => {
       {/* Event Grid Section */}
       <div className="container mx-auto px-4 md:px-12 my-12 bg-radial-glow-darker rounded-[2rem] py-12 border border-darkBackground-700 transition-all duration-500">
         <PosterSlider
-          title={selectedCategory === "All Events" ? "New Premium Movies" : `${selectedCategory} Results`}
-          subtitle={selectedCategory === "All Events" ? "Brand new popular releases in India" : `Browsing highlights for ${selectedCategory}`}
+          title={selectedCategory === "All Events" ? "Live Park Events" : `${selectedCategory} Results`}
+          subtitle={selectedCategory === "All Events" ? "Authentic experiences powered by Park Conscious" : `Browsing highlights for ${selectedCategory}`}
           posters={filteredEvents}
           isDark={true}
         />

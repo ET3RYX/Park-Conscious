@@ -49,23 +49,7 @@ router.get('/contact', async (req, res) => {
   }
 });
 
-// --- EVENTS ---
-router.get('/events', async (req, res) => {
-  try {
-    const events = await Event.find().sort({ createdAt: -1 });
-    res.json(events);
-  } catch (error) {
-    res.status(500).json({ message: "Server Error" });
-  }
-});
+// Event routes have been moved to routes/events.js
 
-router.post('/events', async (req, res) => {
-  try {
-    const eventEntry = await Event.create(req.body);
-    res.status(201).json({ message: "Event created successfully", data: eventEntry });
-  } catch (error) {
-    res.status(500).json({ message: "Server Error" });
-  }
-});
 
 export default router;
