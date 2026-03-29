@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Activity, ShieldCheck, Mail, Lock, Loading } from 'lucide-react';
+import { Activity, ShieldCheck, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/api';
 import { useNavigate } from 'react-router-dom';

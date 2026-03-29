@@ -37,7 +37,7 @@ function App() {
               <MainLayout />
             </ProtectedRoute>
           }>
-            <index.jsx element={<Dashboard />} />
+
             <Route index element={<Dashboard />} />
             <Route path="events" element={<Events />} />
             <Route path="events/create" element={<CreateEvent />} />
