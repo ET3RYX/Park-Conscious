@@ -4,17 +4,15 @@
 
 @layer base {
   body {
-    @apply bg-darkBackground-900 text-gray-100 font-sans antialiased overflow-x-hidden;
+    @apply bg-darkBackground-950 text-slate-200 font-sans antialiased selection:bg-primary-500/30;
   }
 }
 
 @layer utilities {
-  .text-gradient {
-    @apply bg-gradient-to-r from-premier-400 to-vibrantBlue text-transparent bg-clip-text;
+  .sidebar-shadow {
+    box-shadow: 1px 0 0 0 rgba(255, 255, 255, 0.05);
   }
-  .bg-radial-glow {
-    background-image: 
-      radial-gradient(ellipse at 80% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-      radial-gradient(ellipse at 20% 100%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
+  .card-border {
+    @apply border border-slate-800 bg-slate-900;
   }
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import EventForm from '../components/EventForm';
 import { eventService } from '../services/api';
+import { ChevronLeft, Loader2 } from 'lucide-react';
 
 const EditEvent = () => {
   const { id } = useParams();
@@ -17,7 +18,6 @@ const EditEvent = () => {
         setEvent(data);
       } catch (error) {
         console.error('Failed to fetch event', error);
-        alert('Could not find event or lost connection.');
         navigate('/events');
       } finally {
         setFetching(false);
@@ -33,7 +33,6 @@ const EditEvent = () => {
       navigate('/events');
     } catch (error) {
       console.error('Failed to update event', error);
-      alert('Failed to update event. Please check inputs.');
     } finally {
       setLoading(false);
     }
@@ -41,19 +40,30 @@ const EditEvent = () => {
 
   if (fetching) {
     return (
-      <div className="flex items-center justify-center h-[70vh]">
-        <div className="w-12 h-12 rounded-full border-t-2 border-premier-400 border-r-2 border-transparent animate-spin"></div>
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+        <Loader2 className="text-sky-500 animate-spin" size={40} />
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Retrieving Record</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-10">
-      <div>
-        <h1 className="text-4xl font-black text-white tracking-tight uppercase">Update <span className="text-premier-400">Prototype</span></h1>
-        <p className="text-gray-400 mt-2 font-medium">Refining the details for <span className="text-white">"{event?.title}"</span>.</p>
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <button 
+            onClick={() => navigate('/events')}
+            className="flex items-center gap-2 text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-widest mb-4 transition"
+          >
+            <ChevronLeft size={14} /> Back to Repository
+          </button>
+          <h1 className="text-2xl font-bold text-white tracking-tight uppercase">Edit Experience</h1>
+          <p className="text-slate-500 text-sm mt-1 font-medium italic">Modifying entity: <span className="text-slate-300 not-italic">"{event?.title}"</span></p>
+        </div>
       </div>
-      <EventForm initialData={event} onSubmit={handleUpdate} loading={loading} />
+      <div className="bg-slate-900/30 border border-slate-800/50 rounded-[2rem] p-4 md:p-8">
+        <EventForm initialData={event} onSubmit={handleUpdate} loading={loading} />
+      </div>
     </div>
   );
 };

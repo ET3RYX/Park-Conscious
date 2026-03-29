@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, X, MapPin, Calendar, Tag, ShieldCheck, Info, IndianRupee, Users } from 'lucide-react';
+import { Upload, X, MapPin, Calendar, Tag, ShieldCheck, Info, IndianRupee, Users, PlusCircle } from 'lucide-react';
 import { eventService } from '../services/api';
 
 const EventForm = ({ initialData = null, onSubmit, loading }) => {
@@ -75,7 +75,6 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
       }));
     } catch (err) {
       setError('Failed to upload image. Please try again.');
-      console.error(err);
     } finally {
       setUploading(false);
     }
@@ -90,276 +89,203 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    // Critical fix: Ensure price and capacity are integers before sending
+    const submissionData = {
+        ...formData,
+        price: parseInt(formData.price) || 0,
+        capacity: parseInt(formData.capacity) || 0,
+        lat: parseFloat(formData.lat) || 0,
+        lng: parseFloat(formData.lng) || 0
+    };
+    onSubmit(submissionData);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
       {error && (
-        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 p-4 rounded-2xl text-sm font-bold flex items-center gap-2">
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 px-6 py-4 rounded-xl text-sm font-bold flex items-center gap-3">
           <Info size={18} /> {error}
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Basic Info */}
-        <div className="lg:col-span-2 space-y-8">
-          <div className="bg-darkBackground-800 border border-white/5 rounded-[2.5rem] p-8 space-y-6">
-            <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
-              <Info className="text-premier-400" /> General Information
+        {/* Left: Content */}
+        <div className="lg:col-span-2 space-y-6">
+          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6 shadow-sm">
+            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+              <Info className="text-sky-500" size={18} /> Basic Information
             </h3>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Event Title</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Event Prototype Title</label>
                 <input 
                   type="text" 
                   name="title"
                   required
                   value={formData.title}
                   onChange={handleChange}
-                  placeholder="e.g. Afsana: The Grand Farewell 2026"
-                  className="w-full bg-darkBackground-900 border border-white/5 rounded-2xl px-6 py-4 text-white font-medium focus:outline-none focus:border-premier-400 transition placeholder:text-gray-700"
+                  placeholder="e.g. Afsana 2026"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Description</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Project Description</label>
                 <textarea 
                   name="description"
-                  rows="6"
+                  rows="5"
                   value={formData.description}
                   onChange={handleChange}
-                  placeholder="Tell the story of your event..."
-                  className="w-full bg-darkBackground-900 border border-white/5 rounded-2xl px-6 py-4 text-white font-medium focus:outline-none focus:border-premier-400 transition placeholder:text-gray-700 resize-none"
+                  placeholder="Describe the event experience..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition resize-none"
                 />
               </div>
             </div>
-          </div>
+          </section>
 
-          <div className="bg-darkBackground-800 border border-white/5 rounded-[2.5rem] p-8 space-y-6">
-            <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
-              <MapPin className="text-vibrantBlue" /> Venue & Location
+          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6 shadow-sm">
+            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+              <MapPin className="text-sky-500" size={18} /> Venue & Location
             </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Venue Name</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Venue Name</label>
                 <input 
                   type="text" 
                   name="locationName"
                   required
                   value={formData.locationName}
                   onChange={handleChange}
-                  placeholder="e.g. Grand Ballroom, JW Marriott"
-                  className="w-full bg-darkBackground-900 border border-white/5 rounded-2xl px-6 py-4 text-white font-medium focus:outline-none focus:border-vibrantBlue transition placeholder:text-gray-700"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition"
                 />
               </div>
               
               <div className="md:col-span-2">
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Full Address</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Address</label>
                 <input 
                   type="text" 
                   name="locationAddress"
                   value={formData.locationAddress}
                   onChange={handleChange}
-                  placeholder="Complete postal address..."
-                  className="w-full bg-darkBackground-900 border border-white/5 rounded-2xl px-6 py-4 text-white font-medium focus:outline-none focus:border-vibrantBlue transition placeholder:text-gray-700"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Latitude</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">LAT</label>
                 <input 
-                  type="number" 
-                  step="any"
-                  name="lat"
-                  value={formData.lat}
-                  onChange={handleChange}
-                  className="w-full bg-darkBackground-900 border border-white/5 rounded-2xl px-6 py-4 text-white font-medium focus:outline-none focus:border-vibrantBlue transition"
+                  type="number" step="any" name="lat" value={formData.lat} onChange={handleChange}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition"
                 />
               </div>
-
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Longitude</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">LNG</label>
                 <input 
-                  type="number" 
-                  step="any"
-                  name="lng"
-                  value={formData.lng}
-                  onChange={handleChange}
-                  className="w-full bg-darkBackground-900 border border-white/5 rounded-2xl px-6 py-4 text-white font-medium focus:outline-none focus:border-vibrantBlue transition"
+                  type="number" step="any" name="lng" value={formData.lng} onChange={handleChange}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition"
                 />
               </div>
             </div>
-          </div>
+          </section>
         </div>
 
-        {/* Right Column: Sidebar Options */}
-        <div className="space-y-8">
-          <div className="bg-darkBackground-800 border border-white/5 rounded-[2.5rem] p-8 space-y-6">
-            <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
-              <ShieldCheck className="text-emerald-400" /> Status & Category
+        {/* Right: Controls */}
+        <div className="space-y-6">
+          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 shadow-sm">
+            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+              <ShieldCheck className="text-emerald-500" size={18} /> Status Code
             </h3>
-
-            <div className="space-y-6">
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Publishing Status</label>
-                <div className="grid grid-cols-1 gap-2">
-                  {['draft', 'published', 'cancelled'].map(status => (
-                    <button
-                      key={status}
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, status }))}
-                      className={`px-4 py-3 rounded-xl border text-sm font-bold capitalize transition-all ${
-                        formData.status === status 
-                        ? 'bg-premier-500/10 border-premier-400 text-premier-400' 
-                        : 'bg-darkBackground-900 border-white/5 text-gray-500 hover:text-white'
-                      }`}
-                    >
-                      {status}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Categories</label>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {formData.category.map(cat => (
-                    <span key={cat} className="bg-vibrantBlue/10 text-vibrantBlue border border-vibrantBlue/20 px-3 py-1 rounded-full text-[10px] font-black uppercase flex items-center gap-1.5 animate-in zoom-in-75">
-                      {cat} <X size={12} className="cursor-pointer hover:text-white" onClick={() => handleRemoveCategory(cat)} />
-                    </span>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <input 
-                    type="text" 
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    placeholder="Add category..."
-                    className="flex-1 bg-darkBackground-900 border border-white/5 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-vibrantBlue transition"
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCategory())}
-                  />
-                  <button 
-                    type="button"
-                    onClick={handleAddCategory}
-                    className="bg-white/5 hover:bg-white/10 text-white p-2 rounded-xl transition"
-                  >
-                    <Plus size={18} />
-                  </button>
-                </div>
-              </div>
+            <div className="grid grid-cols-1 gap-2">
+              {['draft', 'published', 'cancelled'].map(status => (
+                <button
+                  key={status} type="button" onClick={() => setFormData(prev => ({ ...prev, status }))}
+                  className={`px-4 py-2.5 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all ${
+                    formData.status === status 
+                    ? 'bg-sky-500/10 border-sky-500/30 text-sky-400' 
+                    : 'bg-slate-950 border-slate-800 text-slate-500 hover:text-white'
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
             </div>
-          </div>
+          </section>
 
-          <div className="bg-darkBackground-800 border border-white/5 rounded-[2.5rem] p-8 space-y-6">
-            <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
-              <IndianRupee className="text-premier-400" /> Pricing & Capacity
+          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 shadow-sm">
+             <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+              <IndianRupee className="text-sky-500" size={18} /> Parameters
             </h3>
-
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Entry Price (₹)</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Ticket Price</label>
                 <input 
-                  type="number" 
-                  name="price"
-                  value={formData.price}
-                  onChange={handleChange}
-                  className="w-full bg-darkBackground-900 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold focus:outline-none focus:border-premier-400 transition"
+                  type="number" name="price" value={formData.price} onChange={handleChange}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm font-bold focus:outline-none focus:border-sky-500/50 transition"
                 />
               </div>
-
               <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Total Capacity</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Capacity Limit</label>
                 <input 
-                  type="number" 
-                  name="capacity"
-                  value={formData.capacity}
-                  onChange={handleChange}
-                  className="w-full bg-darkBackground-900 border border-white/5 rounded-2xl px-6 py-4 text-white font-bold focus:outline-none focus:border-premier-400 transition"
+                  type="number" name="capacity" value={formData.capacity} onChange={handleChange}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm font-bold focus:outline-none focus:border-sky-500/50 transition"
                 />
               </div>
             </div>
-          </div>
+          </section>
+
+          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 shadow-sm">
+            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+              <Calendar className="text-sky-500" size={18} /> Schedule
+            </h3>
+            <div className="space-y-4">
+                <input 
+                  type="date" name="date" required value={formData.date} onChange={handleChange}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition"
+                />
+                <input 
+                  type="date" name="endDate" value={formData.endDate} onChange={handleChange}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition"
+                />
+            </div>
+          </section>
         </div>
 
-        {/* Full Width Row: Media & Dates */}
-        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-8">
-           <div className="bg-darkBackground-800 border border-white/5 rounded-[2.5rem] p-8 space-y-6">
-            <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
-              <Calendar className="text-premier-400" /> Schedule
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Start Date</label>
-                <input 
-                  type="date" 
-                  name="date"
-                  required
-                  value={formData.date}
-                  onChange={handleChange}
-                  className="w-full bg-darkBackground-900 border border-white/5 rounded-2xl px-6 py-4 text-white font-medium focus:outline-none focus:border-premier-400 transition"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">End Date</label>
-                <input 
-                  type="date" 
-                  name="endDate"
-                  value={formData.endDate}
-                  onChange={handleChange}
-                  className="w-full bg-darkBackground-900 border border-white/5 rounded-2xl px-6 py-4 text-white font-medium focus:outline-none focus:border-premier-400 transition"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-darkBackground-800 border border-white/5 rounded-[2.5rem] p-8 space-y-6">
-            <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
-              <Upload className="text-vibrantBlue" /> Event Media
+        {/* Media Row */}
+        <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6 shadow-sm">
+            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+              <Upload className="text-sky-500" size={18} /> Event Media Assets
             </h3>
             
             <div className="flex flex-wrap gap-4">
               {formData.images.map((img, idx) => (
-                <div key={idx} className="relative group w-32 h-32">
-                  <img src={img} className="w-full h-full object-cover rounded-2xl border border-white/10" alt="" />
+                <div key={idx} className="relative group w-24 h-24">
+                  <img src={img} className="w-full h-full object-cover rounded-xl border border-slate-800" alt="" />
                   <button 
-                    type="button"
-                    onClick={() => handleRemoveImage(idx)}
-                    className="absolute -top-2 -right-2 bg-rose-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    type="button" onClick={() => handleRemoveImage(idx)}
+                    className="absolute -top-2 -right-2 bg-rose-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition shadow-lg"
                   >
-                    <X size={14} />
+                    <X size={12} />
                   </button>
                 </div>
               ))}
               
-              <label className={`w-32 h-32 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-2xl cursor-pointer hover:border-premier-400/50 hover:bg-white/5 transition-all ${uploading ? 'animate-pulse' : ''}`}>
+              <label className={`w-24 h-24 flex flex-col items-center justify-center border border-dashed border-slate-800 rounded-xl cursor-pointer hover:border-sky-500/50 transition-all ${uploading ? 'animate-pulse' : ''}`}>
                 <input type="file" className="hidden" onChange={handleImageUpload} disabled={uploading} />
-                <Upload size={24} className={uploading ? 'text-premier-400' : 'text-gray-500'} />
-                <span className="text-[10px] font-black text-gray-500 mt-2 uppercase tracking-widest">
-                  {uploading ? 'Uploading...' : 'Add Image'}
-                </span>
+                <PlusCircle size={20} className={uploading ? 'text-sky-500' : 'text-slate-700'} />
               </label>
             </div>
-          </div>
         </div>
       </div>
 
-      <div className="pt-10 flex border-t border-white/5 justify-end gap-4">
+      <div className="pt-8 flex justify-end gap-3">
+        <button type="button" onClick={() => window.history.back()} className="px-6 py-2.5 rounded-lg text-slate-500 text-xs font-bold uppercase transition hover:text-white">Discard</button>
         <button 
-          type="button" 
-          onClick={() => window.history.back()}
-          className="px-8 py-4 rounded-2xl text-gray-400 font-bold hover:text-white transition"
+          type="submit" disabled={loading || uploading}
+          className="bg-sky-600 text-white px-8 py-2.5 rounded-lg text-xs font-bold uppercase shadow-lg shadow-sky-900/20 hover:bg-sky-500 active:scale-95 transition-all disabled:opacity-50"
         >
-          DISCARD
-        </button>
-        <button 
-          type="submit"
-          disabled={loading || uploading}
-          className="bg-gradient-to-r from-premier-500 to-vibrantBlue text-white font-black px-12 py-4 rounded-2xl shadow-2xl shadow-premier-500/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
-        >
-          {loading ? 'SYNCING...' : initialData ? 'UPDATE EVENT' : 'PUBLISH EVENT'}
+          {loading ? 'Processing...' : initialData ? 'Update Record' : 'Deploy Event'}
         </button>
       </div>
     </form>

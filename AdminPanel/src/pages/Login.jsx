@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Activity, ShieldCheck, Mail, Lock } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, Activity, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
@@ -21,72 +21,78 @@ const Login = () => {
       login(data.user);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Authentication failed. Access denied.');
+      setError(err.response?.data?.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-darkBackground-900 flex items-center justify-center p-6 relative overflow-hidden">
-      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-premier-500/10 blur-[150px] rounded-full pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-vibrantBlue/10 blur-[150px] rounded-full pointer-events-none"></div>
-
-      <div className="w-full max-w-lg bg-darkBackground-800 border border-white/5 rounded-[4rem] p-12 shadow-2xl relative z-10 backdrop-blur-3xl animate-in zoom-in-95 duration-700">
-        <div className="flex flex-col items-center mb-12">
-          <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-premier-400 to-vibrantBlue flex items-center justify-center shadow-2xl shadow-premier-500/40 mb-8 border border-white/20">
-            <ShieldCheck className="text-white" size={40} />
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 selection:bg-sky-500/20">
+      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-10 shadow-xl animate-in fade-in zoom-in-95 duration-500">
+        <div className="flex flex-col items-center mb-10">
+          <div className="w-16 h-16 rounded-xl bg-slate-800 flex items-center justify-center border border-slate-700 shadow-inner mb-6">
+            <ShieldCheck className="text-sky-500" size={32} />
           </div>
-          <h1 className="text-4xl font-black tracking-tight text-white uppercase text-center leading-none">Admin Nexus</h1>
-          <p className="text-gray-500 text-xs mt-3 font-black uppercase tracking-[0.2em]">Authorized Access Only</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white uppercase">Admin Nexus</h1>
+          <p className="text-slate-500 text-[10px] mt-2 font-bold uppercase tracking-widest bg-slate-800 px-3 py-1 rounded-full border border-slate-700">Secured Production Terminal</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Identifier</label>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Identifier</label>
             <div className="relative">
-              <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={16} />
               <input 
                 type="text"
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="admin@parkconscious.com"
-                className="w-full bg-darkBackground-900 border border-white/5 rounded-3xl px-16 py-5 text-white focus:outline-none focus:border-premier-400/50 transition-all font-medium placeholder:text-gray-700 shadow-inner"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-12 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/30 transition shadow-inner placeholder:text-slate-700"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Credential</label>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Credential</label>
             <div className="relative">
-              <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={16} />
               <input 
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-darkBackground-900 border border-white/5 rounded-3xl px-16 py-5 text-white focus:outline-none focus:border-premier-400/50 transition-all font-medium placeholder:text-gray-700 shadow-inner"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-12 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/30 transition shadow-inner placeholder:text-slate-700"
               />
             </div>
           </div>
 
-          {error && <p className="text-rose-400 text-xs font-black bg-rose-400/10 p-5 rounded-3xl border border-rose-400/20 text-center uppercase tracking-widest animate-shake">{error}</p>}
+          {error && <p className="text-rose-400 text-[10px] font-bold bg-rose-500/10 p-4 rounded-xl border border-rose-500/10 text-center uppercase tracking-widest">{error}</p>}
 
           <button 
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-premier-400 to-vibrantBlue text-white font-black py-6 rounded-3xl shadow-2xl shadow-premier-500/30 hover:shadow-premier-500/50 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 uppercase tracking-widest text-sm"
+            className="w-full bg-sky-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-sky-900/10 hover:bg-sky-500 active:scale-[0.98] transition-all disabled:opacity-50 uppercase tracking-widest text-xs flex items-center justify-center gap-2 group"
           >
-            {loading ? 'Validating...' : 'Authenticate'}
+            {loading ? 'Authenticating...' : (
+              <>
+                Authenticate <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+              </>
+            )}
           </button>
         </form>
 
-        <p className="mt-12 text-center text-[10px] text-gray-600 uppercase tracking-widest font-black flex items-center justify-center gap-2">
-          <Activity size={12} className="text-vibrantBlue" /> v3.0 // Security Core Active
-        </p>
+        <div className="mt-12 flex items-center justify-center gap-6">
+            <p className="text-[10px] text-slate-600 uppercase tracking-widest font-bold flex items-center gap-1.5 group">
+                <Activity size={10} className="text-emerald-500" /> System Active
+            </p>
+            <p className="text-[10px] text-slate-600 uppercase tracking-widest font-bold">v3.2 // TLS 1.3</p>
+        </div>
       </div>
+      
+      <p className="mt-8 text-[10px] text-slate-700 font-bold uppercase tracking-[0.3em]">Authorized Access Only</p>
     </div>
   );
 };

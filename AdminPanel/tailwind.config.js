@@ -8,25 +8,23 @@ export default {
     extend: {
       colors: {
         darkBackground: {
-          900: '#090a0f',
-          800: '#151720',
-          700: '#1e212b',
-          600: '#282c37',
+          950: '#020617', // Deeper slate
+          900: '#0f172a',
+          800: '#1e293b',
+          700: '#334155',
         },
-        premier: {
-          400: '#8b5cf6',
-          500: '#7c3aed',
-          700: '#5b21b6',
+        primary: {
+          500: '#0ea5e9', // Clean Sky Blue
+          600: '#0284c7',
         },
-        vibrantBlue: '#3b82f6',
-        accentYellow: '#f5df4d'
+        secondary: {
+          500: '#64748b',
+          400: '#94a3b8',
+        }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['"Inter"', 'system-ui', 'sans-serif'],
       },
-      backgroundImage: {
-        'radial-glow': 'radial-gradient(circle at top right, rgba(139, 92, 246, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.15), transparent 40%)',
-      }
     },
   },
   plugins: [],
