@@ -7,6 +7,7 @@ import Events from './pages/Events';
 import CreateEvent from './pages/CreateEvent';
 import EditEvent from './pages/EditEvent';
 import Login from './pages/Login';
+import PriceUpdater from './pages/PriceUpdater';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -42,6 +43,7 @@ function App() {
             <Route path="events" element={<Events />} />
             <Route path="events/create" element={<CreateEvent />} />
             <Route path="events/edit/:id" element={<EditEvent />} />
+            <Route path="price-updater" element={<PriceUpdater />} />
             
             {/* Work in Progress Modules */}
             <Route path="attendees" element={

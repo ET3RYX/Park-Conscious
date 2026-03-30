@@ -11,7 +11,8 @@ import {
   ShieldCheck, 
   Bell,
   Search,
-  CheckCircle2
+  CheckCircle2,
+  IndianRupee
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -68,6 +69,7 @@ const MainLayout = () => {
             <nav className="flex-1 px-4 space-y-1 pt-4">
                 <SidebarItem icon={BarChart3} label="Dashboard" to="/" />
                 <SidebarItem icon={Calendar} label="Events" to="/events" />
+                <SidebarItem icon={IndianRupee} label="Price Controller" to="/price-updater" />
                 <SidebarItem icon={Users} label="Attendees" to="/attendees" />
                 <SidebarItem icon={Settings} label="System" to="/settings" />
             </nav>
