@@ -106,9 +106,16 @@ const HomePage = () => {
 
   const filteredEvents = useMemo(() => {
     if (selectedCategory === "All Events") return premierMovies;
-    return premierMovies.filter(event => 
-        event.category && event.category.some(cat => cat.toLowerCase() === selectedCategory.toLowerCase())
-    );
+    return premierMovies.filter(event => {
+        if (!event.category) return false;
+        if (Array.isArray(event.category)) {
+            return event.category.some(cat => cat && cat.toString().toLowerCase() === selectedCategory.toLowerCase());
+        }
+        if (typeof event.category === 'string') {
+            return event.category.toLowerCase() === selectedCategory.toLowerCase();
+        }
+        return false;
+    });
   }, [selectedCategory, premierMovies]);
 
   return (

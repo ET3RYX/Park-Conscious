@@ -24,9 +24,44 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+class AppErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  componentDidCatch(error, errorInfo) { console.error('CRITICAL ADMIN CRASH:', error, errorInfo); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 text-center">
+          <div className="max-w-md space-y-6">
+            <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto border border-rose-500/20">
+              <span className="text-4xl">☢️</span>
+            </div>
+            <h1 className="text-white text-2xl font-black uppercase tracking-tighter">System Malfunction</h1>
+            <p className="text-slate-400 text-sm font-medium">A critical error occurred in the Admin Panel runtime. This is likely due to a missing component or an unexpected API response.</p>
+            <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl text-[10px] font-mono text-rose-400 text-left overflow-auto max-h-40">
+              {this.state.error?.message}
+            </div>
+            <button 
+              onClick={() => window.location.reload()}
+              className="bg-sky-600 text-white px-8 py-3 rounded-xl text-xs font-bold uppercase transition hover:bg-sky-500"
+            >
+              Attempt System Reboot
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function App() {
   return (
-    <BrowserRouter>
+    <AppErrorBoundary>
+      <BrowserRouter>
       <AuthProvider>
         <Routes>
           {/* Public Routes */}
@@ -71,6 +106,7 @@ function App() {
         </Routes>
       </AuthProvider>
     </BrowserRouter>
+    </AppErrorBoundary>
   );
 }
 
