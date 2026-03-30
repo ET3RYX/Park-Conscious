@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
+import { v2 as cloudinary } from 'cloudinary';
+import Busboy from 'busboy';
 
 // ─── PhonePe Config ─────────────────────────────────────────────────────────
 const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || 'PGTESTPAYUAT86';
@@ -58,6 +60,29 @@ const EventRequest = mongoose.models.EventRequest || mongoose.model('EventReques
   status: { type: String, default: "pending" },
 }, { timestamps: true }));
 
+const Event = mongoose.models.Event || mongoose.model('Event', new mongoose.Schema({
+  title: { type: String, required: true, trim: true },
+  description: { type: String, trim: true },
+  date: { type: Date, required: true },
+  endDate: { type: Date },
+  location: { name: { type: String, required: true }, address: String, coordinates: { lat: Number, lng: Number } },
+  images: [{ type: String }],
+  category: [{ type: String }],
+  price: { type: Number, default: 0 },
+  capacity: { type: Number },
+  status: { type: String, enum: ['draft', 'published', 'cancelled'], default: 'draft' },
+  isActive: { type: Boolean, default: true },
+}, { timestamps: true }));
+
+// ── Cloudinary Config ───────────────────────────────────────────
+if (!process.env.CLOUDINARY_URL) {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -105,8 +130,15 @@ export default async function handler(req, res) {
   const url      = req.url || '';
   const method   = req.method || 'GET';
   const cleanUrl = url.split('?')[0];
-  const body     = await parseBody(req);
-  req.body       = body;
+  const contentType = req.headers['content-type'] || '';
+
+  let body = {};
+  if (!contentType.includes('multipart/form-data')) {
+    body = await parseBody(req);
+    req.body = body;
+  } else {
+    req.body = {};
+  }
 
   const APP_URL = process.env.APP_URL ||
     (req.headers.host?.includes('localhost')
@@ -247,6 +279,89 @@ export default async function handler(req, res) {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // EVENT MANAGEMENT
+    // ─────────────────────────────────────────────────────────────────────────
+    if (cleanUrl.includes('upload') && method === 'POST') {
+        return new Promise((resolve) => {
+            try {
+                const bb = Busboy({ headers: req.headers });
+                let fileHandled = false;
+                bb.on('file', (fieldname, file, info) => {
+                    fileHandled = true;
+                    const stream = cloudinary.uploader.upload_stream(
+                        { folder: 'park-conscious-events' },
+                        (error, result) => {
+                            if (error) return json(res, 500, { message: 'Cloudinary error', error: error.message });
+                            json(res, 200, { url: result.secure_url });
+                            resolve();
+                        }
+                    );
+                    file.pipe(stream);
+                });
+                bb.on('finish', () => {
+                    if (!fileHandled) { json(res, 400, { message: 'No file uploaded' }); resolve(); }
+                });
+                req.pipe(bb);
+            } catch (err) {
+                json(res, 400, { message: 'Form parse error: ' + err.message });
+                resolve();
+            }
+        });
+    }
+
+    if (cleanUrl.includes('/api/events')) {
+        await connectDB();
+        // GET: Fetch events
+        if (method === 'GET') {
+            const isAdmin = cleanUrl.includes('/admin/all');
+            const filter = isAdmin ? {} : { status: 'published' };
+            const evts = await Event.find(filter).sort({ date: 1 });
+            return json(res, 200, evts);
+        }
+        
+        // POST: Create event
+        if (method === 'POST') {
+            const { 
+                title, description, date, endDate, locationName, locationAddress, lat, lng,
+                images, category, price, capacity, status 
+            } = body;
+            
+            const newEvent = await Event.create({
+                title, description, date, endDate,
+                location: { name: locationName, address: locationAddress, coordinates: { lat, lng } },
+                images, category, 
+                price: parseInt(price) || 0,
+                capacity: parseInt(capacity) || 0,
+                status: status || 'draft'
+            });
+            return json(res, 201, newEvent);
+        }
+
+        // PUT: Update event
+        if (method === 'PUT') {
+            const id = cleanUrl.split('/').pop();
+            const updated = await Event.findByIdAndUpdate(id, {
+                $set: {
+                    title: body.title, description: body.description, date: body.date, endDate: body.endDate,
+                    'location.name': body.locationName, 'location.address': body.locationAddress,
+                    'location.coordinates.lat': body.lat, 'location.coordinates.lng': body.lng,
+                    images: body.images, category: body.category, price: body.price, capacity: body.capacity, status: body.status
+                }
+            }, { new: true });
+            if (!updated) return json(res, 404, { message: 'Event not found' });
+            return json(res, 200, updated);
+        }
+
+        // DELETE: Delete event
+        if (method === 'DELETE') {
+            const id = cleanUrl.split('/').pop();
+            const deleted = await Event.findByIdAndDelete(id);
+            if (!deleted) return json(res, 404, { message: 'Event not found' });
+            return json(res, 200, { message: 'Event removed' });
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // ADMIN LOGIN
     // ─────────────────────────────────────────────────────────────────────────
     if (cleanUrl === '/api/admin/login' && method === 'POST') {
@@ -358,3 +473,9 @@ export default async function handler(req, res) {
     return json(res, 500, { message: 'Server error', error: err.message });
   }
 }
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
