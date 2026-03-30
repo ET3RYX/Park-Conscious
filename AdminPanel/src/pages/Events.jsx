@@ -31,9 +31,16 @@ const Events = () => {
   const fetchEvents = async () => {
     try {
       const { data } = await eventService.getAll();
+      if (!Array.isArray(data)) {
+        console.error('API Error: Expected array but received:', typeof data);
+        setEvents([]);
+        alert('API Configuration Error: Your VITE_API_URL is missing or pointing to the wrong domain in Vercel. Please check your Environment Variables.');
+        return;
+      }
       setEvents(data);
     } catch (error) {
       console.error('Failed to fetch events', error);
+      setEvents([]);
     } finally {
       setLoading(false);
     }

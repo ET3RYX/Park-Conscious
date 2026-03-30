@@ -37,6 +37,10 @@ const Dashboard = () => {
         const fetchStats = async () => {
             try {
                 const { data } = await eventService.getAll();
+                if (!Array.isArray(data)) {
+                  setStats({ totalEvents: 0, published: 0, draft: 0 });
+                  return;
+                }
                 const published = data.filter(e => e.status === 'published').length;
                 const draft = data.filter(e => e.status === 'draft').length;
                 setStats({
@@ -46,6 +50,7 @@ const Dashboard = () => {
                 });
             } catch (error) {
                 console.error('Failed to fetch stats', error);
+                setStats({ totalEvents: 0, published: 0, draft: 0 });
             } finally {
                 setLoading(false);
             }
