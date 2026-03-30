@@ -51,8 +51,11 @@ const Events = () => {
   };
 
   const filteredEvents = events.filter(event => {
-    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (event.location?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const safeTitle = (event.title || event.name || '').toLowerCase();
+    const safeLocation = (event.location?.name || event.venue || '').toLowerCase();
+    
+    const matchesSearch = safeTitle.includes(searchTerm.toLowerCase()) || 
+                          safeLocation.includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === 'all' || event.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
@@ -118,31 +121,34 @@ const Events = () => {
                 </tr>
               ) : (
                 filteredEvents.map((event) => (
-                  <tr key={event._id} className="hover:bg-slate-800/20 transition-colors group">
+                  <tr key={event._id || event.id} className="hover:bg-slate-800/20 transition-colors group">
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-4">
                         <img 
-                          src={event.images[0] || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14'} 
+                          src={(event.images && event.images[0]) || event.image || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14'} 
                           className="w-12 h-12 rounded-lg object-cover border border-slate-800 group-hover:border-sky-500/30 transition-colors" 
                           alt="" 
                         />
                         <div>
-                          <p className="text-slate-200 font-bold group-hover:text-white transition-colors uppercase tracking-tight">{event.title}</p>
+                          <p className="text-slate-200 font-bold group-hover:text-white transition-colors uppercase tracking-tight">{event.title || event.name || 'Untitled Event'}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] font-bold text-sky-500">₹{event.price}</span>
+                            <span className="text-[10px] font-bold text-sky-500">₹{event.price || 0}</span>
                             <span className="text-slate-600">•</span>
-                            <EventStatusBadge status={event.status} />
+                            <EventStatusBadge status={event.status || 'published'} />
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2 text-slate-300 text-xs font-medium">
-                          <Calendar size={12} className="text-slate-500" />
-                          <span>{new Date(event.date).toLocaleDateString()}</span>
+                        <div className="flex items-center gap-2 text-slate-300 text-[11px] font-medium">
+                          <Calendar size={12} className="text-sky-500" />
+                          <span>{event.date ? new Date(event.date).toLocaleDateString() : (event.createdAt ? new Date(event.createdAt).toLocaleDateString() : 'TBA')}</span>
                         </div>
-                        <p className="text-slate-600 text-[11px] font-medium truncate max-w-[200px]">{event.location?.name}</p>
+                        <div className="flex items-center gap-2 text-slate-500 text-[11px] font-medium">
+                          <MapPin size={12} className="text-slate-600" /> 
+                          <span className="truncate max-w-[200px]">{event.location?.name || event.venue || 'TBA'}</span>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-5 text-right">
