@@ -68,6 +68,7 @@ export const createEvent = async (req, res) => {
     const createdEvent = await event.save();
     res.status(201).json(createdEvent);
   } catch (error) {
+    console.error('Event Creation Failed:', error);
     res.status(400).json({ message: error.message });
   }
 };
