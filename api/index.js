@@ -4,31 +4,46 @@ import { User, Owner, Event, AccessLog, Waitlist, Contact, Parking, Booking } fr
 import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
+import Busboy from 'busboy';
 
 // ─── Helper ──────────────────────────────────────────────────────
 function json(res, status, data) {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,PUT,DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.statusCode = status;
     res.end(JSON.stringify(data));
 }
 
-// ─── Main Handler ────────────────────────────────────────────────
+
+// ── Cloudinary Config ───────────────────────────────────────────
+if (process.env.CLOUDINARY_URL) {
+    // Auto-configures from URL
+} else {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+}
+
+// ── Main Handler ────────────────────────────────────────────────
 export default async function handler(req, res) {
     // CORS preflight
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,PUT,DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
     const url = req.url || '';
     const method = req.method || 'GET';
+    const contentType = req.headers['content-type'] || '';
     
-    // Parse body manually for POST/PUT
+    // Parse body manually for POST/PUT (only if NOT multipart)
     let body = {};
-    if (method === 'POST' || method === 'PUT') {
+    if ((method === 'POST' || method === 'PUT') && !contentType.includes('multipart/form-data')) {
         try {
             const chunks = [];
             for await (const chunk of req) chunks.push(chunk);
@@ -49,8 +64,95 @@ export default async function handler(req, res) {
             return json(res, 200, { status: 'API Live', db: 'Connected' });
         }
 
+        // ── Events Upload (Image) ─────────────────────────────────
+        if (url.includes('/api/events/upload') && method === 'POST') {
+             return new Promise((resolve) => {
+                const bb = Busboy({ headers: req.headers });
+                let fileHandled = false;
+
+                bb.on('file', (fieldname, file, info) => {
+                    fileHandled = true;
+                    const { filename, encoding, mimeType } = info;
+                    const stream = cloudinary.uploader.upload_stream(
+                        { folder: 'park-conscious-events' },
+                        (error, result) => {
+                            if (error) return json(res, 500, { message: 'Cloudinary error', error: error.message });
+                            json(res, 200, { url: result.secure_url });
+                            resolve();
+                        }
+                    );
+                    file.pipe(stream);
+                });
+
+                bb.on('finish', () => {
+                    if (!fileHandled) {
+                        json(res, 400, { message: 'No file uploaded' });
+                        resolve();
+                    }
+                });
+
+                req.pipe(bb);
+            });
+        }
+
+        // ── Events Data ───────────────────────────────────────────
+        if (url.includes('/api/events')) {
+            // GET: Fetch events (Filter for public vs admin if needed)
+            if (method === 'GET') {
+                const isAdmin = url.includes('/admin/all');
+                const filter = isAdmin ? {} : { status: 'published' };
+                const evts = await Event.find(filter).sort({ date: 1 });
+                return json(res, 200, evts);
+            }
+            
+            // POST: Create event
+            if (method === 'POST') {
+                const { 
+                    title, description, date, endDate, locationName, locationAddress, lat, lng,
+                    images, category, price, capacity, status 
+                } = body;
+                
+                const newEvent = await Event.create({
+                    title, description, date, endDate,
+                    location: {
+                        name: locationName,
+                        address: locationAddress,
+                        coordinates: { lat, lng }
+                    },
+                    images, category, 
+                    price: parseInt(price) || 0,
+                    capacity: parseInt(capacity) || 0,
+                    status: status || 'draft'
+                });
+                return json(res, 201, newEvent);
+            }
+
+            // PUT: Update event
+            if (method === 'PUT') {
+                 const id = url.split('/').pop();
+                 const updated = await Event.findByIdAndUpdate(id, {
+                     $set: {
+                         title: body.title,
+                         description: body.description,
+                         date: body.date,
+                         endDate: body.endDate,
+                         'location.name': body.locationName,
+                         'location.address': body.locationAddress,
+                         'location.coordinates.lat': body.lat,
+                         'location.coordinates.lng': body.lng,
+                         images: body.images,
+                         category: body.category,
+                         price: parseInt(body.price),
+                         capacity: parseInt(body.capacity),
+                         status: body.status
+                     }
+                 }, { new: true });
+                 return json(res, 200, updated);
+            }
+        }
+
         // ── Parking data ──────────────────────────────────────────
-        // Changed to exact match or start match to avoid intercepting /owner/X/parkings
+        // ... (remaining handler code stays roughly the same)
         if (url === '/api/parking' || url === '/api/parking/') {
             try {
                 // Try fetching from DB first
@@ -230,61 +332,6 @@ export default async function handler(req, res) {
             }
         }
 
-        // ── Owner Check Session (Bridge) ──────────────────────────
-        if (url.includes('/owner/check-session') && method === 'GET') {
-            try {
-                const urlObj = new URL(url, `http://${req.headers.host || 'localhost'}`);
-                const email = urlObj.searchParams.get('email');
-                if (!email) return json(res, 400, { message: 'Email required' });
-                const owner = await Owner.findOne({ email });
-                if (!owner) return json(res, 404, { message: 'Not an owner' });
-                return json(res, 200, { user: { id: owner._id, name: owner.name, email: owner.email } });
-            } catch (err) {
-                return json(res, 500, { message: 'Session check failed', error: err.message });
-            }
-        }
-
-        // ── Owner Dashboard Stats ───────────────────────────────
-        if (url.includes('/owner/') && url.includes('/dashboard') && method === 'GET') {
-            const parts = url.split('/');
-            const ownerIdx = parts.indexOf('owner');
-            const ownerId = parts[ownerIdx + 1];
-            
-            try {
-                // Fetch parkings linked via 'owner' (new) or 'ownerId' (legacy)
-                const myParkings = await Parking.find({ $or: [{ owner: ownerId }, { ownerId: ownerId }] });
-                const pCount = myParkings.length;
-                
-                // Get all bookings for this owner
-                const allBookings = await Booking.find({ ownerId });
-                const bCount = allBookings.length;
-                
-                // Calculate revenue and active counts
-                const today = new Date();
-                today.setHours(0,0,0,0);
-                
-                const activeBookings = allBookings.filter(b => {
-                   const bd = new Date(b.createdAt || b.date);
-                   return bd >= today && b.status === "Confirmed";
-                }).length;
-
-                const rev = allBookings.reduce((sum, b) => {
-                    const amt = parseFloat(b.amount?.replace(/[^\d.]/g, '') || 0);
-                    return sum + amt;
-                }, 0);
-
-                return json(res, 200, {
-                    totalParkings: pCount,
-                    totalEntries: bCount,
-                    activeBookings: activeBookings,
-                    revenueToday: rev,
-                    parkings: myParkings
-                });
-            } catch (err) {
-                return json(res, 500, { message: 'Dashboard Error', error: err.message });
-            }
-        }
-
         // ── Manage Owner Parkings ─────────────────────────────────
         if (url.includes('/owner/') && url.includes('/parkings') && !url.includes('/dashboard')) {
             const parts = url.split('/');
@@ -324,34 +371,14 @@ export default async function handler(req, res) {
                     };
                     
                     const newParking = new Parking(parkingData);
-                    // Use the auto-generated _id as the display ID if not provided
                     newParking.ID = "OWNER_" + newParking._id.toString().substring(18);
                     await newParking.save();
                     
                     return json(res, 201, { message: "Parking added successfully", parking: newParking });
                 } catch (err) {
-                    console.error("DB Create Error:", err);
-                    return json(res, 500, { message: "Database Error", error: err.message, details: err.errors });
+                    return json(res, 500, { message: "Database Error", error: err.message });
                 }
             }
-        }
-
-        // ── Owner Booking Logs ────────────────────────────────────
-        if (url.includes('/owner/') && url.includes('/logs') && method === 'GET') {
-            const parts = url.split('/');
-            const ownerIdx = parts.indexOf('owner');
-            const ownerId = parts[ownerIdx + 1];
-
-            if (!ownerId || ownerId === 'logs') return json(res, 400, { message: 'Invalid owner ID' });
-
-            const bookings = await Booking.find({ ownerId }).sort({ createdAt: -1 });
-            return json(res, 200, bookings);
-        }
-
-        // ── Events ────────────────────────────────────────────────
-        if (url.includes('/events')) {
-            if (method === 'GET') return json(res, 200, await Event.find().sort({ createdAt: -1 }));
-            if (method === 'POST') return json(res, 201, await Event.create(body));
         }
 
         // ── Access logs ───────────────────────────────────────────
@@ -379,3 +406,9 @@ export default async function handler(req, res) {
         return json(res, 500, { message: 'Server error', error: err.message });
     }
 }
+
+export const config = {
+    api: {
+        bodyParser: false,
+    },
+};
