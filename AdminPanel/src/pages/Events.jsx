@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Filter, Edit2, Trash2, Calendar, Tag, ChevronRight } from 'lucide-react';
+import { Plus, Search, Filter, Edit2, Trash2, Calendar, Tag, ChevronRight, MapPin } from 'lucide-react';
 import { eventService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 

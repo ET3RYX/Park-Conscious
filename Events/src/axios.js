@@ -8,7 +8,10 @@ const tmdbAxios = axios.create({
 });
 
 const backendAxios = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "http://localhost:5050",
+  baseURL: process.env.REACT_APP_API_URL || 
+           (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
+             ? `${window.location.protocol}//${window.location.host}` 
+             : 'http://localhost:5050'),
 });
 
 export { tmdbAxios, backendAxios };
