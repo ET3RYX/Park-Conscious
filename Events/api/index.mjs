@@ -5,8 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
-import { v2 as cloudinary } from 'cloudinary';
-import Busboy from 'busboy';
+// import { v2 as cloudinary } from 'cloudinary';
+// import Busboy from 'busboy';
 
 // ─── PhonePe Config ─────────────────────────────────────────────────────────
 const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || 'PGTESTPAYUAT86';
@@ -75,13 +75,13 @@ const Event = mongoose.models.Event || mongoose.model('Event', new mongoose.Sche
 }, { timestamps: true }));
 
 // ── Cloudinary Config ───────────────────────────────────────────
-if (!process.env.CLOUDINARY_URL) {
-    cloudinary.config({
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET
-    });
-}
+// if (!process.env.CLOUDINARY_URL) {
+//     cloudinary.config({
+//         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//         api_key: process.env.CLOUDINARY_API_KEY,
+//         api_secret: process.env.CLOUDINARY_API_SECRET
+//     });
+// }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function setCors(res) {
@@ -244,25 +244,25 @@ export default async function handler(req, res) {
     }
 
     // EVENT MANAGEMENT
-    if (cleanUrl.includes('upload') && method === 'POST') {
-        return new Promise((resolve) => {
-            try {
-                const bb = Busboy({ headers: req.headers });
-                let fileHandled = false;
-                bb.on('file', (fieldname, file, info) => {
-                    fileHandled = true;
-                    const stream = cloudinary.uploader.upload_stream({ folder: 'park-conscious-events' }, (error, result) => {
-                        if (error) return json(res, 500, { message: 'Cloudinary error', error: error.message });
-                        json(res, 200, { url: result.secure_url });
-                        resolve();
-                    });
-                    file.pipe(stream);
-                });
-                bb.on('finish', () => { if (!fileHandled) { json(res, 400, { message: 'No file uploaded' }); resolve(); } });
-                req.pipe(bb);
-            } catch (err) { json(res, 400, { message: 'Form parse error: ' + err.message }); resolve(); }
-        });
-    }
+    // if (cleanUrl.includes('upload') && method === 'POST') {
+    //     return new Promise((resolve) => {
+    //         try {
+    //             const bb = Busboy({ headers: req.headers });
+    //             let fileHandled = false;
+    //             bb.on('file', (fieldname, file, info) => {
+    //                 fileHandled = true;
+    //                 const stream = cloudinary.uploader.upload_stream({ folder: 'park-conscious-events' }, (error, result) => {
+    //                     if (error) return json(res, 500, { message: 'Cloudinary error', error: error.message });
+    //                     json(res, 200, { url: result.secure_url });
+    //                     resolve();
+    //                 });
+    //                 file.pipe(stream);
+    //             });
+    //             bb.on('finish', () => { if (!fileHandled) { json(res, 400, { message: 'No file uploaded' }); resolve(); } });
+    //             req.pipe(bb);
+    //         } catch (err) { json(res, 400, { message: 'Form parse error: ' + err.message }); resolve(); }
+    //     });
+    // }
 
     if (cleanUrl.includes('/api/events')) {
         await connectDB();
