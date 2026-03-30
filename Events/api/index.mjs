@@ -133,7 +133,9 @@ export default async function handler(req, res) {
   const contentType = req.headers['content-type'] || '';
 
   let body = {};
-  if (!contentType.includes('multipart/form-data')) {
+  const isPostOrPut = ['POST', 'PUT', 'PATCH'].includes(method);
+  
+  if (isPostOrPut && !contentType.includes('multipart/form-data')) {
     body = await parseBody(req);
     req.body = body;
   } else {
