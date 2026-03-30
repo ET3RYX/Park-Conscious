@@ -92,9 +92,9 @@ const HomePage = () => {
         // Poster component probably uses 'poster_path' or 'image'
         const mappedEvents = data.map(event => ({
             ...event,
-            original_title: event.title,
-            poster_path: event.images[0],
-            backdrop_path: event.images[0]
+            original_title: event.title || event.name || 'Untitled Event',
+            poster_path: (event.images && event.images[0]) || event.image || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14',
+            backdrop_path: (event.images && event.images[0]) || event.image || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14'
         }));
         setpremierMovies(mappedEvents);
       } catch (err) {
