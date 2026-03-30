@@ -9,7 +9,7 @@ import {
 } from '../controllers/eventController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import { body, validationResult } from 'express-validator';
-import { upload } from '../config/cloudinary.js';
+import { upload, uploadToCloudinary } from '../config/cloudinary.js';
 
 
 const router = express.Router();
@@ -33,12 +33,17 @@ const eventValidationRules = [
 // Public Routes
 router.get('/', getEvents);
 
-// Admin Routes (Protected) — MUST be before /:id to avoid Express matching "upload" or "admin" as an ID
-router.post('/upload', protect, admin, upload.single('image'), (req, res) => {
-  if (req.file) {
-    res.json({ url: req.file.path });
-  } else {
-    res.status(400).json({ message: 'No image uploaded' });
+// Admin Routes (Protected) — MUST be before /:id
+router.post('/upload', protect, admin, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image file provided' });
+    }
+    const result = await uploadToCloudinary(req.file.buffer);
+    res.json({ url: result.secure_url });
+  } catch (error) {
+    console.error('Cloudinary Upload Error:', error);
+    res.status(500).json({ message: 'Image upload failed: ' + error.message });
   }
 });
 
