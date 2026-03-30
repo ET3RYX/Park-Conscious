@@ -92,8 +92,11 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
   return (
     <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
       {error && (
-        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 px-6 py-4 rounded-xl text-xs font-bold flex items-center gap-3 shadow-sm">
-          <AlertCircle size={18} /> {error}
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 px-6 py-4 rounded-xl text-xs font-bold flex flex-col gap-1 shadow-sm">
+          <div className="flex items-center gap-3">
+             <AlertCircle size={18} /> {error}
+          </div>
+          <p className="text-[10px] text-rose-400 mt-1 ml-7 opacity-80">(You can still click 'Deploy Live' at the bottom to create the event without this image)</p>
         </div>
       )}
 

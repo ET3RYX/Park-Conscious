@@ -65,7 +65,7 @@ export default async function handler(req, res) {
         }
 
         // ── Events Upload (Image) ─────────────────────────────────
-        if (url.includes('/events/upload') && method === 'POST') {
+        if (url.includes('upload') && method === 'POST') {
              return new Promise((resolve) => {
                 try {
                     const bb = Busboy({ headers: req.headers });
