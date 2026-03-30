@@ -65,38 +65,43 @@ export default async function handler(req, res) {
         }
 
         // ── Events Upload (Image) ─────────────────────────────────
-        if (url.includes('/api/events/upload') && method === 'POST') {
+        if (url.includes('/events/upload') && method === 'POST') {
              return new Promise((resolve) => {
-                const bb = Busboy({ headers: req.headers });
-                let fileHandled = false;
+                try {
+                    const bb = Busboy({ headers: req.headers });
+                    let fileHandled = false;
 
-                bb.on('file', (fieldname, file, info) => {
-                    fileHandled = true;
-                    const { filename, encoding, mimeType } = info;
-                    const stream = cloudinary.uploader.upload_stream(
-                        { folder: 'park-conscious-events' },
-                        (error, result) => {
-                            if (error) return json(res, 500, { message: 'Cloudinary error', error: error.message });
-                            json(res, 200, { url: result.secure_url });
+                    bb.on('file', (fieldname, file, info) => {
+                        fileHandled = true;
+                        const { filename, encoding, mimeType } = info;
+                        const stream = cloudinary.uploader.upload_stream(
+                            { folder: 'park-conscious-events' },
+                            (error, result) => {
+                                if (error) return json(res, 500, { message: 'Cloudinary error', error: error.message });
+                                json(res, 200, { url: result.secure_url });
+                                resolve();
+                            }
+                        );
+                        file.pipe(stream);
+                    });
+
+                    bb.on('finish', () => {
+                        if (!fileHandled) {
+                            json(res, 400, { message: 'No file uploaded' });
                             resolve();
                         }
-                    );
-                    file.pipe(stream);
-                });
+                    });
 
-                bb.on('finish', () => {
-                    if (!fileHandled) {
-                        json(res, 400, { message: 'No file uploaded' });
-                        resolve();
-                    }
-                });
-
-                req.pipe(bb);
+                    req.pipe(bb);
+                } catch (err) {
+                    json(res, 400, { message: 'Form parse error: ' + err.message });
+                    resolve();
+                }
             });
         }
 
         // ── Events Data ───────────────────────────────────────────
-        if (url.includes('/api/events')) {
+        if (url.includes('/events')) {
             // GET: Fetch events (Filter for public vs admin if needed)
             if (method === 'GET') {
                 const isAdmin = url.includes('/admin/all');

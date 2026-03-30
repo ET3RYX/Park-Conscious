@@ -35,11 +35,7 @@ export const eventService = {
   create: (eventData) => api.post('/api/events', eventData),
   update: (id, eventData) => api.put(`/api/events/${id}`, eventData),
   delete: (id) => api.delete(`/api/events/${id}`),
-  uploadImage: (formData) => api.post('/api/events/upload', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
+  uploadImage: (formData) => api.post('/api/events/upload', formData),
 };
 
 export default api;
