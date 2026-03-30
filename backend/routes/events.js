@@ -32,9 +32,8 @@ const eventValidationRules = [
 
 // Public Routes
 router.get('/', getEvents);
-router.get('/:id', getEventById);
 
-// Admin Routes (Protected)
+// Admin Routes (Protected) — MUST be before /:id to avoid Express matching "upload" or "admin" as an ID
 router.post('/upload', protect, admin, upload.single('image'), (req, res) => {
   if (req.file) {
     res.json({ url: req.file.path });
@@ -48,5 +47,8 @@ router.get('/admin/all', protect, admin, getAdminEvents);
 router.post('/', protect, admin, eventValidationRules, validate, createEvent);
 router.put('/:id', protect, admin, eventValidationRules, validate, updateEvent);
 router.delete('/:id', protect, admin, deleteEvent);
+
+// This MUST be last — /:id is a catch-all param route
+router.get('/:id', getEventById);
 
 export default router;
