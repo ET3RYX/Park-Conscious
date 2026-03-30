@@ -42,8 +42,8 @@ export default async function handler(req, res) {
     const contentType = req.headers['content-type'] || '';
     
     // Parse body manually for POST/PUT (only if NOT multipart)
-    let body = {};
-    if ((method === 'POST' || method === 'PUT') && !contentType.includes('multipart/form-data')) {
+    let body = req.body || {};
+    if ((method === 'POST' || method === 'PUT') && !contentType.includes('multipart/form-data') && Object.keys(body).length === 0) {
         try {
             const chunks = [];
             for await (const chunk of req) chunks.push(chunk);
