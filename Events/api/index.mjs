@@ -113,7 +113,7 @@ async function checkPaymentStatus(txnId) {
 }
 
 async function parseBody(req) {
-  if (req.body) return req.body;
+  if (req.body && Object.keys(req.body).length > 0) return req.body;
   try {
     const chunks = [];
     for await (const chunk of req) chunks.push(chunk);
@@ -146,15 +146,17 @@ export default async function handler(req, res) {
       : `https://${req.headers.host}`);
 
   try {
-
-    // ── Health ──────────────────────────────────────────────────────────────
+    // ── Health Check ──
     if (cleanUrl === '/api' || cleanUrl === '/api/') {
-      return json(res, 200, { status: 'API Live', env: MERCHANT_ID.slice(0, 6) });
+      return json(res, 200, { 
+        status: 'API Live', 
+        env: MERCHANT_ID.slice(0, 6),
+        mongoConnected: !!cached.conn,
+        hasMongoUri: !!process.env.MONGODB_URI
+      });
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // PAY — no MongoDB needed
-    // ─────────────────────────────────────────────────────────────────────────
+    // PAY
     if (cleanUrl === '/api/pay' && method === 'POST') {
       const { name, amount, phone } = body;
       const merchantTransactionId = 'TXN_' + uuidv4().replace(/-/g, '').slice(0, 16).toUpperCase();
@@ -175,26 +177,18 @@ export default async function handler(req, res) {
       const base64Payload = Buffer.from(JSON.stringify(payload)).toString('base64');
       const checksum      = generateChecksum(base64Payload, '/pg/v1/pay');
 
-      try {
-        const response = await axios.post(`${BASE_URL}/pg/v1/pay`, { request: base64Payload }, {
-          headers: { 'Content-Type': 'application/json', 'X-VERIFY': checksum, 'X-MERCHANT-ID': MERCHANT_ID, accept: 'application/json' }
-        });
+      const response = await axios.post(`${BASE_URL}/pg/v1/pay`, { request: base64Payload }, {
+        headers: { 'Content-Type': 'application/json', 'X-VERIFY': checksum, 'X-MERCHANT-ID': MERCHANT_ID, accept: 'application/json' }
+      });
 
-        const { success, data } = response.data;
-        if (success && data?.instrumentResponse?.redirectInfo?.url) {
-          return json(res, 200, { success: true, redirectUrl: data.instrumentResponse.redirectInfo.url, transactionId: merchantTransactionId });
-        }
-        return json(res, 400, { success: false, message: 'Failed to initiate payment', details: response.data });
-      } catch (err) {
-        const errData = err?.response?.data || err.message;
-        console.error('PhonePe Error:', errData);
-        return json(res, 500, { success: false, message: 'PhonePe error', details: errData });
+      const { success, data } = response.data;
+      if (success && data?.instrumentResponse?.redirectInfo?.url) {
+        return json(res, 200, { success: true, redirectUrl: data.instrumentResponse.redirectInfo.url, transactionId: merchantTransactionId });
       }
+      return json(res, 400, { success: false, message: 'Failed to initiate payment', details: response.data });
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     // PAYMENT CALLBACK
-    // ─────────────────────────────────────────────────────────────────────────
     if (cleanUrl === '/api/payment-callback') {
       const txnId = req.query?.txnId || body?.txnId || body?.merchantTransactionId;
       if (!txnId) {
@@ -202,41 +196,26 @@ export default async function handler(req, res) {
         res.setHeader('Location', '/failure.html?reason=no_txn_id');
         return res.end();
       }
-      try {
-        const result = await checkPaymentStatus(txnId);
-        const isSuccess = result.success === true &&
-          (result.data?.state === 'COMPLETED' || result.code === 'PAYMENT_SUCCESS');
-        const amountPaid = (result.data?.amount || 0) / 100;
-        res.statusCode = 302;
-        res.setHeader('Location', isSuccess
-          ? `/success.html?txnId=${txnId}&amount=${amountPaid}`
-          : `/failure.html?txnId=${txnId}&state=${result.data?.state || 'FAILED'}`);
-        return res.end();
-      } catch (err) {
-        res.statusCode = 302;
-        res.setHeader('Location', `/failure.html?txnId=${txnId}&reason=status_check_failed`);
-        return res.end();
-      }
+      const result = await checkPaymentStatus(txnId);
+      const isSuccess = result.success === true && (result.data?.state === 'COMPLETED' || result.code === 'PAYMENT_SUCCESS');
+      const amountPaid = (result.data?.amount || 0) / 100;
+      res.statusCode = 302;
+      res.setHeader('Location', isSuccess
+        ? `/success.html?txnId=${txnId}&amount=${amountPaid}`
+        : `/failure.html?txnId=${txnId}&state=${result.data?.state || 'FAILED'}`);
+      return res.end();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     // S2S CALLBACK
-    // ─────────────────────────────────────────────────────────────────────────
     if (cleanUrl === '/api/callback' && method === 'POST') {
       const { response: encoded } = body;
       if (!encoded) return json(res, 400, { message: 'No payload' });
-      try {
-        const decoded = JSON.parse(Buffer.from(encoded, 'base64').toString('utf-8'));
-        console.log('PhonePe S2S Callback:', JSON.stringify(decoded));
-        return json(res, 200, { message: 'Callback received' });
-      } catch (err) {
-        return json(res, 500, { message: 'Error processing callback' });
-      }
+      const decoded = JSON.parse(Buffer.from(encoded, 'base64').toString('utf-8'));
+      console.log('PhonePe S2S Callback:', JSON.stringify(decoded));
+      return json(res, 200, { message: 'Callback received' });
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // TICKETS — needs MongoDB
-    // ─────────────────────────────────────────────────────────────────────────
+    // TICKETS
     if (cleanUrl === '/api/tickets') {
       await connectDB();
       if (method === 'GET') {
@@ -248,39 +227,21 @@ export default async function handler(req, res) {
       if (method === 'POST') {
         const { eventId, regularPrice, vipPrice } = body;
         if (!eventId) return json(res, 400, { success: false, message: 'eventId required' });
-        const ticket = await TicketPrice.findOneAndUpdate(
-          { eventId }, { regularPrice, vipPrice }, { new: true, upsert: true }
-        );
+        const ticket = await TicketPrice.findOneAndUpdate({ eventId }, { regularPrice, vipPrice }, { new: true, upsert: true });
         return json(res, 200, { success: true, event: ticket });
       }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     // EVENT REQUESTS
-    // ─────────────────────────────────────────────────────────────────────────
     if (cleanUrl.endsWith('/api/event-request') && method === 'POST') {
-      try {
-        await connectDB();
-        const { eventName, description, contactName, contactEmail } = body;
-        
-        if (!eventName || !contactEmail) {
-          return json(res, 400, { success: false, message: 'Event Name and Contact Email are required' });
-        }
-        
-        const request = await EventRequest.create({
-          eventName, description, contactName, contactEmail
-        });
-        
-        return json(res, 201, { success: true, message: 'Request submitted successfully', request });
-      } catch (error) {
-        console.error("Event Request Error:", error);
-        return json(res, 500, { success: false, message: 'Internal Server Error' });
-      }
+      await connectDB();
+      const { eventName, description, contactName, contactEmail } = body;
+      if (!eventName || !contactEmail) return json(res, 400, { success: false, message: 'Missing fields' });
+      const request = await EventRequest.create({ eventName, description, contactName, contactEmail });
+      return json(res, 201, { success: true, request });
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     // EVENT MANAGEMENT
-    // ─────────────────────────────────────────────────────────────────────────
     if (cleanUrl.includes('upload') && method === 'POST') {
         return new Promise((resolve) => {
             try {
@@ -288,189 +249,88 @@ export default async function handler(req, res) {
                 let fileHandled = false;
                 bb.on('file', (fieldname, file, info) => {
                     fileHandled = true;
-                    const stream = cloudinary.uploader.upload_stream(
-                        { folder: 'park-conscious-events' },
-                        (error, result) => {
-                            if (error) return json(res, 500, { message: 'Cloudinary error', error: error.message });
-                            json(res, 200, { url: result.secure_url });
-                            resolve();
-                        }
-                    );
+                    const stream = cloudinary.uploader.upload_stream({ folder: 'park-conscious-events' }, (error, result) => {
+                        if (error) return json(res, 500, { message: 'Cloudinary error', error: error.message });
+                        json(res, 200, { url: result.secure_url });
+                        resolve();
+                    });
                     file.pipe(stream);
                 });
-                bb.on('finish', () => {
-                    if (!fileHandled) { json(res, 400, { message: 'No file uploaded' }); resolve(); }
-                });
+                bb.on('finish', () => { if (!fileHandled) { json(res, 400, { message: 'No file uploaded' }); resolve(); } });
                 req.pipe(bb);
-            } catch (err) {
-                json(res, 400, { message: 'Form parse error: ' + err.message });
-                resolve();
-            }
+            } catch (err) { json(res, 400, { message: 'Form parse error: ' + err.message }); resolve(); }
         });
     }
 
     if (cleanUrl.includes('/api/events')) {
         await connectDB();
-        // GET: Fetch events
         if (method === 'GET') {
             const isAdmin = cleanUrl.includes('/admin/all');
             const filter = isAdmin ? {} : { status: 'published' };
             const evts = await Event.find(filter).sort({ date: 1 });
             return json(res, 200, evts);
         }
-        
-        // POST: Create event
         if (method === 'POST') {
-            const { 
-                title, description, date, endDate, locationName, locationAddress, lat, lng,
-                images, category, price, capacity, status 
-            } = body;
-            
+            const { title, description, date, endDate, locationName, locationAddress, lat, lng, images, category, price, capacity, status } = body;
             const newEvent = await Event.create({
                 title, description, date, endDate,
-                location: { name: locationName, address: locationAddress, coordinates: { lat, lng } },
-                images, category, 
+                location: { name: locationName, address: locationAddress, coordinates: { lat: parseFloat(lat) || 0, lng: parseFloat(lng) || 0 } },
+                images: images || [], category: category || [], 
                 price: parseInt(price) || 0,
                 capacity: parseInt(capacity) || 0,
                 status: status || 'draft'
             });
             return json(res, 201, newEvent);
         }
-
-        // PUT: Update event
         if (method === 'PUT') {
             const id = cleanUrl.split('/').pop();
-            const updated = await Event.findByIdAndUpdate(id, {
-                $set: {
-                    title: body.title, description: body.description, date: body.date, endDate: body.endDate,
-                    'location.name': body.locationName, 'location.address': body.locationAddress,
-                    'location.coordinates.lat': body.lat, 'location.coordinates.lng': body.lng,
-                    images: body.images, category: body.category, price: body.price, capacity: body.capacity, status: body.status
-                }
-            }, { new: true });
-            if (!updated) return json(res, 404, { message: 'Event not found' });
+            const updated = await Event.findByIdAndUpdate(id, { $set: {
+                title: body.title, description: body.description, date: body.date, endDate: body.endDate,
+                'location.name': body.locationName, 'location.address': body.locationAddress,
+                'location.coordinates.lat': parseFloat(body.lat) || 0, 'location.coordinates.lng': parseFloat(body.lng) || 0,
+                images: body.images, category: body.category, price: parseInt(body.price) || 0, capacity: parseInt(body.capacity) || 0, status: body.status
+            }}, { new: true });
             return json(res, 200, updated);
         }
-
-        // DELETE: Delete event
         if (method === 'DELETE') {
             const id = cleanUrl.split('/').pop();
-            const deleted = await Event.findByIdAndDelete(id);
-            if (!deleted) return json(res, 404, { message: 'Event not found' });
-            return json(res, 200, { message: 'Event removed' });
+            await Event.findByIdAndDelete(id);
+            return json(res, 200, { message: 'Removed' });
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     // ADMIN LOGIN
-    // ─────────────────────────────────────────────────────────────────────────
     if (cleanUrl === '/api/admin/login' && method === 'POST') {
       await connectDB();
       const { username, password } = body;
-
-      // Seed default admin if empty
       const adminCount = await Admin.countDocuments();
       if (adminCount === 0) {
         const hashedDefault = await bcrypt.hash('oliver@123', 10);
         await Admin.create({ username: 'oliver', password: hashedDefault });
-        console.log('Seeded default admin: oliver');
       }
-
-      if (!username || !password) return json(res, 400, { success: false, message: 'Username and password required' });
-
       const admin = await Admin.findOne({ username });
-      if (!admin) return json(res, 401, { success: false, message: 'Invalid admin credentials' });
-
-      const isMatch = await bcrypt.compare(password, admin.password);
-      if (!isMatch) return json(res, 401, { success: false, message: 'Invalid admin credentials' });
-
+      if (!admin || !await bcrypt.compare(password, admin.password)) return json(res, 401, { success: false, message: 'Invalid credentials' });
       return json(res, 200, { success: true, admin: { username: admin.username } });
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // LEGACY ROUTES — needs MongoDB
-    // ─────────────────────────────────────────────────────────────────────────
-    await connectDB();
-
-    // Google Auth
+    // LEGACY AUTH
     if (url.includes('/auth/google') && method === 'POST') {
+      await connectDB();
       const { token, userInfo } = body || {};
-      if (!token) return json(res, 400, { error: 'Token required' });
-
       const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
       const client = new OAuth2Client(googleClientId);
-
-      let uid, name, email, picture;
-
-      if (userInfo && userInfo.sub) {
-        ({ sub: uid, name, email, picture } = userInfo);
-      } else {
-        try {
-          const ticket = await client.verifyIdToken({
-            idToken: token,
-            audience: googleClientId,
-          });
-          const payload = ticket.getPayload();
-          ({ sub: uid, name, email, picture } = payload);
-        } catch (verifyErr) {
-          // Fallback to userInfo API
-          try {
-            const userinfoRes = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = userinfoRes.data;
-            uid = data.sub;
-            name = data.name;
-            email = data.email;
-            picture = data.picture;
-          } catch (fetchErr) {
-            throw new Error(`Google Verification failed: ${fetchErr.message}`);
-          }
-        }
-      }
-
-      if (!uid) throw new Error("Could not determine user ID from Google response");
-
-      await User.findOneAndUpdate(
-        { email },
-        { uid, name, email, picture },
-        { upsert: true, new: true }
-      );
-
-      const appToken = jwt.sign(
-        { uid, name, email, picture },
-        process.env.JWT_SECRET || 'fallback_secret',
-        { expiresIn: "24h" }
-      );
-
-      return json(res, 200, {
-        token: appToken,
-        user: { uid, name, email, picture },
-      });
+      let ticket = await client.verifyIdToken({ idToken: token, audience: googleClientId });
+      const { sub: uid, name, email, picture } = ticket.getPayload();
+      await User.findOneAndUpdate({ email }, { uid, name, email, picture }, { upsert: true, new: true });
+      const appToken = jwt.sign({ uid, name, email, picture }, process.env.JWT_SECRET || 'secret', { expiresIn: "24h" });
+      return json(res, 200, { token: appToken, user: { uid, name, email, picture } });
     }
 
-    // Auth routes
-    if (url.includes('/auth/signup') && method === 'POST') {
-      const { name, email, password } = body;
-      if (!name || !email || !password) return json(res, 400, { message: 'Missing fields' });
-      if (await User.findOne({ email })) return json(res, 400, { message: 'User already exists' });
-      const hashed = await bcrypt.hash(password, 10);
-      const user = await User.create({ name, email, password: hashed });
-      return json(res, 201, { user: { name: user.name, email: user.email } });
-    }
-    if (url.includes('/auth/login') && method === 'POST') {
-      const { email, password } = body;
-      const user = await User.findOne({ email });
-      if (!user || !user.password) return json(res, 400, { message: 'Invalid credentials' });
-      if (!await bcrypt.compare(password, user.password)) return json(res, 400, { message: 'Invalid credentials' });
-      return json(res, 200, { user: { name: user.name, email: user.email } });
-    }
-
-    return json(res, 404, { message: 'Route not found', url });
+    return json(res, 404, { message: 'Not found', url });
 
   } catch (err) {
-    console.error('Handler crash:', err.message);
-    return json(res, 500, { message: 'Server error', error: err.message });
+    console.error('Crash:', err.message);
+    return json(res, 500, { message: 'Server error', error: err.message, stack: err.stack });
   }
 }
 
