@@ -154,6 +154,15 @@ module.exports = async (req, res) => {
     if (cleanUrl.includes('/api/events')) {
       await connectDB();
       if (method === 'GET') {
+        const parts = cleanUrl.split('/');
+        const lastPart = parts.pop() || parts.pop(); // Handle trailing slash
+        
+        // Check if it's a specific ID (not 'events' or 'all')
+        if (lastPart && lastPart.length > 20 && lastPart !== 'events') {
+          const evt = await Event.findById(lastPart);
+          return json(res, 200, evt);
+        }
+
         const isAdmin = cleanUrl.includes('/admin/all');
         const filter = isAdmin ? {} : { status: 'published' };
         const evts = await Event.find(filter).sort({ date: 1 });

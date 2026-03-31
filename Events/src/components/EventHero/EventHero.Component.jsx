@@ -10,7 +10,7 @@ const EventHero = ({ event }) => {
     setLoading(true);
     try {
       const { data } = await backendAxios.post("/api/pay", {
-        amount: event.price || 1499,
+        amount: event.displayPrice || 0,
         phone: "9999999999", // Placeholder phone
         orderId: event._id,
       });
