@@ -10,6 +10,8 @@ import CategoryPage from "./pages/Category.Page";
 import DiscussionPage from "./pages/Discussion.Page";
 import FarewellTicketsPage from "./pages/FarewellTickets.Page";
 import EventPage from "./pages/Event.Page";
+import SuccessPage from "./pages/Success.Page";
+import FailurePage from "./pages/Failure.Page";
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
       <Route path="/discussion/:id" element={<DiscussionPage />} />
       <Route path="/farewell-tickets" element={<FarewellTicketsPage />} />
       <Route path="/event/:id" element={<EventPage />} />
+      <Route path="/payment-success" element={<SuccessPage />} />
+      <Route path="/payment-failure" element={<FailurePage />} />
       <Route path="*" element={<ErrorPage />} />
     </Routes>
   );

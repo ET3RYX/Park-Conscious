@@ -211,6 +211,30 @@ module.exports = async (req, res) => {
       return json(res, 200, { success: true, redirectUrl: response.data.data.instrumentResponse.redirectInfo.url });
     }
 
+    if (cleanUrl === '/api/payment-callback' && method === 'GET') {
+      const txnId = url.split('txnId=')[1]?.split('&')[0];
+      if (!txnId) return res.writeHead(302, { Location: '/payment-failure?error=missing_txnId' }).end();
+
+      // Check Status with PhonePe
+      const checksum = crypto.createHash('sha256').update(`/pg/v1/status/${MERCHANT_ID}/${txnId}${SALT_KEY}`).digest('hex') + '###' + SALT_INDEX;
+      const statusUrl = `${BASE_URL}/pg/v1/status/${MERCHANT_ID}/${txnId}`;
+      
+      try {
+        const response = await axios.get(statusUrl, {
+          headers: { 'Content-Type': 'application/json', 'X-VERIFY': checksum, 'X-MERCHANT-ID': MERCHANT_ID }
+        });
+
+        if (response.data.code === 'PAYMENT_SUCCESS') {
+          return res.writeHead(302, { Location: `/payment-success?txnId=${txnId}` }).end();
+        } else {
+          return res.writeHead(302, { Location: `/payment-failure?txnId=${txnId}&code=${response.data.code}` }).end();
+        }
+      } catch (err) {
+        console.error('Callback Status Error:', err.message);
+        return res.writeHead(302, { Location: `/payment-failure?txnId=${txnId}&error=api_error` }).end();
+      }
+    }
+
     // 3. Fallback
     return json(res, 404, { message: 'Not found', url: cleanUrl });
 
