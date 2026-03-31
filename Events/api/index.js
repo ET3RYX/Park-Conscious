@@ -131,19 +131,46 @@ module.exports = async (req, res) => {
     // EVENT UPLOADS (Multipart)
     // ─────────────────────────────────────────────────────────────────────────
     if (cleanUrl.includes('/upload') && method === 'POST') {
+      const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
+      if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
+         const missing = [];
+         if (!CLOUDINARY_CLOUD_NAME) missing.push('CLOUD_NAME');
+         if (!CLOUDINARY_API_KEY) missing.push('API_KEY');
+         if (!CLOUDINARY_API_SECRET) missing.push('API_SECRET');
+         return json(res, 500, { message: `Cloudinary Config Error: Missing ${missing.join(', ')} in Vercel settings.` });
+      }
+
       return new Promise((resolve) => {
         const bb = Busboy({ headers: req.headers });
         let fileHandled = false;
+
         bb.on('file', (fieldname, file) => {
           fileHandled = true;
           const stream = cloudinary.uploader.upload_stream({ folder: 'park-conscious-events' }, (error, result) => {
-            if (error) return json(res, 500, { message: 'Cloudinary error', error: error.message });
+            if (error) {
+               console.error('CLOUDINARY_ERR:', error.message);
+               json(res, 500, { message: 'Cloudinary Transmission Error', error: error.message });
+               return resolve();
+            }
             json(res, 200, { url: result.secure_url });
             resolve();
           });
           file.pipe(stream);
         });
-        bb.on('finish', () => { if (!fileHandled) { json(res, 400, { message: 'No file' }); resolve(); } });
+
+        bb.on('error', (err) => {
+          console.error('BUSBOY_ERR:', err.message);
+          json(res, 500, { message: 'Busboy Parsing Error', error: err.message });
+          resolve();
+        });
+
+        bb.on('finish', () => { 
+          if (!fileHandled) { 
+            json(res, 400, { message: 'No file detected in request.' }); 
+            resolve(); 
+          } 
+        });
+
         req.pipe(bb);
       });
     }
