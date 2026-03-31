@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { backendAxios } from "../../axios";
-import DefaultlayoutHoc from "../../layout/Default.layout";
-import EventHero from "../../components/EventHero/EventHero.Component";
+import { backendAxios } from "../axios";
+import DefaultlayoutHoc from "../layout/Default.layout";
+import EventHero from "../components/EventHero/EventHero.Component";
 import { Info, MapPin, Share2, ShieldCheck, Ticket } from "lucide-react";
 
 const EventPage = () => {
