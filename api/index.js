@@ -6,6 +6,8 @@ import fs from 'fs';
 import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
 import Busboy from 'busboy';
+import jwt from 'jsonwebtoken';
+import axios from 'axios';
 
 // ─── Helper ──────────────────────────────────────────────────────
 function json(res, status, data) {
@@ -66,37 +68,47 @@ export default async function handler(req, res) {
 
         // ── Events Upload (Image) ─────────────────────────────────
         if (url.includes('upload') && method === 'POST') {
-             return new Promise((resolve) => {
-                try {
-                    const bb = Busboy({ headers: req.headers });
-                    let fileHandled = false;
+            const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
+            if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
+                const missing = [];
+                if (!CLOUDINARY_CLOUD_NAME) missing.push('CLOUD_NAME');
+                if (!CLOUDINARY_API_KEY) missing.push('API_KEY');
+                if (!CLOUDINARY_API_SECRET) missing.push('API_SECRET');
+                return json(res, 500, { message: `Cloudinary Config Error: Missing ${missing.join(', ')} in Vercel settings.` });
+            }
 
-                    bb.on('file', (fieldname, file, info) => {
-                        fileHandled = true;
-                        const { filename, encoding, mimeType } = info;
-                        const stream = cloudinary.uploader.upload_stream(
-                            { folder: 'park-conscious-events' },
-                            (error, result) => {
-                                if (error) return json(res, 500, { message: 'Cloudinary error', error: error.message });
-                                json(res, 200, { url: result.secure_url });
-                                resolve();
-                            }
-                        );
-                        file.pipe(stream);
-                    });
+            return new Promise((resolve) => {
+                const bb = Busboy({ headers: req.headers });
+                let fileHandled = false;
 
-                    bb.on('finish', () => {
-                        if (!fileHandled) {
-                            json(res, 400, { message: 'No file uploaded' });
-                            resolve();
+                bb.on('file', (fieldname, file) => {
+                    fileHandled = true;
+                    const stream = cloudinary.uploader.upload_stream({ folder: 'park-conscious-events' }, (error, result) => {
+                        if (error) {
+                            console.error('CLOUDINARY_ERR:', error.message);
+                            json(res, 500, { message: 'Cloudinary Transmission Error', error: error.message });
+                            return resolve();
                         }
+                        json(res, 200, { url: result.secure_url });
+                        resolve();
                     });
+                    file.pipe(stream);
+                });
 
-                    req.pipe(bb);
-                } catch (err) {
-                    json(res, 400, { message: 'Form parse error: ' + err.message });
+                bb.on('error', (err) => {
+                    console.error('BUSBOY_ERR:', err.message);
+                    json(res, 500, { message: 'Busboy Parsing Error', error: err.message });
                     resolve();
-                }
+                });
+
+                bb.on('finish', () => { 
+                    if (!fileHandled) { 
+                        json(res, 400, { message: 'No file detected in request.' }); 
+                        resolve(); 
+                    } 
+                });
+
+                req.pipe(bb);
             });
         }
 
@@ -104,6 +116,16 @@ export default async function handler(req, res) {
         if (url.includes('/events')) {
             // GET: Fetch events (Filter for public vs admin if needed)
             if (method === 'GET') {
+                const parts = url.split('/');
+                const lastPart = parts.pop() || parts.pop();
+                
+                // Fetch single event by ID if present
+                if (lastPart && lastPart.length > 20 && lastPart !== 'events' && lastPart !== 'all') {
+                    const evt = await Event.findById(lastPart);
+                    if (!evt) return json(res, 404, { message: 'Event not found' });
+                    return json(res, 200, evt);
+                }
+
                 const isAdmin = url.includes('/admin/all');
                 const filter = isAdmin ? {} : { status: 'published' };
                 const evts = await Event.find(filter).sort({ date: 1 });
@@ -207,32 +229,45 @@ export default async function handler(req, res) {
             if (!await bcrypt.compare(password, user.password)) return json(res, 400, { message: 'Invalid credentials' });
             return json(res, 200, { user: { id: user._id, name: user.name, email: user.email } });
         }
-        // ── User Google login ─────────────────────────────────────
+        // ── User Google login (Secure Flow) ───────────────────────
         if (url.includes('/auth/google') && method === 'POST') {
-            try {
-                const { email, name, googleId } = body;
-                if (!email) return json(res, 400, { message: 'Google email missing' });
-                
-                let user = await User.findOne({ email: email.toLowerCase() });
-                if (!user) {
-                    user = await User.create({ name, email, googleId });
-                } else if (!user.googleId && googleId) {
-                    // Link google account to existing email
-                    user.googleId = googleId;
-                    await user.save();
-                }
-                
-                return json(res, 200, { 
-                    user: { 
-                        id: user._id, 
-                        name: user.name, 
-                        email: user.email 
-                    } 
+            const { token: googleToken } = body;
+            if (!googleToken) return json(res, 400, { message: 'Missing Google token' });
+
+            // Verify with Google
+            const googleRes = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+                headers: { Authorization: `Bearer ${googleToken}` }
+            });
+            const profile = googleRes.data;
+            if (!profile || !profile.email) return json(res, 401, { message: 'Invalid Google token' });
+
+            // Upsert user
+            let dbUser = await User.findOne({ email: profile.email.toLowerCase() });
+            if (!dbUser) {
+                dbUser = await User.create({
+                    name: profile.name,
+                    email: profile.email.toLowerCase(),
+                    googleId: profile.sub,
+                    picture: profile.picture,
+                    uid: 'G_' + profile.sub
                 });
-            } catch (authErr) {
-                console.error("User Google Auth Error:", authErr);
-                return json(res, 500, { message: "Auth processing failed", error: authErr.message });
+            } else {
+                dbUser.picture = profile.picture || dbUser.picture;
+                dbUser.name = profile.name || dbUser.name;
+                await dbUser.save();
             }
+
+            const jwtSecret = process.env.JWT_SECRET || 'park-conscious-default-secret';
+            const jwtToken = jwt.sign(
+                { uid: dbUser.uid || dbUser._id, name: dbUser.name, email: dbUser.email, picture: dbUser.picture },
+                jwtSecret, 
+                { expiresIn: '7d' }
+            );
+
+            return json(res, 200, {
+                token: jwtToken,
+                user: { uid: dbUser.uid || dbUser._id, name: dbUser.name, email: dbUser.email, picture: dbUser.picture }
+            });
         }
 
         // ── User Bookings Fetch ──────────────────────────────────
