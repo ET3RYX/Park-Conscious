@@ -63,7 +63,7 @@ export default async function handler(req, res) {
     try {
         // ── Root / Version ───────────────────────────────────────
         if (url === '/api' || url === '/api/' || url === '/') {
-            return sendJSON(res, 200, { status: 'ISOLATION_AUTH_TEST', db: 'Connected', version: '2.9-auth-test' });
+            return sendJSON(res, 200, { status: 'FINAL_API_LIVE', db: 'Connected', version: '2.9-final' });
         }
 
         // ── Auth Router ──────────────────────────────────────────
@@ -80,8 +80,25 @@ export default async function handler(req, res) {
         if (url.includes('/events') && method === 'PUT') return await handleEventUpdate(req, res, url, body);
         if (url.includes('/events')) return await handleEventsList(req, res, url);
 
-        // ── Handlers are currently disabled for isolation check ──
-        return sendError(res, 404, 'Route under maintenance (Auth Phase)', `Path: ${originalUrl}`);
+        // ── Parking Router ───────────────────────────────────────
+        if (url.includes('/parking/owner')) return await handleOwnerParkings(req, res, url, method, body);
+        if (url.includes('/parking/bookings') && method === 'POST') return await handleCreateBooking(req, res, body);
+        if (url.includes('/parking/bookings') && method === 'DELETE') return await handleDeleteBooking(req, res, url);
+        if (url.includes('/parking/bookings')) return await handleUserBookings(req, res, url);
+        if (url.includes('/parking')) return await handleParkingList(req, res, url);
+
+        // ── Misc Router ──────────────────────────────────────────
+        if (url.includes('/logs')) return await handleAccessLogs(req, res, method, body);
+        if (url.includes('/waitlist')) return await handleWaitlist(req, res, body);
+        if (url.includes('/contact')) return await handleContact(req, res, body);
+        if (url.includes('/debug')) return await handleDebugEnv(req, res);
+
+        // ── Discussions Router ───────────────────────────────────
+        if (url.includes('/discussions/comments')) return await handleDiscussionComments(req, res, url, method, body);
+        if (url.includes('/discussions/details')) return await handleDiscussionDetails(req, res, url, method, body);
+        if (url.includes('/discussions')) return await handleDiscussionsList(req, res, url);
+
+        return sendError(res, 404, 'Route not found', `Path: ${originalUrl}`);
 
     } catch (error) {
         console.error(`[API_CRASH] ${url} ->`, error);
