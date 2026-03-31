@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     // ── Health Check ─────────────────────────────────────────────
     if (url.includes('/health')) {
         return sendJSON(res, 200, { 
-            status: 'ISOLATION_ZERO_MODEL_LIVE', 
+            status: 'ISOLATION_BASIC_LIBS_LIVE', 
             db: mongoose.connection.readyState === 1 ? 'Connected' : 'Connecting/Offline', 
             url: originalUrl,
             time: new Date().toISOString()
