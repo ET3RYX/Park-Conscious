@@ -2,14 +2,12 @@ import mongoose from 'mongoose';
 import connectDB from './lib/mongodb.js';
 import { sendJSON, sendError } from './utils/responses.js';
 
-// ── HANDLER IMPORTS (TEMPORARILY DISABLED FOR ISOLATION) ─────
+// ── Handlers ──────────────────────────────────────────────────
 import { handleEventsList, handleEventCreate, handleEventUpdate, handleImageUpload } from './handlers/events.handler.js';
-/*
 import { handleUserSignup, handleUserLogin, handleGoogleLogin, handleOwnerSignup, handleOwnerLogin, handleOwnerGoogleLogin } from './handlers/auth.handler.js';
 import { handleParkingList, handleUserBookings, handleCreateBooking, handleDeleteBooking, handleOwnerParkings } from './handlers/parking.handler.js';
 import { handleAccessLogs, handleWaitlist, handleContact, handleDebugEnv } from './handlers/misc.handler.js';
 import { handleDiscussionsList, handleDiscussionDetails, handleDiscussionComments } from './handlers/discussion.handler.js';
-*/
 
 export default async function handler(req, res) {
     // ── CORS & Preflight ──────────────────────────────────────────
@@ -30,19 +28,17 @@ export default async function handler(req, res) {
         url = '/api' + (url.startsWith('/') ? '' : '/') + url;
     }
 
-    // ── Emergency Health Check (Isolate from crashes) ───────────
+    // ── Health Check ─────────────────────────────────────────────
     if (url.includes('/health')) {
         return sendJSON(res, 200, { 
-            status: 'ISOLATION_EVENTS_ON', 
-            db: mongoose.connection.readyState === 1 ? 'Connected' : 'Connecting/Disconnected', 
+            status: 'API_LIVE', 
+            db: mongoose.connection.readyState === 1 ? 'Connected' : 'Connecting/Offline', 
             url: originalUrl,
             time: new Date().toISOString()
         });
     }
 
-    console.log(`[API_REQUEST] ${method} ${originalUrl} -> ${url}`);
-
-    // Robust Body Parsing
+    // ── Body Parsing (Stream) ────────────────────────────────────
     let body = {};
     if (['POST', 'PUT', 'PATCH'].includes(method) && !contentType.includes('multipart/form-data')) {
         try {
@@ -50,10 +46,12 @@ export default async function handler(req, res) {
             for await (const chunk of req) chunks.push(chunk);
             const raw = Buffer.concat(chunks).toString();
             if (raw) body = JSON.parse(raw);
-        } catch (e) { console.error("[PARSE_ERROR]", e.message); }
+        } catch (e) { 
+            console.error("[PARSE_ERROR]", e.message); 
+        }
     }
 
-    // ── Database Connection ──────────────────────────────────────
+    // ── Database Sync ────────────────────────────────────────────
     try {
         await connectDB();
     } catch (e) {
@@ -64,8 +62,16 @@ export default async function handler(req, res) {
     try {
         // ── Root / Version ───────────────────────────────────────
         if (url === '/api' || url === '/api/' || url === '/') {
-            return sendJSON(res, 200, { status: 'ISOLATION_EVENTS_ON', db: 'Connected', version: '2.7-events' });
+            return sendJSON(res, 200, { status: 'API_LIVE', version: '2.8-restored' });
         }
+
+        // ── Auth Router ──────────────────────────────────────────
+        if (url.includes('/auth/signup')) return await handleUserSignup(req, res, body);
+        if (url.includes('/auth/login')) return await handleUserLogin(req, res, body);
+        if (url.includes('/auth/google')) return await handleGoogleLogin(req, res, body);
+        if (url.includes('/auth/owner/signup')) return await handleOwnerSignup(req, res, body);
+        if (url.includes('/auth/owner/login')) return await handleOwnerLogin(req, res, body);
+        if (url.includes('/auth/owner/google')) return await handleOwnerGoogleLogin(req, res, body);
 
         // ── Events Router ────────────────────────────────────────
         if (url.includes('/events/upload')) return await handleImageUpload(req, res);
@@ -73,8 +79,25 @@ export default async function handler(req, res) {
         if (url.includes('/events') && method === 'PUT') return await handleEventUpdate(req, res, url, body);
         if (url.includes('/events')) return await handleEventsList(req, res, url);
 
-        // ── Handlers are currently disabled for isolation check ──
-        return sendError(res, 404, 'Route under maintenance (Isolation Mode)', `Path: ${originalUrl}`);
+        // ── Parking Router ───────────────────────────────────────
+        if (url.includes('/parking/owner')) return await handleOwnerParkings(req, res, url, method, body);
+        if (url.includes('/parking/bookings') && method === 'POST') return await handleCreateBooking(req, res, body);
+        if (url.includes('/parking/bookings') && method === 'DELETE') return await handleDeleteBooking(req, res, url);
+        if (url.includes('/parking/bookings')) return await handleUserBookings(req, res, url);
+        if (url.includes('/parking')) return await handleParkingList(req, res, url);
+
+        // ── Misc Router ──────────────────────────────────────────
+        if (url.includes('/logs')) return await handleAccessLogs(req, res, method, body);
+        if (url.includes('/waitlist')) return await handleWaitlist(req, res, body);
+        if (url.includes('/contact')) return await handleContact(req, res, body);
+        if (url.includes('/debug')) return await handleDebugEnv(req, res);
+
+        // ── Discussions Router ───────────────────────────────────
+        if (url.includes('/discussions/comments')) return await handleDiscussionComments(req, res, url, method, body);
+        if (url.includes('/discussions/details')) return await handleDiscussionDetails(req, res, url, method, body);
+        if (url.includes('/discussions')) return await handleDiscussionsList(req, res, url);
+
+        return sendError(res, 404, 'Route not found', `Path: ${originalUrl}`);
 
     } catch (error) {
         console.error(`[API_CRASH] ${url} ->`, error);
