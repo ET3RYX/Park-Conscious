@@ -39,9 +39,13 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
+    // Path extraction logic (Defensive)
     const url = req.url || '';
     const method = req.method || 'GET';
     const contentType = req.headers['content-type'] || '';
+    
+    // Help debug what the server actually sees
+    console.log(`[API_REQUEST] ${method} ${url}`);
     
     // Parse body manually for POST/PUT (only if NOT multipart)
     let body = req.body || {};
@@ -439,7 +443,11 @@ export default async function handler(req, res) {
         }
 
         // ── 404 fallback ──────────────────────────────────────────
-        return json(res, 404, { message: 'Route not found', url, method });
+        // ── 404 fallback (with diagnostics) ──────────────────────
+        return json(res, 404, { 
+            message: 'Route not found', 
+            details: `Path: ${url}, Method: ${method}, Time: ${new Date().toISOString()}` 
+        });
 
     } catch (err) {
         console.error('Handler error:', err);
