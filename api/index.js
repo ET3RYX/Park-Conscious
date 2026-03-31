@@ -3,8 +3,8 @@ import connectDB from './lib/mongodb.js';
 import { sendJSON, sendError } from './utils/responses.js';
 
 // ── HANDLER IMPORTS (TEMPORARILY DISABLED FOR ISOLATION) ─────
-/*
 import { handleEventsList, handleEventCreate, handleEventUpdate, handleImageUpload } from './handlers/events.handler.js';
+/*
 import { handleUserSignup, handleUserLogin, handleGoogleLogin, handleOwnerSignup, handleOwnerLogin, handleOwnerGoogleLogin } from './handlers/auth.handler.js';
 import { handleParkingList, handleUserBookings, handleCreateBooking, handleDeleteBooking, handleOwnerParkings } from './handlers/parking.handler.js';
 import { handleAccessLogs, handleWaitlist, handleContact, handleDebugEnv } from './handlers/misc.handler.js';
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     // ── Emergency Health Check (Isolate from crashes) ───────────
     if (url.includes('/health')) {
         return sendJSON(res, 200, { 
-            status: 'ISOLATION_GATEWAY_LIVE', 
+            status: 'ISOLATION_EVENTS_ON', 
             db: mongoose.connection.readyState === 1 ? 'Connected' : 'Connecting/Disconnected', 
             url: originalUrl,
             time: new Date().toISOString()
@@ -64,8 +64,14 @@ export default async function handler(req, res) {
     try {
         // ── Root / Version ───────────────────────────────────────
         if (url === '/api' || url === '/api/' || url === '/') {
-            return sendJSON(res, 200, { status: 'ISOLATION_GATEWAY_LIVE', db: 'Connected', version: '2.7-isolation' });
+            return sendJSON(res, 200, { status: 'ISOLATION_EVENTS_ON', db: 'Connected', version: '2.7-events' });
         }
+
+        // ── Events Router ────────────────────────────────────────
+        if (url.includes('/events/upload')) return await handleImageUpload(req, res);
+        if (url.includes('/events') && method === 'POST') return await handleEventCreate(req, res, body);
+        if (url.includes('/events') && method === 'PUT') return await handleEventUpdate(req, res, url, body);
+        if (url.includes('/events')) return await handleEventsList(req, res, url);
 
         // ── Handlers are currently disabled for isolation check ──
         return sendError(res, 404, 'Route under maintenance (Isolation Mode)', `Path: ${originalUrl}`);
