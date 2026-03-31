@@ -7,7 +7,7 @@ import { sendJSON, sendError } from '../utils/responses.js';
 const generateJWT = (user) => {
     const jwtSecret = process.env.JWT_SECRET || 'park-conscious-default-secret';
     return jwt.sign(
-        { uid: user.uid || user._id, name: user.name, email: user.email, picture: user.picture },
+        { uid: user.uid || user._id, name: user.name, email: user.email, picture: user.picture, role: user.role || 'user' },
         jwtSecret, 
         { expiresIn: '7d' }
     );
@@ -36,7 +36,7 @@ export const handleUserLogin = async (req, res, body) => {
         const token = generateJWT(user);
         return sendJSON(res, 200, { 
             token,
-            user: { uid: user.uid || user._id, name: user.name, email: user.email, picture: user.picture } 
+            user: { uid: user.uid || user._id, name: user.name, email: user.email, picture: user.picture, role: user.role || 'user' } 
         });
     } catch (err) { return sendError(res, 500, 'Login failed', err.message); }
 };
@@ -72,7 +72,7 @@ export const handleGoogleLogin = async (req, res, body) => {
         const jwtToken = generateJWT(dbUser);
         return sendJSON(res, 200, {
             token: jwtToken,
-            user: { uid: dbUser.uid || dbUser._id, name: dbUser.name, email: dbUser.email, picture: dbUser.picture }
+            user: { uid: dbUser.uid || dbUser._id, name: dbUser.name, email: dbUser.email, picture: dbUser.picture, role: dbUser.role || 'user' }
         });
     } catch (err) { return sendError(res, 500, 'Google Login processing failed', err.message); }
 };

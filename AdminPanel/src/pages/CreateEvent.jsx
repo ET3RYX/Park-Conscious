@@ -2,21 +2,26 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EventForm from '../components/EventForm';
 import { eventService } from '../services/api';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, AlertTriangle } from 'lucide-react';
 
 const CreateEvent = () => {
   const [loading, setLoading] = useState(false);
+  const [globalError, setGlobalError] = useState('');
   const navigate = useNavigate();
 
   const handleCreate = async (formData) => {
     setLoading(true);
+    setGlobalError('');
     try {
       await eventService.create(formData);
       navigate('/events');
     } catch (error) {
       console.error('Failed to create event', error);
-      // The error is now also shown inside the EventForm via state if needed, 
-      // but we'll keep this as a fallback.
+      if (error.code === 'ERR_NETWORK') {
+        setGlobalError('Network Error: The backend server appears to be offline or unreachable.');
+      } else {
+        setGlobalError(error.response?.data?.message || error.message || 'An unknown error occurred while deploying the event.');
+      }
     } finally {
       setLoading(false);
     }
@@ -36,6 +41,14 @@ const CreateEvent = () => {
           <p className="text-slate-500 text-sm mt-1 font-medium">Initial configuration of a new Park Conscious experience.</p>
         </div>
       </div>
+      
+      {globalError && (
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 px-6 py-4 rounded-xl text-sm font-bold flex items-center gap-3 shadow-sm mx-auto max-w-5xl">
+          <AlertTriangle size={20} />
+          {globalError}
+        </div>
+      )}
+
       <div className="bg-slate-900/30 border border-slate-800/50 rounded-[2rem] p-4 md:p-8">
         <EventForm onSubmit={handleCreate} loading={loading} />
       </div>

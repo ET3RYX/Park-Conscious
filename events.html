@@ -48,17 +48,45 @@
         }
 
         .glass-card {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.4);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            transition: 0.5s;
+        }
+
+        .glass-card:hover::before {
+            left: 100%;
         }
 
         .glass-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: rgba(217, 70, 239, 0.5);
-            background: rgba(15, 23, 42, 0.8);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(217, 70, 239, 0.2);
+            transform: translateY(-12px) scale(1.01);
+            border-color: rgba(217, 70, 239, 0.3);
+            background: rgba(15, 23, 42, 0.6);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6), 0 0 30px rgba(217, 70, 239, 0.15);
+        }
+
+        .skeleton {
+            background: Linear-gradient(110deg, rgba(255,255,255,0.05) 8%, rgba(255,255,255,0.08) 18%, rgba(255,255,255,0.05) 33%);
+            background-size: 200% 100%;
+            animation: 1.5s shine linear infinite;
+        }
+
+        @keyframes shine {
+            to { background-position-x: -200%; }
         }
 
         .text-neon-pink {
@@ -418,7 +446,26 @@
         const API_URL = isLocal ? (window.location.port === '3000' ? '/api' : 'http://localhost:5050/api') : '/api';
 
         // --- Data & State ---
+        function renderSkeleton() {
+            const grid = document.getElementById("events-grid");
+            grid.innerHTML = "";
+            for(let i=0; i<6; i++) {
+                grid.innerHTML += `
+                    <div class="glass-card rounded-[2.5rem] p-6 animate-pulse">
+                        <div class="h-64 mb-6 rounded-[2rem] bg-white/5"></div>
+                        <div class="h-6 w-3/4 bg-white/5 rounded-full mb-4"></div>
+                        <div class="space-y-3">
+                            <div class="h-4 w-1/2 bg-white/5 rounded-full"></div>
+                            <div class="h-4 w-2/3 bg-white/5 rounded-full"></div>
+                        </div>
+                        <div class="h-12 w-full bg-white/5 rounded-2xl mt-8"></div>
+                    </div>
+                `;
+            }
+        }
+
         async function fetchEvents() {
+            renderSkeleton();
             try {
                 const response = await fetch(`${API_URL}/events`);
                 events = await response.json();
@@ -452,12 +499,15 @@
                 const imgSrc = event.image.startsWith('http') ? event.image : `./assets/events/${event.image}`;
 
                 card.innerHTML = `
-                    <div class="relative h-64 mb-6 rounded-[2rem] overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent z-10"></div>
+                    <div class="relative h-64 mb-6 rounded-[2rem] overflow-hidden shadow-2xl">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent z-10"></div>
                         <img src="${imgSrc}?auto=format&fit=crop&w=800&q=80" alt="${event.name}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                        <div class="absolute top-4 right-4 z-20">
+                           ${Math.random() > 0.5 ? `<span class="bg-rose-600/90 backdrop-blur-md text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-xl animate-pulse">Only ${Math.floor(Math.random() * 8) + 2} spots left</span>` : ''}
+                        </div>
                         <div class="absolute bottom-4 left-6 z-20">
-                            <span class="bg-gradient-to-r from-blue-600 to-fuchsia-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest mb-2 inline-block">${event.badge}</span>
-                            <h3 class="text-2xl font-black text-white">${event.name}</h3>
+                            <span class="bg-gradient-to-r from-blue-600 to-fuchsia-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest mb-2 inline-block shadow-lg">${event.badge}</span>
+                            <h3 class="text-2xl font-black text-white tracking-tight">${event.name}</h3>
                         </div>
                     </div>
                     <div class="space-y-4 mb-8">

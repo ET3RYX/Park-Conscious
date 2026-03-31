@@ -12,16 +12,45 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const [apiStatus, setApiStatus] = useState('checking');
+
+  React.useEffect(() => {
+    const checkApi = async () => {
+      try {
+        await authService.checkStatus();
+        setApiStatus('online');
+      } catch (err) {
+        setApiStatus('offline');
+      }
+    };
+    checkApi();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      const { data } = await authService.login(username, password);
-      login(data.user);
+      const response = await authService.login(username, password);
+      
+      // Safety check for non-JSON responses (e.g. Vercel fallback HTML)
+      if (typeof response.data !== 'object') {
+        throw new Error('SERVER_CONFIG_ERROR');
+      }
+
+      login(response.data.user);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Authentication failed. Please check your credentials.');
+      console.error('Login error:', err);
+      if (err.message === 'SERVER_CONFIG_ERROR') {
+        setError('Server Configuration Error: The API returned an unexpected response format. Please verify the API endpoint.');
+      } else if (!err.response) {
+        setError('Network Error: Unable to reach the security terminal. Please check your connection.');
+      } else if (err.response.status === 404) {
+        setError('Terminal Not Found: The authentication endpoint is missing (404).');
+      } else {
+        setError(err.response?.data?.message || 'Authentication failed. Access denied.');
+      }
     } finally {
       setLoading(false);
     }
@@ -31,8 +60,12 @@ const Login = () => {
     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 selection:bg-sky-500/20">
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-10 shadow-xl animate-in fade-in zoom-in-95 duration-500">
         <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 rounded-xl bg-slate-800 flex items-center justify-center border border-slate-700 shadow-inner mb-6">
+          <div className="w-16 h-16 rounded-xl bg-slate-800 flex items-center justify-center border border-slate-700 shadow-inner mb-6 relative">
             <ShieldCheck className="text-sky-500" size={32} />
+            <div className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-slate-900 ${
+              apiStatus === 'online' ? 'bg-emerald-500 animate-pulse' : 
+              apiStatus === 'offline' ? 'bg-rose-500' : 'bg-slate-600'
+            }`} />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-white uppercase">Admin Nexus</h1>
           <p className="text-slate-500 text-[10px] mt-2 font-bold uppercase tracking-widest bg-slate-800 px-3 py-1 rounded-full border border-slate-700">Secured Production Terminal</p>
@@ -86,7 +119,8 @@ const Login = () => {
 
         <div className="mt-12 flex items-center justify-center gap-6">
             <p className="text-[10px] text-slate-600 uppercase tracking-widest font-bold flex items-center gap-1.5 group">
-                <Activity size={10} className="text-emerald-500" /> System Active
+                <Activity size={10} className={apiStatus === 'online' ? 'text-emerald-500' : 'text-slate-500'} /> 
+                System {apiStatus === 'online' ? 'Active' : apiStatus === 'offline' ? 'Unreachable' : 'Checking...'}
             </p>
             <p className="text-[10px] text-slate-600 uppercase tracking-widest font-bold">v3.2 // TLS 1.3</p>
         </div>

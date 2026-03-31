@@ -54,9 +54,15 @@ const PosterSlider = (props) => {
         </p>
       </div>
       <Slider {...settings}>
-        {posters.map((each, index) => (
-          <Poster {...each} isDark={isDark} key={index} />
-        ))}
+        {posters && posters.length > 0 ? (
+          posters.map((each, index) => (
+            <Poster {...each} isDark={isDark} key={index} />
+          ))
+        ) : (
+          <div className="py-20 text-center w-full text-slate-500 font-medium border border-dashed border-slate-800 rounded-2xl">
+            No events found in this category.
+          </div>
+        )}
       </Slider>
     </>
   );

@@ -118,20 +118,29 @@ const PriceUpdater = () => {
                 {/* Control Panel */}
                 <div className="lg:col-span-2">
                     {selectedEvent ? (
-                        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-10 space-y-8 animate-in zoom-in-95 duration-300 shadow-sm relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                                <IndianRupee size={200} />
+                        <div className="bg-slate-900/50 backdrop-blur-2xl border border-slate-800 rounded-3xl p-10 space-y-10 animate-in zoom-in-95 duration-300 shadow-2xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-4 opacity-[0.03] pointer-events-none group-hover:opacity-[0.07] transition-opacity duration-700">
+                                <IndianRupee size={280} />
                             </div>
 
-                            <div className="flex items-center gap-4 border-b border-slate-800 pb-8">
-                                <img 
-                                    src={(selectedEvent.images && selectedEvent.images[0]) || selectedEvent.image || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14'} 
-                                    className="w-16 h-16 rounded-xl object-cover border border-slate-800" 
-                                    alt="" 
-                                />
+                            <div className="flex items-center gap-6 border-b border-slate-800/50 pb-10">
+                                <div className="relative">
+                                    <img 
+                                        src={(selectedEvent.images && selectedEvent.images[0]) || selectedEvent.image || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14'} 
+                                        className="w-20 h-20 rounded-2xl object-cover border border-slate-800 shadow-2xl" 
+                                        alt="" 
+                                    />
+                                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center border-4 border-slate-900 shadow-xl">
+                                        <CheckCircle2 size={12} className="text-white" />
+                                    </div>
+                                </div>
                                 <div>
-                                    <h2 className="text-xl font-bold text-white uppercase tracking-tight">{selectedEvent.title}</h2>
-                                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">Entity ID: {selectedEvent._id.slice(-8)}</p>
+                                    <h2 className="text-2xl font-black text-white uppercase tracking-tighter">{selectedEvent.title || selectedEvent.name}</h2>
+                                    <div className="flex items-center gap-3 mt-2">
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-950 px-2 py-0.5 rounded border border-slate-800 italic">ID: {selectedEvent._id.slice(-8)}</span>
+                                        <span className="w-1 h-1 bg-slate-700 rounded-full"></span>
+                                        <span className="text-[10px] font-black text-sky-500 uppercase tracking-widest">Protocol Active</span>
+                                    </div>
                                 </div>
                             </div>
 

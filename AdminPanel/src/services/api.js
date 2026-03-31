@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 
                 (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
-                  ? `${window.location.protocol}//${window.location.host}` 
+                  ? 'https://parkconscious.in' 
                   : 'http://localhost:5050');
 
 const api = axios.create({
@@ -29,6 +29,7 @@ api.interceptors.request.use(
 
 export const authService = {
   login: (username, password) => api.post('/api/auth/login', { email: username, password }), // Backend uses email
+  checkStatus: () => api.get('/api'), // Simple health check
 };
 
 export const eventService = {

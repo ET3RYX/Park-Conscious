@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
     googleId: String,
     uid: String, // From Events project
     picture: String, // From Events project
+    role: { type: String, default: 'user' },
   },
   { timestamps: true }
 );
