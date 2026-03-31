@@ -10,7 +10,7 @@ const tmdbAxios = axios.create({
 const backendAxios = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 
            (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
-             ? `${window.location.protocol}//${window.location.host}` 
+             ? 'https://parkconscious.in' 
              : 'http://localhost:5050'),
 });
 
