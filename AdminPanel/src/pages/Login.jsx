@@ -41,18 +41,29 @@ const Login = () => {
       login(response.data.user);
       navigate('/');
     } catch (err) {
-      console.error('Login error:', err);
-      if (err.message === 'SERVER_CONFIG_ERROR') {
-        setError('Server Configuration Error: The API returned an unexpected response format. Please verify the API endpoint.');
-      } else if (!err.response) {
-        setError('Network Error: Unable to reach the security terminal. Please check your connection.');
-      } else if (err.response.status === 404) {
-        setError('Terminal Not Found: The authentication endpoint is missing (404).');
-      } else {
-        setError(err.response?.data?.message || 'Authentication failed. Access denied.');
-      }
-    } finally {
-      setLoading(false);
+        setLoading(false);
+        console.error('CRITICAL LOGIN FAILURE:', {
+          message: err.message,
+          code: err.code,
+          config: err.config,
+          response: err.response ? {
+            status: err.response.status,
+            data: err.response.data
+          } : 'NO_RESPONSE'
+        });
+
+        if (err.message === 'Network Error' || !err.response) {
+            setError(`Security Terminal Unreachable (Code: ${err.code || 'UNKNOWN'}). This usually means the API endpoint ${err.config?.url || ''} is blocked or down. Please check your browser console (F12) for details.`);
+        } else if (err.response) {
+            const data = err.response.data;
+            if (typeof data === 'string' && data.includes('<!DOCTYPE html>')) {
+                setError('API Error: The server returned an HTML page instead of JSON. This suggests a routing issue on the backend.');
+            } else {
+                setError(data?.message || `Terminal Rejected Request (Status: ${err.response.status})`);
+            }
+        } else {
+            setError('System reported an anomaly: ' + err.message);
+        }
     }
   };
 
