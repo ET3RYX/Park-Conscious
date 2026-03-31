@@ -38,11 +38,23 @@ export default async function handler(req, res) {
     try {
         await connectDB();
     } catch (e) {
+        console.error(`[DB_CRASH] Error: ${e.message}`);
         return sendError(res, 500, 'DB connection failed', e.message);
     }
 
     try {
-        // ── Health Check ─────────────────────────────────────────
+        // ── Health Check & Diagnostics ───────────────────────────
+        if (url === '/api/health' || url === '/api/health/') {
+            return sendJSON(res, 200, { 
+                status: 'API Live', 
+                db: 'Connected', 
+                host: req.headers.host,
+                url: url,
+                mongo: !!process.env.MONGODB_URI ? 'CONFIGURED' : 'MISSING',
+                time: new Date().toISOString()
+            });
+        }
+
         if (url === '/api' || url === '/api/' || url === '/') {
             return sendJSON(res, 200, { status: 'API Live', db: 'Connected', version: '2.0-modular' });
         }
