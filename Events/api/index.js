@@ -235,6 +235,47 @@ module.exports = async (req, res) => {
       }
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // GOOGLE AUTH
+    // ─────────────────────────────────────────────────────────────────────────
+    if (cleanUrl === '/api/auth/google' && method === 'POST') {
+      await connectDB();
+      const { token: googleToken } = body;
+      if (!googleToken) return json(res, 400, { error: 'Missing Google token' });
+
+      // Verify token with Google
+      const googleRes = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: `Bearer ${googleToken}` }
+      });
+      const profile = googleRes.data;
+      if (!profile || !profile.email) return json(res, 401, { error: 'Invalid Google token' });
+
+      // Upsert user
+      let dbUser = await User.findOne({ email: profile.email });
+      if (!dbUser) {
+        dbUser = await User.create({
+          name: profile.name, email: profile.email,
+          googleId: profile.sub, picture: profile.picture,
+          uid: 'G_' + profile.sub
+        });
+      } else {
+        dbUser.picture = profile.picture || dbUser.picture;
+        dbUser.name = profile.name || dbUser.name;
+        await dbUser.save();
+      }
+
+      const jwtSecret = process.env.JWT_SECRET || 'park-conscious-default-secret';
+      const jwtToken = jwt.sign(
+        { uid: dbUser.uid || dbUser._id, name: dbUser.name, email: dbUser.email, picture: dbUser.picture },
+        jwtSecret, { expiresIn: '7d' }
+      );
+
+      return json(res, 200, {
+        token: jwtToken,
+        user: { uid: dbUser.uid || dbUser._id, name: dbUser.name, email: dbUser.email, picture: dbUser.picture }
+      });
+    }
+
     // 3. Fallback
     return json(res, 404, { message: 'Not found', url: cleanUrl });
 
