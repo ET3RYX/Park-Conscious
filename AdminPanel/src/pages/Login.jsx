@@ -28,7 +28,11 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 selection:bg-sky-500/20">
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 selection:bg-sky-500/20 relative">
+      {/* Deployment Heartbeat Tag */}
+      <div className="absolute top-4 right-4 px-3 py-1 bg-slate-900 border border-slate-800 rounded-full text-[8px] font-mono text-slate-500 uppercase tracking-tighter opacity-50">
+        Build: v2.0.8 // REL: 2026-04-01-CORS-FORCE
+      </div>
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-10 shadow-xl animate-in fade-in zoom-in-95 duration-500">
         <div className="flex flex-col items-center mb-10">
           <div className="w-16 h-16 rounded-xl bg-slate-800 flex items-center justify-center border border-slate-700 shadow-inner mb-6">
