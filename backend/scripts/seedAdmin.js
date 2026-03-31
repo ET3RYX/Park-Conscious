@@ -3,7 +3,9 @@ import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 
-dotenv.config({ path: './.env' });
+dotenv.config({ path: new URL('../../.env', import.meta.url).pathname });
+// If the above fails in some environments, we also check current directory
+dotenv.config();
 
 const seedAdmin = async () => {
     try {
@@ -14,16 +16,16 @@ const seedAdmin = async () => {
         const existingAdmin = await User.findOne({ email: adminEmail });
 
         if (existingAdmin) {
-            console.log('Admin user already exists. Updating role to admin...');
+            console.log('Admin user already exists. Updating record...');
             existingAdmin.role = 'admin';
+            existingAdmin.password = 'admin123'; // Model hook will hash this
             await existingAdmin.save();
-            console.log('Admin role updated.');
+            console.log('Admin user updated.');
         } else {
-            const hashedPassword = await bcrypt.hash('admin123', 10);
             await User.create({
                 name: 'System Admin',
                 email: adminEmail,
-                password: hashedPassword,
+                password: 'admin123', // Model hook will hash this
                 role: 'admin'
             });
             console.log('Default admin user created: admin@parkconscious.com / admin123');

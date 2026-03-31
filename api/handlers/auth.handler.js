@@ -32,7 +32,12 @@ export const handleUserLogin = async (req, res, body) => {
         const user = await User.findOne({ email });
         if (!user || !user.password) return sendError(res, 400, 'Invalid credentials');
         if (!await bcrypt.compare(password, user.password)) return sendError(res, 400, 'Invalid credentials');
-        return sendJSON(res, 200, { user: { id: user._id, name: user.name, email: user.email } });
+        
+        const token = generateJWT(user);
+        return sendJSON(res, 200, { 
+            token,
+            user: { uid: user.uid || user._id, name: user.name, email: user.email, picture: user.picture } 
+        });
     } catch (err) { return sendError(res, 500, 'Login failed', err.message); }
 };
 
@@ -89,7 +94,12 @@ export const handleOwnerLogin = async (req, res, body) => {
         const owner = await Owner.findOne({ email });
         if (!owner || !owner.password) return sendError(res, 400, 'Invalid credentials');
         if (!await bcrypt.compare(password, owner.password)) return sendError(res, 400, 'Invalid credentials');
-        return sendJSON(res, 200, { user: { id: owner._id, name: owner.name, email: owner.email } });
+        
+        const token = generateJWT(owner);
+        return sendJSON(res, 200, { 
+            token,
+            user: { id: owner._id, name: owner.name, email: owner.email } 
+        });
     } catch (err) { return sendError(res, 500, 'Owner login failed', err.message); }
 };
 
