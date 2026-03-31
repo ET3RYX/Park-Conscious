@@ -443,20 +443,19 @@
         let events = [];
         let selectedEvent = null;
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const API_URL = isLocal ? (window.location.port === '3000' ? '/api' : 'http://localhost:5050/api') : 'https://parkconscious.in/api';
+        const API_URL = isLocal ? (window.location.port === '6000' ? '/api' : 'http://localhost:5050/api') : 'https://parkconscious.in/api';
 
         // --- Data & State ---
         function renderSkeleton() {
             const grid = document.getElementById("events-grid");
             grid.innerHTML = "";
-            for(let i=0; i<6; i++) {
+            for (let i = 0; i < 6; i++) {
                 grid.innerHTML += `
                     <div class="glass-card rounded-[2.5rem] p-6 animate-pulse">
-                        <div class="h-64 mb-6 rounded-[2rem] bg-white/5"></div>
-                        <div class="h-6 w-3/4 bg-white/5 rounded-full mb-4"></div>
+                        <div class="h-64 bg-white/5 rounded-[2rem] mb-6"></div>
                         <div class="space-y-3">
-                            <div class="h-4 w-1/2 bg-white/5 rounded-full"></div>
-                            <div class="h-4 w-2/3 bg-white/5 rounded-full"></div>
+                            <div class="h-6 w-3/4 bg-white/5 rounded-2xl"></div>
+                            <div class="h-4 w-1/2 bg-white/5 rounded-2xl"></div>
                         </div>
                         <div class="h-12 w-full bg-white/5 rounded-2xl mt-8"></div>
                     </div>
@@ -466,19 +465,29 @@
 
         async function fetchEvents() {
             renderSkeleton();
+            console.log(`[EVENT_LOAD] Fetching from: ${API_URL}/events`);
             try {
                 const response = await fetch(`${API_URL}/events`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
                 events = await response.json();
+                console.log(`[EVENT_LOAD] Success: ${events.length} events received`);
                 
-                // If database is empty, show a message or keep an empty list
                 if (events.length === 0) {
-                    console.log("No events found in database.");
+                    const grid = document.getElementById("events-grid");
+                    grid.innerHTML = `<div class="col-span-full border border-white/5 rounded-3xl p-20 text-center text-gray-500 font-bold uppercase tracking-widest bg-white/5">No active events found. Please check back later.</div>`;
+                    return;
                 }
                 
                 renderEvents();
             } catch (error) {
-                console.error("Failed to fetch events:", error);
-                // Fallback or error UI
+                console.error("[EVENT_LOAD] CRITICAL FAILURE:", error);
+                const grid = document.getElementById("events-grid");
+                grid.innerHTML = `<div class="col-span-full border border-rose-500/20 rounded-3xl p-20 text-center text-rose-500 font-bold uppercase tracking-widest bg-rose-500/5">
+                    Terminal Connectivity Lost.<br/>
+                    <span class="text-xs opacity-50 mt-2 block">${error.message}</span>
+                </div>`;
             }
         }
 

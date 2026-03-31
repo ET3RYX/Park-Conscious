@@ -12,20 +12,28 @@ import { handleDiscussionsList, handleDiscussionDetails, handleDiscussionComment
 export default async function handler(req, res) {
     // ── CORS & Preflight ──────────────────────────────────────────
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,PUT,DELETE');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,PUT,DELETE,PATCH');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
     // ── Request Parsing ──────────────────────────────────────────
-    const url = req.url || '';
+    let url = req.url || '';
     const method = req.method || 'GET';
     const contentType = req.headers['content-type'] || '';
     
-    console.log(`[API_REQUEST] ${method} ${url}`);
+    // Normalize URL (Vercel sometimes strips prefixes)
+    const originalUrl = url;
+    if (!url.startsWith('/api') && url !== '/') {
+        url = '/api' + (url.startsWith('/') ? '' : '/') + url;
+    }
     
-    // Parse body manually for POST/PUT (only if NOT multipart)
+    console.log(`[API_REQUEST] ${method} ${originalUrl} -> Normalized: ${url}`);
+    
+    // Parse body manually for POST/PUT/PATCH (only if NOT multipart)
     let body = req.body || {};
-    if ((method === 'POST' || method === 'PUT') && !contentType.includes('multipart/form-data') && Object.keys(body).length === 0) {
+    const hasBody = ['POST', 'PUT', 'PATCH'].includes(method);
+    if (hasBody && !contentType.includes('multipart/form-data') && (typeof body !== 'object' || Object.keys(body).length === 0)) {
         try {
             const chunks = [];
             for await (const chunk of req) chunks.push(chunk);
@@ -38,60 +46,48 @@ export default async function handler(req, res) {
     try {
         await connectDB();
     } catch (e) {
-        console.error(`[DB_CRASH] Error: ${e.message}`);
+        console.error(`[DB_CRASH] Host: ${req.headers.host}, Error: ${e.message}`);
         return sendError(res, 500, 'DB connection failed', e.message);
     }
 
     try {
         // ── Health Check & Diagnostics ───────────────────────────
-        if (url === '/api/health' || url === '/api/health/') {
+        if (url.includes('/health')) {
             return sendJSON(res, 200, { 
                 status: 'API Live', 
-                db: 'Connected', 
+                db: mongoose.connection.readyState === 1 ? 'Connected' : 'Connecting...', 
                 host: req.headers.host,
-                url: url,
+                url: originalUrl,
+                normalized: url,
                 mongo: !!process.env.MONGODB_URI ? 'CONFIGURED' : 'MISSING',
                 time: new Date().toISOString()
             });
         }
 
         if (url === '/api' || url === '/api/' || url === '/') {
-            return sendJSON(res, 200, { status: 'API Live', db: 'Connected', version: '2.0-modular' });
+            return sendJSON(res, 200, { status: 'API Live', db: 'Connected', version: '2.5-stabilized' });
         }
+
+        // ── Auth Router ──────────────────────────────────────────
+        if (url.includes('/auth/signup')) return await handleUserSignup(req, res, body);
+        if (url.includes('/auth/login')) return await handleUserLogin(req, res, body);
+        if (url.includes('/auth/google')) return await handleGoogleLogin(req, res, body);
+        if (url.includes('/auth/owner/signup')) return await handleOwnerSignup(req, res, body);
+        if (url.includes('/auth/owner/login')) return await handleOwnerLogin(req, res, body);
+        if (url.includes('/auth/owner/google')) return await handleOwnerGoogleLogin(req, res, body);
 
         // ── Events Router ────────────────────────────────────────
-        if (url.includes('upload') && method === 'POST') {
-            return await handleImageUpload(req, res);
-        }
-        if (url.includes('/events')) {
-            if (method === 'GET') return await handleEventsList(req, res, url);
-            if (method === 'POST') return await handleEventCreate(req, res, body);
-            if (method === 'PUT') return await handleEventUpdate(req, res, url, body);
-        }
+        if (url.includes('/events/upload')) return await handleImageUpload(req, res);
+        if (url.includes('/events') && method === 'POST') return await handleEventCreate(req, res, body);
+        if (url.includes('/events') && method === 'PUT') return await handleEventUpdate(req, res, body);
+        if (url.includes('/events')) return await handleEventsList(req, res, url);
 
-        // ── Auth Router (Users) ──────────────────────────────────
-        if (url.includes('/auth/signup') && method === 'POST') return await handleUserSignup(req, res, body);
-        if (url.includes('/auth/login') && method === 'POST') return await handleUserLogin(req, res, body);
-        if (url.includes('/auth/google') && method === 'POST') return await handleGoogleLogin(req, res, body);
-
-        // ── Auth Router (Owners) ─────────────────────────────────
-        if (url.includes('/owner/signup') && method === 'POST') return await handleOwnerSignup(req, res, body);
-        if (url.includes('/owner/login') && method === 'POST') return await handleOwnerLogin(req, res, body);
-        if (url.includes('/owner/google') && method === 'POST') return await handleOwnerGoogleLogin(req, res, body);
-
-        // ── Parking & Booking Router ──────────────────────────────
-        if (url === '/api/parking' || url === '/api/parking/') return await handleParkingList(req, res);
-        
-        if (url.includes('/api/user/') && url.includes('/bookings') && method === 'GET') {
-            return await handleUserBookings(req, res, url);
-        }
-        if (url.includes('/api/bookings')) {
-            if (method === 'POST') return await handleCreateBooking(req, res, body);
-            if (method === 'DELETE') return await handleDeleteBooking(req, res, url);
-        }
-        if (url.includes('/owner/') && url.includes('/parkings') && !url.includes('/dashboard')) {
-            return await handleOwnerParkings(req, res, url, method, body);
-        }
+        // ── Parking Router ───────────────────────────────────────
+        if (url.includes('/parking/owner')) return await handleOwnerParkings(req, res);
+        if (url.includes('/parking/bookings') && method === 'POST') return await handleCreateBooking(req, res, body);
+        if (url.includes('/parking/bookings') && method === 'DELETE') return await handleDeleteBooking(req, res, url);
+        if (url.includes('/parking/bookings')) return await handleUserBookings(req, res);
+        if (url.includes('/parking')) return await handleParkingList(req, res, url);
 
         // ── Misc Router ──────────────────────────────────────────
         if (url.includes('/logs')) return await handleAccessLogs(req, res, method, body);
@@ -105,11 +101,11 @@ export default async function handler(req, res) {
         if (url.includes('/discussions')) return await handleDiscussionsList(req, res, url);
 
         // ── 404 Fallback ─────────────────────────────────────────
-        return sendError(res, 404, 'Route not found', `Path: ${url}, Method: ${method}`);
+        return sendError(res, 404, 'Route not found', `Path: ${originalUrl}, Normalized: ${url}, Method: ${method}`);
 
-    } catch (err) {
-        console.error('Handler error:', err);
-        return sendError(res, 500, 'Server error', err.message);
+    } catch (error) {
+        console.error(`[API_CRASH] ${method} ${url} ->`, error);
+        return sendError(res, 500, 'Internal Server Error', error.message);
     }
 }
 
