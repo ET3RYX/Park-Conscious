@@ -443,7 +443,7 @@
         let events = [];
         let selectedEvent = null;
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const API_URL = isLocal ? (window.location.port === '3000' ? '/api' : 'http://localhost:5050/api') : '/api';
+        const API_URL = isLocal ? (window.location.port === '3000' ? '/api' : 'http://localhost:5050/api') : 'https://parkconscious.in/api';
 
         // --- Data & State ---
         function renderSkeleton() {
