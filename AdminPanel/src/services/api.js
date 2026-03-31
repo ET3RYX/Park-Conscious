@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 
                 (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
-                  ? window.location.origin 
+                  ? 'https://parkconscious.in' 
                   : 'http://localhost:5050');
 
 const api = axios.create({
