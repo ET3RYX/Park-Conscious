@@ -1,9 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 
-                (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
-                  ? 'https://parkconscious.in' 
-                  : 'http://localhost:5050');
+const API_URL = 'https://www.parkconscious.in';
 
 const api = axios.create({
   baseURL: API_URL,
