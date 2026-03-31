@@ -9,6 +9,7 @@ import ErrorPage from "./pages/404";
 import CategoryPage from "./pages/Category.Page";
 import DiscussionPage from "./pages/Discussion.Page";
 import FarewellTicketsPage from "./pages/FarewellTickets.Page";
+import EventPage from "./pages/Event.Page";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Route path="/category/:id" element={<CategoryPage />} />
       <Route path="/discussion/:id" element={<DiscussionPage />} />
       <Route path="/farewell-tickets" element={<FarewellTicketsPage />} />
+      <Route path="/event/:id" element={<EventPage />} />
       <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
