@@ -18,7 +18,7 @@ const PriceUpdater = () => {
     const fetchEvents = async () => {
         try {
             const { data } = await eventService.getAll();
-            setEvents(data);
+            setEvents(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Failed to fetch events', error);
             setStatus({ type: 'error', message: 'Failed to sync with repository.' });
@@ -57,7 +57,7 @@ const PriceUpdater = () => {
     };
 
     const filteredEvents = events.filter(ev => 
-        ev.title.toLowerCase().includes(searchTerm.toLowerCase())
+        (ev.title || ev.name || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -101,7 +101,7 @@ const PriceUpdater = () => {
                                 >
                                     <div className="min-w-0">
                                         <p className={`text-[11px] font-bold uppercase tracking-tight truncate transition-colors ${selectedEvent?._id === ev._id ? 'text-sky-400' : 'text-slate-400 group-hover:text-slate-200'}`}>
-                                            {ev.title}
+                                            {ev.title || ev.name || 'Untitled'}
                                         </p>
                                         <div className="flex items-center gap-2 mt-0.5">
                                             <Calendar size={10} className="text-slate-600" />
@@ -125,7 +125,7 @@ const PriceUpdater = () => {
 
                             <div className="flex items-center gap-4 border-b border-slate-800 pb-8">
                                 <img 
-                                    src={selectedEvent.images[0] || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14'} 
+                                    src={(selectedEvent.images && selectedEvent.images[0]) || selectedEvent.image || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14'} 
                                     className="w-16 h-16 rounded-xl object-cover border border-slate-800" 
                                     alt="" 
                                 />
