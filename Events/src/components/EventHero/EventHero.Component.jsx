@@ -29,7 +29,7 @@ const EventHero = ({ event }) => {
   };
 
   const eventImage = event.images?.[0] || event.image || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14';
-  const eventDate = event.date ? new Date(event.date).toLocaleDateString('en-IN', {
+  const eventDate = event.displayDate ? new Date(event.displayDate).toLocaleDateString('en-IN', {
     day: 'numeric', month: 'long', year: 'numeric'
   }) : 'TBA';
 
@@ -38,64 +38,56 @@ const EventHero = ({ event }) => {
     : (event.category ? [event.category] : []);
 
   return (
-    <div className="relative w-full overflow-hidden bg-[#040b17]" style={{ minHeight: "32rem" }}>
-      {/* Background with Gradient Overlay */}
-      <div className="absolute inset-0 z-0">
-        <img 
-          src={eventImage} 
-          alt="event backdrop" 
-          className="w-full h-full object-cover opacity-30 blur-[2px]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#040b17] via-[#040b17]/90 to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#040b17] via-transparent to-transparent"></div>
-      </div>
-
-      <div className="relative z-10 container mx-auto px-8 lg:px-24 pt-16 pb-12 flex flex-col lg:flex-row items-center gap-12">
+    <div className="relative w-full bg-[#040b17] border-b border-white/5">
+      <div className="container mx-auto px-8 lg:px-24 pt-24 pb-16 flex flex-col md:flex-row items-center gap-12">
         {/* Poster Image */}
-        <div className="w-64 h-96 flex-shrink-0 shadow-[0_0_50px_rgba(30,58,138,0.4)] rounded-2xl overflow-hidden border border-white/5 animate-in zoom-in duration-700">
+        <div className="w-56 h-80 flex-shrink-0 shadow-2xl rounded-2xl overflow-hidden border border-white/10 group relative">
            <img src={eventImage} alt="event poster" className="w-full h-full object-cover" />
+           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+              <span className="text-[10px] font-black text-white uppercase tracking-widest">{event.displayLocation}</span>
+           </div>
         </div>
 
         {/* Content Info */}
-        <div className="flex-1 space-y-6 text-center lg:text-left">
-           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
-              <span className="bg-sky-500 text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full shadow-lg shadow-sky-500/20">{event.status || 'Verified'}</span>
-              {categoriesArr.map((cat, i) => (
-                <span key={i} className="text-white/40 text-[10px] border border-white/10 px-3 py-1 rounded-full uppercase font-bold tracking-widest">{cat}</span>
-              ))}
+        <div className="flex-1 space-y-8">
+           <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                 {categoriesArr.map((cat, i) => (
+                   <span key={i} className="text-sky-500 text-[10px] bg-sky-500/10 px-3 py-1 rounded-full uppercase font-black tracking-widest border border-sky-500/20">{cat}</span>
+                 ))}
+                 <span className="text-slate-500 text-[10px] px-3 py-1 bg-white/5 rounded-full uppercase font-black tracking-widest leading-none flex items-center">Live Experience</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none">{event.displayTitle}</h1>
+              
+              <div className="flex flex-col md:flex-row items-center gap-8 text-slate-400 font-bold text-xs uppercase tracking-widest">
+                 <div className="flex items-center gap-2">
+                    <Calendar size={14} className="text-sky-500" />
+                    <span>{eventDate}</span>
+                 </div>
+                 <div className="flex items-center gap-2">
+                    <MapPin size={14} className="text-sky-500" />
+                    <span>{event.displayLocation}</span>
+                 </div>
+              </div>
            </div>
 
-           <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase leading-none">{event.title || event.name}</h1>
-           
-           <div className="flex flex-col md:flex-row items-center gap-6 text-slate-300 font-medium text-sm">
-              <div className="flex items-center gap-2">
-                 <Calendar size={18} className="text-sky-500" />
-                 <span>{eventDate}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                 <MapPin size={18} className="text-sky-500" />
-                 <span>{event.location?.name || event.venue || 'TBA'}</span>
-              </div>
-           </div>
-
-           <div className="pt-8 flex flex-col md:flex-row items-center gap-6">
-              <div className="bg-white/5 border border-white/10 px-8 py-4 rounded-2xl backdrop-blur-md">
-                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Single Entry</p>
-                 <h2 className="text-3xl font-black text-white">₹{event.price || 0}</h2>
+           <div className="flex flex-col md:flex-row items-center gap-6 pt-4">
+              <div className="bg-white/5 border border-white/10 px-8 py-5 rounded-2xl">
+                 <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1.5 opacity-60">Entry Fee</p>
+                 <h2 className="text-3xl font-black text-white leading-none">₹{event.displayPrice}</h2>
               </div>
 
-              <div className="flex flex-col gap-3">
+              <div className="space-y-3 w-full md:w-auto">
                 <button 
                   onClick={handleBooking}
                   disabled={loading}
-                  className="bg-sky-600 text-white px-12 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-sky-500 transition-all shadow-xl shadow-sky-900/40 active:scale-95 disabled:opacity-50 flex items-center gap-3"
+                  className="w-full md:w-auto bg-sky-600 text-white px-10 py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-sky-500 transition-all shadow-xl shadow-sky-900/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
                 >
-                  <CreditCard size={18} />
-                  {loading ? 'Initiating Cloud Payment...' : 'Secure Booking Now'}
+                  <CreditCard size={16} />
+                  {loading ? 'Processing...' : 'Book Tickets'}
                 </button>
-                <div className="flex items-center justify-center gap-2 opacity-40">
-                  <ShieldCheck size={12} className="text-emerald-500" />
-                  <span className="text-[9px] font-bold text-white uppercase tracking-widest">PhonePe Unified Gateway</span>
+                <div className="flex items-center justify-center lg:justify-start gap-2 opacity-30">
+                  <span className="text-[8px] font-black text-white uppercase tracking-[0.2em]">Verified Secure Checkout</span>
                 </div>
               </div>
            </div>
