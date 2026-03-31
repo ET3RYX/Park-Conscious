@@ -35,12 +35,6 @@ const MainLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { admin, logout } = useAuth();
   const navigate = useNavigate();
-  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
-
-  React.useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const handleLogout = () => {
     logout();
@@ -121,17 +115,13 @@ const MainLayout = () => {
           </div>
           
           <div className="flex items-center gap-6">
-            <div className="hidden lg:flex flex-col items-end mr-2">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">System Time</span>
-                <span className="text-xs font-mono text-sky-400 mt-1 font-bold">{currentTime}</span>
-            </div>
-            <div className="hidden md:flex items-center gap-1.5 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse"></div>
+            <div className="hidden md:flex items-center gap-1.5 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/10">
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
                 <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Secure Core</span>
             </div>
-            <button className="relative p-2 text-slate-500 hover:text-white bg-slate-800/40 rounded-lg border border-slate-800 transition-colors">
+            <button className="relative p-2 text-slate-500 hover:text-white bg-slate-800/40 rounded-lg border border-slate-800">
                 <Bell size={18} />
-                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-sky-500 rounded-full border-2 border-slate-900 shadow-[0_0_8px_rgba(14,165,233,0.4)]"></span>
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-sky-500 rounded-full border-2 border-slate-900"></span>
             </button>
           </div>
         </header>

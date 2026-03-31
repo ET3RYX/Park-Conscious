@@ -3,8 +3,24 @@
   "outputDirectory": "public",
   "rewrites": [
     {
+      "source": "/api/discussions",
+      "destination": "/api/discussions.js"
+    },
+    {
+      "source": "/api/discussions/details",
+      "destination": "/api/discussion-details.js"
+    },
+    {
+      "source": "/api/discussions/comments",
+      "destination": "/api/discussion-comments.js"
+    },
+    {
+      "source": "/api/debug",
+      "destination": "/api/debug-env.js"
+    },
+    {
       "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "destination": "/api"
     }
   ],
   "functions": {

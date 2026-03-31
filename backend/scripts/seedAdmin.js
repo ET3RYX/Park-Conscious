@@ -3,9 +3,7 @@ import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 
-dotenv.config({ path: new URL('../../.env', import.meta.url).pathname });
-// If the above fails in some environments, we also check current directory
-dotenv.config();
+dotenv.config({ path: './.env' });
 
 const seedAdmin = async () => {
     try {
