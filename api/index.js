@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,PUT,DELETE,PATCH');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+    res.setHeader('Access-Control-Max-Age', '86400');
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
     // ── Request Parsing ──────────────────────────────────────────
@@ -22,50 +22,47 @@ export default async function handler(req, res) {
     const method = req.method || 'GET';
     const contentType = req.headers['content-type'] || '';
     
-    // Normalize URL (Vercel sometimes strips prefixes)
+    // Normalize URL
     const originalUrl = url;
     if (!url.startsWith('/api') && url !== '/') {
         url = '/api' + (url.startsWith('/') ? '' : '/') + url;
     }
-    
-    console.log(`[API_REQUEST] ${method} ${originalUrl} -> Normalized: ${url}`);
-    
-    // Parse body manually for POST/PUT/PATCH (only if NOT multipart)
-    let body = req.body || {};
-    const hasBody = ['POST', 'PUT', 'PATCH'].includes(method);
-    if (hasBody && !contentType.includes('multipart/form-data') && (typeof body !== 'object' || Object.keys(body).length === 0)) {
+
+    // ── Emergency Health Check (Isolate from crashes) ───────────
+    if (url.includes('/health')) {
+        return sendJSON(res, 200, { 
+            status: 'API Live', 
+            db: mongoose.connection.readyState === 1 ? 'Connected' : 'Connecting/Disconnected', 
+            url: originalUrl,
+            time: new Date().toISOString()
+        });
+    }
+
+    console.log(`[API_REQUEST] ${method} ${originalUrl} -> ${url}`);
+
+    // Robust Body Parsing
+    let body = {};
+    if (['POST', 'PUT', 'PATCH'].includes(method) && !contentType.includes('multipart/form-data')) {
         try {
             const chunks = [];
             for await (const chunk of req) chunks.push(chunk);
             const raw = Buffer.concat(chunks).toString();
             if (raw) body = JSON.parse(raw);
-        } catch (e) { console.error("Body parse error:", e); }
+        } catch (e) { console.error("[PARSE_ERROR]", e.message); }
     }
 
     // ── Database Connection ──────────────────────────────────────
     try {
         await connectDB();
     } catch (e) {
-        console.error(`[DB_CRASH] Host: ${req.headers.host}, Error: ${e.message}`);
+        console.error(`[DB_CRASH] ${e.message}`);
         return sendError(res, 500, 'DB connection failed', e.message);
     }
 
     try {
-        // ── Health Check & Diagnostics ───────────────────────────
-        if (url.includes('/health')) {
-            return sendJSON(res, 200, { 
-                status: 'API Live', 
-                db: mongoose.connection.readyState === 1 ? 'Connected' : 'Connecting...', 
-                host: req.headers.host,
-                url: originalUrl,
-                normalized: url,
-                mongo: !!process.env.MONGODB_URI ? 'CONFIGURED' : 'MISSING',
-                time: new Date().toISOString()
-            });
-        }
-
+        // ── Root / Version ───────────────────────────────────────
         if (url === '/api' || url === '/api/' || url === '/') {
-            return sendJSON(res, 200, { status: 'API Live', db: 'Connected', version: '2.5-stabilized' });
+            return sendJSON(res, 200, { status: 'API Live', version: '2.6-recovery' });
         }
 
         // ── Auth Router ──────────────────────────────────────────
@@ -79,20 +76,20 @@ export default async function handler(req, res) {
         // ── Events Router ────────────────────────────────────────
         if (url.includes('/events/upload')) return await handleImageUpload(req, res);
         if (url.includes('/events') && method === 'POST') return await handleEventCreate(req, res, body);
-        if (url.includes('/events') && method === 'PUT') return await handleEventUpdate(req, res, body);
+        if (url.includes('/events') && method === 'PUT') return await handleEventUpdate(req, res, url, body);
         if (url.includes('/events')) return await handleEventsList(req, res, url);
 
         // ── Parking Router ───────────────────────────────────────
-        if (url.includes('/parking/owner')) return await handleOwnerParkings(req, res);
+        if (url.includes('/parking/owner')) return await handleOwnerParkings(req, res, url, method, body);
         if (url.includes('/parking/bookings') && method === 'POST') return await handleCreateBooking(req, res, body);
         if (url.includes('/parking/bookings') && method === 'DELETE') return await handleDeleteBooking(req, res, url);
-        if (url.includes('/parking/bookings')) return await handleUserBookings(req, res);
+        if (url.includes('/parking/bookings')) return await handleUserBookings(req, res, url);
         if (url.includes('/parking')) return await handleParkingList(req, res, url);
 
         // ── Misc Router ──────────────────────────────────────────
         if (url.includes('/logs')) return await handleAccessLogs(req, res, method, body);
-        if (url.includes('/waitlist') && method === 'POST') return await handleWaitlist(req, res, body);
-        if (url.includes('/contact') && method === 'POST') return await handleContact(req, res, body);
+        if (url.includes('/waitlist')) return await handleWaitlist(req, res, body);
+        if (url.includes('/contact')) return await handleContact(req, res, body);
         if (url.includes('/debug')) return await handleDebugEnv(req, res);
 
         // ── Discussions Router ───────────────────────────────────
@@ -100,14 +97,14 @@ export default async function handler(req, res) {
         if (url.includes('/discussions/details')) return await handleDiscussionDetails(req, res, url, method, body);
         if (url.includes('/discussions')) return await handleDiscussionsList(req, res, url);
 
-        // ── 404 Fallback ─────────────────────────────────────────
-        return sendError(res, 404, 'Route not found', `Path: ${originalUrl}, Normalized: ${url}, Method: ${method}`);
+        return sendError(res, 404, 'Route not found', `Path: ${originalUrl}`);
 
     } catch (error) {
-        console.error(`[API_CRASH] ${method} ${url} ->`, error);
+        console.error(`[API_CRASH] ${url} ->`, error);
         return sendError(res, 500, 'Internal Server Error', error.message);
     }
 }
+
 
 export const config = {
     api: { bodyParser: false }
