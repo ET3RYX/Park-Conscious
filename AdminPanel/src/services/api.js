@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const API_URL = import.meta.env.VITE_API_URL || 
-                (isLocal ? 'http://localhost:5050/api' : 'https://www.parkconscious.in/api');
+                (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
+                  ? 'https://parkconscious.in' 
+                  : 'http://localhost:5050');
 
 const api = axios.create({
   baseURL: API_URL,
@@ -10,7 +11,6 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
-
 
 // Add a request interceptor to add the JWT token to headers
 api.interceptors.request.use(
