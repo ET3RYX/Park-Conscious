@@ -502,14 +502,29 @@ export default async function handler(req, res) {
             return json(res, 201, { user: payload });
         }
 
-        // ── User login ────────────────────────────────────────────
+        // ── User / Admin login ────────────────────────────────────
         if (url.includes('/auth/login') && method === 'POST') {
             const { email, password } = body;
-            const user = await User.findOne({ email });
+            
+            let user = await User.findOne({ email });
+            let isOwner = false;
+            
+            if (!user) {
+                user = await Owner.findOne({ email });
+                isOwner = !!user;
+            }
+
             if (!user || !user.password) return json(res, 400, { message: 'Invalid credentials' });
             if (!await bcrypt.compare(password, user.password)) return json(res, 400, { message: 'Invalid credentials' });
             
-            const payload = { id: user._id, name: user.name, email: user.email };
+            // Generate cross-domain authentication session
+            const payload = { 
+                id: user._id, 
+                name: user.name, 
+                email: user.email,
+                role: isOwner ? (user.role || 'admin') : 'user'
+            };
+            
             issueCookie(res, req, payload);
             return json(res, 200, { user: payload });
         }
