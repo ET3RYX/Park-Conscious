@@ -19,7 +19,15 @@ const CustomModal = () => {
   };
 
   const googleLogin = useGoogleLogin({
-    ux_mode: "redirect",
+    onSuccess: async (tokenResponse) => {
+      try {
+        await signInWithGoogle(tokenResponse.access_token, null);
+        closeModal();
+      } catch (err) {
+        console.error("Google login context err:", err);
+      }
+    },
+    onError: (error) => console.error("Google Login Failed:", error),
     flow: "implicit",
   });
 
