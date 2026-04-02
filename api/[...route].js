@@ -41,6 +41,7 @@ function issueCookie(res, req, userPayload) {
         path: '/'
     });
     res.setHeader('Set-Cookie', cookie);
+    return token;
 }
 
 
@@ -525,8 +526,8 @@ export default async function handler(req, res) {
                 role: isOwner ? (user.role || 'admin') : 'user'
             };
             
-            issueCookie(res, req, payload);
-            return json(res, 200, { user: payload });
+            const token = issueCookie(res, req, payload);
+            return json(res, 200, { user: payload, token });
         }
         // ── User Google login ─────────────────────────────────────
         if ((url.includes('/auth/google') || url.endsWith('/google')) && (method === 'POST' || method === 'GET')) {
@@ -551,8 +552,8 @@ export default async function handler(req, res) {
                 }
                 
                 const payload = { id: user._id, name: user.name, email: user.email };
-                issueCookie(res, req, payload);
-                return json(res, 200, { user: payload });
+                const token = issueCookie(res, req, payload);
+                return json(res, 200, { user: payload, token });
             } catch (authErr) {
                 console.error("User Google Auth Error:", authErr);
                 if (method === 'GET') {

@@ -6,6 +6,7 @@ console.log('%c[BUILD_VERSION] 2.0.5-FINAL-CORS-FIX', 'color: #10b981; font-weig
 
 const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
