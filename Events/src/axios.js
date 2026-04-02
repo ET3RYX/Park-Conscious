@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_BASE_URL } from "./config";
 
 const tmdbAxios = axios.create({
   baseURL: "https://api.themoviedb.org/3",
@@ -8,10 +9,8 @@ const tmdbAxios = axios.create({
 });
 
 const backendAxios = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 
-           (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
-             ? 'https://www.parkconscious.in' 
-             : 'http://localhost:5050'),
+  baseURL: API_BASE_URL,
+  withCredentials: true,
 });
 
 export { tmdbAxios, backendAxios };

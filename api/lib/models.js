@@ -25,16 +25,30 @@ const ownerSchema = new mongoose.Schema(
 
 const eventSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    category: { type: String, required: true },
-    venue: { type: String, required: true },
-    venueCity: { type: String, default: "Delhi NCR" },
-    attendees: { type: String, default: "Upcoming" },
-    image: {
-      type: String,
-      default: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14",
+    title: { type: String, required: true },
+    description: String,
+    date: { type: String, required: true },
+    endDate: String,
+    location: {
+      name: String,
+      address: String,
+      coordinates: {
+        lat: Number,
+        lng: Number
+      }
     },
-    badge: { type: String, default: "NEW" },
+    images: [String],
+    category: String,
+    price: { type: Number, default: 0 },
+    capacity: { type: Number, default: 0 },
+    status: { type: String, default: 'draft', enum: ['draft', 'published', 'cancelled'] },
+    // Backward compatibility for old "Events" project fields
+    name: String,
+    venue: String,
+    venueCity: String,
+    attendees: String,
+    image: String,
+    badge: String
   },
   { timestamps: true }
 );
@@ -92,6 +106,8 @@ const bookingSchema = new mongoose.Schema(
       type: String, // Allow both ObjectId and numeric IDs from seeded data
       required: true,
     },
+    eventId: { type: String, default: null },
+    transactionId: { type: String, default: null },
     ownerId: {
       type: String, // Allow both ObjectId and null/numeric IDs
       default: null,

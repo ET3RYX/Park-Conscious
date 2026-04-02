@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BiX } from "react-icons/bi";
 import tmdbAxios from "../../axios";
 import { useAuth } from "../../context/DiscussionAuth.context";
+import { API_BASE_URL } from "../../config";
 
 const StarPicker = ({ value, onChange }) => (
   <div className="flex gap-1">
@@ -44,12 +45,12 @@ const NewPostForm = ({ onClose, onSuccess, preselectedMovie = null }) => {
     setError("");
 
     try {
-      const res = await fetch("/api/discussions", {
+      const res = await fetch(`${API_BASE_URL}/api/discussions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           movieTitle: selectedMovie.title || selectedMovie.original_title,
           movieId: selectedMovie.id,

@@ -4,6 +4,7 @@ import { BiUpvote, BiDownvote, BiArrowBack } from "react-icons/bi";
 import DefaultlayoutHoc from "../layout/Default.layout";
 import { useAuth } from "../context/DiscussionAuth.context";
 import { useGoogleLogin } from "@react-oauth/google";
+import { API_BASE_URL } from "../config";
 
 const StarRating = ({ rating }) => (
   <div className="flex gap-0.5">
@@ -127,8 +128,8 @@ const DiscussionPage = () => {
   const fetchData = useCallback(async () => {
     try {
       const [disRes, comRes] = await Promise.all([
-        fetch(`/api/discussions/details?id=${id}`),
-        fetch(`/api/discussions/comments?id=${id}`),
+        fetch(`${API_BASE_URL}/api/discussions/details?id=${id}`),
+        fetch(`${API_BASE_URL}/api/discussions/comments?id=${id}`),
       ]);
       
       if (!disRes.ok) {
@@ -156,9 +157,10 @@ const DiscussionPage = () => {
   const handlePostVote = async (action) => {
     if (!user) return googleLogin();
     try {
-      const res = await fetch(`/api/discussions/details?id=${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/discussions/details?id=${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ action }),
       });
       const data = await res.json();
@@ -173,9 +175,10 @@ const DiscussionPage = () => {
   const handleCommentVote = async (commentId, action) => {
     if (!user) return googleLogin();
     try {
-      const res = await fetch(`/api/discussions/comments?id=${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/discussions/comments?id=${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ commentId, action }),
       });
       const data = await res.json();
@@ -197,9 +200,10 @@ const DiscussionPage = () => {
     if (!commentText.trim()) return;
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/discussions/comments?id=${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/discussions/comments?id=${id}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ text: commentText.trim() }),
       });
       const data = await res.json();
@@ -218,9 +222,10 @@ const DiscussionPage = () => {
   const handleReply = async (parentId, text) => {
     if (!user) return googleLogin();
     try {
-      const res = await fetch(`/api/discussions/comments?id=${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/discussions/comments?id=${id}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ text, parentId }),
       });
       const data = await res.json();

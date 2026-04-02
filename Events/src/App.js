@@ -12,11 +12,13 @@ import FarewellTicketsPage from "./pages/FarewellTickets.Page";
 import EventPage from "./pages/Event.Page";
 import SuccessPage from "./pages/Success.Page";
 import FailurePage from "./pages/Failure.Page";
+import MyBookingsPage from "./pages/MyBookings.Page";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/my-bookings" element={<MyBookingsPage />} />
       <Route path="/movie/:id" element={<MoviePage />} />
       <Route path="/plays" element={<PlayPage />} />
       <Route path="/category/:id" element={<CategoryPage />} />

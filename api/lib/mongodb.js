@@ -13,7 +13,7 @@ if (!cached) {
 }
 
 async function connectToDatabase() {
-  if (cached.conn) {
+  if (cached.conn && mongoose.connection.readyState === 1) {
     return cached.conn;
   }
 

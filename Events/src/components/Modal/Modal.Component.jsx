@@ -19,31 +19,8 @@ const CustomModal = () => {
   };
 
   const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        const userInfoEndpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
-        const userInfoResponse = await fetch(userInfoEndpoint, {
-          headers: {
-            Authorization: `Bearer ${tokenResponse.access_token}`,
-          },
-        });
-
-        if (userInfoResponse.ok) {
-          const userInfo = await userInfoResponse.json();
-          // Call our unified sign-in that talks to the backend
-          await signInWithGoogle(tokenResponse.access_token, userInfo);
-          closeModal();
-          // Force a reload or navigation to sync state if needed
-          window.location.reload();
-        } else {
-          console.error("Failed to fetch user information");
-          alert("Failed to fetch Google user info");
-        }
-      } catch (err) {
-        console.error("Login error:", err);
-        alert("Login failed: " + err.message);
-      }
-    },
+    ux_mode: "redirect",
+    flow: "implicit",
   });
 
   return (
@@ -115,9 +92,9 @@ const CustomModal = () => {
 
                 {/* Continue with Google */}
                 <button
+                  type="button"
                   onClick={() => {
                     googleLogin();
-                    closeModal();
                   }}
                   className="border border-darkBackground-600 bg-darkBackground-900 hover:bg-darkBackground-700 hover:border-vibrantBlue text-white font-bold tracking-wide py-3 px-4 rounded-full w-full mb-4 flex items-center justify-center transition-all shadow-lg"
                 >

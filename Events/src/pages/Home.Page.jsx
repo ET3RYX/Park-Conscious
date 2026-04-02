@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { tmdbAxios, backendAxios } from "../axios";
+import { API_BASE_URL } from "../config";
 
 // HOC
 import DefaultlayoutHoc from "../layout/Default.layout";
@@ -85,7 +86,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchCurrentEvents = async () => {
       try {
-        const { data } = await backendAxios.get("/api/events");
+        const { data } = await backendAxios.get(`${API_BASE_URL}/api/events`);
         // Mapping our event schema to the PosterSlider expected schema if necessary
         // Our schema: { title, images: [], ... }
         // TMDB schema: { original_title, poster_path, ... }

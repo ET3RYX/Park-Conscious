@@ -7,6 +7,7 @@ import DiscussionPost from "./DiscussionPost";
 import NewPostForm from "./NewPostForm";
 import { useAuth } from "../../context/DiscussionAuth.context";
 import tmdbAxios from "../../axios";
+import { API_BASE_URL } from "../../config";
 
 // Rotating hook lines to entice user to click/discuss
 const HOOK_LINES = [
@@ -97,7 +98,7 @@ const DiscussionBoard = () => {
   const fetchDiscussions = useCallback(async (p = 1) => {
     setLoadingDiscussions(true);
     try {
-      const res = await fetch(`/api/discussions?page=${p}&limit=6`);
+      const res = await fetch(`${API_BASE_URL}/api/discussions?page=${p}&limit=6`);
       const data = await res.json();
       if (p === 1) setDiscussions(data.discussions || []);
       else setDiscussions((prev) => [...prev, ...(data.discussions || [])]);
@@ -135,13 +136,12 @@ const DiscussionBoard = () => {
   const handleVote = async (postId, action) => {
     if (!user) return googleLogin();
     try {
-      const res = await fetch(`/api/discussions/details?id=${postId}`, {
-        method: "PATCH",
+      const res = await fetch(`${API_BASE_URL}/api/discussions/${postId}/upvote`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ action }),
+        credentials: "include"
       });
       const data = await res.json();
       if (res.ok) {

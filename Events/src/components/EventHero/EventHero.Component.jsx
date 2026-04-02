@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { backendAxios } from "../../axios";
+import { useAuth } from "../../context/DiscussionAuth.context";
 import { MapPin, Calendar, CreditCard, ShieldCheck } from "lucide-react";
 
 const EventHero = ({ event }) => {
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
   // PhonePe Payment Flow
   const handleBooking = async () => {
@@ -13,6 +15,7 @@ const EventHero = ({ event }) => {
         amount: event.displayPrice || 0,
         phone: "9999999999", // Placeholder phone
         orderId: event._id,
+        userId: user?.uid || null
       });
 
       if (data.success && data.redirectUrl) {

@@ -1,5 +1,15 @@
-const PARKING_JSON = './assets/data/parkings.json';
 const DEFAULT_LOCATION = { lat: 28.644800, lng: 77.216721 };
+// Dynamic API URL: uses relative /api/parking on production (Vercel),
+// falls back to http://localhost:5050 when running locally without the node server on port 80.
+function getParkingApiUrl() {
+    const isLocalFile = window.location.protocol === 'file:';
+    if (isLocalFile) return './assets/data/parkings.json';
+    const hostname = window.location.hostname;
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+    const isBuildServer = window.location.port === '3000';
+    if (isLocal && !isBuildServer) return 'http://localhost:5050/api/parking';
+    return '/api/parking';
+}
 
 let map, userMarker, parkingData = [], markers = [], infoWindow;
 let userPosition = null;
@@ -29,7 +39,9 @@ function loadBookings() {
 
 async function loadParkingData() {
     try {
-        const resp = await fetch(PARKING_JSON);
+        const url = getParkingApiUrl();
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error('API failed: ' + resp.status);
         parkingData = await resp.json();
         parkingData = parkingData.map(p => ({
             ...p,
@@ -39,10 +51,24 @@ async function loadParkingData() {
             TotalSlots: p.TotalSlots !== undefined ? Number(p.TotalSlots) : null
         }));
     } catch (e) {
-        console.error('Failed to load parking-data.json', e);
-        parkingData = [];
+        console.warn('API unavailable, falling back to local JSON:', e);
+        // Graceful fallback to static JSON
+        try {
+            const resp = await fetch('./assets/data/parkings.json');
+            parkingData = await resp.json();
+            parkingData = parkingData.map(p => ({
+                ...p,
+                Latitude: Number(p.Latitude),
+                Longitude: Number(p.Longitude),
+            }));
+        } catch (e2) {
+            console.error('Fallback also failed:', e2);
+            parkingData = [];
+        }
     }
 }
+
+
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
@@ -234,36 +260,81 @@ function renderNearby() {
     renderMarkers(results);
 }
 
-function renderBookingsList() {
+async function renderBookingsList() {
     const listEl = document.getElementById('results-list');
-    listEl.innerHTML = '';
-    const bookings = loadBookings();
+    listEl.innerHTML = '<div class="text-center p-6 text-slate-400 text-sm font-medium italic">Syncing with server...</div>';
+    
+    const userStr = localStorage.getItem('park_user');
+    if (!userStr) {
+        listEl.innerHTML = `
+            <div class="flex flex-col items-center justify-center p-12 text-center space-y-6">
+                <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center shadow-inner">
+                    <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                </div>
+                <div>
+                    <h3 class="text-xl font-black text-slate-900 mb-2">Login Required</h3>
+                    <p class="text-slate-500 text-sm max-w-[200px] mx-auto font-medium leading-relaxed italic">Sign in to sync your bookings across devices & view your tickets.</p>
+                </div>
+                <a href="login.html" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">Login Now</a>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">or book a parking to start</p>
+            </div>
+        `;
+        return;
+    }
 
+    try {
+        const user = JSON.parse(userStr);
+        const resp = await fetch(`/api/user/${user.id}/bookings`);
+        if (resp.ok) {
+            bookings = await resp.json();
+        } else {
+            bookings = loadBookings();
+        }
+    } catch (err) {
+        console.warn("Could not fetch remote bookings:", err);
+        bookings = loadBookings();
+    }
+
+    listEl.innerHTML = '';
     if (bookings.length === 0) {
         listEl.innerHTML = '<div class="text-center p-6 text-slate-400 text-sm font-medium">No active bookings found.</div>';
     } else {
-        bookings.reverse().forEach(b => {
+        bookings.sort((a,b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)).forEach(b => {
             const el = document.createElement('div');
-            el.className = 'glass-card rounded-xl p-4 relative group mb-3';
+            el.className = 'glass-card rounded-xl p-4 relative group mb-3 border-l-4 border-l-[#00C39A]';
+            const bookingId = b._id || b.id;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${bookingId}`;
+            
             el.innerHTML = `
                 <div class="flex justify-between items-start mb-2">
                     <div>
                         <h4 class="font-bold text-slate-900 text-base">${escapeHtml(b.locationName)}</h4>
-                        <div class="text-xs text-[#00C39A] font-mono mt-1 font-semibold">ID: ${b.id}</div>
+                        <div class="text-[10px] text-slate-400 font-mono mt-0.5 tracking-tighter uppercase">Ref: ${bookingId}</div>
+                    </div>
+                    <div class="text-right">
+                         <div class="text-[#00C39A] font-bold text-sm">${b.amount}</div>
+                         <div class="text-[10px] text-slate-400 font-bold uppercase">${b.status || 'Confirmed'}</div>
+                         <button onclick="removeBooking('${bookingId}', this)" class="block ml-auto mt-1 text-[10px] font-bold text-red-400 hover:text-red-500 transition-colors uppercase tracking-widest bg-red-50 px-2 py-1 rounded-md">Cancel</button>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-2 text-sm my-3">
+                <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm my-3 py-2 border-y border-slate-50">
                     <div>
-                        <div class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">Time</div>
-                         <div class="text-slate-700 font-medium text-sm">${b.startTime} - ${b.endTime}</div>
+                        <div class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-0.5">Time</div>
+                         <div class="text-slate-700 font-bold text-xs">${b.startTime} - ${b.endTime}</div>
                     </div>
                      <div>
-                        <div class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">Amount</div>
-                         <div class="text-slate-700 font-medium text-sm">${b.amount}</div>
+                        <div class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-0.5">Vehicle</div>
+                         <div class="text-slate-700 font-bold text-xs truncate">${escapeHtml(b.vehicleNumber || 'N/A')}</div>
                     </div>
                 </div>
-                <div class="w-full bg-emerald-50 border border-emerald-100 text-emerald-600 py-2 rounded-lg text-sm text-center font-bold mt-2">
-                    Confirmed
+                <div class="flex items-center gap-2 mt-2">
+                    <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="text-[10px] font-bold text-slate-500 hover:text-slate-900 uppercase tracking-widest flex items-center gap-1 transition-colors">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m0 11v1m-7-7h1m11 0h1m-9.414-9.414l.707.707m9.414 9.414l.707.707M6.343 17.657l.707-.707m9.414-9.414l.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        Show QR Code
+                    </button>
+                    <div class="hidden mt-2 p-2 bg-white rounded-lg border border-slate-100 shadow-sm mx-auto">
+                        <img src="${qrUrl}" alt="QR" class="w-32 h-32">
+                    </div>
                 </div>
             `;
             listEl.appendChild(el);
@@ -271,14 +342,49 @@ function renderBookingsList() {
     }
 }
 
+async function removeBooking(id, btn) {
+    if (!confirm('Are you sure you want to cancel this booking?')) return;
+    try {
+        const originalText = btn.innerText;
+        btn.innerText = 'Removing...';
+        btn.disabled = true;
+        const resp = await fetch(`/api/bookings/${id}`, { method: 'DELETE' });
+        if (resp.ok) {
+            renderBookingsList();
+        } else {
+            alert('Failed to remove booking');
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    } catch(err) {
+        alert('Server Error');
+        btn.disabled = false;
+    }
+}
+
 function openBookingModal(item) {
+    const userStr = localStorage.getItem('park_user');
+    if (!userStr) {
+        alert('Please login to book a parking spot.');
+        window.location.href = 'login.html';
+        return;
+    }
+    const user = JSON.parse(userStr);
+
     const modalRoot = document.getElementById('modal-root');
     modalRoot.innerHTML = `
     <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div class="bg-white border border-slate-100 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden relative transform transition-all">
             <div class="p-6 border-b border-slate-100 bg-slate-50/50">
-                <h3 class="text-2xl font-black text-slate-900 mb-1 tracking-tight">${escapeHtml(item.Location)}</h3>
-                <p class="text-[#00C39A] text-sm font-bold">Rate: ${item.PricePerHour ? '₹' + item.PricePerHour + '/hr' : 'Contact Price'}</p>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-2xl font-black text-slate-900 mb-1 tracking-tight">${escapeHtml(item.Location)}</h3>
+                        <p class="text-[#00C39A] text-sm font-bold">Rate: ${item.PricePerHour ? '₹' + item.PricePerHour + '/hr' : 'Contact Price'}</p>
+                    </div>
+                    <button onclick="closeModal()" class="text-slate-400 hover:text-slate-900 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
             </div>
             <div class="p-6 space-y-5">
                 <div class="grid grid-cols-2 gap-4">
@@ -291,82 +397,133 @@ function openBookingModal(item) {
                         <input id="end-time" type="time" value="10:00" class="w-full bg-white text-slate-900 border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-[#00C39A]/20 focus:border-[#00C39A] outline-none font-medium shadow-sm transition-all text-center">
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs text-slate-500 uppercase font-bold mb-1.5 tracking-wider">Duration (Hrs)</label>
-                    <input id="num-hours" type="number" min="1" value="1" class="w-full bg-white text-slate-900 border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-[#00C39A]/20 focus:border-[#00C39A] outline-none font-medium shadow-sm transition-all text-center">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                         <label class="block text-xs text-slate-500 uppercase font-bold mb-1.5 tracking-wider">Vehicle Type</label>
+                         <select id="vehicle-type" class="w-full bg-white text-slate-900 border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-[#00C39A]/20 focus:border-[#00C39A] outline-none font-medium shadow-sm transition-all">
+                             <option value="4wheeler">Car / SUV</option>
+                             <option value="2wheeler">Two Wheeler</option>
+                             <option value="heavy">Heavy Vehicle</option>
+                         </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-500 uppercase font-bold mb-1.5 tracking-wider">Vehicle Number</label>
+                        <input id="vehicle-number" type="text" placeholder="DL 01 AB 1234" class="w-full bg-white text-slate-900 border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-[#00C39A]/20 focus:border-[#00C39A] outline-none font-medium shadow-sm transition-all uppercase placeholder:italic">
+                    </div>
                 </div>
+
                 <div class="flex items-center justify-between bg-slate-50 p-5 rounded-xl border border-slate-100 shadow-inner mt-2">
-                    <span class="text-slate-500 font-semibold">Total Estimate</span>
+                    <span class="text-slate-500 font-semibold text-sm italic">Total Estimate</span>
                     <span id="total-fare" class="text-3xl font-black text-slate-900 tracking-tight">₹0</span>
                 </div>
             </div>
             <div class="p-6 bg-slate-50 flex gap-3 border-t border-slate-100">
-                <button id="cancel-book" class="flex-1 py-3 px-4 rounded-xl text-slate-500 font-bold hover:bg-slate-200 transition-colors">Cancel</button>
-                <button id="confirm-book" class="flex-1 py-3 px-4 rounded-xl bg-[#00C39A] text-white font-bold shadow-lg shadow-emerald-500/25 hover:bg-[#00A683] hover:-translate-y-0.5 transition-all">Confirm Booking</button>
+                <button id="confirm-book" class="w-full py-4 rounded-xl bg-slate-900 text-white font-bold shadow-lg shadow-slate-900/20 hover:bg-slate-800 hover:-translate-y-0.5 transition-all text-lg">Confirm Booking</button>
             </div>
         </div>
     </div>
     `;
 
+    const numHoursInput = document.createElement('input'); 
+    numHoursInput.id = 'num-hours'; numHoursInput.type = 'hidden'; numHoursInput.value = '1';
+    document.body.appendChild(numHoursInput);
+
     function computeFare() {
         const price = item.PricePerHour ? Number(item.PricePerHour) : null;
-        let hrs = Number(document.getElementById('num-hours').value) || 1;
-        if (hrs < 1) hrs = 1;
-        const total = price ? price * hrs : 'N/A';
-        document.getElementById('total-fare').innerText = price ? '₹' + total : 'Contact';
-    }
-
-    const updateHours = () => {
         const start = document.getElementById('start-time').value;
         const end = document.getElementById('end-time').value;
+        let hrs = 1;
         if (start && end) {
-            const [sh, sm] = start.split(':').map(Number); const [eh, em] = end.split(':').map(Number);
-            let hours = eh + em / 60 - (sh + sm / 60);
-            if (hours <= 0) hours = 1;
-            document.getElementById('num-hours').value = Math.ceil(hours);
-            computeFare();
+             const [sh, sm] = start.split(':').map(Number); const [eh, em] = end.split(':').map(Number);
+             hrs = eh + em / 60 - (sh + sm / 60);
+             if (hrs <= 0) hrs = 1;
+             hrs = Math.ceil(hrs);
         }
+        const total = price ? price * hrs : 'N/A';
+        document.getElementById('total-fare').innerText = price ? '₹' + total : 'Contact';
+        document.getElementById('num-hours').value = hrs;
     }
 
-    document.getElementById('num-hours').addEventListener('input', computeFare);
-    document.getElementById('start-time').addEventListener('change', updateHours);
-    document.getElementById('end-time').addEventListener('change', updateHours);
+    document.getElementById('start-time').addEventListener('change', computeFare);
+    document.getElementById('end-time').addEventListener('change', computeFare);
 
-    document.getElementById('cancel-book').addEventListener('click', closeModal);
-    document.getElementById('confirm-book').addEventListener('click', () => {
-        const bookingId = 'BK' + Date.now().toString().slice(-6);
-        const modalRoot = document.getElementById('modal-root');
+    document.getElementById('confirm-book').addEventListener('click', async () => {
+        const btn = document.getElementById('confirm-book');
+        const vehicleNumberInput = document.getElementById('vehicle-number');
+        const vehicleNumber = vehicleNumberInput.value.trim();
 
-        saveBooking({
-            id: bookingId,
+        if (!vehicleNumber) {
+            alert("Vehicle Number is required to confirm booking.");
+            vehicleNumberInput.focus();
+            return;
+        }
+
+        const originalText = btn.innerText;
+        btn.innerText = 'Creating Secure Booking...';
+        btn.disabled = true;
+
+        const bookingData = {
+            parkingId: item._id || item.ID,
+            ownerId: item.owner || item.ownerId || null, // Support both schema naming conventions
+            userId: user.id || user.uid,
             locationName: item.Location,
+            vehicleType: document.getElementById('vehicle-type').value,
+            vehicleNumber: vehicleNumber,
             startTime: document.getElementById('start-time').value,
             endTime: document.getElementById('end-time').value,
             amount: document.getElementById('total-fare').innerText,
-            date: new Date().toISOString()
-        });
+        };
 
-        modalRoot.innerHTML = `
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div class="bg-white border border-slate-100 rounded-3xl w-full max-w-sm text-center p-8 shadow-2xl relative transform transition-all scale-100">
-                <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner ring-4 ring-emerald-500/10">
-                    <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+        try {
+            const resp = await fetch('/api/bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bookingData)
+            });
+            const data = await resp.json();
+
+            if (resp.ok) {
+                const bookingId = data.booking._id;
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${bookingId}`;
+                
+                modalRoot.innerHTML = `
+                <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div class="bg-white border border-slate-100 rounded-3xl w-full max-w-sm text-center p-8 shadow-2xl relative transform transition-all scale-100">
+                        <div class="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <h3 class="text-2xl font-black text-slate-900 mb-1">Booking Confirmed!</h3>
+                        <p class="text-slate-500 mb-6 text-sm font-medium italic">Your spot is securely reserved.</p>
+                        
+                        <div class="bg-white rounded-2xl p-4 mb-6 border-2 border-slate-50 shadow-inner flex flex-col items-center">
+                            <img src="${qrUrl}" alt="Booking QR" class="w-32 h-32 mb-4">
+                            <div class="text-[10px] text-slate-400 uppercase font-bold mb-1 tracking-widest">Digital Ticket ID</div>
+                            <div class="text-sm font-mono text-slate-900 font-bold tracking-tight">${bookingId}</div>
+                        </div>
+
+                        <button id="close-ok" class="w-full py-4 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/20">Go to My Bookings</button>
+                    </div>
                 </div>
-                <h3 class="text-3xl font-black text-slate-900 mb-2 tracking-tight">Success!</h3>
-                <p class="text-slate-500 mb-8 font-medium">Your spot is securely reserved.</p>
-                <div class="bg-slate-50 rounded-2xl p-5 mb-8 border border-slate-200 border-dashed">
-                    <div class="text-xs text-slate-400 uppercase font-bold mb-1 tracking-widest">Booking ID</div>
-                    <div class="text-2xl font-mono text-slate-900 font-bold tracking-widest">${bookingId}</div>
-                </div>
-                <button id="close-ok" class="w-full py-4 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-all text-lg shadow-xl shadow-slate-900/20 hover:-translate-y-1">Done</button>
-            </div>
-        </div>
-        `;
-        document.getElementById('close-ok').addEventListener('click', () => {
+                `;
+                document.getElementById('close-ok').addEventListener('click', () => {
+                    document.getElementById('modal-root').innerHTML = '';
+                    const tabBookings = document.getElementById('tab-bookings');
+                    if (tabBookings) tabBookings.click();
+                });
+            } else {
+                alert('Booking failed: ' + data.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        } catch (err) {
+            console.error("Booking failed", err);
+            alert('Server connection failed. Storing locally.');
+            saveBooking({ ...bookingData, id: 'L-' + Date.now(), status: 'Pending Sync' });
             document.getElementById('modal-root').innerHTML = '';
             const tabBookings = document.getElementById('tab-bookings');
             if (tabBookings) tabBookings.click();
-        });
+        }
     });
 
     computeFare();

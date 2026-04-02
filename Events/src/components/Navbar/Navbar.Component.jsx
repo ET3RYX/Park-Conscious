@@ -1,4 +1,5 @@
 import { BiChevronDown, BiMenu, BiSearch } from "react-icons/bi";
+import { Link } from "react-router-dom";
 import CustomModal from "../Modal/Modal.Component";
 import RequestEventModal from "../Modal/RequestEventModal";
 import { useAuth } from "../../context/DiscussionAuth.context";
@@ -47,6 +48,7 @@ function NavMd() {
 }
 
 function NavLg({ defaultLocation, onRequestOpen }) {
+  const { user } = useAuth();
   const [location, setLocation] = useState("");
 
   useEffect(() => {
@@ -94,8 +96,11 @@ function NavLg({ defaultLocation, onRequestOpen }) {
           </div>
         </div>
         <div className="flex items-center gap-6">
-          <a href="/" className="nav-link text-sm font-medium">Home</a>
-          <a href="#" className="nav-link text-sm font-medium">Find Parking</a>
+          <Link to="/" className="nav-link text-sm font-medium">Home</Link>
+          <a href="https://www.parkconscious.in" className="nav-link text-sm font-medium">Find Parking</a>
+          {user && (
+            <Link to="/my-bookings" className="nav-link text-sm font-medium text-sky-400">My Tickets</Link>
+          )}
           <button 
             onClick={onRequestOpen}
             className="btn-secondary flex items-center gap-2 text-sm py-1.5 px-4"

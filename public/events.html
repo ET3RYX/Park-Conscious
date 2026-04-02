@@ -109,21 +109,30 @@
         }
 
         .ad-copy {
+            flex: 0 0 100%;
             min-width: 100%;
             padding: 1rem;
             text-align: center;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: -0.02em;
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 1rem;
+            gap: 0.75rem;
+            min-height: 110px;
         }
 
         @media (min-width: 768px) {
-            .ad-copy { font-size: 1.25rem; padding: 1.5rem; }
+            .ad-copy { 
+                flex-direction: row;
+                font-size: 1.1rem; 
+                padding: 1.5rem; 
+                min-height: 90px;
+                gap: 1.5rem;
+            }
         }
 
         /* Custom Scrollbar for modern feel */
@@ -355,14 +364,14 @@
                     <div class="w-12 h-12 rounded-2xl bg-fuchsia-600 flex items-center justify-center shadow-[0_0_20px_rgba(192,38,211,0.4)]">
                         <i data-lucide="plus" class="text-white w-6 h-6"></i>
                     </div>
-                    <h2 class="text-3xl font-black text-white tracking-tighter uppercase">List Your Event</h2>
+                    <h2 class="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase">List Your Event</h2>
                 </div>
-                <button onclick="closeModal('add-event-modal')" class="text-gray-500 hover:text-white transition-colors p-2">
-                    <i data-lucide="arrow-left" class="w-8 h-8 mr-2 inline-block"></i> <span class="text-xs font-bold uppercase tracking-widest">Back</span>
+                <button onclick="closeModal('add-event-modal')" class="text-gray-500 hover:text-white transition-colors p-2 md:p-0">
+                    <i data-lucide="arrow-left" class="w-8 h-8 md:mr-2 inline-block"></i> <span class="hidden md:inline-block text-xs font-bold uppercase tracking-widest">Back</span>
                 </button>
             </div>
 
-            <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 md:p-12 shadow-2xl">
+            <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 md:p-12 shadow-2xl">
                 <p class="text-gray-400 font-medium mb-10 text-sm">Fill in the details below. Our team will review your proposal and get back to you within 24 hours.</p>
                 
                 <form id="add-event-form" class="space-y-8">
@@ -619,7 +628,7 @@
             adCopies.forEach(copy => {
                 const div = document.createElement('div');
                 div.className = 'ad-copy';
-                div.innerHTML = `<span>${copy}</span> <button onclick="window.scrollTo({top: 800, behavior: 'smooth'})" class="bg-black text-white px-4 py-1 rounded-full text-[10px] font-black hover:scale-105 transition-transform">BOOK NOW</button>`;
+                div.innerHTML = `<span>${copy}</span> <button onclick="window.scrollTo({top: 800, behavior: 'smooth'})" class="bg-black text-white px-5 py-2 md:px-4 md:py-1 rounded-full text-[10px] md:text-xs font-black hover:scale-105 transition-transform flex-shrink-0">BOOK NOW</button>`;
                 container.appendChild(div);
             });
 

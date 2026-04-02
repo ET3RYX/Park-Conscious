@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { backendAxios } from "../axios";
 import DefaultlayoutHoc from "../layout/Default.layout";
 import { useAuth } from "../context/DiscussionAuth.context";
 import ParkingOfferModal from "../components/ParkingOfferModal/ParkingOfferModal";
+import { API_BASE_URL } from "../config";
 
 const FarewellTicketsPage = () => {
   const { user } = useAuth();
@@ -28,7 +30,7 @@ const FarewellTicketsPage = () => {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const response = await axios.get("/api/tickets?eventId=farewell_2024");
+        const response = await backendAxios.get(`${API_BASE_URL}/api/tickets?eventId=farewell_2024`);
         if (response.data && response.data.success) {
           setPrices({
             regular: response.data.event.regularPrice,
@@ -68,7 +70,7 @@ const FarewellTicketsPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("/api/pay", {
+      const response = await backendAxios.post(`${API_BASE_URL}/api/pay`, {
         name: name,
         email: email, 
         amount: totalAmount,

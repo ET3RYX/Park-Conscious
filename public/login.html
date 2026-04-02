@@ -199,12 +199,14 @@
                 const data = await res.json();
                 if (res.ok) {
                     localStorage.setItem('park_user', JSON.stringify(data.user));
-                    window.location.href = 'index.html';
+                    window.location.href = 'index.html?login=success';
                 } else {
-                    showError(data.message);
+                    console.error("User Google Auth Failed:", data);
+                    showError(data.message || "Google Login failed - please try standard login");
                 }
             } catch (err) {
-                showError("Server connection failed");
+                console.error("User Google Auth Network Error:", err);
+                showError("Server connection failed during Google Login");
             }
         }
     </script>
