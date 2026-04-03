@@ -35,7 +35,7 @@ function issueCookie(res, req, userPayload) {
     const cookie = serialize('token', token, {
         httpOnly: true,
         secure: isSecure,
-        sameSite: 'none',
+        sameSite: 'lax', // Lax is more reliable for cross-subdomain sessions on the same registrable domain
         domain: cookieDomain,
         maxAge: 7 * 24 * 60 * 60,
         path: '/'
@@ -101,15 +101,22 @@ if (process.env.CLOUDINARY_URL) {
 // ── Main Handler ────────────────────────────────────────────────
 export default async function handler(req, res) {
     // CORS preflight
-    const allowed = ['https://events.parkconscious.in', 'https://www.parkconscious.in', 'http://localhost:3000', 'http://localhost:5173'];
+    const allowed = [
+        'https://events.parkconscious.in', 
+        'https://www.parkconscious.in', 
+        'https://admin.events.parkconscious.in',
+        'http://localhost:3000', 
+        'http://localhost:5173'
+    ];
     const origin = req.headers.origin;
     if (allowed.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
     } else {
-        res.setHeader('Access-Control-Allow-Origin', 'https://events.parkconscious.in');
+        // Default to events if not matched, but technically we want to match any from allowed
+        res.setHeader('Access-Control-Allow-Origin', allowed[0]);
     }
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,PUT,PATCH,DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
@@ -137,7 +144,50 @@ export default async function handler(req, res) {
     try {
         // ── Health check ──────────────────────────────────────────
         if (url === '/api' || url === '/api/' || url === '/') {
-            return json(res, 200, { status: 'API Live', db: 'Connected' });
+            return json(res, 200, { status: 'API Live', db: 'Connected', timestamp: new Date().toISOString() });
+        }
+
+        // ── Auth: Me (Session Check) ──────────────────────────────
+        if (url.includes('/auth/me') && method === 'GET') {
+            const decoded = verifyUser(req);
+            if (!decoded) return json(res, 401, { authenticated: false });
+            
+            // Re-fetch to ensure user still exists and get latest data
+            let user = await User.findById(decoded.id);
+            let isOwner = false;
+            if (!user) {
+                user = await Owner.findById(decoded.id);
+                isOwner = !!user;
+            }
+            
+            if (!user) return json(res, 401, { authenticated: false });
+            
+            return json(res, 200, { 
+                authenticated: true, 
+                user: { 
+                    id: user._id, 
+                    email: user.email, 
+                    name: user.name,
+                    role: isOwner ? (user.role || 'admin') : 'user'
+                } 
+            });
+        }
+
+        // ── Auth: Logout (Clear Cookie) ───────────────────────────
+        if (url.includes('/auth/logout') && method === 'POST') {
+            const requestHost = req.headers.host || '';
+            const cookieDomain = requestHost.includes('parkconscious.in') ? '.parkconscious.in' : undefined;
+            const isSecure = requestHost.includes('parkconscious.in') || req.headers['x-forwarded-proto'] === 'https';
+            const clearCookie = serialize('token', '', {
+                httpOnly: true,
+                secure: isSecure,
+                sameSite: 'lax',
+                domain: cookieDomain,
+                maxAge: 0, // Immediately expire
+                path: '/'
+            });
+            res.setHeader('Set-Cookie', clearCookie);
+            return json(res, 200, { message: 'Logged out successfully' });
         }
 
         // ── Events Upload (Image) ─────────────────────────────────
@@ -365,15 +415,19 @@ export default async function handler(req, res) {
                 });
                 const amountInPaise = parseInt(amount) * 100;
 
+                const protocol = req.headers['x-forwarded-proto'] || 'https';
+                const host = req.headers.host;
+                const callbackBase = `${protocol}://${host}`;
+                
                 const payload = {
                     merchantId:            MERCHANT_ID,
                     merchantTransactionId: merchantTransactionId,
                     merchantUserId:        "USER_" + phone,
                     amount:                amountInPaise,
-                    // ⚠️ Must point to the API backend, NOT the React frontend
-                    redirectUrl:           `https://www.parkconscious.in/api/payment-callback?txnId=${merchantTransactionId}`,
+                    // ⚠️ Pointing to the current host dynamically
+                    redirectUrl:           `${callbackBase}/api/payment-callback?txnId=${merchantTransactionId}`,
                     redirectMode:          "REDIRECT",
-                    callbackUrl:           `https://www.parkconscious.in/api/payment-callback`,
+                    callbackUrl:           `${callbackBase}/api/payment-callback`,
                     mobileNumber:          phone,
                     paymentInstrument: { type: "PAY_PAGE" }
                 };
@@ -415,7 +469,16 @@ export default async function handler(req, res) {
         if (url.includes('/payment-callback')) {
             const query = url.split('?')[1] || '';
             const txnId = new URLSearchParams(query).get("txnId");
-            const FRONTEND = "https://events.parkconscious.in";
+            
+            // Dynamic Frontend Redirection
+            const requestHost = req.headers.host || '';
+            let FRONTEND = "https://events.parkconscious.in";
+            if (requestHost.includes('localhost') || requestHost.includes('127.0.0.1')) {
+                FRONTEND = "http://localhost:5173"; // Default Vite dev port for Events
+            } else if (requestHost.includes('parkconscious.in') && !requestHost.includes('events.')) {
+                // If coming from main site, but we want to go back to events
+                FRONTEND = "https://events.parkconscious.in";
+            }
 
             if (!txnId) {
                 return res.writeHead(302, { Location: `${FRONTEND}/payment-failure?error=NO_TXN_ID` }).end();
@@ -430,10 +493,26 @@ export default async function handler(req, res) {
                 if (isSuccess) {
                     const amt = (data?.amount || 0) / 100;
                     console.log(`[PhonePe] ✅ Payment success: txnId=${txnId}, amount=₹${amt}`);
-                    await Booking.findOneAndUpdate(
-                         { transactionId: txnId },
-                         { $set: { status: "Confirmed" } }
-                    ).catch(e => console.error("Could not update booking status:", e.message));
+                    
+                    try {
+                        const booking = await Booking.findOneAndUpdate(
+                             { transactionId: txnId },
+                             { $set: { status: "Confirmed" } },
+                             { new: true }
+                        );
+
+                        if (booking && booking.eventId) {
+                            // Atomic decrement of capacity
+                            const updatedEvent = await Event.findByIdAndUpdate(
+                                booking.eventId,
+                                { $inc: { capacity: -1 } },
+                                { new: true }
+                            );
+                            console.log(`[Inventory] 📉 Decremented capacity for event ${booking.eventId}. Remaining: ${updatedEvent?.capacity}`);
+                        }
+                    } catch (updateErr) {
+                        console.error("[Inventory] Failed to update booking/event status:", updateErr.message);
+                    }
                     
                     return res.writeHead(302, { Location: `${FRONTEND}/payment-success?txnId=${txnId}&amount=${amt}` }).end();
                 } else {
@@ -446,7 +525,11 @@ export default async function handler(req, res) {
                 }
             } catch (cbErr) {
                 console.error("Callback verification failed:", cbErr.message);
-                return res.writeHead(302, { Location: `https://events.parkconscious.in/payment-failure?txnId=${txnId}&error=VERIFICATION_FAILED` }).end();
+                const requestHost = req.headers.host || '';
+                let failureRedirect = "https://events.parkconscious.in/payment-failure";
+                if (requestHost.includes('localhost')) failureRedirect = "http://localhost:5173/payment-failure";
+                
+                return res.writeHead(302, { Location: `${failureRedirect}?txnId=${txnId}&error=VERIFICATION_FAILED` }).end();
             }
         }
 
@@ -501,6 +584,32 @@ export default async function handler(req, res) {
             const payload = { id: user._id, name: user.name, email: user.email };
             issueCookie(res, req, payload);
             return json(res, 201, { user: payload });
+        }
+
+        // ── Admin Seeding (One-time Fix) ──────────────────────────
+        if (url.includes('/auth/seed-admin') && method === 'GET') {
+            const adminEmail = 'admin@parkconscious.com';
+            const defaultPass = 'admin1234';
+            const hashed = await bcrypt.hash(defaultPass, 10);
+            
+            // Crucial: Clear any 'User' with this email to prevent login conflicts
+            await User.deleteMany({ email: adminEmail });
+            
+            let owner = await Owner.findOne({ email: adminEmail });
+            if (!owner) {
+                owner = await Owner.create({
+                    name: 'System Administrator',
+                    email: adminEmail,
+                    password: hashed,
+                    role: 'admin'
+                });
+                return json(res, 200, { message: 'Admin seeded successfully. Conflicting users cleared.', email: adminEmail });
+            } else {
+                owner.password = hashed;
+                owner.role = 'admin';
+                await owner.save();
+                return json(res, 200, { message: 'Admin password reset successfully. Conflicting users cleared.', email: adminEmail });
+            }
         }
 
         // ── User / Admin login ────────────────────────────────────
@@ -710,50 +819,12 @@ export default async function handler(req, res) {
             }
         }
 
-        // ── Create Booking ───────────────────────────────────────
+        // ── Create Booking (DEPRECATED: Now handled by /api/engine/allocator.py [Python]) ──
         if (url.includes('/api/bookings') && method === 'POST') {
-            try {
-                const { parkingId, ownerId, userId, locationName, vehicleType, vehicleNumber, startTime, endTime, amount } = body;
-                if (!parkingId || !locationName) {
-                    return json(res, 400, { message: 'Parking ID and Location are required' });
-                }
-
-                // Availability Check (Overbooking Prevention)
-                const parking = await Parking.findById(parkingId).catch(() => null);
-                if (parking && parking.TotalSlots !== null) {
-                    const activeCount = await Booking.countDocuments({ 
-                        parkingId: String(parkingId), 
-                        status: "Confirmed" 
-                    });
-                    
-                    if (activeCount >= parking.TotalSlots) {
-                        return json(res, 400, { 
-                            message: `Parking is full. Only ${parking.TotalSlots} slots were available and all are currently booked.` 
-                        });
-                    }
-                }
-                
-                const b = await Booking.create({
-                    parkingId: String(parkingId),
-                    ownerId: ownerId ? String(ownerId) : null,
-                    userId: userId ? String(userId) : null,
-                    locationName,
-                    vehicleType,
-                    vehicleNumber,
-                    startTime,
-                    endTime,
-                    amount,
-                    status: "Confirmed"
-                });
-                return json(res, 201, { message: 'Booking created successfully', booking: b });
-            } catch (err) {
-                console.error("Booking Create Error Detailed:", err);
-                return json(res, 500, { 
-                    message: 'Database Error - Unable to save booking', 
-                    error: err.message,
-                    details: err.errors ? Object.keys(err.errors).map(k => err.errors[k].message) : null
-                });
-            }
+            return json(res, 410, { 
+                message: 'This endpoint is deprecated. Use /api/engine/allocator for AI-powered bookings.',
+                error: 'DEPRECATED_ENDPOINT'
+            });
         }
 
         // ── Delete Booking ───────────────────────────────────────
