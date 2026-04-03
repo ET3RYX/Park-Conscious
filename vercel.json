@@ -1,19 +1,35 @@
 {
   "version": 2,
-  "outputDirectory": "public",
+  "outputDirectory": ".",
   "cleanUrls": true,
   "headers": [
+    {
+      "source": "/api/parking/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "s-maxage=60, stale-while-revalidate=3600" }
+      ]
+    },
+    {
+      "source": "/api/engine/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
         {
           "key": "Cross-Origin-Opener-Policy",
-          "value": "unsafe-none"
+          "value": "same-origin-allow-popups"
         }
       ]
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/engine/(.*)",
+      "destination": "/api/engine/$1"
+    },
     {
       "source": "/api/(.*)",
       "destination": "/api/[...route]"

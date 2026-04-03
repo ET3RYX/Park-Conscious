@@ -1,4 +1,6 @@
+import { BiChevronDown, BiMenu, BiSearch } from "react-icons/bi";
 import { useAuth } from "../../context/DiscussionAuth.context";
+import CustomModal from "../Modal/Modal.Component";
 
 function NavSm() {
   const { user } = useAuth();
@@ -64,18 +66,7 @@ function NavLg() {
           <span className="text-gray-200 text-base flex items-center cursor-pointer hover:text-white ">
             Hampi <BiChevronDown />
           </span>
-          <button 
-            onClick={user ? signOut : undefined}
-            className="bg-premier-700 text-white px-2 py-1 text-sm rounded flex items-center gap-2"
-          >
-            {user ? (
-              <>
-                {user.picture && <img src={user.picture} alt="profile" className="w-5 h-5 rounded-full" />}
-                <span>Hi, {user.name.split(" ")[0]}</span>
-                {user && <span className="text-[10px] opacity-70">(Sign Out)</span>}
-              </>
-            ) : "Sign In"}
-          </button>
+          <CustomModal />
           <div className="w-8 h-8 text-white">
             <BiMenu className="w-full h-full" />
           </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { tmdbAxios, backendAxios } from "../axios";
 import { API_BASE_URL } from "../config";
 
@@ -47,9 +48,10 @@ const adCopies = [
 const categories = ["All Events", "Concerts", "Festivals", "Summits", "Culture"];
 
 const FeaturedEventCard = () => {
+  const navigate = useNavigate();
   return (
     <div 
-      onClick={() => window.location.href = "/farewell-tickets"}
+      onClick={() => navigate("/farewell-tickets")}
       className="group relative w-full h-48 md:h-64 rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl transition-transform duration-500 hover:scale-[1.01] bg-gradient-to-tr from-[#0a0410] via-[#1a0b2e] to-[#2d0f54] border border-white/5 flex items-center"
     >
       {/* Decorative glowing orbs */}
@@ -72,6 +74,7 @@ const FeaturedEventCard = () => {
 };
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [premierMovies, setpremierMovies] = useState([]);
   const [currentAd, setCurrentAd] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("All Events");
@@ -142,7 +145,12 @@ const HomePage = () => {
           {adCopies.map((copy, idx) => (
             <div key={idx} className="min-w-full flex items-center justify-center gap-4 px-4 h-full flex-shrink-0">
               <p className="text-black font-black text-sm md:text-xl tracking-wide uppercase text-center w-2/3 md:w-auto">{copy}</p>
-              <button className="bg-black text-white px-4 md:px-8 py-2 md:py-2.5 rounded-full font-bold text-[10px] md:text-sm tracking-widest hover:bg-gray-800 transition flex-shrink-0 shadow-lg">BOOK NOW</button>
+              <button 
+                onClick={() => navigate("/farewell-tickets")}
+                className="bg-black text-white px-4 md:px-8 py-2 md:py-2.5 rounded-full font-bold text-[10px] md:text-sm tracking-widest hover:bg-gray-800 transition flex-shrink-0 shadow-lg"
+              >
+                BOOK NOW
+              </button>
             </div>
           ))}
         </div>

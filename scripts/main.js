@@ -12,7 +12,8 @@ function getParkingApiUrl() {
 }
 
 let map, userMarker, parkingData = [], markers = [], infoWindow;
-let userPosition = null;
+let userPosition = { ...DEFAULT_LOCATION }; 
+let dataLoaded = false;
 
 function toRad(deg) { return deg * Math.PI / 180; }
 function haversineDistance(lat1, lon1, lat2, lon2) {
@@ -66,6 +67,8 @@ async function loadParkingData() {
             parkingData = [];
         }
     }
+    dataLoaded = true;
+    if (map) renderNearby();
 }
 
 
@@ -100,8 +103,12 @@ function initMap() {
             }
         });
     }
-
+    
+    // Auto-discover location in background
     getUserLocation(false);
+    
+    // If data is already back from API (fast cache), render immediately
+    if (dataLoaded) renderNearby();
 
     const tabNearby = document.getElementById('tab-nearby');
     const tabBookings = document.getElementById('tab-bookings');
@@ -194,9 +201,9 @@ function showInfoWindow(item, marker) {
 }
 
 function renderNearby() {
-    if (!userPosition) {
+    if (!userPosition || !dataLoaded) {
         const listEl = document.getElementById('results-list');
-        if (listEl) listEl.innerHTML = '<div class="text-center p-6 text-slate-400 text-sm font-medium">Location not set. <br>Click "My Location" or search.</div>';
+        if (listEl && !dataLoaded) listEl.innerHTML = '<div class="text-center p-6 text-slate-400 text-sm font-medium italic animate-pulse">Syncing smart data...</div>';
         return;
     }
     const radiusKm = Number(document.getElementById('radius-select').value);
@@ -463,28 +470,30 @@ function openBookingModal(item) {
         btn.innerText = 'Creating Secure Booking...';
         btn.disabled = true;
 
+        const rawType = document.getElementById('vehicle-type').value;
+        const typeMap = { '4wheeler': 'CAR', '2wheeler': 'BIKE', 'heavy': 'TRUCK' };
+        
         const bookingData = {
+            action: 'park',
             parkingId: item._id || item.ID,
-            ownerId: item.owner || item.ownerId || null, // Support both schema naming conventions
             userId: user.id || user.uid,
-            locationName: item.Location,
-            vehicleType: document.getElementById('vehicle-type').value,
-            vehicleNumber: vehicleNumber,
+            license: vehicleNumber,
+            type: typeMap[rawType] || 'CAR',
+            amount: document.getElementById('total-fare').innerText.replace('₹', ''),
             startTime: document.getElementById('start-time').value,
-            endTime: document.getElementById('end-time').value,
-            amount: document.getElementById('total-fare').innerText,
+            endTime: document.getElementById('end-time').value
         };
 
         try {
-            const resp = await fetch('/api/bookings', {
+            const resp = await fetch('/api/engine/allocator', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(bookingData)
             });
             const data = await resp.json();
 
-            if (resp.ok) {
-                const bookingId = data.booking._id;
+            if (resp.ok && data.success) {
+                const bookingId = data.booking_id;
                 const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${bookingId}`;
                 
                 modalRoot.innerHTML = `
@@ -548,9 +557,9 @@ function getUserLocation(requirePrompt) {
             renderNearby();
         }, err => {
             console.warn('Geolocation error', err);
-            if (requirePrompt) alert('Location access needed to find nearby spots.');
-            userPosition = null;
-            map.setCenter(DEFAULT_LOCATION);
+            if (requirePrompt) alert('Please enable location access to find spots near you.');
+            // Fallback: stay on the previous userPosition (which defaults to New Delhi)
+            map.setCenter(userPosition || DEFAULT_LOCATION);
             renderNearby();
         }, { enableHighAccuracy: true, timeout: 8000 });
     } else {

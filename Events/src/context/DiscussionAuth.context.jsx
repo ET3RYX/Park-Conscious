@@ -28,18 +28,30 @@ export const AuthProvider = ({ children }) => {
         });
         if (res.ok) {
            const data = await res.json();
-           // Merge data back keeping old structure matching
-           const userData = {
-               uid: data.user.id,
-               id: data.user.id,
-               name: data.user.name,
-               email: data.user.email
-           };
-           setUser(userData);
-           localStorage.setItem("disc_user", JSON.stringify(userData));
+           if (data.authenticated && data.user) {
+             console.log("Session verified successfully for:", data.user.email);
+             const userData = {
+                 uid: data.user.id,
+                 id: data.user.id,
+                 name: data.user.name,
+                 email: data.user.email
+             };
+             setUser(userData);
+             localStorage.setItem("disc_user", JSON.stringify(userData));
+           } else {
+             // Server responded OK but no valid session — clear everything
+             setUser(null);
+             localStorage.removeItem("disc_user");
+           }
+        } else {
+           console.warn(`Session verification returned ${res.status}: ${res.statusText}`);
+           // Clear stale local state for ANY non-OK response
+           setUser(null);
+           localStorage.removeItem("disc_user");
         }
       } catch(err) {
-         console.error("Session verification failed", err);
+         console.error("Session verification fetch failed:", err);
+         // Network error — keep existing localStorage state so UI isn't blank
       }
     };
     verifySession();
@@ -102,6 +114,7 @@ export const AuthProvider = ({ children }) => {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
+        console.error('❌ Events backend auth rejected:', res.status, err);
         throw new Error(err.message || `Server error ${res.status}`);
       }
 
@@ -124,10 +137,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signOut = () => {
-    localStorage.removeItem("disc_user");
-    // The session cookie would have to be cleared by deleting it on the backend or expiring it, but clearing state is sufficient for now.
-    setUser(null);
+  const signOut = async () => {
+    try {
+      // Call backend to clear the HttpOnly session cookie
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      localStorage.removeItem("disc_user");
+      setUser(null);
+    }
   };
 
   return (

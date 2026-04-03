@@ -7,7 +7,7 @@ import MovieProvider from "./context/Movie.context";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./context/DiscussionAuth.context";
 
-const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "missing-client-id";
+import { GOOGLE_CLIENT_ID } from "./config";
 
 const rootElement = document.getElementById("root");
 if (rootElement) {
@@ -15,7 +15,7 @@ if (rootElement) {
   root.render(
     <BrowserRouter>
       <MovieProvider>
-        <GoogleOAuthProvider clientId={clientId}>
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
           <AuthProvider>
             <App />
           </AuthProvider>

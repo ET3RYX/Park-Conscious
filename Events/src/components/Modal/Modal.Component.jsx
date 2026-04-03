@@ -1,14 +1,11 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import { useGoogleLogin } from "@react-oauth/google";
-import { useNavigate } from "react-router-dom";
-
 import { useAuth } from "../../context/DiscussionAuth.context";
+import { GOOGLE_CLIENT_ID } from "../../config";
 
 const CustomModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { signInWithGoogle, user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   const closeModal = () => {
     setIsOpen(false);
@@ -18,18 +15,14 @@ const CustomModal = () => {
     setIsOpen(true);
   };
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        await signInWithGoogle(tokenResponse.access_token, null);
-        closeModal();
-      } catch (err) {
-        console.error("Google login context err:", err);
-      }
-    },
-    onError: (error) => console.error("Google Login Failed:", error),
-    flow: "implicit",
-  });
+  const handleGoogleLogin = () => {
+    const scope = encodeURIComponent("profile email openid");
+    const redirectUri = encodeURIComponent(window.location.origin + "/");
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
+    
+    // Perform full page redirect
+    window.location.assign(authUrl);
+  };
 
   return (
     <>
@@ -101,9 +94,7 @@ const CustomModal = () => {
                 {/* Continue with Google */}
                 <button
                   type="button"
-                  onClick={() => {
-                    googleLogin();
-                  }}
+                  onClick={handleGoogleLogin}
                   className="border border-darkBackground-600 bg-darkBackground-900 hover:bg-darkBackground-700 hover:border-vibrantBlue text-white font-bold tracking-wide py-3 px-4 rounded-full w-full mb-4 flex items-center justify-center transition-all shadow-lg"
                 >
                   <span className="mr-2">
