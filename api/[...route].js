@@ -31,7 +31,7 @@ export default async function handler(req, res) {
             import('bcryptjs'), import('jsonwebtoken'), import('cookie'), import('busboy')
         ]);
 
-        const { User, Owner, Event, Booking } = models;
+        const { User, Owner, Event, Booking, Discussion, Comment, Waitlist, Contact } = models;
         const JWT_SECRET = process.env.JWT_SECRET || "default_super_secret_for_dev_mode";
 
         // Auth Helpers
@@ -40,6 +40,15 @@ export default async function handler(req, res) {
             const token = cookies.token;
             if (!token) return null;
             try { return jwt.verify(token, JWT_SECRET); } catch(e) { return null; }
+        };
+
+        const handleVote = (item, userId, action) => {
+            if (!item.upvotes) item.upvotes = [];
+            if (!item.downvotes) item.downvotes = [];
+            item.upvotes = item.upvotes.filter(id => id !== userId);
+            item.downvotes = item.downvotes.filter(id => id !== userId);
+            if (action === 'upvote') item.upvotes.push(userId);
+            if (action === 'downvote') item.downvotes.push(userId);
         };
 
         const issueCookie = (u) => {
@@ -62,7 +71,7 @@ export default async function handler(req, res) {
             const chunks = [];
             for await (const chunk of req) chunks.push(chunk);
             const raw = Buffer.concat(chunks).toString();
-            if (raw) body = JSON.parse(raw);
+            if (raw) try { body = JSON.parse(raw); } catch(e){}
         }
 
         // 4. DB Connection
@@ -71,6 +80,56 @@ export default async function handler(req, res) {
         // 5. Routes
         if (url.includes('/api/health') || url === '/api' || url === '/api/') {
             return json(200, { status: 'ONLINE', db: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected' });
+        }
+
+        // Discussions
+        if (url.includes('/discussions')) {
+            if (method === 'GET') {
+                const id = new URLSearchParams(url.split('?')[1]).get('id');
+                if (id) {
+                    const discussion = await Discussion.findById(id).lean();
+                    const comments = await Comment.find({ discussionId: id }).sort({ createdAt: -1 }).lean();
+                    return json(200, { ...discussion, comments });
+                }
+                return json(200, await Discussion.find().sort({ createdAt: -1 }));
+            }
+            if (method === 'POST') {
+                const user = verifyUser(req);
+                if (!user) return json(401, { error: 'Login required' });
+                if (url.includes('/upvote')) {
+                    const id = url.split('/').slice(-2, -1)[0];
+                    const disc = await Discussion.findById(id);
+                    handleVote(disc, user.id, 'upvote');
+                    await disc.save();
+                    return json(200, disc);
+                }
+                const newDisc = await Discussion.create({ ...body, authorUid: user.id, authorName: user.name });
+                return json(201, newDisc);
+            }
+        }
+
+        // Comments
+        if (url.includes('/comments') && method === 'POST') {
+            const user = verifyUser(req);
+            if (!user) return json(401, { error: 'Login required' });
+            if (url.includes('/vote')) {
+                const { commentId, action } = body;
+                const comment = await Comment.findById(commentId);
+                handleVote(comment, user.id, action);
+                await comment.save();
+                return json(200, comment);
+            }
+            const comment = await Comment.create({ ...body, authorUid: user.id, authorName: user.name });
+            await Discussion.findByIdAndUpdate(body.discussionId, { $inc: { commentCount: 1 } });
+            return json(201, comment);
+        }
+
+        // Waitlist & Contact
+        if (url.includes('/waitlist') && method === 'POST') {
+            return json(201, await Waitlist.create(body));
+        }
+        if (url.includes('/contact') && method === 'POST') {
+            return json(201, await Contact.create(body));
         }
 
         if (url.includes('/auth/me') && method === 'GET') {
