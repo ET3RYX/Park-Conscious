@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     };
 
     try {
-        // 2. Sequential Safe Imports (Confirmed stable)
+        // 2. Sequential Safe Imports (Confirmed stable modules)
         const { default: mongoose } = await import('mongoose');
         const { default: connectDB } = await import('./lib/mongodb.js');
         const models = await import('./lib/models.js');
@@ -30,8 +30,7 @@ export default async function handler(req, res) {
         const jwt = await import('jsonwebtoken');
         const { parse, serialize } = await import('cookie');
         const { default: axios } = await import('axios');
-        const { default: Busboy } = await import('busboy');
-        const { v2: cloudinary } = await import('cloudinary');
+        // Note: Busboy and Cloudinary are moved to the upload route to prevent boot-time crashes on malformed ENV.
 
         const { User, Owner, Event, Booking, Discussion, Comment, Waitlist, Contact } = models;
         const JWT_SECRET = process.env.JWT_SECRET || "default_super_secret_for_dev_mode";
@@ -166,21 +165,27 @@ export default async function handler(req, res) {
 
             // Media Upload (Cloudinary)
             if (url.endsWith('/upload') && method === 'POST') {
-                return new Promise((resolve) => {
-                    const busboy = Busboy({ headers: req.headers });
-                    let uploadStream;
-                    busboy.on('file', (name, file, info) => {
-                        uploadStream = cloudinary.uploader.upload_stream(
-                            { folder: 'park-conscious-events' },
-                            (err, result) => {
-                                if (err) return resolve(json(500, { message: 'Cloudinary error', error: err }));
-                                resolve(json(200, { url: result.secure_url }));
-                            }
-                        );
-                        file.pipe(uploadStream);
-                    });
-                    busboy.on('error', (err) => resolve(json(500, { message: 'Upload error', error: err })));
-                    req.pipe(busboy);
+                return new Promise(async (resolve) => {
+                    try {
+                        const { default: Busboy } = await import('busboy');
+                        const { v2: cloudinary } = await import('cloudinary');
+                        const busboy = Busboy({ headers: req.headers });
+                        let uploadStream;
+                        busboy.on('file', (name, file, info) => {
+                            uploadStream = cloudinary.uploader.upload_stream(
+                                { folder: 'park-conscious-events' },
+                                (err, result) => {
+                                    if (err) return resolve(json(500, { message: 'Cloudinary configuration error', error: err }));
+                                    resolve(json(200, { url: result.secure_url }));
+                                }
+                            );
+                            file.pipe(uploadStream);
+                        });
+                        busboy.on('error', (err) => resolve(json(500, { message: 'Upload error', error: err })));
+                        req.pipe(busboy);
+                    } catch (e) {
+                         resolve(json(500, { message: 'Media service initialization failed (Check CLOUDINARY_URL format)', error: e.message }));
+                    }
                 });
             }
 
