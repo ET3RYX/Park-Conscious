@@ -2,6 +2,50 @@ import React from "react";
 import Slider from "react-slick";
 import Poster from "../Poster/Poster.Component";
 
+const NextArrow = (props) => {
+  const { className, style, onClick } = props;
+  return (
+    <div
+      className={className}
+      style={{
+        ...style,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(0, 0, 0, 0.7)",
+        borderRadius: "50%",
+        zIndex: 10,
+        right: "10px",
+        width: "30px",
+        height: "30px"
+      }}
+      onClick={onClick}
+    />
+  );
+};
+
+const PrevArrow = (props) => {
+  const { className, style, onClick } = props;
+  return (
+    <div
+      className={className}
+      style={{
+        ...style,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(0, 0, 0, 0.7)",
+        borderRadius: "50%",
+        zIndex: 10,
+        left: "10px",
+        width: "30px",
+        height: "30px"
+      }} // Explicitly position over the content
+      onClick={onClick}
+    />
+  );
+};
+
 const PosterSlider = (props) => {
   const { title, subtitle, posters, isDark } = props;
 
@@ -11,6 +55,8 @@ const PosterSlider = (props) => {
     slidesToShow: 5,
     slidesToScroll: 2,
     initialSlide: 0,
+    nextArrow: <NextArrow />,
+    prevArrow: <PrevArrow />,
     responsive: [
       {
         breakpoint: 1024,

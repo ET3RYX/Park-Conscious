@@ -208,6 +208,25 @@ export default async function handler(req, res) {
             }
         }
 
+        // -- Admin Attendees --
+        if (url.includes('/admin/bookings/all') && method === 'GET') {
+            const user = verifyUser(req);
+            if (!user || user.role !== 'admin') return json(401, { message: 'Admin Auth required' });
+            // Fetch bookings and populate event details if needed. 
+            // In a pure ESM handler, we can just aggregate or fetch manually.
+            const bookings = await Booking.find().sort({ createdAt: -1 }).lean();
+            
+            // To make it rich, append event info
+            for (let b of bookings) {
+                if (b.eventId) {
+                    const evt = await Event.findById(b.eventId).lean();
+                    if (evt) b.event = normalizeEvent(evt);
+                }
+            }
+            
+            return json(200, bookings);
+        }
+
         // -- PhonePe Payment & Booking --
         if (url.includes('/api/pay') && method === 'POST') {
             const { name, amount, phone, eventId } = body;
