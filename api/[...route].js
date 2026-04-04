@@ -213,8 +213,22 @@ export default async function handler(req, res) {
                     const evt = await Event.findById(b.eventId).lean();
                     if (evt) b.event = normalizeEvent(evt);
                 }
+                
+                let resolvedName = b.userId || 'Unknown';
+                // If it's an abstract Hex ID, perform a stealth lookup cross-reference
+                if (typeof resolvedName === 'string' && resolvedName.length === 24) {
+                    try {
+                        const u = await User.findById(resolvedName).lean();
+                        if (u && u.name) resolvedName = u.name;
+                        else {
+                            const o = await Owner.findById(resolvedName).lean();
+                            if (o && o.name) resolvedName = o.name;
+                        }
+                    } catch(e) { } // Ignore lookup errors and fallback to hex
+                }
+
                 b.user = { 
-                    name: b.userId || 'Unknown', 
+                    name: resolvedName, 
                     email: b.phone || 'N/A' 
                 };
             }
@@ -224,7 +238,10 @@ export default async function handler(req, res) {
 
         // -- PhonePe Payment & Booking --
         if (url.includes('/api/pay') && method === 'POST') {
-            const { name, amount, phone, eventId } = body;
+            const { name, amount, phone, eventId, orderId, userId } = body;
+            const targetEventId = eventId || orderId;
+            const targetUserId = name || userId || "Guest";
+            
             const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || "PGTESTPAYUAT86";
             const SALT_KEY = process.env.PHONEPE_SALT_KEY || "96434309-7796-489d-8924-ab56988a6076";
             const SALT_INDEX = process.env.PHONEPE_SALT_INDEX || 1;
@@ -249,7 +266,7 @@ export default async function handler(req, res) {
             const base64 = Buffer.from(JSON.stringify(payload)).toString("base64");
             const checksum = crypto.createHash("sha256").update(base64 + "/pg/v1/pay" + SALT_KEY).digest("hex") + "###" + SALT_INDEX;
 
-            await Booking.create({ transactionId: txId, eventId, userId: name, amount, status: "Initiated" });
+            await Booking.create({ transactionId: txId, eventId: targetEventId, userId: targetUserId, amount, status: "Initiated" });
 
             const response = await axios.post(`${ENV_BASE_URL}/pg/v1/pay`, { request: base64 }, {
                 headers: { "Content-Type": "application/json", "X-VERIFY": checksum, "X-MERCHANT-ID": MERCHANT_ID }
