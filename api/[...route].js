@@ -32,7 +32,7 @@ export default async function handler(req, res) {
         const { default: axios } = await import('axios');
         // Note: Busboy and Cloudinary are moved to the upload route to prevent boot-time crashes on malformed ENV.
 
-        const { User, Owner, Event, Booking, Discussion, Comment, Waitlist, Contact } = models;
+        const { User, Owner, Event, Booking, Discussion, Comment, Waitlist, Contact, Parking } = models;
         const JWT_SECRET = process.env.JWT_SECRET || "default_super_secret_for_dev_mode";
 
         // Auth Helpers
