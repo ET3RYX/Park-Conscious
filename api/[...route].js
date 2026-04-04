@@ -22,14 +22,18 @@ export default async function handler(req, res) {
     };
 
     try {
-        // 2. Dynamic Safe Imports
-        const [
-            { default: mongoose }, { default: connectDB }, models,
-            { default: bcrypt }, jwt, { parse, serialize }, { default: Busboy }
-        ] = await Promise.all([
-            import('mongoose'), import('./lib/mongodb.js'), import('./lib/models.js'),
-            import('bcryptjs'), import('jsonwebtoken'), import('cookie'), import('busboy')
-        ]);
+        // 2. Sequential Safe Imports (Identify exactly which module fails)
+        console.log("Starting sequential imports...");
+        const { default: mongoose } = await import('mongoose');
+        const { default: connectDB } = await import('./lib/mongodb.js');
+        const models = await import('./lib/models.js');
+        const { default: bcrypt } = await import('bcryptjs');
+        const jwt = await import('jsonwebtoken');
+        const { parse, serialize } = await import('cookie');
+        const { default: axios } = await import('axios');
+        const { default: Busboy } = await import('busboy');
+        const { v2: cloudinary } = await import('cloudinary');
+        console.log("Imports successful.");
 
         const { User, Owner, Event, Booking, Discussion, Comment, Waitlist, Contact } = models;
         const JWT_SECRET = process.env.JWT_SECRET || "default_super_secret_for_dev_mode";
@@ -263,8 +267,13 @@ export default async function handler(req, res) {
         return json(404, { message: 'Path not matched in Stable Handler' });
 
     } catch (err) {
-        console.error('[STABLE BOOT CRASH]:', err);
-        return json(500, { status: 'STABLE_BOOT_CRASH', message: 'Initialization failure', error: err.message });
+        console.error('[STABLE BOOT CRASH LOG]:', err);
+        return json(500, { 
+            status: 'STABLE_BOOT_CRASH', 
+            message: 'Initialization failure', 
+            error: err.message, 
+            stack: err.stack 
+        });
     }
 }
 
