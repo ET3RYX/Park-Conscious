@@ -7,9 +7,6 @@ console.log('%c[BUILD_VERSION] v2.0.9-DIAGNOSTIC-FIX', 'color: #10b981; font-wei
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 // Add a request interceptor to add the JWT token to headers
