@@ -6,8 +6,9 @@ import jwt from 'jsonwebtoken';
 import { parse, serialize } from 'cookie';
 import axios from 'axios';
 import crypto from 'crypto';
-import Busboy from 'busboy';
-import { v2 as cloudinary } from 'cloudinary';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 // ─── STABLE ESM API ARCHITECTURE ───────────────────────────────────────────
 // This version uses top-level imports and a robust normalizer to eliminate
@@ -127,15 +128,22 @@ export default async function handler(req, res) {
             // Media Upload Route
             if (url.endsWith('/upload') && method === 'POST') {
                 return new Promise((resolve) => {
-                    const busboy = Busboy({ headers: req.headers });
-                    busboy.on('file', (name, file) => {
-                        const stream = cloudinary.uploader.upload_stream({ folder: 'park-conscious' }, (err, result) => {
-                            if (err) return resolve(json(500, { error: err.message }));
-                            resolve(json(200, { url: result.secure_url }));
+                    try {
+                        const Busboy = require('busboy');
+                        const cloudinary = require('cloudinary').v2;
+                        
+                        const busboy = Busboy({ headers: req.headers });
+                        busboy.on('file', (name, file) => {
+                            const stream = cloudinary.uploader.upload_stream({ folder: 'park-conscious' }, (err, result) => {
+                                if (err) return resolve(json(500, { error: err.message, message: 'Cloudinary transmission failed' }));
+                                resolve(json(200, { url: result.secure_url }));
+                            });
+                            file.pipe(stream);
                         });
-                        file.pipe(stream);
-                    });
-                    req.pipe(busboy);
+                        req.pipe(busboy);
+                    } catch (err) {
+                        return resolve(json(500, { error: err.message, message: 'Media parsing libraries could not be loaded in Vercel. Please use an external image URL.' }));
+                    }
                 });
             }
 
