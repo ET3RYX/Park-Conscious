@@ -6,9 +6,7 @@ import jwt from 'jsonwebtoken';
 import { parse, serialize } from 'cookie';
 import axios from 'axios';
 import crypto from 'crypto';
-import { createRequire } from 'module';
 
-const require = createRequire(import.meta.url);
 
 // ─── STABLE ESM API ARCHITECTURE ───────────────────────────────────────────
 // This version uses top-level imports and a robust normalizer to eliminate
@@ -128,22 +126,7 @@ export default async function handler(req, res) {
             // Media Upload Route
             if (url.endsWith('/upload') && method === 'POST') {
                 return new Promise((resolve) => {
-                    try {
-                        const Busboy = require('busboy');
-                        const cloudinary = require('cloudinary').v2;
-                        
-                        const busboy = Busboy({ headers: req.headers });
-                        busboy.on('file', (name, file) => {
-                            const stream = cloudinary.uploader.upload_stream({ folder: 'park-conscious' }, (err, result) => {
-                                if (err) return resolve(json(500, { error: err.message, message: 'Cloudinary transmission failed' }));
-                                resolve(json(200, { url: result.secure_url }));
-                            });
-                            file.pipe(stream);
-                        });
-                        req.pipe(busboy);
-                    } catch (err) {
-                        return resolve(json(500, { error: err.message, message: 'Media parsing libraries could not be loaded in Vercel. Please use an external image URL.' }));
-                    }
+                    return resolve(json(501, { message: 'Image uploads are temporarily disabled. Please deploy the event without an image for now.' }));
                 });
             }
 
