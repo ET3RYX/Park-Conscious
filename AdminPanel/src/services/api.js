@@ -7,6 +7,9 @@ console.log('%c[BUILD_VERSION] v2.0.9-DIAGNOSTIC-FIX', 'color: #10b981; font-wei
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 // Add a request interceptor to add the JWT token to headers
@@ -35,7 +38,9 @@ export const eventService = {
   create: (eventData) => api.post('/api/events', eventData),
   update: (id, eventData) => api.put(`/api/events/${id}`, eventData),
   delete: (id) => api.delete(`/api/events/${id}`),
-  uploadImage: (formData) => api.post('/api/events/upload', formData),
+  uploadImage: (formData) => api.post('/api/events/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
 };
 
 export const bookingService = {
