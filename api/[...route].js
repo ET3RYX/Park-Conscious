@@ -89,13 +89,16 @@ async function checkPaymentStatus(txnId) {
 
 // ── Cloudinary Config ───────────────────────────────────────────
 if (process.env.CLOUDINARY_URL) {
-    // Auto-configures from URL
-} else {
+    console.log("[SYSTEM] Cloudinary URL detected. Auto-configuring storage engine...");
+} else if (process.env.CLOUDINARY_CLOUD_NAME) {
+    console.log("[SYSTEM] Using manual Cloudinary credentials...");
     cloudinary.config({
         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
         api_key: process.env.CLOUDINARY_API_KEY,
         api_secret: process.env.CLOUDINARY_API_SECRET
     });
+} else {
+    console.warn("[SYSTEM] WARNING: No Cloudinary configuration detected. Image uploads will fail.");
 }
 
 // ── Main Handler ────────────────────────────────────────────────
@@ -190,43 +193,9 @@ export default async function handler(req, res) {
             return json(res, 200, { message: 'Logged out successfully' });
         }
 
-        // ── Events Upload (Image) ─────────────────────────────────
-        if (url.includes('upload') && method === 'POST') {
-             return new Promise((resolve) => {
-                try {
-                    const bb = Busboy({ headers: req.headers });
-                    let fileHandled = false;
-
-                    bb.on('file', (fieldname, file, info) => {
-                        fileHandled = true;
-                        const { filename, encoding, mimeType } = info;
-                        const stream = cloudinary.uploader.upload_stream(
-                            { folder: 'park-conscious-events' },
-                            (error, result) => {
-                                if (error) return json(res, 500, { message: 'Cloudinary error', error: error.message });
-                                json(res, 200, { url: result.secure_url });
-                                resolve();
-                            }
-                        );
-                        file.pipe(stream);
-                    });
-
-                    bb.on('finish', () => {
-                        if (!fileHandled) {
-                            json(res, 400, { message: 'No file uploaded' });
-                            resolve();
-                        }
-                    });
-
-                    req.pipe(bb);
-                } catch (err) {
-                    json(res, 400, { message: 'Form parse error: ' + err.message });
-                    resolve();
-                }
-            });
-        }
-
-        // ── Events Data ───────────────────────────────────────────
+        // (Generic Logout handled above)
+        
+        // ── Events Data & Uploads ─────────────────────────────────
         if (url.includes('/events')) {
             // GET: Fetch events (Filter for public vs admin if needed)
             if (method === 'GET') {
@@ -254,36 +223,40 @@ export default async function handler(req, res) {
                     return json(res, 500, { message: 'Failed to fetch events from database', error: evtErr.message });
                 }
             }
-            // POST: Upload event image
+            // POST: Specialized Cloudinary Image Upload
             if (url.includes('/upload') && method === 'POST') {
                 return new Promise((resolve) => {
+                    if (!process.env.CLOUDINARY_URL && !process.env.CLOUDINARY_CLOUD_NAME) {
+                        return resolve(json(res, 503, { message: 'Storage service not configured on server. Please check environment variables.' }));
+                    }
+                    
                     const bb = Busboy({ headers: req.headers });
                     let fileHandled = false;
             
                     bb.on('file', (fieldname, file) => {
                         fileHandled = true;
-                        const stream = cloudinary.uploader.upload_stream({ folder: 'park-conscious-events' }, (error, result) => {
+                        const stream = cloudinary.uploader.upload_stream({ 
+                            folder: 'park-conscious-events',
+                            resource_type: 'auto' 
+                        }, (error, result) => {
                             if (error) {
-                                console.error('CLOUDINARY_ERR:', error.message);
-                                json(res, 500, { message: 'Cloudinary Transmission Error', error: error.message });
-                                return resolve();
+                                console.error('[UPLOAD] Cloudinary Sync Error:', error.message);
+                                return resolve(json(res, 500, { message: 'Cloudinary transmission failed', error: error.message }));
                             }
-                            json(res, 200, { url: result.secure_url });
-                            resolve();
+                            console.log('[UPLOAD] Success:', result.secure_url);
+                            return resolve(json(res, 200, { url: result.secure_url }));
                         });
                         file.pipe(stream);
                     });
             
                     bb.on('error', (err) => {
-                        console.error('BUSBOY_ERR:', err.message);
-                        json(res, 500, { message: 'Busboy Parsing Error', error: err.message });
-                        resolve();
+                        console.error('[UPLOAD] Busboy Request Error:', err.message);
+                        resolve(json(res, 500, { message: 'Form parsing error', error: err.message }));
                     });
             
                     bb.on('finish', () => { 
                         if (!fileHandled) { 
-                            json(res, 400, { message: 'No file detected in request.' }); 
-                            resolve(); 
+                            resolve(json(res, 400, { message: 'No file detected in upload stream.' })); 
                         } 
                     });
             
