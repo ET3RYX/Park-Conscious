@@ -254,6 +254,15 @@ export default async function handler(req, res) {
             return json(200, { user: { id: owner._id, name: owner.name, email: owner.email } });
         }
 
+        // Owner Session Check (Legacy Bridge)
+        if (url.includes('/owner/check-session') && method === 'GET') {
+            const email = new URLSearchParams(url.split('?')[1]).get('email');
+            if (!email) return json(400, { message: 'Email required' });
+            const owner = await Owner.findOne({ email: email.toLowerCase() });
+            if (!owner) return json(404, { message: 'Owner not found' });
+            return json(200, { user: { id: owner._id, name: owner.name, email: owner.email } });
+        }
+
         // Manage Owner Parkings
         if (url.includes('/owner/') && url.includes('/parkings')) {
             const parts = url.split('/');
@@ -262,11 +271,13 @@ export default async function handler(req, res) {
             if (!ownerId || ownerId === 'parkings') return json(400, { message: 'Invalid owner ID' });
 
             if (method === 'GET') {
-                const parkings = await Parking.find({ owner: ownerId });
+                const filter = mongoose.Types.ObjectId.isValid(ownerId) ? { owner: ownerId } : { owner: null };
+                const parkings = await Parking.find(filter);
                 return json(200, parkings);
             }
             if (method === 'DELETE') {
                 const parkingId = parts[parts.length - 1];
+                if (!mongoose.Types.ObjectId.isValid(parkingId)) return json(400, { message: 'Invalid Parking ID' });
                 const parking = await Parking.findById(parkingId);
                 if (!parking) return json(404, { message: 'Parking not found' });
                 if (parking.owner?.toString() !== ownerId) return json(401, { message: 'Unauthorized' });
@@ -275,8 +286,9 @@ export default async function handler(req, res) {
             }
             if (method === 'POST') {
                 const { Location, Latitude, Longitude, PricePerHour, TotalSlots, Type } = body;
+                const ownerObjectId = mongoose.Types.ObjectId.isValid(ownerId) ? new mongoose.Types.ObjectId(ownerId) : null;
                 const newParking = new Parking({
-                    owner: new mongoose.Types.ObjectId(ownerId),
+                    owner: ownerObjectId,
                     Location,
                     Latitude: parseFloat(Latitude),
                     Longitude: parseFloat(Longitude),
