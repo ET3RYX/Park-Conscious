@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "echo 'Building...' && exit 0"
+    "build": "mkdir -p public && cd Events && npm install && npm run build && cd .. && cd AdminPanel && npm install && npm run build"
   },
   "dependencies": {
     "axios": "^1.14.0",
