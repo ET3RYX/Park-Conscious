@@ -386,7 +386,9 @@ export default async function handler(req, res) {
                             location: eventDetail.location?.name || eventDetail.venue,
                             date: eventDetail.date,
                             image: (eventDetail.images && eventDetail.images[0]) || eventDetail.image
-                        } : null
+                        } : null,
+                        ticketId: b.ticketId,
+                        attended: b.attended
                     };
                 });
                 return json(res, 200, populatedBookings);
@@ -495,9 +497,10 @@ export default async function handler(req, res) {
                     console.log(`[PhonePe] ✅ Payment success: txnId=${txnId}, amount=₹${amt}`);
                     
                     try {
+                        const ticketId = `TKT-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
                         const booking = await Booking.findOneAndUpdate(
                              { transactionId: txnId },
-                             { $set: { status: "Confirmed" } },
+                             { $set: { status: "Confirmed", ticketId: ticketId } },
                              { new: true }
                         );
 
@@ -934,6 +937,97 @@ export default async function handler(req, res) {
         // ── Contact ───────────────────────────────────────────────
         if (url.includes('/contact') && method === 'POST') {
             return json(res, 201, await Contact.create(body));
+        }
+
+        // ── Single Booking Fetch (By Transaction ID) ──────────────
+        if (url.match(/\/api\/booking\/status\/([a-zA-Z0-9_\-]+)/) && method === 'GET') {
+            const txnId = url.match(/\/api\/booking\/status\/([a-zA-Z0-9_\-]+)/)[1];
+            try {
+                const booking = await Booking.findOne({ transactionId: txnId }).lean();
+                if (!booking) return json(res, 404, { message: "Booking not found" });
+                
+                const event = await Event.findById(booking.eventId).lean();
+                return json(res, 200, {
+                    ...booking,
+                    event: event ? {
+                        title: event.title || event.name,
+                        location: event.location?.name || event.venue,
+                        date: event.date,
+                        image: (event.images && event.images[0]) || event.image
+                    } : null
+                });
+            } catch (err) {
+                return json(res, 500, { message: "Error fetching booking status" });
+            }
+        }
+
+        // ── Organizer Dashboard Stats ─────────────────────────────
+        if (url.match(/\/api\/organizer\/stats\/([a-zA-Z0-9_\-]+)/) && method === 'GET') {
+            const organizerId = url.match(/\/api\/organizer\/stats\/([a-zA-Z0-9_\-]+)/)[1];
+            try {
+                // Find all events owned by this organizer
+                const events = await Event.find({ organizerId }).lean();
+                const eventIds = events.map(e => e._id.toString());
+                
+                // Get all confirmed bookings for these events
+                const allBookings = await Booking.find({ 
+                    eventId: { $in: eventIds },
+                    status: "Confirmed"
+                }).lean();
+
+                const stats = events.map(event => {
+                    const eventBookings = allBookings.filter(b => b.eventId === event._id.toString());
+                    const revenue = eventBookings.reduce((sum, b) => sum + (parseFloat(b.amount) || 0), 0);
+                    const attendedCount = eventBookings.filter(b => b.attended).length;
+                    
+                    return {
+                        eventId: event._id,
+                        title: event.title || event.name,
+                        totalTickets: eventBookings.length,
+                        attended: attendedCount,
+                        revenue: revenue,
+                        capacity: event.capacity
+                    };
+                });
+
+                const overall = {
+                    totalRevenue: stats.reduce((sum, s) => sum + s.revenue, 0),
+                    totalSales: stats.reduce((sum, s) => sum + s.totalTickets, 0),
+                    totalAttended: stats.reduce((sum, s) => sum + s.attended, 0),
+                    events: stats
+                };
+
+                return json(res, 200, overall);
+            } catch (err) {
+                return json(res, 500, { message: "Stats engine failure", error: err.message });
+            }
+        }
+
+        // ── QR Ticket Check-in ────────────────────────────────────
+        if (url === '/api/bookings/check-in' && method === 'POST') {
+            const { ticketId } = body;
+            if (!ticketId) return json(res, 400, { message: "Missing Ticket ID" });
+            
+            try {
+                const booking = await Booking.findOneAndUpdate(
+                    { ticketId, status: "Confirmed" },
+                    { $set: { attended: true } },
+                    { new: true }
+                ).lean();
+
+                if (!booking) return json(res, 404, { success: false, message: "Invalid or unconfirmed ticket" });
+                
+                return json(res, 200, { 
+                    success: true, 
+                    message: "Check-in successful", 
+                    booking: {
+                        userId: booking.userId,
+                        date: booking.date
+                    }
+                });
+            } catch (err) {
+                return json(res, 500, { message: "Check-in error" });
+            }
         }
 
         // ── 404 fallback ──────────────────────────────────────────
