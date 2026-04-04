@@ -103,6 +103,92 @@ export default async function handler(req, res) {
             return json(200, evts);
         }
 
+        // Owner Signup
+        if (url.includes('/owner/signup') && method === 'POST') {
+            const { name, email, password } = body;
+            if (await Owner.findOne({ email })) return json(400, { message: 'Owner already exists' });
+            const hashed = await bcrypt.hash(password, 10);
+            const owner = await Owner.create({ name, email, password: hashed });
+            return json(201, { user: { id: owner._id, name: owner.name, email: owner.email } });
+        }
+
+        // Owner Login
+        if (url.includes('/owner/login') && method === 'POST') {
+            const { email, password } = body;
+            const owner = await Owner.findOne({ email });
+            if (!owner || !owner.password) return json(401, { message: 'Invalid credentials' });
+            if (!await bcrypt.compare(password, owner.password)) return json(401, { message: 'Invalid credentials' });
+            return json(200, { user: { id: owner._id, name: owner.name, email: owner.email } });
+        }
+
+        // Manage Owner Parkings
+        if (url.includes('/owner/') && url.includes('/parkings')) {
+            const parts = url.split('/');
+            const ownerIdx = parts.indexOf('owner');
+            const ownerId = parts[ownerIdx + 1];
+            if (!ownerId || ownerId === 'parkings') return json(400, { message: 'Invalid owner ID' });
+
+            if (method === 'GET') {
+                const parkings = await Parking.find({ owner: ownerId });
+                return json(200, parkings);
+            }
+            if (method === 'DELETE') {
+                const parkingId = parts[parts.length - 1];
+                const parking = await Parking.findById(parkingId);
+                if (!parking) return json(404, { message: 'Parking not found' });
+                if (parking.owner?.toString() !== ownerId) return json(401, { message: 'Unauthorized' });
+                await Parking.findByIdAndDelete(parkingId);
+                return json(200, { message: 'Parking removed' });
+            }
+            if (method === 'POST') {
+                const { Location, Latitude, Longitude, PricePerHour, TotalSlots, Type } = body;
+                const newParking = new Parking({
+                    owner: new mongoose.Types.ObjectId(ownerId),
+                    Location,
+                    Latitude: parseFloat(Latitude),
+                    Longitude: parseFloat(Longitude),
+                    PricePerHour: PricePerHour ? parseFloat(PricePerHour) : null,
+                    TotalSlots: TotalSlots ? parseInt(TotalSlots) : null,
+                    Type: Type || "Private Parking",
+                    ID: "OWNER_" + Math.random().toString(36).substring(7).toUpperCase()
+                });
+                await newParking.save();
+                return json(201, { message: "Parking added successfully", parking: newParking });
+            }
+        }
+
+        // QR Ticket Check-in
+        if (url === '/api/bookings/check-in' && method === 'POST') {
+            const { ticketId } = body;
+            if (!ticketId) return json(400, { message: "Missing Ticket ID" });
+            const booking = await Booking.findOneAndUpdate(
+                { ticketId, status: "Confirmed" },
+                { $set: { attended: true } },
+                { new: true }
+            );
+            if (!booking) return json(404, { success: false, message: "Invalid or unconfirmed ticket" });
+            return json(200, { success: true, message: "Check-in successful" });
+        }
+
+        // Organizer Stats
+        if (url.match(/\/api\/organizer\/stats\/([a-zA-Z0-9_\-]+)/) && method === 'GET') {
+            const organizerId = url.match(/\/api\/organizer\/stats\/([a-zA-Z0-9_\-]+)/)[1];
+            const events = await Event.find({ organizerId });
+            const eventIds = events.map(e => e._id.toString());
+            const bookings = await Booking.find({ eventId: { $in: eventIds }, status: "Confirmed" });
+            
+            const stats = events.map(event => {
+                const eventBookings = bookings.filter(b => b.eventId === event._id.toString());
+                return {
+                    eventId: event._id,
+                    title: event.title || event.name,
+                    totalTickets: eventBookings.length,
+                    revenue: eventBookings.reduce((sum, b) => sum + (parseFloat(b.amount) || 0), 0)
+                };
+            });
+            return json(200, { totalRevenue: stats.reduce((s, x) => s + x.revenue, 0), events: stats });
+        }
+
         if (url.includes('/auth/seed-admin') && method === 'GET') {
             const adminEmail = 'admin@parkconscious.com';
             const hashed = await bcrypt.hash('admin1234', 10);
