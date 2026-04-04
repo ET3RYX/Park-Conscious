@@ -30,6 +30,8 @@ export default async function handler(req, res) {
         const jwt = await import('jsonwebtoken');
         const { parse, serialize } = await import('cookie');
         const { default: axios } = await import('axios');
+        const crypto = await import('crypto');
+        const { v4: uuidv4 } = await import('uuid');
         // Note: Busboy and Cloudinary are moved to the upload route to prevent boot-time crashes on malformed ENV.
 
         const User = models.User;
@@ -340,6 +342,88 @@ export default async function handler(req, res) {
                 };
             });
             return json(200, { totalRevenue: stats.reduce((s, x) => s + x.revenue, 0), events: stats });
+        }
+
+        // ─── PhonePe Payment & Booking ───────────────────────────────
+        if (url.includes('/api/pay') && method === 'POST') {
+            const { name, amount, phone, eventId, parkingId } = body;
+            const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || "PGTESTPAYUAT86";
+            const SALT_KEY = process.env.PHONEPE_SALT_KEY || "96434309-7796-489d-8924-ab56988a6076";
+            const SALT_INDEX = process.env.PHONEPE_SALT_INDEX || 1;
+            const ENV_BASE_URL = process.env.PHONEPE_BASE_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
+            
+            const merchantTransactionId = "TXN_" + uuidv4().replace(/-/g, "").slice(0, 16).toUpperCase();
+            const amountInPaise = parseInt(amount) * 100;
+            const host = req.headers.host || "events.parkconscious.in";
+            const protocol = host.includes('localhost') ? 'http' : 'https';
+            const APP_URL = `${protocol}://${host}`;
+
+            const payload = {
+                merchantId: MERCHANT_ID,
+                merchantTransactionId,
+                merchantUserId: "USER_" + (phone || "GUEST"),
+                amount: amountInPaise,
+                redirectUrl: `${APP_URL}/api/payment-callback?txnId=${merchantTransactionId}`,
+                redirectMode: "REDIRECT",
+                callbackUrl: `${APP_URL}/api/payment-callback`,
+                mobileNumber: phone,
+                paymentInstrument: { type: "PAY_PAGE" }
+            };
+
+            const base64Payload = Buffer.from(JSON.stringify(payload)).toString("base64");
+            const hashInput = base64Payload + "/pg/v1/pay" + SALT_KEY;
+            const checksum = crypto.createHash("sha256").update(hashInput).digest("hex") + "###" + SALT_INDEX;
+
+            // Create Pending Booking
+            await Booking.create({
+                transactionId: merchantTransactionId,
+                eventId, parkingId: parkingId || "EVENT_TICKET",
+                userId: name, amount, status: "Initiated", date: new Date()
+            });
+
+            const response = await axios.post(`${ENV_BASE_URL}/pg/v1/pay`, { request: base64Payload }, {
+                headers: { "Content-Type": "application/json", "X-VERIFY": checksum, "X-MERCHANT-ID": MERCHANT_ID, "accept": "application/json" }
+            });
+
+            const { success, data } = response.data;
+            if (success && data?.instrumentResponse?.redirectInfo?.url) {
+                return json(200, { success: true, redirectUrl: data.instrumentResponse.redirectInfo.url, transactionId: merchantTransactionId });
+            }
+            return json(500, { success: false, message: "Failed to initiate payment" });
+        }
+
+        if (url.includes('/api/payment-callback')) {
+            const txnId = new URLSearchParams(url.split('?')[1]).get('txnId') || body.merchantTransactionId;
+            const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || "PGTESTPAYUAT86";
+            const SALT_KEY = process.env.PHONEPE_SALT_KEY || "96434309-7796-489d-8924-ab56988a6076";
+            const SALT_INDEX = process.env.PHONEPE_SALT_INDEX || 1;
+            const ENV_BASE_URL = process.env.PHONEPE_BASE_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
+
+            const endpoint = `/pg/v1/status/${MERCHANT_ID}/${txnId}`;
+            const checksum = crypto.createHash("sha256").update(endpoint + SALT_KEY).digest("hex") + "###" + SALT_INDEX;
+
+            const response = await axios.get(`${ENV_BASE_URL}${endpoint}`, {
+                headers: { "Content-Type": "application/json", "X-VERIFY": checksum, "X-MERCHANT-ID": MERCHANT_ID, "accept": "application/json" }
+            });
+
+            const { success, code, data } = response.data;
+            const isSuccess = success && (data?.state === "COMPLETED" || code === "PAYMENT_SUCCESS");
+            const host = req.headers.host || "events.parkconscious.in";
+            const protocol = host.includes('localhost') ? 'http' : 'https';
+            const BASE_URL = `${protocol}://${host}`;
+
+            if (isSuccess) {
+                await Booking.findOneAndUpdate(
+                    { transactionId: txnId },
+                    { $set: { status: "Confirmed", ticketId: "TK-" + uuidv4().slice(0, 8).toUpperCase() } }
+                );
+                res.setHeader('Location', `${BASE_URL}/success?txnId=${txnId}`);
+            } else {
+                res.setHeader('Location', `${BASE_URL}/failure?txnId=${txnId}`);
+            }
+            res.statusCode = 302;
+            res.end();
+            return;
         }
 
         if (url.includes('/auth/seed-admin') && method === 'GET') {
