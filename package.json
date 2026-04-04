@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "cd Events && npm install --include=dev && npm run build && cd ..",
-    "install": "cd Events && npm install && cd ..",
+    "build": "cd Events && npm install && npm run build && cd .. && cd AdminPanel && npm install && npm run build && cd ..",
+    "install": "npm install --prefix Events && npm install --prefix AdminPanel",
     "dev": "npm run dev --prefix Events"
   },
   "dependencies": {
