@@ -1,31 +1,24 @@
 {
   "version": 2,
-  "outputDirectory": ".",
-  "cleanUrls": true,
-  "headers": [
-    {
-      "source": "/api/parking/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "s-maxage=60, stale-while-revalidate=3600" }
-      ]
-    },
+  "rewrites": [
     {
       "source": "/api/engine/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
-      ]
+      "destination": "/api/engine/$1"
     },
     {
-      "source": "/(.*)",
-      "headers": [
+      "source": "/api/(.*)",
+      "destination": "/api/[...route].js"
+    },
+    {
+      "source": "/admin/events/(.*)",
+      "has": [
         {
-          "key": "Cross-Origin-Opener-Policy",
-          "value": "same-origin-allow-popups"
+          "type": "host",
+          "value": "admin.events.parkconscious.in"
         }
-      ]
-    }
-  ],
-  "rewrites": [
+      ],
+      "destination": "/AdminPanel/dist/$1"
+    },
     {
       "source": "/(.*)",
       "has": [
@@ -45,19 +38,17 @@
         }
       ],
       "destination": "/AdminPanel/dist/$1"
-    },
-    {
-      "source": "/api/engine/(.*)",
-      "destination": "/api/engine/$1"
-    },
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/[...route]"
     }
   ],
-  "functions": {
-    "api/[...route].js": {
-      "maxDuration": 10
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        }
+      ]
     }
-  }
+  ]
 }
