@@ -6,37 +6,18 @@
       "destination": "/api/engine/$1"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "/api/[...route].js"
-    },
-    {
       "source": "/admin/events/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "admin.events.parkconscious.in"
-        }
-      ],
+      "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
       "destination": "/AdminPanel/dist/$1"
     },
     {
       "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "events.parkconscious.in"
-        }
-      ],
+      "has": [{ "type": "host", "value": "events.parkconscious.in" }],
       "destination": "/Events/dist/$1"
     },
     {
       "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "admin.events.parkconscious.in"
-        }
-      ],
+      "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
       "destination": "/AdminPanel/dist/$1"
     }
   ],
@@ -44,10 +25,7 @@
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "Cross-Origin-Opener-Policy",
-          "value": "same-origin-allow-popups"
-        }
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" }
       ]
     }
   ]
