@@ -6,6 +6,8 @@ import jwt from 'jsonwebtoken';
 import { parse, serialize } from 'cookie';
 import axios from 'axios';
 import crypto from 'crypto';
+import Busboy from 'busboy';
+import { v2 as cloudinary } from 'cloudinary';
 
 // ─── STABLE ESM API ARCHITECTURE ───────────────────────────────────────────
 // This version uses top-level imports and a robust normalizer to eliminate
@@ -124,8 +126,6 @@ export default async function handler(req, res) {
 
             // Media Upload Route
             if (url.endsWith('/upload') && method === 'POST') {
-                const { default: Busboy } = await import('busboy');
-                const { v2: cloudinary } = await import('cloudinary');
                 return new Promise((resolve) => {
                     const busboy = Busboy({ headers: req.headers });
                     busboy.on('file', (name, file) => {
@@ -222,6 +222,10 @@ export default async function handler(req, res) {
                     const evt = await Event.findById(b.eventId).lean();
                     if (evt) b.event = normalizeEvent(evt);
                 }
+                b.user = { 
+                    name: b.userId || 'Unknown', 
+                    email: b.phone || 'N/A' 
+                };
             }
             
             return json(200, bookings);
