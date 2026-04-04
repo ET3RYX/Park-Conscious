@@ -41,4 +41,9 @@ export const eventService = {
   uploadImage: (formData) => api.post('/api/events/upload', formData),
 };
 
+export const bookingService = {
+  getAllAttendees: () => api.get('/api/admin/bookings/all'),
+  checkIn: (ticketId) => api.post('/api/bookings/check-in', { ticketId }),
+};
+
 export default api;

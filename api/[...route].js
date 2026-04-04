@@ -1003,6 +1003,33 @@ export default async function handler(req, res) {
             }
         }
 
+        // ── Admin: All Attendees ──────────────────────────────────────────
+        if (url === '/api/admin/bookings/all' && method === 'GET') {
+            try {
+                const bookings = await Booking.find({ status: "Confirmed" }).sort({ createdAt: -1 }).lean();
+                const userIds = [...new Set(bookings.map(b => b.userId).filter(Boolean))];
+                const eventIds = [...new Set(bookings.map(b => b.eventId).filter(Boolean))];
+
+                const users = await User.find({ _id: { $in: userIds } }).lean();
+                const events = await Event.find({ _id: { $in: eventIds } }).lean();
+
+                const populated = bookings.map(b => {
+                    const user = users.find(u => u._id.toString() === b.userId);
+                    const event = events.find(e => e._id.toString() === b.eventId);
+                    return {
+                        ...b,
+                        user: user ? { name: user.name, email: user.email, picture: user.picture } : null,
+                        event: event ? { title: event.title || event.name, date: event.date } : null
+                    };
+                });
+
+                return json(res, 200, populated);
+            } catch (err) {
+                console.error("[API] Admin Bookings Error:", err);
+                return json(res, 500, { message: "Failed to fetch all bookings", error: err.message });
+            }
+        }
+
         // ── QR Ticket Check-in ────────────────────────────────────
         if (url === '/api/bookings/check-in' && method === 'POST') {
             const { ticketId } = body;
