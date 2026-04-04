@@ -23,6 +23,16 @@
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
       "destination": "/AdminPanel/dist/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "parkconscious.in" }],
+      "destination": "/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.parkconscious.in" }],
+      "destination": "/$1"
     }
   ],
   "headers": [
