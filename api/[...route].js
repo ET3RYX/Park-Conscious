@@ -31,7 +31,6 @@ export default async function handler(req, res) {
         const { parse, serialize } = await import('cookie');
         const { default: axios } = await import('axios');
         const crypto = await import('crypto');
-        const { v4: uuidv4 } = await import('uuid');
         // Note: Busboy and Cloudinary are moved to the upload route to prevent boot-time crashes on malformed ENV.
 
         const User = models.User;
@@ -352,7 +351,7 @@ export default async function handler(req, res) {
             const SALT_INDEX = process.env.PHONEPE_SALT_INDEX || 1;
             const ENV_BASE_URL = process.env.PHONEPE_BASE_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
             
-            const merchantTransactionId = "TXN_" + uuidv4().replace(/-/g, "").slice(0, 16).toUpperCase();
+            const merchantTransactionId = "TXN_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase();
             const amountInPaise = parseInt(amount) * 100;
             const host = req.headers.host || "events.parkconscious.in";
             const protocol = host.includes('localhost') ? 'http' : 'https';
@@ -415,7 +414,7 @@ export default async function handler(req, res) {
             if (isSuccess) {
                 await Booking.findOneAndUpdate(
                     { transactionId: txnId },
-                    { $set: { status: "Confirmed", ticketId: "TK-" + uuidv4().slice(0, 8).toUpperCase() } }
+                    { $set: { status: "Confirmed", ticketId: "TK-" + crypto.randomUUID().slice(0, 8).toUpperCase() } }
                 );
                 res.setHeader('Location', `${BASE_URL}/success?txnId=${txnId}`);
             } else {
