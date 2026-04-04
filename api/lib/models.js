@@ -40,6 +40,8 @@ const eventSchema = new mongoose.Schema(
     images: [String],
     category: String,
     price: { type: Number, default: 0 },
+    regularPrice: { type: Number, default: 0 },
+    vipPrice: { type: Number, default: 0 },
     capacity: { type: Number, default: 0 },
     status: { type: String, default: 'draft', enum: ['draft', 'published', 'cancelled'] },
     organizerId: { type: String, default: null }, // UID of the event owner

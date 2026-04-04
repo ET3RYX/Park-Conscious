@@ -362,6 +362,35 @@ export default async function handler(req, res) {
             }
         }
 
+        // ── Ticket Prices ─────────────────────────────────────────
+        if (url.includes('/api/tickets')) {
+            if (method === 'GET') {
+                const params = new URLSearchParams(url.split('?')[1] || "");
+                const eventId = params.get('eventId');
+                
+                try {
+                    let event = null;
+                    if (eventId === 'farewell_2024') {
+                        event = await Event.findOne({ title: { $regex: /Afsana|Farewell/i } });
+                    } else if (eventId && eventId.length > 20) {
+                        event = await Event.findById(eventId);
+                    }
+                    
+                    if (!event) return json(res, 200, { success: true, event: { regularPrice: 1499, vipPrice: 2999 } });
+                    
+                    return json(res, 200, { 
+                        success: true, 
+                        event: {
+                            regularPrice: event.regularPrice || event.price || 1499,
+                            vipPrice: event.vipPrice || (event.price ? event.price * 2 : 2999)
+                        } 
+                    });
+                } catch (err) {
+                    return json(res, 200, { success: true, event: { regularPrice: 1499, vipPrice: 2999 } });
+                }
+            }
+        }
+
         // ── User Bookings Fetching ────────────────────────────────
         if (url.match(/\/api\/bookings\/([a-zA-Z0-9_\-]+)/) && method === 'GET') {
             const userId = url.match(/\/api\/bookings\/([a-zA-Z0-9_\-]+)/)[1];
@@ -499,7 +528,7 @@ export default async function handler(req, res) {
                     try {
                         const ticketId = `TKT-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
                         const booking = await Booking.findOneAndUpdate(
-                             { transactionId: txnId },
+                             { transactionId: txnId, status: { $ne: "Confirmed" } },
                              { $set: { status: "Confirmed", ticketId: ticketId } },
                              { new: true }
                         );
