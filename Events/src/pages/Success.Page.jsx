@@ -1,12 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle, ArrowRight, Download, IndianRupee } from "lucide-react";
+import { CheckCircle, ArrowRight, Download, IndianRupee, Loader2 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import axios from "axios";
 import DefaultlayoutHoc from "../layout/Default.layout";
 
 const SuccessPage = () => {
   const [searchParams] = useSearchParams();
-  const txnId  = searchParams.get("txnId")  || "TXN_PROCESSED";
+  const txnId  = searchParams.get("txnId");
   const amount = searchParams.get("amount") || null;
+  const [booking, setBooking] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBooking = async () => {
+      if (!txnId) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await axios.get(`/api/booking/status/${txnId}`);
+        if (res.data) setBooking(res.data);
+      } catch (err) {
+        console.error("Error fetching booking details:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBooking();
+  }, [txnId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center bg-[#040b17]">
+        <Loader2 className="text-sky-500 animate-spin" size={40} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-[#040b17] py-20 px-8">
@@ -20,20 +50,42 @@ const SuccessPage = () => {
 
         <div className="space-y-4">
           <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter">Ticket Confirmed!</h1>
-          <p className="text-slate-400 font-medium">Your payment was successful. Save your transaction ID for reference.</p>
+          <p className="text-slate-400 font-medium">Your payment was successful. Show this QR code at the entrance.</p>
         </div>
 
         {/* Ticket Details Card */}
-        <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 md:p-12 text-left space-y-8 backdrop-blur-xl">
-          <div className="flex justify-between items-start border-b border-white/5 pb-6">
-            <div>
-              <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Transaction ID</p>
-              <code className="text-sky-500 font-mono text-sm break-all">{txnId}</code>
+        <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 md:p-12 text-left space-y-8 backdrop-blur-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 blur-3xl -z-10 rounded-full"></div>
+          
+          <div className="flex flex-col md:flex-row gap-8 items-center md:items-start justify-between border-b border-white/5 pb-8">
+            <div className="space-y-6 flex-1">
+              <div>
+                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Transaction ID</p>
+                <code className="text-sky-500 font-mono text-sm break-all">{txnId || "N/A"}</code>
+              </div>
+              <div>
+                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Status</p>
+                <span className="text-emerald-500 text-xs font-black uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/10">Verified ✓</span>
+              </div>
+              {booking?.ticketId && (
+                <div>
+                   <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Ticket ID</p>
+                   <p className="text-white font-black text-lg tracking-wider">{booking.ticketId}</p>
+                </div>
+              )}
             </div>
-            <div className="text-right shrink-0 ml-4">
-              <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Status</p>
-              <span className="text-emerald-500 text-xs font-black uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/10">Verified ✓</span>
-            </div>
+
+            {/* QR Code Section */}
+            {booking?.ticketId && (
+              <div className="bg-white p-4 rounded-3xl shadow-2xl shadow-sky-500/20 border-4 border-sky-500/20 group hover:scale-105 transition-transform duration-500">
+                <QRCodeSVG 
+                  value={booking.ticketId} 
+                  size={128} 
+                  level="H"
+                  includeMargin={false}
+                />
+              </div>
+            )}
           </div>
 
           {amount && (
@@ -51,7 +103,7 @@ const SuccessPage = () => {
               onClick={() => window.print()}
               className="w-full bg-white text-black py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-sky-500 hover:text-white transition-all flex items-center justify-center gap-3 shadow-xl shadow-white/5"
             >
-              <Download size={16} /> Save / Print Confirmation
+              <Download size={16} /> Save / Print Ticket
             </button>
           </div>
         </div>
