@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle, ArrowRight, Download, IndianRupee, Loader2 } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
-import axios from "axios";
+import { backendAxios } from "../axios";
 import DefaultlayoutHoc from "../layout/Default.layout";
 
 const SuccessPage = () => {
@@ -19,7 +18,7 @@ const SuccessPage = () => {
         return;
       }
       try {
-        const res = await axios.get(`/api/booking/status/${txnId}`);
+        const res = await backendAxios.get(`/api/booking/status/${txnId}`);
         if (res.data) setBooking(res.data);
       } catch (err) {
         console.error("Error fetching booking details:", err);
@@ -75,14 +74,15 @@ const SuccessPage = () => {
               )}
             </div>
 
-            {/* QR Code Section */}
+            {/* QR Code Section - uses free QR API, no package needed */}
             {booking?.ticketId && (
-              <div className="bg-white p-4 rounded-3xl shadow-2xl shadow-sky-500/20 border-4 border-sky-500/20 group hover:scale-105 transition-transform duration-500">
-                <QRCodeSVG 
-                  value={booking.ticketId} 
-                  size={128} 
-                  level="H"
-                  includeMargin={false}
+              <div className="bg-white p-3 rounded-2xl shadow-2xl shadow-sky-500/20 border-4 border-sky-500/20 hover:scale-105 transition-transform duration-500">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(booking.ticketId)}&ecc=H&margin=0`}
+                  alt={`QR Code for ${booking.ticketId}`}
+                  width={160}
+                  height={160}
+                  className="rounded-lg"
                 />
               </div>
             )}

@@ -13,7 +13,7 @@ import EventPage from "./pages/Event.Page";
 import SuccessPage from "./pages/Success.Page";
 import FailurePage from "./pages/Failure.Page";
 import MyBookingsPage from "./pages/MyBookings.Page";
-import OrganizerDashboardPage from "./pages/OrganizerDashboard.Page";
+import AdminPage from "./pages/Admin.Page";
 
 function App() {
   return (
@@ -28,7 +28,7 @@ function App() {
       <Route path="/event/:id" element={<EventPage />} />
       <Route path="/payment-success" element={<SuccessPage />} />
       <Route path="/payment-failure" element={<FailurePage />} />
-      <Route path="/organizer-dashboard" element={<OrganizerDashboardPage />} />
+      <Route path="/admin" element={<AdminPage />} />
       <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
