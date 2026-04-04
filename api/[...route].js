@@ -78,12 +78,14 @@ export default async function handler(req, res) {
         await connectDB();
 
         // 5. Routes
+        console.log(`[API] Path: ${method} ${url}`);
+
         if (url.includes('/api/health') || url === '/api' || url === '/api/') {
             return json(200, { status: 'ONLINE', db: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected' });
         }
 
         // Discussions
-        if (url.includes('/discussions')) {
+        if (url.includes('/discussions') || url.includes('/discussions/')) {
             if (method === 'GET') {
                 const id = new URLSearchParams(url.split('?')[1]).get('id');
                 if (id) {
