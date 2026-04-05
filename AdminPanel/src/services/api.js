@@ -15,10 +15,14 @@ const api = axios.create({
 // Add a request interceptor to add the JWT token to headers
 api.interceptors.request.use(
   (config) => {
-    const adminUser = localStorage.getItem('adminUser');
-    if (adminUser) {
-      const { token } = JSON.parse(adminUser);
-      config.headers.Authorization = `Bearer ${token}`;
+    try {
+      const adminSession = localStorage.getItem('adminUser');
+      if (adminSession) {
+        const { token } = JSON.parse(adminSession);
+        if (token) config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch(e) {
+      console.error('[AXIOS INTERCEPTOR ERROR]:', e);
     }
     return config;
   },

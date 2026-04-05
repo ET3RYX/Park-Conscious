@@ -18,7 +18,15 @@ export default async function handler(req, res) {
     try {
         // -- Admin Attendees Management --
         if (url.includes('bookings/all') && method === 'GET') {
-            if (!user || user.role !== 'admin') return json(res, 401, { message: 'Admin Auth required' });
+            const user = verifyUser(req);
+            if (!user) {
+                console.error('[ADMIN AUTH FAIL]: No valid token/user found in request');
+                return json(res, 401, { message: 'Authentication required. Please log in again.' });
+            }
+            if (user.role !== 'admin') {
+                console.error(`[ADMIN ROLE FAIL]: User ${user.email} attempted admin access with role ${user.role}`);
+                return json(res, 403, { message: 'Access Denied: Admin role required' });
+            }
             
             const bookings = await Booking.find().sort({ createdAt: -1 }).lean();
             console.log(`[ADMIN API] Bookings fetched: ${bookings.length}`);

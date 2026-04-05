@@ -14,9 +14,9 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = (adminData) => {
-    setAdmin(adminData);
-    localStorage.setItem('adminUser', JSON.stringify(adminData));
+  const login = (sessionData) => {
+    setAdmin(sessionData.user);
+    localStorage.setItem('adminUser', JSON.stringify(sessionData));
   };
 
   const logout = () => {

@@ -18,7 +18,7 @@ const Login = () => {
     setError('');
     try {
       const { data } = await authService.login(username, password);
-      login(data.user);
+      login(data); // data contains { user, token }
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Authentication failed. Please check your credentials.');
