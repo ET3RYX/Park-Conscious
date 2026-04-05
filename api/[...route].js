@@ -170,8 +170,42 @@ export default async function handler(req, res) {
             if (!u || !await bcrypt.compare(password, u.password)) return json(401, { message: 'Invalid credentials' });
             
             const payload = { id: u._id, name: u.name, email: u.email, role: isOwner ? 'admin' : 'user' };
-            const token = issueCookie(payload);
-            return json(200, { user: payload, token });
+            issueCookie(payload);
+            return json(200, { user: payload });
+        }
+
+        if (url.includes('/auth/logout') && method === 'POST') {
+            const host = req.headers.host || '';
+            const domain = host.includes('parkconscious.in') ? '.parkconscious.in' : undefined;
+            res.setHeader('Set-Cookie', serialize('token', '', {
+                httpOnly: true, secure: true, sameSite: 'lax', domain, maxAge: -1, path: '/'
+            }));
+            return json(200, { message: 'Logged out successfully' });
+        }
+
+        if (url.includes('/auth/google') && method === 'POST') {
+            const { email, name, googleId } = body;
+            if (!email) return json(400, { message: 'Email required for Google Auth' });
+            
+            const search = email.toLowerCase();
+            let u = await User.findOne({ email: search });
+            let isOwner = false;
+            
+            if (!u) { 
+                u = await Owner.findOne({ email: search }); 
+                isOwner = !!u; 
+            }
+            
+            if (!u) {
+                u = await User.create({ name, email: search, googleId });
+            } else if (!u.googleId) {
+                u.googleId = googleId;
+                await u.save();
+            }
+
+            const payload = { id: u._id, name: u.name, email: u.email, role: isOwner ? 'admin' : 'user' };
+            issueCookie(payload);
+            return json(200, { user: payload, message: 'Logged in with Google' });
         }
 
         if (url.includes('/auth/me') && method === 'GET') {
