@@ -58,6 +58,7 @@ const TEDxGGSIPUTicketsPage = () => {
         email, 
         amount: 0, // Ticket is FREE
         phone,
+        userId: user ? (user.uid || user.id) : name,
         eventId: "tedx_ggsipu_2026",
         screenshotUrl
       });
