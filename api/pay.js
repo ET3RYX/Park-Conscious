@@ -35,11 +35,35 @@ export default async function handler(req, res) {
             // Ensure redirected traffic stays on the correct domain
             const redirectBase = host.includes('localhost') ? `http://${host}` : `https://events.parkconscious.in`;
 
+            const numericAmount = Math.round(parseFloat(amount) * 100);
+
+            // Handle FREE tickets (amount = 0) instantly bypassing PhonePe
+            if (numericAmount === 0 || !amount) {
+                const ticketId = "TK-" + crypto.randomUUID().slice(0, 8).toUpperCase();
+                await Booking.create({ 
+                    transactionId: txId, 
+                    eventId: targetEventId, 
+                    userId: targetUserId, 
+                    amount: "0", 
+                    screenshotUrl: screenshotUrl || null,
+                    status: "Confirmed",
+                    phone: phone,
+                    email: body.email || null,
+                    ticketId: ticketId
+                });
+
+                if (targetEventId && targetEventId.length === 24) {
+                    await models.Event.findByIdAndUpdate(targetEventId, { $inc: { capacity: -1 } });
+                }
+
+                return json(res, 200, { success: true, redirectUrl: `${redirectBase}/payment-success?txnId=${txId}` });
+            }
+
             const payload = {
                 merchantId: MERCHANT_ID,
                 merchantTransactionId: txId,
                 merchantUserId: "USER_" + (phone || "GUEST"),
-                amount: Math.round(parseFloat(amount) * 100),
+                amount: numericAmount,
                 redirectUrl: `${redirectBase}/payment-success?txnId=${txId}`,
                 redirectMode: "REDIRECT",
                 callbackUrl: `${redirectBase}/api/payment-callback`,
