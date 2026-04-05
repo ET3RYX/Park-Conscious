@@ -1,0 +1,85 @@
+import connectDB from './lib/mongodb.js';
+import * as models from './lib/models.js';
+import bcrypt from 'bcryptjs';
+import { serialize } from 'cookie';
+import { json, setCors, getBody, verifyUser, issueCookie } from './lib/utils.js';
+
+const { User, Owner } = models;
+
+export default async function handler(req, res) {
+    setCors(req, res);
+    if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
+
+    await connectDB();
+    const url = req.url || '';
+    const method = req.method || 'GET';
+    const body = await getBody(req);
+
+    try {
+        if (url.includes('/login') && method === 'POST') {
+            const { email, password } = body;
+            const search = (email || '').toLowerCase();
+            let u = await User.findOne({ email: search });
+            let isOwner = false;
+            if (!u) { u = await Owner.findOne({ email: search }); isOwner = !!u; }
+            if (!u || !await bcrypt.compare(password, u.password)) return json(res, 401, { message: 'Invalid credentials' });
+            
+            const payload = { id: u._id, name: u.name, email: u.email, role: isOwner ? 'admin' : 'user' };
+            issueCookie(req, res, payload);
+            return json(res, 200, { user: payload });
+        }
+
+        if (url.includes('/logout') && method === 'POST') {
+            const host = req.headers.host || '';
+            const domain = host.includes('parkconscious.in') ? '.parkconscious.in' : undefined;
+            res.setHeader('Set-Cookie', serialize('token', '', {
+                httpOnly: true, secure: true, sameSite: 'lax', domain, maxAge: -1, path: '/'
+            }));
+            return json(res, 200, { message: 'Logged out successfully' });
+        }
+
+        if (url.includes('/google') && method === 'POST') {
+            const { email, name, googleId } = body;
+            if (!email) return json(res, 400, { message: 'Email required for Google Auth' });
+            
+            const search = email.toLowerCase();
+            let u = await User.findOne({ email: search });
+            let isOwner = false;
+            
+            if (!u) { 
+                u = await Owner.findOne({ email: search }); 
+                isOwner = !!u; 
+            }
+            
+            if (!u) {
+                u = await User.create({ name, email: search, googleId });
+            } else if (!u.googleId) {
+                u.googleId = googleId;
+                await u.save();
+            }
+
+            const payload = { id: u._id, name: u.name, email: u.email, role: isOwner ? 'admin' : 'user' };
+            issueCookie(req, res, payload);
+            return json(res, 200, { user: payload, message: 'Logged in with Google' });
+        }
+
+        if (url.includes('/me') && method === 'GET') {
+            const decoded = verifyUser(req);
+            if (!decoded) return json(res, 401, { authenticated: false });
+            return json(res, 200, { authenticated: true, user: decoded });
+        }
+
+        // Legacy owner check
+        if (url.includes('/owner/check-session')) {
+            const email = new URLSearchParams(url.split('?')[1]).get('email');
+            const owner = await Owner.findOne({ email: email?.toLowerCase() });
+            if (!owner) return json(res, 404, { message: 'NotFound' });
+            return json(res, 200, { user: { id: owner._id, name: owner.name, email: owner.email } });
+        }
+
+        return json(res, 404, { message: 'Auth endpoint not matched' });
+    } catch (err) {
+        console.error('[AUTH ERROR]:', err);
+        return json(res, 500, { message: 'Internal Server Error', error: err.message });
+    }
+}

@@ -1,50 +1,57 @@
 {
   "version": 2,
   "rewrites": [
-    {
-      "source": "/api/engine/(.*)",
-      "destination": "/api/engine/$1"
-    },
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/[...route].js"
-    },
+    { "source": "/api/auth/(.*)", "destination": "/api/auth.js" },
+    { "source": "/api/events/(.*)", "destination": "/api/events.js" },
+    { "source": "/api/pay", "destination": "/api/pay.js" },
+    { "source": "/api/payment-callback", "destination": "/api/pay.js" },
+    { "source": "/api/admin/(.*)", "destination": "/api/admin.js" },
+    { "source": "/api/discussions/(.*)", "destination": "/api/events.js" },
+    { "source": "/api/owner/check-session", "destination": "/api/auth.js" },
+    { "source": "/api/owner/(.*)", "destination": "/api/admin.js" },
+    { "source": "/api/health", "destination": "/api/events.js" },
+    
     {
       "source": "/admin/events/(.*)",
       "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
       "destination": "/AdminPanel/dist/$1"
     },
     {
-      "source": "/(.*)",
+      "source": "/booking-confirmed",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
-      "destination": "/Events/dist/$1"
+      "destination": "/Events/dist/index.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/payment-(.*)",
+      "has": [{ "type": "host", "value": "events.parkconscious.in" }],
+      "destination": "/Events/dist/index.html"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "has": [{ "type": "host", "value": "events.parkconscious.in" }],
+      "destination": "/Events/dist/index.html"
+    },
+    {
+      "source": "/((?!api/).*)",
       "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
-      "destination": "/AdminPanel/dist/$1"
+      "destination": "/AdminPanel/dist/index.html"
     },
     {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "parkconscious.in" }],
       "destination": "/$1"
-    },
-    {
-      "source": "/(.*)",
-      "has": [{ "type": "host", "value": "www.parkconscious.in" }],
-      "destination": "/$1"
     }
   ],
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/((?!api/).*)",
       "headers": [
         { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" }
       ]
     }
   ],
   "functions": {
-    "api/[...route].js": {
+    "api/*.js": {
       "maxDuration": 15
     }
   }
