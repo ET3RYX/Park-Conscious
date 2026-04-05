@@ -133,12 +133,28 @@ export default async function handler(req, res) {
             return json(res, 200, { success: isSuccess });
         }
 
-        // -- Booking Status Endpoint (RESTORED for QR code) --
-        if (url.includes('booking/status/') && method === 'GET') {
-            const txId = url.split('/').pop().split('?')[0];
-            const booking = await Booking.findOne({ transactionId: txId }).lean();
-            if (!booking) return json(res, 404, { message: 'Booking Not Found' });
-            return json(res, 200, booking);
+        // -- User's Personal Bookings (RESTORED for 'My Tickets' page) --
+        if (url.includes('bookings/') && !url.includes('status/') && method === 'GET') {
+            const userId = url.split('/').pop().split('?')[0];
+            if (!userId) return json(res, 400, { message: 'User ID missing' });
+            
+            const bookings = await Booking.find({ 
+                userId, 
+                status: "Confirmed" 
+            }).sort({ createdAt: -1 }).lean();
+
+            // Enrich with Event Details
+            for (let b of bookings) {
+                if (b.eventId && b.eventId.length === 24) {
+                    const evt = await models.Event.findById(b.eventId).lean();
+                    if (evt) {
+                        const { normalizeEvent } = await import('./lib/utils.js');
+                        b.event = normalizeEvent(evt);
+                    }
+                }
+            }
+
+            return json(res, 200, bookings);
         }
 
         return json(res, 404, { message: 'Payment endpoint not matched' });

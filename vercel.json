@@ -11,6 +11,7 @@
     { "source": "/api/owner/(.*)", "destination": "/api/admin.js" },
     { "source": "/api/health", "destination": "/api/events.js" },
     { "source": "/api/booking/status/(.*)", "destination": "/api/pay.js" },
+    { "source": "/api/bookings/(.*)", "destination": "/api/pay.js" },
     
     {
       "source": "/admin/events/(.*)",
