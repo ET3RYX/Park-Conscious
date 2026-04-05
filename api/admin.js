@@ -24,34 +24,46 @@ export default async function handler(req, res) {
             if (!user) return json(res, 401, { message: 'Authentication required. Please log in again.' });
             if (user.role !== 'admin') return json(res, 403, { message: 'Access Denied: Admin role required' });
             
-            const bookings = await Booking.find().sort({ createdAt: -1 }).lean();
+            const bookings = await Booking.find().sort({ createdAt: -1 }).limit(200).lean();
             console.log(`[ADMIN API] Bookings fetched: ${bookings.length}`);
             
+            // Gather unique IDs to fetch in bulk
+            const eventIds = new Set();
+            const userOwnerIds = new Set();
             for (let b of bookings) {
-                try {
-                    const eid = String(b.eventId || '');
-                    if (eid && eid.length === 24 && /^[a-f0-9]+$/i.test(eid)) {
-                        const evt = await Event.findById(eid).lean();
-                        if (evt) b.event = normalizeEvent(evt);
-                    }
-                    
-                    let resolvedName = String(b.userId || 'Guest');
-                    if (resolvedName.length === 24 && /^[a-f0-9]+$/i.test(resolvedName)) {
-                        const u = await User.findById(resolvedName).lean();
-                        if (u && u.name) resolvedName = u.name;
-                        else {
-                            const o = await Owner.findById(resolvedName).lean();
-                            if (o && o.name) resolvedName = o.name;
-                        }
-                    }
+                const eid = String(b.eventId || '');
+                if (eid && eid.length === 24 && /^[a-f0-9]+$/i.test(eid)) eventIds.add(eid);
+                const uid = String(b.userId || '');
+                if (uid && uid.length === 24 && /^[a-f0-9]+$/i.test(uid)) userOwnerIds.add(uid);
+            }
+            
+            // Fetch everything in parallel
+            const [eventsList, usersList, ownersList] = await Promise.all([
+               Event.find({ _id: { $in: Array.from(eventIds) } }).lean(),
+               User.find({ _id: { $in: Array.from(userOwnerIds) } }).lean(),
+               Owner.find({ _id: { $in: Array.from(userOwnerIds) } }).lean()
+            ]);
+            
+            // Build fast lookup maps
+            const eventMap = {};
+            eventsList.forEach(e => eventMap[String(e._id)] = normalizeEvent(e));
+            
+            const userMap = {};
+            usersList.forEach(u => userMap[String(u._id)] = u.name);
+            ownersList.forEach(o => userMap[String(o._id)] = o.name);
+            
+            // Assemble final response
+            for (let b of bookings) {
+                const eid = String(b.eventId || '');
+                if (eventMap[eid]) b.event = eventMap[eid];
+                
+                let resolvedName = String(b.userId || 'Guest');
+                if (userMap[resolvedName]) resolvedName = userMap[resolvedName];
 
-                    b.user = { 
-                        name: resolvedName, 
-                        email: b.email || b.phone || 'N/A' 
-                    };
-                } catch(e) {
-                    b.user = { name: String(b.userId || 'Guest'), email: 'N/A' };
-                }
+                b.user = { 
+                    name: resolvedName, 
+                    email: b.email || b.phone || 'N/A' 
+                };
             }
             
             return json(res, 200, bookings);

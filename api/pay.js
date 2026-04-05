@@ -177,7 +177,11 @@ export default async function handler(req, res) {
                     const evt = await models.Event.findById(eid).lean();
                     b.event = evt ? normalizeEvent(evt) : { title: "Archived Event", date: b.createdAt, location: "TBA" };
                 } else {
-                    b.event = { title: "Archived Event", date: b.createdAt, location: "TBA" };
+                    const formatTitle = (str) => {
+                       if (!str) return "Archived Event";
+                       return str.toString().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    };
+                    b.event = { title: formatTitle(eid), date: b.createdAt, location: "TBA" };
                 }
             }
 
