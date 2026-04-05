@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { backendAxios } from "../axios";
 import DefaultlayoutHoc from "../layout/Default.layout";
 import { useAuth } from "../context/DiscussionAuth.context";
-import ParkingOfferModal from "../components/ParkingOfferModal/ParkingOfferModal";
 import { API_BASE_URL } from "../config";
+import { uploadToCloudinary } from "../utils/cloudinary";
+import { Camera, ShieldCheck, MapPin, Calendar, Info, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
-const FarewellTicketsPage = () => {
+const TEDxGGSIPUTicketsPage = () => {
   const { user } = useAuth();
   
   const [name, setName]     = useState("");
   const [email, setEmail]   = useState("");
   const [phone, setPhone]   = useState("");
+  const [screenshotUrl, setScreenshotUrl] = useState("");
   
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError]     = useState("");
-  const [prices, setPrices]   = useState({ regular: 1499, vip: 2999 });
-  const [selectedTicket, setSelectedTicket] = useState("regular");
-  const [isParkingModalOpen, setIsParkingModalOpen] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  // Pre-fill user data if they are logged in
+  // Pre-fill user data
   useEffect(() => {
     if (user) {
       if (user.name && !name) setName(user.name);
@@ -27,220 +27,213 @@ const FarewellTicketsPage = () => {
     }
   }, [user]);
 
-  useEffect(() => {
-    const fetchPrices = async () => {
-      try {
-        const response = await backendAxios.get(`${API_BASE_URL}/api/tickets?eventId=farewell_2024`);
-        if (response.data && response.data.success) {
-          setPrices({
-            regular: response.data.event.regularPrice,
-            vip: response.data.event.vipPrice
-          });
-        }
-      } catch (err) {
-        console.error("Failed to fetch live prices, using defaults.", err);
-      }
-    };
-    fetchPrices();
-  }, []);
+  const handleScreenshotUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const handlePaymentClick = () => {
-    if (!name.trim()) {
-      setError("Please enter your name.");
-      return;
-    }
-    if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-    if (!phone || phone.length < 10) {
-      setError("Please enter a valid 10-digit phone number.");
-      return;
-    }
-
+    setUploading(true);
     setError("");
-    setIsParkingModalOpen(true);
+    try {
+      const url = await uploadToCloudinary(file);
+      setScreenshotUrl(url);
+    } catch (err) {
+      setError(`Media Error: ${err.message}`);
+    } finally {
+      setUploading(false);
+    }
   };
 
-  const processPayment = async (parkingDetails) => {
-    const baseAmount = selectedTicket === "vip" ? prices.vip : prices.regular;
-    const totalAmount = baseAmount + parkingDetails.addedCost;
+  const handleBookingClick = async () => {
+    if (!name.trim()) return setError("Please enter your name.");
+    if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) return setError("Please enter a valid email.");
+    if (!phone || phone.length < 10) return setError("Please enter a valid 10-digit phone.");
+    if (!screenshotUrl) return setError("Please upload a screenshot (ID or Payment Proof) to proceed.");
 
-    setIsParkingModalOpen(false);
+    setError("");
     setLoading(true);
 
     try {
       const response = await backendAxios.post(`${API_BASE_URL}/api/pay`, {
-        name: name,
-        email: email, 
-        amount: totalAmount,
-        phone: phone,
-        parkingIncluded: parkingDetails.wantsParking,
-        vehicleNumber: parkingDetails.vehicleNumber
+        name,
+        email, 
+        amount: 0, // Ticket is FREE
+        phone,
+        eventId: "tedx_ggsipu_2026",
+        screenshotUrl
       });
 
-      if (response.data && response.data.success && response.data.redirectUrl) {
-        window.location.href = response.data.redirectUrl;
+      if (response.data && response.data.success) {
+        setSuccess(true);
       } else {
-        setError("Failed to initiate payment. Please try again.");
-        setLoading(false);
+        setError("Booking failed. Please try again later.");
       }
     } catch (err) {
       console.error(err);
-      setError("Server error during payment initiation.");
+      setError("Server error during registration.");
+    } finally {
       setLoading(false);
     }
   };
 
+  if (success) {
+    return (
+      <div className="bg-[#050507] min-h-screen text-white flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-[#0D0D12] border border-emerald-500/20 rounded-[2.5rem] p-10 text-center space-y-6 shadow-2xl">
+          <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20">
+            <CheckCircle2 size={40} className="text-emerald-500" />
+          </div>
+          <h2 className="text-3xl font-black tracking-tight">Booking Initiated!</h2>
+          <p className="text-gray-400 text-sm leading-relaxed">
+            Your request for TEDx GGSIPU EDC has been received. Our team will verify your details and screenshot. You'll receive a confirmation email shortly.
+          </p>
+          <button 
+            onClick={() => window.location.href = '/'}
+            className="w-full bg-white text-black font-bold py-4 rounded-2xl hover:bg-gray-200 transition-all"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-darkBackground-900 min-h-screen text-white pt-24 pb-12 font-sans selection:bg-vibrantBlue/30">
+    <div className="bg-[#050507] min-h-screen text-white pt-24 pb-12 font-sans selection:bg-red-600/30">
       <div className="container mx-auto px-4 md:px-12">
-        {/* Aesthetic Gradient Hero Section */}
-        <div className="relative w-full h-64 sm:h-80 md:h-[28rem] rounded-3xl md:rounded-[3rem] overflow-hidden mb-12 flex items-center justify-center bg-gradient-to-tr from-[#0a0410] via-[#1a0b2e] to-[#2d0f54]">
-          {/* Decorative glowing orbs */}
-          <div className="absolute -top-32 -left-32 w-96 h-96 bg-vibrantBlue/30 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
-          <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-premier-500/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
+        {/* Dynamic TEDx Red Gradient Hero */}
+        <div className="relative w-full h-64 sm:h-80 md:h-[28rem] rounded-3xl md:rounded-[3rem] overflow-hidden mb-12 flex items-center justify-center bg-gradient-to-br from-[#000000] via-[#1a0000] to-[#3a0000]">
+          <div className="absolute -top-32 -left-32 w-96 h-96 bg-red-600/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
+          <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-red-800/10 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
           
-          <div className="relative z-10 flex flex-col items-center justify-center p-8 text-center space-y-4">
-            <span className="text-vibrantBlue font-bold tracking-[0.3em] uppercase text-sm md:text-base bg-vibrantBlue/10 px-6 py-2 rounded-full border border-vibrantBlue/20 backdrop-blur-md">The Grand Finale</span>
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 pb-2">AFSANA '26</h1>
-            <p className="text-gray-300 font-medium tracking-widest uppercase text-sm md:text-lg mt-4 max-w-2xl">One Last Celebration • May 25th, 2026</p>
+          <div className="relative z-10 flex flex-col items-center justify-center p-8 text-center space-y-6">
+            <div className="flex items-center gap-3 bg-red-600/10 px-6 py-2 rounded-full border border-red-600/20 backdrop-blur-md">
+              <span className="text-red-600 font-black tracking-[0.4em] uppercase text-xs md:text-sm">TEDx</span>
+              <span className="text-white/60 font-bold tracking-widest uppercase text-[10px] md:text-xs">GGSIPU EDC</span>
+            </div>
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 pb-2">SANGAM</h1>
+            <p className="text-gray-300 font-medium tracking-[0.2em] uppercase text-xs md:text-sm mt-4 bg-black/40 px-6 py-3 rounded-2xl border border-white/5 backdrop-blur-sm">Ideas, Perspectives, and Voices Converge</p>
           </div>
         </div>
 
-        {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* Left Column: Details */}
+          {/* Details */}
           <div className="lg:col-span-7 space-y-16 mt-4">
-            <section>
-              <h2 className="text-3xl font-bold mb-8 flex items-center gap-4 text-white">
-                <span className="w-1.5 h-8 bg-premier-400 rounded-full"></span>
-                About Afsana
+            <section className="space-y-6">
+              <h2 className="text-3xl font-black flex items-center gap-4 text-white uppercase tracking-tight">
+                <span className="w-1.5 h-10 bg-red-600 rounded-full"></span>
+                The Theme
               </h2>
-              <p className="text-gray-400 text-lg leading-relaxed font-light">
-                Celebrate the end of an era with an unforgettable night. We're bringing together the graduating class for one last celebration filled with music, dance, and awards. Expect a premium dinner, networking with alumni, and a cinematic farewell experience built down to the smallest detail.
-              </p>
+              <div className="space-y-4 text-gray-400 text-lg leading-relaxed font-light">
+                <p>
+                  The word <strong>SANGAM</strong> signifies a confluence — a place where rivers meet and flow together. In India, the Triveni Sangam at Prayagraj symbolises the meeting of the Ganga, Yamuna, and the mythical Saraswati. Each river carries its own history, yet together they form something greater.
+                </p>
+                <p>
+                  Human progress rarely occurs in isolation. Meaningful ideas emerge when disciplines interact, cultures engage, and personal experiences encounter new knowledge. SANGAM represents this convergence.
+                </p>
+              </div>
             </section>
 
-            <section>
-              <h2 className="text-3xl font-bold mb-8 flex items-center gap-4 text-white">
-                <span className="w-1.5 h-8 bg-vibrantBlue rounded-full"></span>
-                Event Highlights
-              </h2>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300 font-medium">
-                <li className="bg-[#121216] p-6 rounded-3xl border border-white/5 flex items-center gap-4 hover:border-premier-500/30 transition-colors">
-                  <div className="w-3 h-3 bg-premier-400 rounded-full shadow-[0_0_10px_rgba(202,138,4,0.5)]"></div> Red Carpet Entry
-                </li>
-                <li className="bg-[#121216] p-6 rounded-3xl border border-white/5 flex items-center gap-4 hover:border-vibrantBlue/30 transition-colors">
-                  <div className="w-3 h-3 bg-vibrantBlue rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div> Live DJ & Band
-                </li>
-                <li className="bg-[#121216] p-6 rounded-3xl border border-white/5 flex items-center gap-4 hover:border-premier-500/30 transition-colors">
-                  <div className="w-3 h-3 bg-premier-400 rounded-full shadow-[0_0_10px_rgba(202,138,4,0.5)]"></div> 5-Course Dinner
-                </li>
-                <li className="bg-[#121216] p-6 rounded-3xl border border-white/5 flex items-center gap-4 hover:border-vibrantBlue/30 transition-colors">
-                  <div className="w-3 h-3 bg-vibrantBlue rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div> Polaroid Photo Booths
-                </li>
-              </ul>
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="bg-[#0D0D12] p-8 rounded-3xl border border-white/5 space-y-4">
+                  <MapPin className="text-red-600" size={24} />
+                  <h4 className="font-bold text-xl uppercase tracking-tight">Venue</h4>
+                  <p className="text-gray-500 text-sm">East Delhi Campus (USAR), Guru Gobind Singh Indraprastha University.</p>
+               </div>
+               <div className="bg-[#0D0D12] p-8 rounded-3xl border border-white/5 space-y-4">
+                  <Calendar className="text-red-600" size={24} />
+                  <h4 className="font-bold text-xl uppercase tracking-tight">Date</h4>
+                  <p className="text-gray-500 text-sm">Join us for a day of innovation and transformation.</p>
+               </div>
             </section>
           </div>
 
-          {/* Right Column: Ticket Card */}
+          {/* Registration Card */}
           <div className="lg:col-span-5 relative z-10 w-full mb-12">
-            <div className="sticky top-20 bg-[#0D0D12] border border-white/10 rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-10 shadow-2xl">
-              <h3 className="text-2xl font-bold mb-8 text-white">Select Tickets</h3>
-              
-              {/* Ticket Selection Toggle */}
-              <div className="space-y-4 mb-8">
-                <div 
-                  onClick={() => setSelectedTicket("regular")}
-                  className={`cursor-pointer p-6 rounded-2xl border-2 transition-all flex justify-between items-center ${selectedTicket === "regular" ? "border-vibrantBlue bg-vibrantBlue/5" : "border-white/5 bg-white/5 hover:border-white/20"}`}
-                >
-                  <div>
-                    <h4 className={`font-bold text-lg ${selectedTicket === "regular" ? "text-vibrantBlue" : "text-gray-300"}`}>Regular Entry</h4>
-                    <p className="text-xs text-gray-500 mt-1">General Admission</p>
-                  </div>
-                  <span className="text-2xl font-black text-white">₹{prices.regular}</span>
-                </div>
+            <div className="sticky top-24 bg-[#0D0D12] border border-white/10 rounded-[2.5rem] p-8 md:p-10 shadow-2xl space-y-8">
+              <div>
+                <h3 className="text-3xl font-black text-white tracking-tight">Reserve Entry</h3>
+                <p className="text-gray-500 text-sm mt-1">Limited seats available for SANGAM '26.</p>
+              </div>
 
-                <div 
-                  onClick={() => setSelectedTicket("vip")}
-                  className={`cursor-pointer p-6 rounded-2xl border-2 transition-all flex justify-between items-center ${selectedTicket === "vip" ? "border-premier-400 bg-premier-400/5" : "border-white/5 bg-white/5 hover:border-white/20"}`}
-                >
-                  <div>
-                    <h4 className={`font-bold text-lg flex items-center gap-2 ${selectedTicket === "vip" ? "text-premier-400" : "text-gray-300"}`}>
-                      VIP Access
-                      {selectedTicket === "vip" && <span className="text-[10px] bg-premier-400 text-black px-2 py-0.5 rounded-full uppercase tracking-wider">Premium</span>}
-                    </h4>
-                    <p className="text-xs text-gray-500 mt-1">Backstage Access + Red Carpet</p>
-                  </div>
-                  <span className="text-2xl font-black text-white">₹{prices.vip}</span>
+              <div className="bg-red-600/5 border border-red-600/20 rounded-2xl p-6 flex justify-between items-center group hover:bg-red-600/10 transition-all cursor-default">
+                <div>
+                  <h4 className="font-bold text-lg text-white">General Admission</h4>
+                  <p className="text-xs text-red-500/60 font-black uppercase tracking-widest mt-1">Open Access</p>
+                </div>
+                <div className="text-right">
+                  <span className="text-2xl font-black text-red-600">FREE</span>
                 </div>
               </div>
 
-              {/* Booking Form */}
               <div className="space-y-5">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2 ml-1">Full Name</label>
-                  <input 
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your name"
-                    className="w-full bg-[#16161C] border border-white/5 rounded-2xl px-5 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-vibrantBlue/50 focus:bg-[#1A1A24] transition-colors"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2 ml-1">Email Address</label>
-                  <input 
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@example.com"
-                    className="w-full bg-[#16161C] border border-white/5 rounded-2xl px-5 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-vibrantBlue/50 focus:bg-[#1A1A24] transition-colors"
-                  />
-                </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="relative">
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Full Name</label>
+                      <input 
+                        type="text" value={name} onChange={(e) => setName(e.target.value)}
+                        placeholder="John Doe"
+                        className="w-full bg-[#16161C] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:border-red-600/50 transition-all"
+                      />
+                    </div>
+                    <div className="relative">
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Email</label>
+                      <input 
+                        type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                        placeholder="name@example.com"
+                        className="w-full bg-[#16161C] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:border-red-600/50 transition-all"
+                      />
+                    </div>
+                    <div className="relative">
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Phone</label>
+                      <input 
+                        type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
+                        placeholder="10-digit number" maxLength={10}
+                        className="w-full bg-[#16161C] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:border-red-600/50 transition-all"
+                      />
+                    </div>
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2 ml-1">Phone Number <span className="opacity-50">(For Payment)</span></label>
-                  <input 
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="10-digit number"
-                    maxLength={10}
-                    className="w-full bg-[#16161C] border border-white/5 rounded-2xl px-5 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-vibrantBlue/50 focus:bg-[#1A1A24] transition-colors tracking-widest"
-                  />
+                  {/* Screenshot Upload Block */}
+                  <div className="pt-2">
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Upload ID Or Verification Screenshot</label>
+                    <label className={`relative flex items-center justify-center gap-3 w-full bg-[#16161C] border-2 border-dashed rounded-2xl p-6 transition-all cursor-pointer ${screenshotUrl ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-white/5 hover:border-red-600/30'}`}>
+                      <input type="file" className="hidden" onChange={handleScreenshotUpload} disabled={uploading}/>
+                      {uploading ? (
+                         <div className="flex items-center gap-3 text-red-500 font-bold text-xs uppercase tracking-tighter animate-pulse">
+                           <Loader2 className="animate-spin" size={16} /> Uploading...
+                         </div>
+                      ) : screenshotUrl ? (
+                         <div className="flex items-center gap-3 text-emerald-500 font-bold text-xs uppercase tracking-tighter">
+                           <CheckCircle2 size={16} /> Upload Complete
+                         </div>
+                      ) : (
+                         <div className="flex items-center gap-3 text-gray-500 font-bold text-xs uppercase tracking-tighter">
+                           <Camera size={16} /> Select Screenshot
+                         </div>
+                      )}
+                    </label>
+                  </div>
                 </div>
                 
-                {error && <p className="text-red-400 text-sm mt-2 font-medium bg-red-400/10 p-3 rounded-xl border border-red-400/20">{error}</p>}
-                
+                {error && <div className="p-4 bg-red-600/10 border border-red-600/20 text-red-500 text-xs font-bold rounded-2xl flex items-center gap-3">
+                  <AlertCircle size={16} /> {error}
+                </div>}
+
                 <button 
-                  onClick={handlePaymentClick}
-                  disabled={loading}
-                  className={`w-full text-white font-black py-5 rounded-2xl shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4 tracking-wider uppercase ${selectedTicket === "vip" ? "bg-gradient-to-r from-premier-400 to-[#F2994A] shadow-premier-500/20 hover:shadow-premier-500/40 text-black" : "bg-gradient-to-r from-vibrantBlue to-indigo-500 shadow-vibrantBlue/20 hover:shadow-vibrantBlue/40"}`}
+                  onClick={handleBookingClick}
+                  disabled={loading || uploading}
+                  className="w-full bg-red-600 text-white font-black py-5 rounded-2xl shadow-xl shadow-red-900/10 hover:bg-red-500 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-sm mt-4"
                 >
-                  {loading ? "Initializing Secure Checkout..." : `PAY ₹${selectedTicket === "vip" ? prices.vip : prices.regular} SECURELY`}
+                  {loading ? "Confirming Entry..." : "Confirm TEDx Reservation"}
                 </button>
-                <p className="text-center text-[10px] text-gray-500 mt-6 uppercase tracking-[0.2em] font-medium flex items-center justify-center gap-2">
-                  <span className="w-4 h-px bg-gray-700"></span>
-                  Powered by Park Conscious
-                  <span className="w-4 h-px bg-gray-700"></span>
-                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <ParkingOfferModal 
-        isOpen={isParkingModalOpen} 
-        closeModal={() => setIsParkingModalOpen(false)} 
-        onConfirm={processPayment}
-        ticketPrice={selectedTicket === "vip" ? prices.vip : prices.regular}
-      />
     </div>
   );
 };
 
-export default DefaultlayoutHoc(FarewellTicketsPage);
+export default DefaultlayoutHoc(TEDxGGSIPUTicketsPage);

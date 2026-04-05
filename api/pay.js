@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     try {
         // -- PhonePe Payment Initiation --
         if (url.includes('/pay') && !url.includes('/payment-callback') && method === 'POST') {
-            const { name, amount, phone, eventId, orderId, userId } = body;
+            const { name, amount, phone, eventId, orderId, userId, screenshotUrl } = body;
             const targetEventId = eventId || orderId;
             const targetUserId = userId || name || "Guest";
             
@@ -32,6 +32,7 @@ export default async function handler(req, res) {
             
             const txId = "TXN_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase();
             const host = req.headers.host || "events.parkconscious.in";
+            // Ensure redirected traffic stays on the correct domain
             const redirectBase = host.includes('localhost') ? `http://${host}` : `https://events.parkconscious.in`;
 
             const payload = {
@@ -54,6 +55,7 @@ export default async function handler(req, res) {
                 eventId: targetEventId, 
                 userId: targetUserId, 
                 amount, 
+                screenshotUrl: screenshotUrl || null,
                 status: "Initiated",
                 phone: phone,
                 email: body.email || null

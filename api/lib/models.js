@@ -127,6 +127,7 @@ const bookingSchema = new mongoose.Schema(
     startTime: String,
     endTime: String,
     amount: String,
+    screenshotUrl: { type: String, default: null },
     status: { type: String, default: "Confirmed" },
     date: { type: Date, default: Date.now },
   },
