@@ -104,14 +104,20 @@ export default async function handler(req, res) {
             const redirectBase = host.includes('localhost') ? `http://${host}` : `https://${host}`;
 
             if (isSuccess) {
-                // Update booking to confirmed status
-                await Booking.findOneAndUpdate(
-                    { transactionId: txId }, 
+                // Update booking to confirmed status and decrement the event capacity
+                const updatedBooking = await Booking.findOneAndUpdate(
+                    { transactionId: txId, status: { $ne: "Confirmed" } }, 
                     { $set: { 
                         status: "Confirmed", 
                         ticketId: "TK-" + crypto.randomUUID().slice(0, 8).toUpperCase() 
-                    } }
+                    } },
+                    { new: true }
                 );
+
+                // If this is the FIRST time we're confirming, decrement the event capacity
+                if (updatedBooking && updatedBooking.eventId && updatedBooking.eventId.length === 24) {
+                    await models.Event.findByIdAndUpdate(updatedBooking.eventId, { $inc: { capacity: -1 } });
+                }
                 
                 if (method === 'GET') {
                     res.setHeader('Location', `${redirectBase}/payment-success?txnId=${txId}`);
@@ -125,6 +131,14 @@ export default async function handler(req, res) {
             }
             
             return json(res, 200, { success: isSuccess });
+        }
+
+        // -- Booking Status Endpoint (RESTORED for QR code) --
+        if (url.includes('booking/status/') && method === 'GET') {
+            const txId = url.split('/').pop().split('?')[0];
+            const booking = await Booking.findOne({ transactionId: txId }).lean();
+            if (!booking) return json(res, 404, { message: 'Booking Not Found' });
+            return json(res, 200, booking);
         }
 
         return json(res, 404, { message: 'Payment endpoint not matched' });
