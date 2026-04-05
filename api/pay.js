@@ -2,7 +2,7 @@ import axios from 'axios';
 import crypto from 'crypto';
 import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
-import { json, setCors, getBody } from './lib/utils.js';
+import { json, setCors, getBody, normalizeEvent, normalizeUrl } from './lib/utils.js';
 
 const { Booking } = models;
 
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
     await connectDB();
-    const url = req.url || '';
+    const url = normalizeUrl(req.url);
     const method = req.method || 'GET';
     const body = await getBody(req);
 

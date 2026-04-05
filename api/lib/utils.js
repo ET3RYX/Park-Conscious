@@ -48,6 +48,13 @@ export const json = (res, status, data) => {
     res.end(JSON.stringify(data));
 };
 
+export const normalizeUrl = (url) => {
+    // Force lowercase, remove trailing slash, and collapse multiple slashes
+    let cleaned = (url || '/').toLowerCase().split('?')[0].replace(/\/+/g, '/');
+    if (cleaned.endsWith('/') && cleaned.length > 1) cleaned = cleaned.slice(0, -1);
+    return cleaned;
+};
+
 export const verifyUser = (req) => {
     const cookies = parse(req.headers.cookie || '');
     let token = cookies.token;

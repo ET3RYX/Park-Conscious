@@ -1,6 +1,6 @@
 import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
-import { json, setCors, getBody, verifyUser, normalizeEvent } from './lib/utils.js';
+import { json, setCors, getBody, verifyUser, normalizeEvent, normalizeUrl } from './lib/utils.js';
 
 const { Event, Discussion, Comment } = models;
 
@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
     await connectDB();
-    const url = req.url || '';
+    const url = normalizeUrl(req.url);
     const method = req.method || 'GET';
     const body = await getBody(req);
     const user = verifyUser(req);

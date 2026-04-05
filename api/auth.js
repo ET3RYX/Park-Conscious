@@ -2,7 +2,7 @@ import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
 import bcrypt from 'bcryptjs';
 import { serialize } from 'cookie';
-import { json, setCors, getBody, verifyUser, issueCookie } from './lib/utils.js';
+import { json, setCors, getBody, verifyUser, issueCookie, normalizeUrl } from './lib/utils.js';
 
 const { User, Owner } = models;
 
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
     await connectDB();
-    const url = req.url || '';
+    const url = normalizeUrl(req.url);
     const method = req.method || 'GET';
     const body = await getBody(req);
 
