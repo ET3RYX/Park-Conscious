@@ -1,7 +1,6 @@
 {
   "version": 2,
   "rewrites": [
-    // 1. GLOBAL API HANDLERS (Host-agnostic, highest priority)
     { "source": "/api/auth/:path*", "destination": "/api/auth.js" },
     { "source": "/api/events/:path*", "destination": "/api/events.js" },
     { "source": "/api/pay", "destination": "/api/pay.js" },
@@ -15,14 +14,12 @@
     { "source": "/api/bookings/:path*", "destination": "/api/pay.js" },
     { "source": "/api/:path*", "destination": "/api/events.js" },
 
-    // 2. ADMIN PORTAL ASSETS
     {
       "source": "/admin/events/:path*",
       "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
       "destination": "/AdminPanel/dist/:path*"
     },
 
-    // 3. EVENTS PORTAL ASSETS
     {
       "source": "/booking-confirmed",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
@@ -39,7 +36,6 @@
       "destination": "/Events/dist/index.html"
     },
 
-    // 4. SPA FALLBACKS (Must exclude /api/)
     {
       "source": "/((?!api/).*)",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
@@ -51,7 +47,6 @@
       "destination": "/AdminPanel/dist/index.html"
     },
 
-    // 5. MAIN DOMAIN ASSETS
     {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "parkconscious.in" }],
