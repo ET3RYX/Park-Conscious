@@ -151,7 +151,7 @@ const Attendees = () => {
                   <th className="px-6 py-5">Attendee</th>
                   <th className="px-6 py-5">Event Details</th>
                   <th className="px-6 py-5">Ticket ID</th>
-                  <th className="px-6 py-5">Status</th>
+                  <th className="px-6 py-5">Verification</th>
                   <th className="px-6 py-5 text-right">Registered</th>
                 </tr>
               </thead>
@@ -167,7 +167,7 @@ const Attendees = () => {
                           <p className="text-sm font-bold text-white group-hover:text-sky-400 transition-colors uppercase tracking-tight">{item.user?.name || 'Unknown'}</p>
                           <div className="flex items-center gap-1.5 text-slate-500 text-[10px]">
                             <Mail size={10} />
-                            {item.user?.email || 'N/A'}
+                            {item.user?.email || item.email || 'N/A'}
                           </div>
                         </div>
                       </div>
@@ -191,6 +191,15 @@ const Attendees = () => {
                     </td>
                     <td className="px-6 py-4">
                       <StatusBadge attended={item.attended} />
+                    </td>
+                    <td className="px-6 py-4">
+                      {item.screenshotUrl ? (
+                         <a href={item.screenshotUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-8 h-8 rounded-full bg-sky-500/10 text-sky-400 hover:bg-sky-500 hover:text-white transition-colors border border-sky-500/20" title="View Verification Screenshot">
+                            <Ticket size={14} />
+                         </a>
+                      ) : (
+                         <span className="text-slate-600 text-[10px] font-bold uppercase tracking-widest">None</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <p className="text-[10px] font-mono text-slate-500">
