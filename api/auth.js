@@ -25,8 +25,8 @@ export default async function handler(req, res) {
             if (!u || !await bcrypt.compare(password, u.password)) return json(res, 401, { message: 'Invalid credentials' });
             
             const payload = { id: u._id, name: u.name, email: u.email, role: isOwner ? 'admin' : 'user' };
-            issueCookie(req, res, payload);
-            return json(res, 200, { user: payload });
+            const token = issueCookie(req, res, payload);
+            return json(res, 200, { user: payload, token });
         }
 
         if (url.includes('/logout') && method === 'POST') {
@@ -59,8 +59,8 @@ export default async function handler(req, res) {
             }
 
             const payload = { id: u._id, name: u.name, email: u.email, role: isOwner ? 'admin' : 'user' };
-            issueCookie(req, res, payload);
-            return json(res, 200, { user: payload, message: 'Logged in with Google' });
+            const token = issueCookie(req, res, payload);
+            return json(res, 200, { user: payload, token, message: 'Logged in with Google' });
         }
 
         if (url.includes('/me') && method === 'GET') {

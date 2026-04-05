@@ -50,7 +50,16 @@ export const json = (res, status, data) => {
 
 export const verifyUser = (req) => {
     const cookies = parse(req.headers.cookie || '');
-    const token = cookies.token;
+    let token = cookies.token;
+    
+    // Fallback: Check Authorization header (used by AdminPanel)
+    if (!token && req.headers.authorization) {
+        const parts = req.headers.authorization.split(' ');
+        if (parts.length === 2 && parts[0] === 'Bearer') {
+            token = parts[1];
+        }
+    }
+
     if (!token) return null;
     try { return jwt.verify(token, JWT_SECRET); } catch(e) { return null; }
 };
