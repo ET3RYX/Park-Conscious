@@ -107,7 +107,7 @@ const bookingSchema = new mongoose.Schema(
   {
     parkingId: {
       type: String, // Allow both ObjectId and numeric IDs from seeded data
-      required: true,
+      default: null,
     },
     eventId: { type: String, default: null },
     transactionId: { type: String, default: null },
