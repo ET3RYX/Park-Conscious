@@ -42,11 +42,13 @@ const Attendees = () => {
   }, []);
 
   const eventOptions = useMemo(() => {
+    if (!Array.isArray(attendees)) return ['all'];
     const names = attendees.map(a => a.event?.title).filter(Boolean);
     return ['all', ...new Set(names)];
   }, [attendees]);
 
   const filteredData = useMemo(() => {
+    if (!Array.isArray(attendees)) return [];
     return attendees.filter(item => {
       const matchesSearch = 
         (item.user?.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
