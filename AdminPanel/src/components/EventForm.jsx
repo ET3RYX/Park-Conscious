@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, X, MapPin, Calendar, Tag, ShieldCheck, Info, IndianRupee, Users, PlusCircle, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 import { eventService } from '../services/api';
+import { uploadToCloudinary } from '../utils/cloudinary';
 
 const EventForm = ({ initialData = null, onSubmit, loading }) => {
   const [formData, setFormData] = useState({
@@ -54,17 +55,16 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
     setUploading(true);
     setError('');
     try {
-      const uploadData = new FormData();
-      uploadData.append('image', file);
-      const { data } = await eventService.uploadImage(uploadData);
+      // Bypassing Vercel backend constraints - Direct Cloudinary Uplink
+      const secureUrl = await uploadToCloudinary(file);
       setFormData(prev => ({
         ...prev,
-        images: [...prev.images, data.url]
+        images: [...prev.images, secureUrl]
       }));
+      console.log('%c[MEDIA_SYNC] Image Link Active:', 'color: #10b981;', secureUrl);
     } catch (err) {
         console.error('Upload Error:', err);
-        const msg = err.response?.data?.message || 'Upload failed. Check if Cloudinary is configured correctly in .env';
-        setError(`MEDIA ERROR: ${msg}`);
+        setError(`UPLOAD FAILED: ${err.message}`);
     } finally {
       setUploading(false);
     }
