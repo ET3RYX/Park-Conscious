@@ -6,7 +6,7 @@ import { API_BASE_URL } from "../config";
 import { uploadToCloudinary } from "../utils/cloudinary";
 import { Camera, ShieldCheck, MapPin, Calendar, Info, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
-const TEDxGGSIPUTicketsPage = () => {
+const TedxTicketsPage = () => {
   const { user } = useAuth();
   
   const [name, setName]     = useState("");
@@ -237,4 +237,4 @@ const TEDxGGSIPUTicketsPage = () => {
   );
 };
 
-export default DefaultlayoutHoc(TEDxGGSIPUTicketsPage);
+export default DefaultlayoutHoc(TedxTicketsPage);

@@ -8,7 +8,7 @@ import PlayPage from "./pages/Play.Page";
 import ErrorPage from "./pages/404";
 import CategoryPage from "./pages/Category.Page";
 import DiscussionPage from "./pages/Discussion.Page";
-import FarewellTicketsPage from "./pages/FarewellTickets.Page";
+import TedxTicketsPage from "./pages/TedxTickets.Page";
 import EventPage from "./pages/Event.Page";
 import SuccessPage from "./pages/Success.Page";
 import FailurePage from "./pages/Failure.Page";
@@ -24,7 +24,7 @@ function App() {
       <Route path="/plays" element={<PlayPage />} />
       <Route path="/category/:id" element={<CategoryPage />} />
       <Route path="/discussion/:id" element={<DiscussionPage />} />
-      <Route path="/tedx-tickets" element={<FarewellTicketsPage />} />
+      <Route path="/tedx-tickets" element={<TedxTicketsPage />} />
       <Route path="/event/:id" element={<EventPage />} />
       <Route path="/payment-success" element={<SuccessPage />} />
       <Route path="/payment-failure" element={<FailurePage />} />

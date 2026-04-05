@@ -47,9 +47,9 @@ const SuccessPage = () => {
           <div className="absolute inset-0 bg-emerald-500/30 rounded-full blur-2xl animate-pulse -z-10"></div>
         </div>
 
-        <div className="space-y-4">
-          <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter">Ticket Confirmed!</h1>
-          <p className="text-slate-400 font-medium">Your payment was successful. Show this QR code at the entrance.</p>
+        <div className="space-y-4 text-center items-center flex flex-col">
+          <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter">TEDx SANGAM Confirmed!</h1>
+          <p className="text-slate-400 font-medium max-w-md">Your registration for TEDx GGSIPU EDC is complete. We look forward to seeing you at SANGAM.</p>
         </div>
 
         {/* Ticket Details Card */}

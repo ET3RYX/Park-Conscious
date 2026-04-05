@@ -113,7 +113,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Title</label>
                 <input 
                   type="text" name="title" required value={formData.title} onChange={handleChange}
-                  placeholder="e.g. Afsana 2026"
+                  placeholder="e.g. TEDx GGSIPU 2026"
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition font-medium"
                 />
               </div>

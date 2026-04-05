@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { tmdbAxios, backendAxios } from "../axios";
 import { API_BASE_URL } from "../config";
+import { Helmet } from "react-helmet";
 
 // HOC
 import DefaultlayoutHoc from "../layout/Default.layout";
