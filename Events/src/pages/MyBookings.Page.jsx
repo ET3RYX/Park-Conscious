@@ -101,14 +101,22 @@ const MyBookingsPage = () => {
                             </div>
                          </div>
 
-                         <div className="mt-auto border-t border-white/10 pt-6 border-dashed flex justify-between items-center">
+                         <div className="mt-auto border-t border-white/10 pt-6 border-dashed flex justify-between items-end">
                             <div>
                                <p className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1">Paid</p>
                                <span className="font-black text-lg text-white">₹{booking.amount}</span>
                             </div>
-                            <div className="text-right">
-                               <p className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1">Order ID</p>
-                               <span className="font-black text-[10px] text-gray-300 tracking-wider">#{(booking.transactionId || booking._id).slice(-6)}</span>
+                            <div className="text-right flex flex-col items-end gap-2">
+                               <p className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1">Ticket / QR</p>
+                               <div className="bg-white p-1.5 rounded-lg shadow-lg">
+                                 <img
+                                   src={`https://api.qrserver.com/v1/create-qr-code/?size=64x64&data=${encodeURIComponent(booking.ticketId || booking.transactionId)}&ecc=L&margin=0`}
+                                   alt="Verify QR"
+                                   width={64}
+                                   height={64}
+                                 />
+                               </div>
+                               <span className="font-black text-[10px] text-gray-300 tracking-wider">#{(booking.ticketId || booking.transactionId || booking._id).slice(-6)}</span>
                             </div>
                          </div>
                       </div>
