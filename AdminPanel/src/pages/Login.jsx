@@ -31,7 +31,7 @@ const Login = () => {
     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 selection:bg-sky-500/20 relative">
       {/* Deployment Heartbeat Tag */}
       <div className="absolute top-4 right-4 px-3 py-1 bg-slate-900 border border-slate-800 rounded-full text-[8px] font-mono text-slate-500 uppercase tracking-tighter opacity-50">
-        Build: v2.0.9 // REL: 2026-04-05-STABILITY-FIX
+        Build: v2.1.0 // REL: 2026-04-05-ABSOLUTE-FINAL
       </div>
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-10 shadow-xl animate-in fade-in zoom-in-95 duration-500">
         <div className="flex flex-col items-center mb-10">
