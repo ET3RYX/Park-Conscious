@@ -37,6 +37,11 @@
       "destination": "/AdminPanel/dist/index.html"
     },
     {
+      "source": "/payment-(.*)",
+      "has": [{ "type": "host", "value": "parkconscious.in" }],
+      "destination": "/Events/dist/index.html"
+    },
+    {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "parkconscious.in" }],
       "destination": "/$1"

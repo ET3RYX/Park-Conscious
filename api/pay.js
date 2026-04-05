@@ -28,18 +28,19 @@ export default async function handler(req, res) {
             const ENV_BASE_URL = process.env.PHONEPE_BASE_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
             
             const txId = "TXN_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase();
+            
+            // Unified Redirect: Always force events subdomain to correctly handle SPA routing
             const host = req.headers.host || "events.parkconscious.in";
-            // Important: Use protocol-aware host
-            const appUrl = host.includes('localhost') ? `http://${host}` : `https://${host}`;
+            const redirectBase = host.includes('localhost') ? `http://${host}` : `https://events.parkconscious.in`;
 
             const payload = {
                 merchantId: MERCHANT_ID,
                 merchantTransactionId: txId,
                 merchantUserId: "USER_" + (phone || "GUEST"),
                 amount: Math.round(parseFloat(amount) * 100),
-                redirectUrl: `${appUrl}/api/payment-callback?txnId=${txId}`,
+                redirectUrl: `${redirectBase}/payment-success?txnId=${txId}`,
                 redirectMode: "REDIRECT",
-                callbackUrl: `${appUrl}/api/payment-callback`,
+                callbackUrl: `${redirectBase}/api/payment-callback`,
                 mobileNumber: phone,
                 paymentInstrument: { type: "PAY_PAGE" }
             };
@@ -47,14 +48,15 @@ export default async function handler(req, res) {
             const base64 = Buffer.from(JSON.stringify(payload)).toString("base64");
             const checksum = crypto.createHash("sha256").update(base64 + "/pg/v1/pay" + SALT_KEY).digest("hex") + "###" + SALT_INDEX;
 
-            // Create initial booking
+            // Create initial booking with phone and email persistence
             await Booking.create({ 
                 transactionId: txId, 
                 eventId: targetEventId, 
                 userId: targetUserId, 
                 amount, 
                 status: "Initiated",
-                phone: phone
+                phone: phone,
+                email: body.email || null
             });
 
             const response = await axios.post(`${ENV_BASE_URL}/pg/v1/pay`, { request: base64 }, {
