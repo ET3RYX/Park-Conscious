@@ -35,6 +35,15 @@ export default async function handler(req, res) {
                     return json(res, 200, normalizeEvent(event));
                 }
                 const isAdmin = url.includes('/admin/all');
+                // -- Main Events Discovery --
+                if (url === '/api/events' && method === 'GET') {
+                    let evts = await Event.find({ status: 'published' }).sort({ date: 1 }).lean();
+                    if (!evts.length) {
+                        console.log('[EVENTS API]: No published events, falling back to all catalog items');
+                        evts = await Event.find().sort({ date: 1 }).limit(12).lean();
+                    }
+                    return json(res, 200, evts.map(normalizeEvent));
+                }
                 const filter = isAdmin ? {} : { status: { $in: ['published', 'Published'] } };
                 const list = await Event.find(filter).sort({ date: 1 }).lean();
                 return json(res, 200, list.map(normalizeEvent));

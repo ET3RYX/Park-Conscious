@@ -18,15 +18,24 @@ export default async function handler(req, res) {
     try {
         if (url.includes('/login') && method === 'POST') {
             const { email, password } = body;
-            const search = (email || '').toLowerCase();
-            let u = await User.findOne({ email: search });
+            const rawEmail = (email || '').toLowerCase();
+            let searchEmails = [rawEmail];
+            if (rawEmail.endsWith('.com')) searchEmails.push(rawEmail.replace('.com', '.in'));
+            else if (rawEmail.endsWith('.in')) searchEmails.push(rawEmail.replace('.in', '.com'));
+
+            let u = null;
             let isOwner = false;
-            if (!u) { u = await Owner.findOne({ email: search }); isOwner = !!u; }
+            for (const semail of searchEmails) {
+                u = await User.findOne({ email: semail });
+                if (!u) { u = await Owner.findOne({ email: semail }); isOwner = !!u; }
+                if (u) break;
+            }
+
             if (!u || !await bcrypt.compare(password, u.password)) return json(res, 401, { message: 'Invalid credentials' });
             
             const payload = { 
-                id: u._id, 
-                uid: u._id, // Backwards compatibility for Events project
+                id: String(u._id), 
+                uid: String(u._id), // Backwards compatibility for Events project
                 name: u.name, 
                 email: u.email, 
                 role: isOwner ? 'admin' : 'user' 
