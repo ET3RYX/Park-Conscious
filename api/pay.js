@@ -2,7 +2,7 @@ import axios from 'axios';
 import crypto from 'crypto';
 import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
-import { json, setCors, getBody, normalizeEvent, normalizeUrl } from './lib/utils.js';
+import { json, setCors, getBody, normalizeEvent } from './lib/utils.js';
 
 const { Booking } = models;
 
@@ -11,16 +11,19 @@ export default async function handler(req, res) {
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
     await connectDB();
-    const url = normalizeUrl(req.url);
+
+    const fullUrl = req.url || '/';
+    const [pathPart, queryPart] = fullUrl.split('?');
+    const url = pathPart.replace(/\/+/g, '/').replace(/\/$/, '') || '/';
     const method = req.method || 'GET';
     const body = await getBody(req);
 
     try {
         // -- PhonePe Payment Initiation --
-        if (url.includes('/pay') && method === 'POST') {
+        if (url.includes('/pay') && !url.includes('/payment-callback') && method === 'POST') {
             const { name, amount, phone, eventId, orderId, userId } = body;
             const targetEventId = eventId || orderId;
-            const targetUserId = name || userId || "Guest";
+            const targetUserId = userId || name || "Guest";
             
             const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || "PGTESTPAYUAT86";
             const SALT_KEY = process.env.PHONEPE_SALT_KEY || "96434309-7796-489d-8924-ab56988a6076";
@@ -28,8 +31,6 @@ export default async function handler(req, res) {
             const ENV_BASE_URL = process.env.PHONEPE_BASE_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
             
             const txId = "TXN_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase();
-            
-            // Unified Redirect: Always force events subdomain to correctly handle SPA routing
             const host = req.headers.host || "events.parkconscious.in";
             const redirectBase = host.includes('localhost') ? `http://${host}` : `https://events.parkconscious.in`;
 
@@ -48,7 +49,6 @@ export default async function handler(req, res) {
             const base64 = Buffer.from(JSON.stringify(payload)).toString("base64");
             const checksum = crypto.createHash("sha256").update(base64 + "/pg/v1/pay" + SALT_KEY).digest("hex") + "###" + SALT_INDEX;
 
-            // Create initial booking with phone and email persistence
             await Booking.create({ 
                 transactionId: txId, 
                 eventId: targetEventId, 
@@ -69,9 +69,10 @@ export default async function handler(req, res) {
             return json(res, 500, { message: "Failed to initiate payment" });
         }
 
-        // -- PhonePe Payment Callback (Verification + Idempotency) --
+        // -- PhonePe Payment Callback (Idempotent) --
         if (url.includes('/payment-callback')) {
-            const txId = new URLSearchParams(url.split('?')[1]).get('txnId') || body?.merchantTransactionId;
+            const params = new URLSearchParams(queryPart || '');
+            const txId = params.get('txnId') || body?.merchantTransactionId;
             if (!txId) return json(res, 400, { message: "Transaction ID missing" });
 
             const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || "PGTESTPAYUAT86";
@@ -79,32 +80,25 @@ export default async function handler(req, res) {
             const SALT_INDEX = process.env.PHONEPE_SALT_INDEX || 1;
             const ENV_BASE_URL = process.env.PHONEPE_BASE_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
 
-            // 1. IDEMPOTENCY CHECK: Is this transaction already confirmed?
             const existingBooking = await Booking.findOne({ transactionId: txId });
             if (existingBooking && existingBooking.status === "Confirmed") {
-                console.log(`[PAYMENT] Duplicate callback for ${txId} - Ignoring to prevent double-count.`);
-                // If it's a GET request (redirect from PhonePe), send to success page anyway
                 if (method === 'GET') {
-                    const host = req.headers.host || "events.parkconscious.in";
-                    const redirectBase = host.includes('localhost') ? `http://${host}` : `https://${host}`;
+                    const redirectBase = `https://events.parkconscious.in`;
                     res.setHeader('Location', `${redirectBase}/payment-success?txnId=${txId}`);
                     res.statusCode = 302; res.end(); return;
                 }
                 return json(res, 200, { success: true, message: "Already processed" });
             }
 
-            // 2. VERIFY WITH PHONEPE
             const checkSum = crypto.createHash("sha256").update(`/pg/v1/status/${MERCHANT_ID}/${txId}` + SALT_KEY).digest("hex") + "###" + SALT_INDEX;
             const response = await axios.get(`${ENV_BASE_URL}/pg/v1/status/${MERCHANT_ID}/${txId}`, {
                 headers: { "X-VERIFY": checkSum, "X-MERCHANT-ID": MERCHANT_ID }
             });
 
             const isSuccess = response.data.success && response.data.data.state === "COMPLETED";
-            const host = req.headers.host || "events.parkconscious.in";
-            const redirectBase = host.includes('localhost') ? `http://${host}` : `https://${host}`;
+            const redirectBase = `https://events.parkconscious.in`;
 
             if (isSuccess) {
-                // Update booking to confirmed status and decrement the event capacity
                 const updatedBooking = await Booking.findOneAndUpdate(
                     { transactionId: txId, status: { $ne: "Confirmed" } }, 
                     { $set: { 
@@ -114,7 +108,6 @@ export default async function handler(req, res) {
                     { new: true }
                 );
 
-                // If this is the FIRST time we're confirming, decrement the event capacity
                 if (updatedBooking && updatedBooking.eventId && updatedBooking.eventId.length === 24) {
                     await models.Event.findByIdAndUpdate(updatedBooking.eventId, { $inc: { capacity: -1 } });
                 }
@@ -133,27 +126,30 @@ export default async function handler(req, res) {
             return json(res, 200, { success: isSuccess });
         }
 
-        // -- User's Personal Bookings (RESTORED for 'My Tickets' page) --
-        if (url.includes('bookings/') && !url.includes('status/') && method === 'GET') {
-            const uidStr = String(url.split('/').pop().split('?')[0]);
-            if (!uidStr || uidStr === 'undefined') return json(res, 400, { message: 'User ID missing or invalid' });
+        // -- Booking Status Check --
+        if (url.includes('/booking/status/') && method === 'GET') {
+            const txnId = url.split('/').pop();
+            if (!txnId) return json(res, 400, { message: 'Transaction ID missing' });
+            const booking = await Booking.findOne({ transactionId: txnId }).lean();
+            if (!booking) return json(res, 404, { message: 'Booking not found' });
+            return json(res, 200, booking);
+        }
+
+        // -- User's Personal Bookings (My Tickets) --
+        if (url.includes('/bookings/') && !url.includes('/status') && method === 'GET') {
+            const userId = url.split('/').pop();
+            if (!userId || userId === 'undefined') return json(res, 400, { message: 'User ID missing or invalid' });
             
             const bookings = await Booking.find({ 
-                userId: uidStr, 
+                userId: String(userId), 
                 status: "Confirmed" 
             }).sort({ createdAt: -1 }).lean();
 
-            // Enrich with Event Details
             for (let b of bookings) {
                 const eid = String(b.eventId || '');
                 if (eid && eid.length === 24) {
                     const evt = await models.Event.findById(eid).lean();
-                    if (evt) {
-                        b.event = normalizeEvent(evt);
-                    } else {
-                        // Fallback to prevent frontend crash on deleted events
-                        b.event = { title: "Deleted/Legacy Event", date: b.createdAt, location: "TBA" };
-                    }
+                    b.event = evt ? normalizeEvent(evt) : { title: "Archived Event", date: b.createdAt, location: "TBA" };
                 } else {
                     b.event = { title: "Archived Event", date: b.createdAt, location: "TBA" };
                 }
@@ -162,7 +158,7 @@ export default async function handler(req, res) {
             return json(res, 200, bookings);
         }
 
-        return json(res, 404, { message: 'Payment endpoint not matched' });
+        return json(res, 404, { message: 'Payment endpoint not matched: ' + url });
     } catch (err) {
         console.error('[PAYMENT ERROR]:', err);
         return json(res, 500, { message: 'Internal Server Error', error: err.message });

@@ -1,7 +1,7 @@
 import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
 import crypto from 'crypto';
-import { json, setCors, getBody, verifyUser, normalizeEvent, normalizeUrl } from './lib/utils.js';
+import { json, setCors, getBody, verifyUser, normalizeEvent } from './lib/utils.js';
 
 const { Booking, Event, User, Owner, Parking } = models;
 
@@ -10,38 +10,32 @@ export default async function handler(req, res) {
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
     await connectDB();
-    const url = normalizeUrl(req.url);
+
+    const fullUrl = req.url || '/';
+    const url = fullUrl.split('?')[0].replace(/\/+/g, '/').replace(/\/$/, '') || '/';
     const method = req.method || 'GET';
     const body = await getBody(req);
     const user = verifyUser(req);
 
     try {
-        // -- Admin Attendees Management --
+        // -- Admin Attendees/Bookings List --
         if (url.includes('bookings/all') && method === 'GET') {
-            const user = verifyUser(req);
-            if (!user) {
-                console.error('[ADMIN AUTH FAIL]: No valid token/user found in request');
-                return json(res, 401, { message: 'Authentication required. Please log in again.' });
-            }
-            if (user.role !== 'admin') {
-                console.error(`[ADMIN ROLE FAIL]: User ${user.email} attempted admin access with role ${user.role}`);
-                return json(res, 403, { message: 'Access Denied: Admin role required' });
-            }
+            if (!user) return json(res, 401, { message: 'Authentication required. Please log in again.' });
+            if (user.role !== 'admin') return json(res, 403, { message: 'Access Denied: Admin role required' });
             
             const bookings = await Booking.find().sort({ createdAt: -1 }).lean();
             console.log(`[ADMIN API] Bookings fetched: ${bookings.length}`);
             
-            // Rich enrichment: Hex-ID Resolution + Event Normalization with Safety Guards
             for (let b of bookings) {
                 try {
                     const eid = String(b.eventId || '');
-                    if (eid && eid.length === 24) {
+                    if (eid && eid.length === 24 && /^[a-f0-9]+$/i.test(eid)) {
                         const evt = await Event.findById(eid).lean();
                         if (evt) b.event = normalizeEvent(evt);
                     }
                     
                     let resolvedName = String(b.userId || 'Guest');
-                    if (resolvedName.length === 24) {
+                    if (resolvedName.length === 24 && /^[a-f0-9]+$/i.test(resolvedName)) {
                         const u = await User.findById(resolvedName).lean();
                         if (u && u.name) resolvedName = u.name;
                         else {
@@ -55,7 +49,6 @@ export default async function handler(req, res) {
                         email: b.email || b.phone || 'N/A' 
                     };
                 } catch(e) {
-                    console.error('[ADMIN LIST ENRICHMENT ERROR]:', e);
                     b.user = { name: String(b.userId || 'Guest'), email: 'N/A' };
                 }
             }
@@ -70,18 +63,18 @@ export default async function handler(req, res) {
              const parts = url.split('/');
              const ownerId = parts[parts.indexOf('owner') + 1];
              
-             if (method === 'GET') return json(res, 200, await Parking.find({ owner: ownerId }));
+             if (method === 'GET') return json(res, 200, await Parking.find({ owner: ownerId }).lean());
              if (method === 'POST') {
                  const p = await Parking.create({ 
                      ...body, 
                      owner: ownerId, 
                      ID: "PRK_" + crypto.randomUUID().slice(0, 6).toUpperCase() 
                  });
-                 return json(res, 201, p);
+                 return json(res, 201, p.toObject());
              }
         }
 
-        return json(res, 404, { message: 'Admin/Parking endpoint not matched' });
+        return json(res, 404, { message: 'Admin endpoint not matched: ' + url });
     } catch (err) {
         console.error('[ADMIN ERROR]:', err);
         return json(res, 500, { message: 'Internal Server Error', error: err.message });
