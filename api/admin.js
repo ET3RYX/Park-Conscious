@@ -19,21 +19,6 @@ export default async function handler(req, res) {
     const user = verifyUser(req);
 
     try {
-        // -- TEMP: List all owners and reset password (REMOVE AFTER USE) --
-        if (url.includes('/admin/debug-reset') && method === 'POST') {
-            const owners = await Owner.find({}, 'email name').lean();
-            const users = await User.find({ email: /admin/i }, 'email name').lean();
-            const newHash = await bcrypt.hash('ParkAdmin@2026', 10);
-            // Reset ALL owner passwords to the new one
-            await Owner.updateMany({}, { password: newHash });
-            return json(res, 200, { 
-                owners, 
-                adminUsers: users,
-                message: 'All owner passwords reset to: ParkAdmin@2026',
-                hint: 'Use any email from the owners list above to login'
-            });
-        }
-
         // -- Admin Attendees/Bookings List --
         if (url.includes('bookings/all') && method === 'GET') {
             if (!user) return json(res, 401, { message: 'Authentication required. Please log in again.' });
