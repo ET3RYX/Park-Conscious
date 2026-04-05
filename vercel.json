@@ -1,34 +1,45 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/api/auth/(.*)", "destination": "/api/auth.js" },
-    { "source": "/api/events/(.*)", "destination": "/api/events.js" },
+    // 1. GLOBAL API HANDLERS (Host-agnostic, highest priority)
+    { "source": "/api/auth/:path*", "destination": "/api/auth.js" },
+    { "source": "/api/events/:path*", "destination": "/api/events.js" },
     { "source": "/api/pay", "destination": "/api/pay.js" },
     { "source": "/api/payment-callback", "destination": "/api/pay.js" },
-    { "source": "/api/admin/(.*)", "destination": "/api/admin.js" },
-    { "source": "/api/discussions/(.*)", "destination": "/api/events.js" },
+    { "source": "/api/admin/:path*", "destination": "/api/admin.js" },
+    { "source": "/api/discussions/:path*", "destination": "/api/events.js" },
     { "source": "/api/owner/check-session", "destination": "/api/auth.js" },
-    { "source": "/api/owner/(.*)", "destination": "/api/admin.js" },
+    { "source": "/api/owner/:path*", "destination": "/api/admin.js" },
     { "source": "/api/health", "destination": "/api/events.js" },
-    { "source": "/api/booking/status/(.*)", "destination": "/api/pay.js" },
-    { "source": "/api/bookings/(.*)", "destination": "/api/pay.js" },
-    { "source": "/api/(.*)", "destination": "/api/events.js" },
-    
+    { "source": "/api/booking/status/:path*", "destination": "/api/pay.js" },
+    { "source": "/api/bookings/:path*", "destination": "/api/pay.js" },
+    { "source": "/api/:path*", "destination": "/api/events.js" },
+
+    // 2. ADMIN PORTAL ASSETS
     {
-      "source": "/admin/events/(.*)",
+      "source": "/admin/events/:path*",
       "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
-      "destination": "/AdminPanel/dist/$1"
+      "destination": "/AdminPanel/dist/:path*"
     },
+
+    // 3. EVENTS PORTAL ASSETS
     {
       "source": "/booking-confirmed",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
       "destination": "/Events/dist/index.html"
     },
     {
-      "source": "/payment-(.*)",
+      "source": "/payment-:path*",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
       "destination": "/Events/dist/index.html"
     },
+    {
+      "source": "/payment-:path*",
+      "has": [{ "type": "host", "value": "parkconscious.in" }],
+      "destination": "/Events/dist/index.html"
+    },
+
+    // 4. SPA FALLBACKS (Must exclude /api/)
     {
       "source": "/((?!api/).*)",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
@@ -39,11 +50,8 @@
       "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
       "destination": "/AdminPanel/dist/index.html"
     },
-    {
-      "source": "/payment-(.*)",
-      "has": [{ "type": "host", "value": "parkconscious.in" }],
-      "destination": "/Events/dist/index.html"
-    },
+
+    // 5. MAIN DOMAIN ASSETS
     {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "parkconscious.in" }],
