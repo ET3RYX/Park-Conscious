@@ -51,19 +51,19 @@ const FeaturedEventCard = () => {
   const navigate = useNavigate();
   return (
     <div 
-      onClick={() => navigate("/farewell-tickets")}
-      className="group relative w-full h-48 md:h-64 rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl transition-transform duration-500 hover:scale-[1.01] bg-gradient-to-tr from-[#0a0410] via-[#1a0b2e] to-[#2d0f54] border border-white/5 flex items-center"
+      onClick={() => navigate("/tedx-tickets")}
+      className="group relative w-full h-48 md:h-64 rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl transition-transform duration-500 hover:scale-[1.01] bg-gradient-to-tr from-[#2a0808] via-[#1a0505] to-[#0a0000] border border-red-600/20 flex items-center"
     >
       {/* Decorative glowing orbs */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-vibrantBlue/10 rounded-full blur-[80px] pointer-events-none"></div>
-      <div className="absolute bottom-0 right-0 w-64 h-64 bg-premier-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+      <div className="absolute top-0 left-0 w-64 h-64 bg-red-600/10 rounded-full blur-[80px] pointer-events-none"></div>
+      <div className="absolute bottom-0 right-0 w-64 h-64 bg-red-800/10 rounded-full blur-[80px] pointer-events-none"></div>
 
       <div className="relative z-10 px-8 md:px-16 w-full">
-        <div className="bg-premier-700/80 backdrop-blur-sm text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full w-fit mb-4 tracking-widest uppercase border border-premier-400/20">Featured Event</div>
-        <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-2">AFSANA 2026</h2>
-        <p className="text-gray-300 text-sm md:text-lg max-w-md font-medium">The final countdown begins. Join us for a night of memories, music, and magic.</p>
+        <div className="bg-red-700/80 backdrop-blur-sm text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full w-fit mb-4 tracking-widest uppercase border border-red-500/20">Featured Event</div>
+        <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-2">TEDx GGSIPU EDC</h2>
+        <p className="text-gray-300 text-sm md:text-lg max-w-md font-medium">Theme: SANGAM. Where Ideas, Perspectives, and Voices Converge.</p>
         <div className="mt-6 flex items-center gap-4">
-          <button className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-premier-400 hover:text-white transition-colors uppercase tracking-wider">Get Tickets</button>
+          <button className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-red-600 hover:text-white transition-colors uppercase tracking-wider">Get Tickets</button>
           <span className="text-white/60 text-xs font-medium">Limited Slots Available</span>
         </div>
       </div>
@@ -146,7 +146,7 @@ const HomePage = () => {
             <div key={idx} className="min-w-full flex items-center justify-center gap-4 px-4 h-full flex-shrink-0">
               <p className="text-black font-black text-sm md:text-xl tracking-wide uppercase text-center w-2/3 md:w-auto">{copy}</p>
               <button 
-                onClick={() => navigate("/farewell-tickets")}
+                onClick={() => navigate("/tedx-tickets")}
                 className="bg-black text-white px-4 md:px-8 py-2 md:py-2.5 rounded-full font-bold text-[10px] md:text-sm tracking-widest hover:bg-gray-800 transition flex-shrink-0 shadow-lg"
               >
                 BOOK NOW

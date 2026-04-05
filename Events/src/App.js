@@ -24,7 +24,7 @@ function App() {
       <Route path="/plays" element={<PlayPage />} />
       <Route path="/category/:id" element={<CategoryPage />} />
       <Route path="/discussion/:id" element={<DiscussionPage />} />
-      <Route path="/farewell-tickets" element={<FarewellTicketsPage />} />
+      <Route path="/tedx-tickets" element={<FarewellTicketsPage />} />
       <Route path="/event/:id" element={<EventPage />} />
       <Route path="/payment-success" element={<SuccessPage />} />
       <Route path="/payment-failure" element={<FailurePage />} />
