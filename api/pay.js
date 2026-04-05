@@ -135,18 +135,19 @@ export default async function handler(req, res) {
 
         // -- User's Personal Bookings (RESTORED for 'My Tickets' page) --
         if (url.includes('bookings/') && !url.includes('status/') && method === 'GET') {
-            const userId = url.split('/').pop().split('?')[0];
-            if (!userId) return json(res, 400, { message: 'User ID missing' });
+            const uidStr = String(url.split('/').pop().split('?')[0]);
+            if (!uidStr || uidStr === 'undefined') return json(res, 400, { message: 'User ID missing or invalid' });
             
             const bookings = await Booking.find({ 
-                userId, 
+                userId: uidStr, 
                 status: "Confirmed" 
             }).sort({ createdAt: -1 }).lean();
 
             // Enrich with Event Details
             for (let b of bookings) {
-                if (b.eventId && b.eventId.length === 24) {
-                    const evt = await models.Event.findById(b.eventId).lean();
+                const eid = String(b.eventId || '');
+                if (eid && eid.length === 24) {
+                    const evt = await models.Event.findById(eid).lean();
                     if (evt) {
                         b.event = normalizeEvent(evt);
                     } else {

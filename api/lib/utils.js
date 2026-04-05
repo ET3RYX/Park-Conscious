@@ -84,11 +84,19 @@ export const issueCookie = (req, res, u) => {
 
 export const setCors = (req, res) => {
     const allowed = [
-        'https://events.parkconscious.in', 'https://admin.events.parkconscious.in', 'http://localhost:5173', 'https://parkconscious.in'
+        'https://events.parkconscious.in', 
+        'https://admin.events.parkconscious.in', 
+        'https://parkconscious.in',
+        'https://www.parkconscious.in',
+        'http://localhost:5173',
+        'http://localhost:3000'
     ];
     const origin = req.headers.origin;
-    if (allowed.includes(origin)) res.setHeader('Access-Control-Allow-Origin', origin);
-    else res.setHeader('Access-Control-Allow-Origin', allowed[0]);
+    if (origin && allowed.some(a => origin.startsWith(a))) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+        res.setHeader('Access-Control-Allow-Origin', allowed[0]);
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,PUT,PATCH,DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
     res.setHeader('Access-Control-Allow-Credentials', 'true');

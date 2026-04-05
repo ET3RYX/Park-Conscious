@@ -26,13 +26,14 @@ export default async function handler(req, res) {
             // Rich enrichment: Hex-ID Resolution + Event Normalization with Safety Guards
             for (let b of bookings) {
                 try {
-                    if (b.eventId && b.eventId.length === 24) {
-                        const evt = await Event.findById(b.eventId).lean();
+                    const eid = String(b.eventId || '');
+                    if (eid && eid.length === 24) {
+                        const evt = await Event.findById(eid).lean();
                         if (evt) b.event = normalizeEvent(evt);
                     }
                     
-                    let resolvedName = b.userId || 'Guest';
-                    if (typeof resolvedName === 'string' && resolvedName.length === 24) {
+                    let resolvedName = String(b.userId || 'Guest');
+                    if (resolvedName.length === 24) {
                         const u = await User.findById(resolvedName).lean();
                         if (u && u.name) resolvedName = u.name;
                         else {
@@ -47,7 +48,7 @@ export default async function handler(req, res) {
                     };
                 } catch(e) {
                     console.error('[ADMIN LIST ENRICHMENT ERROR]:', e);
-                    b.user = { name: b.userId || 'Guest', email: 'N/A' };
+                    b.user = { name: String(b.userId || 'Guest'), email: 'N/A' };
                 }
             }
             
