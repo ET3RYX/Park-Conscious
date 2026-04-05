@@ -15,7 +15,7 @@ const EventHero = ({ event }) => {
         amount: event.displayPrice || 0,
         phone: "9999999999", // Placeholder phone
         orderId: event._id,
-        userId: user?.uid || null
+        userId: user?.id || user?.uid || null
       });
 
       if (data.success && data.redirectUrl) {

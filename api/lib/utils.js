@@ -67,7 +67,15 @@ export const verifyUser = (req) => {
 export const issueCookie = (req, res, u) => {
     const host = req.headers.host || '';
     const domain = host.includes('parkconscious.in') ? '.parkconscious.in' : undefined;
-    const token = jwt.sign(u, JWT_SECRET, { expiresIn: '7d' });
+    
+    // Core payload stabilization: Ensure both id and uid exist
+    const payload = { 
+        ...u, 
+        id: u.id || u._id, 
+        uid: u.uid || u.id || u._id 
+    };
+
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
     res.setHeader('Set-Cookie', serialize('token', token, {
         httpOnly: true, secure: true, sameSite: 'lax', domain, maxAge: 7 * 24 * 60 * 60, path: '/'
     }));

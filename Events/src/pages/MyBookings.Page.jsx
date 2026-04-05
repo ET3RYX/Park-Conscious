@@ -18,8 +18,10 @@ const MyBookingsPage = () => {
 
     const fetchBookings = async () => {
       try {
-        const { data } = await backendAxios.get(`/api/bookings/${user.uid}`);
-        setBookings(data);
+        const id = user.uid || user.id;
+        if (!id) return setLoading(false);
+        const { data } = await backendAxios.get(`/api/bookings/${id}`);
+        setBookings(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Error fetching bookings:", err);
       } finally {
@@ -91,7 +93,7 @@ const MyBookingsPage = () => {
                          <div className="space-y-4 mb-8 flex-1">
                             <div className="flex items-center gap-3 text-gray-400 font-medium text-xs">
                                <Calendar size={14} className="text-premier-500" />
-                               <span>{new Date(booking.event?.date || booking.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                <span>{new Date(booking.event?.date || booking.event?.createdAt || booking.createdAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                             </div>
                             <div className="flex items-center gap-3 text-gray-400 font-medium text-xs">
                                <MapPin size={14} className="text-premier-500" />

@@ -24,7 +24,13 @@ export default async function handler(req, res) {
             if (!u) { u = await Owner.findOne({ email: search }); isOwner = !!u; }
             if (!u || !await bcrypt.compare(password, u.password)) return json(res, 401, { message: 'Invalid credentials' });
             
-            const payload = { id: u._id, name: u.name, email: u.email, role: isOwner ? 'admin' : 'user' };
+            const payload = { 
+                id: u._id, 
+                uid: u._id, // Backwards compatibility for Events project
+                name: u.name, 
+                email: u.email, 
+                role: isOwner ? 'admin' : 'user' 
+            };
             const token = issueCookie(req, res, payload);
             return json(res, 200, { user: payload, token });
         }
@@ -58,7 +64,13 @@ export default async function handler(req, res) {
                 await u.save();
             }
 
-            const payload = { id: u._id, name: u.name, email: u.email, role: isOwner ? 'admin' : 'user' };
+            const payload = { 
+                id: u._id, 
+                uid: u._id, 
+                name: u.name, 
+                email: u.email, 
+                role: isOwner ? 'admin' : 'user' 
+            };
             const token = issueCookie(req, res, payload);
             return json(res, 200, { user: payload, token, message: 'Logged in with Google' });
         }

@@ -148,9 +148,13 @@ export default async function handler(req, res) {
                 if (b.eventId && b.eventId.length === 24) {
                     const evt = await models.Event.findById(b.eventId).lean();
                     if (evt) {
-                        const { normalizeEvent } = await import('./lib/utils.js');
                         b.event = normalizeEvent(evt);
+                    } else {
+                        // Fallback to prevent frontend crash on deleted events
+                        b.event = { title: "Deleted/Legacy Event", date: b.createdAt, location: "TBA" };
                     }
+                } else {
+                    b.event = { title: "Archived Event", date: b.createdAt, location: "TBA" };
                 }
             }
 

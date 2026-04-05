@@ -21,6 +21,7 @@ export default async function handler(req, res) {
             if (!user || user.role !== 'admin') return json(res, 401, { message: 'Admin Auth required' });
             
             const bookings = await Booking.find().sort({ createdAt: -1 }).lean();
+            console.log(`[ADMIN API] Bookings fetched: ${bookings.length}`);
             
             // Rich enrichment: Hex-ID Resolution + Event Normalization with Safety Guards
             for (let b of bookings) {
