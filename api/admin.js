@@ -134,17 +134,39 @@ export default async function handler(req, res) {
                 if (b.eventId === "tedx_ggsipu_2026") eventName = "TEDx GGSIPU SANGAM";
                 if (b.eventId === "farewell_2024") eventName = "AFSANA '26 Farewell";
 
+                const bName = b.user?.name || "Attendee";
                 const htmlContent = `
-                  <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #050507; color: #ffffff; padding: 40px; border-radius: 12px; text-align: center;">
-                     <h1 style="color: #ffffff; margin-bottom: 8px;">Your Ticket for ${eventName}</h1>
-                     <p style="color: #a0a0a0; margin-bottom: 24px;">Please present this QR code at the entrance for verification.</p>
-                     
-                     <div style="background-color: #ffffff; padding: 20px; border-radius: 16px; display: inline-block; margin-bottom: 24px;">
-                        <img src="${qrUrl}" alt="Ticket QR Code" width="200" height="200" style="display: block;" />
+                  <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #050507; color: #ffffff; padding: 40px; border-radius: 16px; text-align: center; border: 1px solid #1f2937;">
+                     <div style="margin-bottom: 30px;">
+                        <span style="background-color: #10b981; color: #ffffff; padding: 4px 12px; border-radius: 99px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Verified Ticket</span>
                      </div>
                      
-                     <h3 style="color: #ffffff; margin: 0;">TICKET ID: ${ticketNumber}</h3>
-                     <p style="color: #666666; font-size: 12px; margin-top: 40px;">Powered by Park Conscious</p>
+                     <h1 style="color: #ffffff; margin: 0 0 8px 0; font-size: 24px; font-weight: 800;">YOUR ENTRY PASS</h1>
+                     <p style="color: #9ca3af; margin-bottom: 30px; font-size: 14px;">Hi ${bName}, we are excited to see you at ${eventName}!</p>
+                     
+                     <div style="background-color: #ffffff; padding: 25px; border-radius: 20px; display: inline-block; margin-bottom: 30px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);">
+                        <img src="${qrUrl}" alt="Ticket QR Code" width="220" height="220" style="display: block;" />
+                     </div>
+                     
+                     <div style="background-color: #111827; border: 1px solid #374151; padding: 20px; border-radius: 12px; text-align: left; margin: 0 20px;">
+                        <div style="margin-bottom: 12px;">
+                           <p style="color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px 0; font-weight: bold;">Attendee Name</p>
+                           <p style="color: #ffffff; font-size: 16px; font-weight: 600; margin: 0;">${bName}</p>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                           <p style="color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px 0; font-weight: bold;">Event Title</p>
+                           <p style="color: #ffffff; font-size: 16px; font-weight: 600; margin: 0;">${eventName}</p>
+                        </div>
+                        <div>
+                           <p style="color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px 0; font-weight: bold;">Ticket ID</p>
+                           <p style="color: #10b981; font-family: monospace; font-size: 18px; font-weight: bold; margin: 0;">${ticketNumber}</p>
+                        </div>
+                     </div>
+                     
+                     <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #1f2937;">
+                        <p style="color: #666666; font-size: 11px; margin: 0;">This pass is valid for one person. Do not share this QR code.</p>
+                        <p style="color: #4b5563; font-size: 12px; margin-top: 15px; font-weight: 600;">Powered by Park Conscious</p>
+                     </div>
                   </div>
                 `;
 
