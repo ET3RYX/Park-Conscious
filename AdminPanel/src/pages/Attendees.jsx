@@ -3,7 +3,7 @@ import {
   Users, Search, Filter, Download, 
   CheckCircle2, XCircle, Clock, 
   ChevronRight, Calendar, Mail, Ticket, Image,
-  Loader2, RefreshCw
+  Loader2, RefreshCw, Trash2
 } from 'lucide-react';
 import { bookingService } from '../services/api';
 
@@ -93,6 +93,17 @@ const Attendees = () => {
       alert("Failed to update status.");
     } finally {
       setToggleLoading(null);
+    }
+  };
+
+  const handleDeleteBooking = async (id) => {
+    if (!window.confirm("Are you sure you want to PERMANENTLY DELETE this booking? This will also restore ticket capacity for the event.")) return;
+    try {
+      await bookingService.deleteBooking(id);
+      setAttendees(prev => prev.filter(a => a._id !== id));
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Failed to delete booking.");
     }
   };
 
@@ -324,6 +335,15 @@ const Attendees = () => {
                       <p className="text-[10px] font-mono text-slate-600">
                         {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                       <button 
+                         onClick={() => handleDeleteBooking(item._id)}
+                         className="p-2 text-slate-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                         title="Delete Booking"
+                       >
+                         <Trash2 size={16} />
+                       </button>
                     </td>
                   </tr>
                 ))}

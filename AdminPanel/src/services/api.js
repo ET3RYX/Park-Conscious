@@ -52,6 +52,7 @@ export const bookingService = {
   getAllAttendees: () => api.get('/api/admin/bookings/all'),
   checkIn: (ticketId) => api.post('/api/bookings/check-in', { ticketId }),
   unCheckIn: (ticketId) => api.post('/api/bookings/un-check-in', { ticketId }),
+  deleteBooking: (id) => api.delete(`/api/admin/bookings/${id}`),
   broadcastEmails: (bookingIds) => api.post('/api/admin/email-batch', { bookingIds })
 };
 

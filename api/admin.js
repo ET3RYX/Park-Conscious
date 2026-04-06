@@ -180,6 +180,23 @@ export default async function handler(req, res) {
             }
         }
 
+        // -- Delete Booking (Admin Only) --
+        if (url.includes('bookings/') && method === 'DELETE') {
+            if (!user || user.role !== 'admin') return json(res, 403, { message: 'Access Denied' });
+            
+            const bookingId = url.split('/').pop();
+            const booking = await Booking.findById(bookingId);
+            if (!booking) return json(res, 404, { message: 'Booking not found' });
+
+            // Restore capacity if it was a real event and was confirmed
+            if (booking.status === "Confirmed" && booking.eventId && booking.eventId.length === 24) {
+               await Event.findByIdAndUpdate(booking.eventId, { $inc: { capacity: 1 } });
+            }
+
+            await Booking.findByIdAndDelete(bookingId);
+            return json(res, 200, { success: true, message: 'Booking removed successfully' });
+        }
+
         return json(res, 404, { message: 'Admin endpoint not matched: ' + url });
     } catch (err) {
         console.error('[ADMIN ERROR]:', err);
