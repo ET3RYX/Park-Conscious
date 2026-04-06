@@ -55,7 +55,15 @@ export default async function handler(req, res) {
             // Assemble final response
             for (let b of bookings) {
                 const eid = String(b.eventId || '');
-                if (eventMap[eid]) b.event = eventMap[eid];
+                
+                // Handle special string event IDs used by custom booking pages
+                if (eid === 'tedx_ggsipu_2026') {
+                    b.event = { title: 'TEDx GGSIPU SANGAM', date: new Date('2026-04-10T10:00:00Z') };
+                } else if (eid === 'farewell_2024' || eid === 'afsana_2026') {
+                    b.event = { title: 'AFSANA 2026 Farewell', date: new Date('2026-05-25T18:00:00Z') };
+                } else if (eventMap[eid]) {
+                    b.event = eventMap[eid];
+                }
                 
                 let resolvedName = String(b.userId || 'Guest');
                 if (userMap[resolvedName]) resolvedName = userMap[resolvedName];
