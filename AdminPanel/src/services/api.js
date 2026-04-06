@@ -51,6 +51,7 @@ export const eventService = {
 export const bookingService = {
   getAllAttendees: () => api.get('/api/admin/bookings/all'),
   checkIn: (ticketId) => api.post('/api/bookings/check-in', { ticketId }),
+  broadcastEmails: (bookingIds) => api.post('/api/admin/email-batch', { bookingIds })
 };
 
 export default api;

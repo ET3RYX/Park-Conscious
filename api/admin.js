@@ -3,6 +3,7 @@ import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
 import crypto from 'crypto';
 import { json, setCors, getBody, verifyUser, normalizeEvent } from './lib/utils.js';
+import { Resend } from 'resend';
 
 const { Booking, Event, User, Owner, Parking } = models;
 
@@ -93,6 +94,84 @@ export default async function handler(req, res) {
                  });
                  return json(res, 201, p.toObject());
              }
+        }
+
+        // -- Bulk Emailing --
+        if (url.includes('email-batch') && method === 'POST') {
+            if (!user || user.role !== 'admin') return json(res, 403, { message: 'Access Denied' });
+            
+            const { bookingIds } = body;
+            if (!Array.isArray(bookingIds) || bookingIds.length === 0) {
+                return json(res, 400, { message: 'bookingIds array required' });
+            }
+
+            const RESEND_API_KEY = process.env.RESEND_API_KEY;
+            if (!RESEND_API_KEY) {
+                return json(res, 500, { success: false, message: 'RESEND_API_KEY is not configured in the environment.' });
+            }
+
+            const resend = new Resend(RESEND_API_KEY);
+            const bookings = await Booking.find({ _id: { $in: bookingIds }, emailSent: { $ne: true } }).lean();
+            
+            if (bookings.length === 0) {
+                return json(res, 200, { success: true, sent: 0, message: 'All requested bookings have already been emailed or not found.' });
+            }
+
+            const emailsToSend = [];
+            for (let b of bookings) {
+                if (!b.email) continue;
+                
+                const ticketNumber = b.ticketId || b.transactionId || String(b._id).slice(-8);
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(ticketNumber)}&ecc=L&margin=0`;
+                
+                let eventName = "Park Events";
+                if (b.eventId === "tedx_ggsipu_2026") eventName = "TEDx GGSIPU SANGAM";
+                if (b.eventId === "farewell_2024") eventName = "AFSANA '26 Farewell";
+
+                const htmlContent = `
+                  <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #050507; color: #ffffff; padding: 40px; border-radius: 12px; text-align: center;">
+                     <h1 style="color: #ffffff; margin-bottom: 8px;">Your Ticket for ${eventName}</h1>
+                     <p style="color: #a0a0a0; margin-bottom: 24px;">Please present this QR code at the entrance for verification.</p>
+                     
+                     <div style="background-color: #ffffff; padding: 20px; border-radius: 16px; display: inline-block; margin-bottom: 24px;">
+                        <img src="${qrUrl}" alt="Ticket QR Code" width="200" height="200" style="display: block;" />
+                     </div>
+                     
+                     <h3 style="color: #ffffff; margin: 0;">TICKET ID: ${ticketNumber}</h3>
+                     <p style="color: #666666; font-size: 12px; margin-top: 40px;">Powered by Park Conscious</p>
+                  </div>
+                `;
+
+                emailsToSend.push({
+                   from: process.env.EMAIL_FROM || 'Park Events <onboarding@resend.dev>',
+                   to: b.email,
+                   subject: `Your Ticket for ${eventName}`,
+                   html: htmlContent
+                });
+            }
+
+            if (emailsToSend.length === 0) {
+               return json(res, 200, { success: true, sent: 0, message: 'No valid emails found.' });
+            }
+
+            try {
+               const { data, error } = await resend.batch.send(emailsToSend);
+               if (error) {
+                   console.error("Resend Batch Error:", error);
+                   return json(res, 500, { success: false, message: 'Failed to dispatch emails via Resend', error });
+               }
+
+               const actualEmailedIds = bookings.filter(b => b.email).map(b => b._id);
+               await Booking.updateMany(
+                   { _id: { $in: actualEmailedIds } },
+                   { $set: { emailSent: true } }
+               );
+
+               return json(res, 200, { success: true, sent: emailsToSend.length });
+            } catch (err) {
+               console.error("Email Sending Exception:", err);
+               return json(res, 500, { success: false, message: 'Error processing batch', error: String(err) });
+            }
         }
 
         return json(res, 404, { message: 'Admin endpoint not matched: ' + url });

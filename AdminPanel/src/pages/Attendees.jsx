@@ -24,6 +24,10 @@ const Attendees = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all'); // all, attended, pending
   const [eventFilter, setEventFilter] = useState('all');
+  
+  // Bulk Email State
+  const [broadcasting, setBroadcasting] = useState(false);
+  const [broadcastProgress, setBroadcastProgress] = useState({ current: 0, total: 0 });
 
   const fetchData = async () => {
     setLoading(true);
@@ -68,6 +72,48 @@ const Attendees = () => {
     });
   }, [attendees, searchQuery, statusFilter, eventFilter]);
 
+  const handleBroadcast = async () => {
+    // Only target those who have an email address and haven't had their email sent yet
+    const targetAttendees = attendees.filter(a => a.email && !a.emailSent);
+    
+    if (targetAttendees.length === 0) {
+      alert("No pending unsent emails found in the current pool.");
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to broadcast tickets to ${targetAttendees.length} attendees? This process will run in batches.`)) return;
+
+    setBroadcasting(true);
+    setBroadcastProgress({ current: 0, total: targetAttendees.length });
+
+    const batchSize = 20; // 20 per request to safely bypass Vercel limits
+    let processed = 0;
+
+    try {
+      for (let i = 0; i < targetAttendees.length; i += batchSize) {
+        const batch = targetAttendees.slice(i, i + batchSize);
+        const batchIds = batch.map(b => b._id);
+        
+        await bookingService.broadcastEmails(batchIds);
+        
+        processed += batch.length;
+        setBroadcastProgress({ current: processed, total: targetAttendees.length });
+        
+        // Wait 1 second between batches to be nice to the API provider
+        if (i + batchSize < targetAttendees.length) {
+          await new Promise(res => setTimeout(res, 1000));
+        }
+      }
+      alert(`Successfully dispatched ${processed} exact emails!`);
+      fetchData(); // Refresh UI to update the emailSent statuses
+    } catch (err) {
+      console.error("Broadcast interrupted:", err);
+      alert(`Broadcast failed after sending ${processed} emails. Resume again later.`);
+    } finally {
+      setBroadcasting(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header Section */}
@@ -87,10 +133,19 @@ const Attendees = () => {
             onClick={fetchData}
             className="p-2.5 bg-slate-900 border border-slate-800 text-slate-400 hover:text-white rounded-xl transition-all"
             title="Reload Data"
+            disabled={broadcasting}
           >
             <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
           </button>
-          <button className="flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all">
+          <button 
+            onClick={handleBroadcast}
+            disabled={loading || broadcasting}
+            className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-400 hover:from-emerald-500 hover:to-emerald-300 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all disabled:opacity-50"
+          >
+            <Mail size={16} />
+            {broadcasting ? 'Sending...' : 'Broadcast Tickets'}
+          </button>
+          <button className="flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all disabled:opacity-50" disabled={broadcasting}>
             <Download size={16} />
             Export CSV
           </button>
@@ -134,6 +189,28 @@ const Attendees = () => {
         </div>
       </div>
 
+      {/* Progress Bar Overlay */}
+      {broadcasting && (
+        <div className="bg-slate-900 border border-emerald-500/30 rounded-2xl p-6 shadow-[0_0_20px_rgba(16,185,129,0.15)] relative overflow-hidden">
+           <div className="absolute top-0 left-0 h-1 bg-emerald-500 transition-all duration-300" style={{ width: `${(broadcastProgress.current / broadcastProgress.total) * 100}%` }}></div>
+           <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                 <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                    <Mail size={20} className="text-emerald-500 animate-pulse" />
+                 </div>
+                 <div>
+                    <h3 className="text-emerald-400 font-black uppercase tracking-widest text-sm">Transmitting Tickets</h3>
+                    <p className="text-slate-400 text-xs mt-0.5">Please keep this window open until complete.</p>
+                 </div>
+              </div>
+              <div className="text-right">
+                 <span className="text-3xl font-black text-white">{broadcastProgress.current}</span>
+                 <span className="text-slate-500 text-sm font-bold"> / {broadcastProgress.total}</span>
+              </div>
+           </div>
+        </div>
+      )}
+
       {/* Main Table */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
         {loading ? (
@@ -167,8 +244,9 @@ const Attendees = () => {
                         <div>
                           <p className="text-sm font-bold text-white group-hover:text-sky-400 transition-colors uppercase tracking-tight">{item.user?.name || 'Unknown'}</p>
                           <div className="flex items-center gap-1.5 text-slate-500 text-[10px]">
-                            <Mail size={10} />
+                            <Mail size={10} className={item.emailSent ? 'text-emerald-500' : ''} />
                             {item.user?.email || item.email || 'N/A'}
+                            {item.emailSent && <span className="bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-widest">Sent</span>}
                           </div>
                         </div>
                       </div>
