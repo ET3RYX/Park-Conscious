@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Users, Search, Filter, Download, 
   CheckCircle2, XCircle, Clock, 
-  ChevronRight, Calendar, Mail, Ticket,
+  ChevronRight, Calendar, Mail, Ticket, Image,
   Loader2, RefreshCw
 } from 'lucide-react';
 import { bookingService } from '../services/api';
@@ -152,6 +152,7 @@ const Attendees = () => {
                   <th className="px-6 py-5">Event Details</th>
                   <th className="px-6 py-5">Ticket ID</th>
                   <th className="px-6 py-5">Verification</th>
+                  <th className="px-6 py-5">Screenshot</th>
                   <th className="px-6 py-5 text-right">Registered</th>
                 </tr>
               </thead>
@@ -194,8 +195,17 @@ const Attendees = () => {
                     </td>
                     <td className="px-6 py-4">
                       {item.screenshotUrl ? (
-                         <a href={item.screenshotUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-8 h-8 rounded-full bg-sky-500/10 text-sky-400 hover:bg-sky-500 hover:text-white transition-colors border border-sky-500/20" title="View Verification Screenshot">
-                            <Ticket size={14} />
+                         <a 
+                           href={item.screenshotUrl} 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           className="group flex items-center gap-2 hover:opacity-80 transition-opacity"
+                           title="View Verification Screenshot"
+                         >
+                           <div className="w-10 h-10 rounded-lg overflow-hidden border border-sky-500/30 bg-slate-800 flex-shrink-0">
+                             <img src={item.screenshotUrl} alt="Proof" className="w-full h-full object-cover" />
+                           </div>
+                           <span className="text-[10px] text-sky-400 font-bold uppercase tracking-widest group-hover:text-sky-300">View</span>
                          </a>
                       ) : (
                          <span className="text-slate-600 text-[10px] font-bold uppercase tracking-widest">None</span>

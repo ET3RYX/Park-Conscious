@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { backendAxios } from "../axios";
 import DefaultlayoutHoc from "../layout/Default.layout";
 import { useAuth } from "../context/DiscussionAuth.context";
-import { API_BASE_URL } from "../config";
 import { uploadToCloudinary } from "../utils/cloudinary";
 import { Camera, ShieldCheck, MapPin, Calendar, Info, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
@@ -53,7 +52,7 @@ const TedxTicketsPage = () => {
     setLoading(true);
 
     try {
-      const response = await backendAxios.post(`${API_BASE_URL}/api/pay`, {
+      const response = await backendAxios.post(`/api/pay`, {
         name,
         email, 
         amount: 0, // Ticket is FREE
