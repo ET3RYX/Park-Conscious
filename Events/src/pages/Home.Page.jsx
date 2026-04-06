@@ -48,31 +48,43 @@ const adCopies = [
 
 const categories = ["All Events", "Concerts", "Festivals", "Summits", "Culture"];
 
-const FeaturedEventCard = () => {
+const FeaturedEventsSection = () => {
   const navigate = useNavigate();
   return (
-    <div 
-      onClick={() => navigate("/tedx-tickets")}
-      className="group relative w-full h-48 md:h-64 rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl transition-transform duration-500 hover:scale-[1.01] bg-gradient-to-tr from-[#2a0808] via-[#1a0505] to-[#0a0000] border border-red-600/20 flex items-center"
-    >
-      {/* Decorative glowing orbs */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-red-600/10 rounded-full blur-[80px] pointer-events-none"></div>
-      <div className="absolute bottom-0 right-0 w-64 h-64 bg-red-800/10 rounded-full blur-[80px] pointer-events-none"></div>
-
-      <div className="relative z-10 px-8 md:px-16 w-full">
-        <div className="bg-red-700/80 backdrop-blur-sm text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full w-fit mb-4 tracking-widest uppercase border border-red-500/20">Featured Event</div>
-        <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-2">TEDx GGSIPU EDC</h2>
-        <p className="text-gray-300 text-sm md:text-lg max-w-md font-medium">Theme: SANGAM. Where Ideas, Perspectives, and Voices Converge.</p>
-        <div className="mt-6 flex items-center gap-4">
-          <button className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-red-600 hover:text-white transition-colors uppercase tracking-wider">Get Tickets</button>
-          <span className="text-white/60 text-xs font-medium">Limited Slots Available</span>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* TEDx SANGAM Card */}
+      <div
+        onClick={() => navigate("/tedx-tickets")}
+        className="group relative w-full h-48 md:h-64 rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl transition-transform duration-500 hover:scale-[1.02] bg-gradient-to-tr from-[#2a0808] via-[#1a0505] to-[#0a0000] border border-red-600/20 flex items-center"
+      >
+        <div className="absolute top-0 left-0 w-64 h-64 bg-red-600/10 rounded-full blur-[80px] pointer-events-none"></div>
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-red-800/10 rounded-full blur-[80px] pointer-events-none"></div>
+        <div className="relative z-10 px-8 w-full">
+          <div className="bg-red-700/80 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1 rounded-full w-fit mb-3 tracking-widest uppercase border border-red-500/20">Featured • Free Entry</div>
+          <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter mb-1">TEDx GGSIPU EDC</h2>
+          <p className="text-gray-400 text-xs md:text-sm font-medium">Theme: SANGAM — Ideas Converge</p>
+          <button className="mt-5 bg-white text-black px-5 py-2 rounded-full font-bold text-xs hover:bg-red-600 hover:text-white transition-colors uppercase tracking-wider">Get Tickets</button>
         </div>
       </div>
-      {/* Dynamic Glow Effect */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-premier-500 to-vibrantBlue opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500 -z-10" />
+
+      {/* Afsana '26 Card */}
+      <div
+        onClick={() => navigate("/afsana-tickets")}
+        className="group relative w-full h-48 md:h-64 rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl transition-transform duration-500 hover:scale-[1.02] bg-gradient-to-tr from-[#0a0410] via-[#1a0b2e] to-[#2d0f54] border border-vibrantBlue/20 flex items-center"
+      >
+        <div className="absolute top-0 left-0 w-64 h-64 bg-vibrantBlue/20 rounded-full blur-[80px] pointer-events-none"></div>
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-premier-500/15 rounded-full blur-[80px] pointer-events-none"></div>
+        <div className="relative z-10 px-8 w-full">
+          <div className="bg-vibrantBlue/20 backdrop-blur-sm text-vibrantBlue text-[10px] font-bold px-3 py-1 rounded-full w-fit mb-3 tracking-widest uppercase border border-vibrantBlue/20">Farewell • May 25</div>
+          <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter mb-1">AFSANA '26</h2>
+          <p className="text-gray-400 text-xs md:text-sm font-medium">The Grand Finale — Red Carpet • DJ • Dinner</p>
+          <button className="mt-5 bg-vibrantBlue text-white px-5 py-2 rounded-full font-bold text-xs hover:bg-indigo-500 transition-colors uppercase tracking-wider">Book Tickets</button>
+        </div>
+      </div>
     </div>
   );
 };
+
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -174,9 +186,10 @@ const HomePage = () => {
         ))}
       </div>
 
-      {/* Featured Event Card */}
+      {/* Featured Events — TEDx SANGAM + Afsana '26 */}
       <div className="container mx-auto px-4 md:px-12 mb-16">
-        <FeaturedEventCard />
+        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4 ml-1">Featured Events</p>
+        <FeaturedEventsSection />
       </div>
 
       {/* Event Grid Section */}

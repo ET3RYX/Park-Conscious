@@ -10,6 +10,7 @@ import ErrorPage from "./pages/404";
 import CategoryPage from "./pages/Category.Page";
 import DiscussionPage from "./pages/Discussion.Page";
 import TedxTicketsPage from "./pages/TedxTickets.Page";
+import AfsanaPage from "./pages/Afsana.Page";
 import EventPage from "./pages/Event.Page";
 import SuccessPage from "./pages/Success.Page";
 import FailurePage from "./pages/Failure.Page";
@@ -26,6 +27,7 @@ function App() {
       <Route path="/category/:id" element={<CategoryPage />} />
       <Route path="/discussion/:id" element={<DiscussionPage />} />
       <Route path="/tedx-tickets" element={<TedxTicketsPage />} />
+      <Route path="/afsana-tickets" element={<AfsanaPage />} />
       <Route path="/event/:id" element={<EventPage />} />
       <Route path="/payment-success" element={<SuccessPage />} />
       <Route path="/payment-failure" element={<FailurePage />} />
