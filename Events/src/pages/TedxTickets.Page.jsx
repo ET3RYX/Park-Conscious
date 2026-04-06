@@ -18,6 +18,11 @@ const TedxTicketsPage = () => {
   const [error, setError]     = useState("");
   const [success, setSuccess] = useState(false);
 
+  // Scroll to top automatically
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Pre-fill user data
   useEffect(() => {
     if (user) {
@@ -78,7 +83,7 @@ const TedxTicketsPage = () => {
   if (success) {
     return (
       <div className="bg-[#050507] min-h-screen text-white flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-[#0D0D12] border border-emerald-500/20 rounded-[2.5rem] p-10 text-center space-y-6 shadow-2xl">
+        <div className="max-w-md w-full bg-[#0D0D12] border border-emerald-500/20 rounded-[2.5rem] p-8 md:p-10 text-center space-y-6 shadow-2xl">
           <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20">
             <CheckCircle2 size={40} className="text-emerald-500" />
           </div>
@@ -101,16 +106,16 @@ const TedxTicketsPage = () => {
     <div className="bg-[#050507] min-h-screen text-white pt-24 pb-12 font-sans selection:bg-red-600/30">
       <div className="container mx-auto px-4 md:px-12">
         {/* Dynamic TEDx Red Gradient Hero */}
-        <div className="relative w-full h-64 sm:h-80 md:h-[28rem] rounded-3xl md:rounded-[3rem] overflow-hidden mb-12 flex items-center justify-center bg-gradient-to-br from-[#000000] via-[#1a0000] to-[#3a0000]">
+        <div className="relative w-full h-64 sm:h-80 md:h-[28rem] rounded-3xl md:rounded-[3rem] overflow-hidden mb-8 md:mb-12 flex items-center justify-center bg-gradient-to-br from-[#000000] via-[#1a0000] to-[#3a0000]">
           <div className="absolute -top-32 -left-32 w-96 h-96 bg-red-600/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
           <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-red-800/10 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
           
-          <div className="relative z-10 flex flex-col items-center justify-center p-8 text-center space-y-6">
-            <div className="flex items-center gap-3 bg-red-600/10 px-6 py-2 rounded-full border border-red-600/20 backdrop-blur-md">
-              <span className="text-red-600 font-black tracking-[0.4em] uppercase text-xs md:text-sm">TEDx</span>
-              <span className="text-white/60 font-bold tracking-widest uppercase text-[10px] md:text-xs">GGSIPU EDC</span>
+          <div className="relative z-10 flex flex-col items-center justify-center p-6 md:p-8 text-center space-y-4 md:space-y-6">
+            <div className="flex items-center gap-3 bg-red-600/10 px-4 md:px-6 py-2 rounded-full border border-red-600/20 backdrop-blur-md">
+              <span className="text-red-600 font-black tracking-[0.4em] uppercase text-[10px] md:text-sm">TEDx</span>
+              <span className="text-white/60 font-bold tracking-widest uppercase text-[9px] md:text-xs">GGSIPU EDC</span>
             </div>
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 pb-2">SANGAM</h1>
+            <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 pb-2">SANGAM</h1>
             <p className="text-gray-300 font-medium tracking-[0.2em] uppercase text-xs md:text-sm mt-4 bg-black/40 px-6 py-3 rounded-2xl border border-white/5 backdrop-blur-sm">Ideas, Perspectives, and Voices Converge</p>
           </div>
         </div>

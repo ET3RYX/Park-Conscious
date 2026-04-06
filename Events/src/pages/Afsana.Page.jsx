@@ -94,6 +94,11 @@ const AfsanaPage = () => {
   const [selectedTicket, setSelectedTicket] = useState("regular");
   const [isParkingModalOpen, setIsParkingModalOpen] = useState(false);
 
+  // Scroll to top automatically
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     if (user) {
       if (user.name && !name) setName(user.name);
@@ -158,14 +163,14 @@ const AfsanaPage = () => {
       <div className="container mx-auto px-4 md:px-12">
 
         {/* Hero Section — Purple/Gold Gradient */}
-        <div className="relative w-full h-80 md:h-[28rem] rounded-[3rem] overflow-hidden mb-16 shadow-2xl shadow-premier-900/20 border border-white/5 flex items-center justify-center bg-gradient-to-tr from-[#0a0410] via-[#1a0b2e] to-[#2d0f54]">
+        <div className="relative w-full h-80 md:h-[28rem] rounded-[3rem] overflow-hidden mb-8 md:mb-16 shadow-2xl shadow-premier-900/20 border border-white/5 flex items-center justify-center bg-gradient-to-tr from-[#0a0410] via-[#1a0b2e] to-[#2d0f54]">
           <div className="absolute -top-32 -left-32 w-96 h-96 bg-vibrantBlue/30 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
           <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-premier-500/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
 
-          <div className="relative z-10 flex flex-col items-center justify-center p-8 text-center space-y-4">
-            <span className="text-vibrantBlue font-bold tracking-[0.3em] uppercase text-sm md:text-base bg-vibrantBlue/10 px-6 py-2 rounded-full border border-vibrantBlue/20 backdrop-blur-md">The Grand Finale</span>
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 pb-2">AFSANA '26</h1>
-            <p className="text-gray-300 font-medium tracking-widest uppercase text-sm md:text-lg mt-4 max-w-2xl">One Last Celebration • May 25th, 2026</p>
+          <div className="relative z-10 flex flex-col items-center justify-center p-6 md:p-8 text-center space-y-4">
+            <span className="text-vibrantBlue font-bold tracking-[0.3em] uppercase text-xs md:text-base bg-vibrantBlue/10 px-6 py-2 rounded-full border border-vibrantBlue/20 backdrop-blur-md">The Grand Finale</span>
+            <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 pb-2">AFSANA '26</h1>
+            <p className="text-gray-300 font-medium tracking-widest uppercase text-xs md:text-lg mt-4 max-w-2xl">One Last Celebration • May 25th, 2026</p>
           </div>
         </div>
 
