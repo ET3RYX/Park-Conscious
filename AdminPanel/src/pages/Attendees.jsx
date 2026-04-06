@@ -108,20 +108,20 @@ const Attendees = () => {
   };
 
   const handleBroadcast = async () => {
-    // Only target those who have an email address and haven't had their email sent yet
-    const targetAttendees = attendees.filter(a => a.email && !a.emailSent);
+    // ONLY TARGET the filtered results that are confirmed, have an email, and havent had their email sent yet
+    const targetAttendees = filteredData.filter(a => a.status === 'Confirmed' && a.email && !a.emailSent);
     
     if (targetAttendees.length === 0) {
-      alert("No pending unsent emails found in the current pool.");
+      alert("No pending unsent emails found in the current filtered view.");
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to broadcast tickets to ${targetAttendees.length} attendees? This process will run in batches.`)) return;
+    if (!window.confirm(`Are you sure you want to broadcast tickets to these ${targetAttendees.length} FILTERED attendees?`)) return;
 
     setBroadcasting(true);
     setBroadcastProgress({ current: 0, total: targetAttendees.length });
 
-    const batchSize = 20; // 20 per request to safely bypass Vercel limits
+    const batchSize = 20; 
     let processed = 0;
 
     try {
@@ -129,21 +129,25 @@ const Attendees = () => {
         const batch = targetAttendees.slice(i, i + batchSize);
         const batchIds = batch.map(b => b._id);
         
-        await bookingService.broadcastEmails(batchIds);
+        const response = await bookingService.broadcastEmails(batchIds);
+        if (!response.data.success) {
+           throw new Error(response.data.message || "Unknown error during batch transmission.");
+        }
         
         processed += batch.length;
         setBroadcastProgress({ current: processed, total: targetAttendees.length });
         
-        // Wait 1 second between batches to be nice to the API provider
         if (i + batchSize < targetAttendees.length) {
           await new Promise(res => setTimeout(res, 1000));
         }
       }
-      alert(`Successfully dispatched ${processed} exact emails!`);
-      fetchData(); // Refresh UI to update the emailSent statuses
+      alert(`Success! Successfully dispatched ${processed} unique tickets.`);
+      fetchData(); 
     } catch (err) {
       console.error("Broadcast interrupted:", err);
-      alert(`Broadcast failed after sending ${processed} emails. Resume again later.`);
+      // Display the specific error from the backend if available
+      const errMsg = err.response?.data?.message || err.message || "An unexpected error occurred.";
+      alert(`BROADCAST FAILED: ${errMsg}`);
     } finally {
       setBroadcasting(false);
     }

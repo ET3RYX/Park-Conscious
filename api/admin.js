@@ -186,7 +186,7 @@ export default async function handler(req, res) {
                const { data, error } = await resend.batch.send(emailsToSend);
                if (error) {
                    console.error("Resend Batch Error:", error);
-                   return json(res, 500, { success: false, message: 'Failed to dispatch emails via Resend', error });
+                   return json(res, 500, { success: false, message: error.message || 'Resend error occurred', details: error });
                }
 
                const actualEmailedIds = bookings.filter(b => b.email).map(b => b._id);
