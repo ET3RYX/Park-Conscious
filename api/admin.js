@@ -171,7 +171,7 @@ export default async function handler(req, res) {
                 `;
 
                 emailsToSend.push({
-                   from: process.env.EMAIL_FROM || 'Park Events <onboarding@resend.dev>',
+                   from: process.env.EMAIL_FROM || 'Park Events <tickets@parkconscious.in>',
                    to: b.email,
                    subject: `Your Ticket for ${eventName}`,
                    html: htmlContent
