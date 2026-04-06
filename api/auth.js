@@ -98,6 +98,19 @@ export default async function handler(req, res) {
         if (url.includes('/me') && method === 'GET') {
             const decoded = verifyUser(req);
             if (!decoded) return json(res, 401, { authenticated: false });
+            
+            const host = req.headers.host || '';
+            const isAdminHost = host.includes('admin.events');
+            
+            // Firewall: Ensure the user's role matches the portal they are accessing
+            if (decoded.role === 'admin' && !isAdminHost) {
+                // Return 401 to force the frontend to clear the corrupted session
+                return json(res, 401, { authenticated: false, message: 'Admin sessions not allowed on public portal' });
+            }
+            if (decoded.role !== 'admin' && isAdminHost) {
+                return json(res, 401, { authenticated: false, message: 'Public sessions not allowed on admin portal' });
+            }
+
             return json(res, 200, { authenticated: true, user: decoded });
         }
 
