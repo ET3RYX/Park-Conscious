@@ -173,6 +173,24 @@ export default async function handler(req, res) {
             return json(res, 200, { success: isSuccess });
         }
 
+        // -- Check-in / Attendance Management --
+        if (url.includes('/bookings/check-in') || url.includes('/bookings/un-check-in')) {
+            if (method !== 'POST') return json(res, 405, { message: 'Method Not Allowed' });
+            
+            const { ticketId } = body;
+            if (!ticketId) return json(res, 400, { message: 'Ticket ID required' });
+
+            const isUncheck = url.includes('un-check-in');
+            const booking = await Booking.findOneAndUpdate(
+                { ticketId: ticketId },
+                { $set: { attended: !isUncheck } },
+                { new: true }
+            );
+
+            if (!booking) return json(res, 404, { message: 'Booking code not found' });
+            return json(res, 200, { success: true, attended: booking.attended });
+        }
+
         // -- Booking Status Check --
         if (url.includes('/booking/status/') && method === 'GET') {
             const txnId = url.split('/').pop();

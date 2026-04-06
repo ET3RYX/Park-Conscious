@@ -7,15 +7,19 @@ import {
 } from 'lucide-react';
 import { bookingService } from '../services/api';
 
-const StatusBadge = ({ attended }) => (
-  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+const StatusBadge = ({ attended, onToggle, loading }) => (
+  <button 
+    onClick={(e) => { e.stopPropagation(); onToggle(); }}
+    disabled={loading}
+    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all active:scale-95 ${
     attended 
-      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-      : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-  }`}>
-    {attended ? <CheckCircle2 size={12} /> : <Clock size={12} />}
+      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20' 
+      : 'bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/20'
+  } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+    {loading ? <Loader2 size={12} className="animate-spin" /> : attended ? <CheckCircle2 size={12} /> : <Clock size={12} />}
     {attended ? 'Attended' : 'Pending'}
-  </span>
+    {attended && !loading && <span className="ml-1 opacity-50 group-hover:opacity-100"><XCircle size={10} /></span>}
+  </button>
 );
 
 const Attendees = () => {
@@ -24,6 +28,7 @@ const Attendees = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all'); // all, attended, pending
   const [eventFilter, setEventFilter] = useState('all');
+  const [toggleLoading, setToggleLoading] = useState(null); // stores ticketId
   
   // Bulk Email State
   const [broadcasting, setBroadcasting] = useState(false);
@@ -71,6 +76,25 @@ const Attendees = () => {
       return matchesSearch && matchesStatus && matchesEvent;
     });
   }, [attendees, searchQuery, statusFilter, eventFilter]);
+
+  const handleToggleAttendance = async (item) => {
+    if (toggleLoading) return;
+    setToggleLoading(item.ticketId);
+    try {
+      if (item.attended) {
+        await bookingService.unCheckIn(item.ticketId);
+      } else {
+        await bookingService.checkIn(item.ticketId);
+      }
+      // Optimistic/Lazy update
+      setAttendees(prev => prev.map(a => a._id === item._id ? { ...a, attended: !a.attended } : a));
+    } catch (err) {
+      console.error("Toggle failed:", err);
+      alert("Failed to update status.");
+    } finally {
+      setToggleLoading(null);
+    }
+  };
 
   const handleBroadcast = async () => {
     // Only target those who have an email address and haven't had their email sent yet
@@ -269,7 +293,11 @@ const Attendees = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <StatusBadge attended={item.attended} />
+                      <StatusBadge 
+                        attended={item.attended} 
+                        onToggle={() => handleToggleAttendance(item)}
+                        loading={toggleLoading === item.ticketId}
+                      />
                     </td>
                     <td className="px-6 py-4">
                       {item.screenshotUrl ? (
