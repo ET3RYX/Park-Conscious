@@ -73,7 +73,6 @@ export const verifyUser = (req) => {
 
 export const issueCookie = (req, res, u) => {
     const host = req.headers.host || '';
-    const domain = host.includes('parkconscious.in') ? '.parkconscious.in' : undefined;
     
     // Core payload stabilization: Ensure both id and uid exist
     const payload = { 
@@ -83,8 +82,17 @@ export const issueCookie = (req, res, u) => {
     };
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+    
+    // Strict scoping to prevent Admin sessions from bleeding into public events
+    let domainPattern = undefined;
+    if (host.includes('admin.events')) {
+        domainPattern = host; // Strictly bind to admin.events...
+    } else if (host.includes('parkconscious.in')) {
+        domainPattern = host; // Strictly bind to events... or www...
+    }
+
     res.setHeader('Set-Cookie', serialize('token', token, {
-        httpOnly: true, secure: true, sameSite: 'lax', domain, maxAge: 7 * 24 * 60 * 60, path: '/'
+        httpOnly: true, secure: true, sameSite: 'lax', domain: domainPattern, maxAge: 7 * 24 * 60 * 60, path: '/'
     }));
     return token;
 };

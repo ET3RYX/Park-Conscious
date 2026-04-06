@@ -56,9 +56,12 @@ export default async function handler(req, res) {
         // -- Logout --
         if (url.includes('/logout') && method === 'POST') {
             const host = req.headers.host || '';
-            const domain = host.includes('parkconscious.in') ? '.parkconscious.in' : undefined;
+            let domainPattern = undefined;
+            if (host.includes('admin.events')) domainPattern = host;
+            else if (host.includes('parkconscious.in')) domainPattern = host;
+
             res.setHeader('Set-Cookie', serialize('token', '', {
-                httpOnly: true, secure: true, sameSite: 'lax', domain, maxAge: -1, path: '/'
+                httpOnly: true, secure: true, sameSite: 'lax', domain: domainPattern, maxAge: -1, path: '/'
             }));
             return json(res, 200, { message: 'Logged out successfully' });
         }
