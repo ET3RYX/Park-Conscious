@@ -25,6 +25,27 @@ export default async function handler(req, res) {
             const targetEventId = eventId || orderId;
             const targetUserId = userId || name || "Guest";
             
+            // PREVENT DUPLICATE BOOKINGS: Ensure the user/email/phone hasn't already booked this event
+            const emailFilter = body.email ? { email: body.email } : null;
+            const phoneFilter = phone ? { phone: phone } : null;
+            const userFilter = targetUserId !== "Guest" ? { userId: targetUserId } : null;
+            
+            const orConditions = [emailFilter, phoneFilter, userFilter].filter(Boolean);
+            
+            if (orConditions.length > 0) {
+                const existingCompleteBooking = await Booking.findOne({
+                    eventId: targetEventId,
+                    status: "Confirmed",
+                    $or: orConditions
+                });
+
+                if (existingCompleteBooking) {
+                    return json(res, 400, { 
+                        message: "A confirmed ticket already exists for this email, phone, or account on this event." 
+                    });
+                }
+            }
+            
             const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || "PGTESTPAYUAT86";
             const SALT_KEY = process.env.PHONEPE_SALT_KEY || "96434309-7796-489d-8924-ab56988a6076";
             const SALT_INDEX = process.env.PHONEPE_SALT_INDEX || 1;
