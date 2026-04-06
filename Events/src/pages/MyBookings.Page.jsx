@@ -97,7 +97,7 @@ const MyBookingsPage = () => {
                             </div>
                             <div className="flex items-center gap-3 text-gray-400 font-medium text-xs">
                                <MapPin size={14} className="text-premier-500" />
-                               <span className="truncate">{booking.event?.location || "TBA"}</span>
+                               <span className="truncate">{(typeof booking.event?.location === 'string' ? booking.event.location : booking.event?.location?.name || booking.event?.locationName || booking.event?.venue) || "TBA"}</span>
                             </div>
                          </div>
 
@@ -116,7 +116,7 @@ const MyBookingsPage = () => {
                                    height={64}
                                  />
                                </div>
-                               <span className="font-black text-[10px] text-gray-300 tracking-wider">#{(booking.ticketId || booking.transactionId || booking._id).slice(-6)}</span>
+                               <span className="font-black text-[10px] text-gray-300 tracking-wider">#{String(booking.ticketId || booking.transactionId || booking._id || "000000").slice(-6)}</span>
                             </div>
                          </div>
                       </div>

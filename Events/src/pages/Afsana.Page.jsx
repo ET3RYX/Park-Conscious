@@ -148,7 +148,7 @@ const AfsanaPage = () => {
         setLoading(false);
       }
     } catch (err) {
-      setError("Server error during payment initiation.");
+      setError(err.response?.data?.message || "Server error during payment initiation.");
       setLoading(false);
     }
   };

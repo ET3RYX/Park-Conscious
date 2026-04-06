@@ -24,8 +24,8 @@ export default async function handler(req, res) {
             if (!user) return json(res, 401, { message: 'Authentication required. Please log in again.' });
             if (user.role !== 'admin') return json(res, 403, { message: 'Access Denied: Admin role required' });
             
-            const bookings = await Booking.find().sort({ createdAt: -1 }).limit(200).lean();
-            console.log(`[ADMIN API] Bookings fetched: ${bookings.length}`);
+            const bookings = await Booking.find({ status: "Confirmed" }).sort({ createdAt: -1 }).limit(200).lean();
+            console.log(`[ADMIN API] Confirmed bookings fetched: ${bookings.length}`);
             
             // Gather unique IDs to fetch in bulk
             const eventIds = new Set();

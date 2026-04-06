@@ -69,7 +69,7 @@ const TedxTicketsPage = () => {
       }
     } catch (err) {
       console.error(err);
-      setError("Server error during registration.");
+      setError(err.response?.data?.message || "Server error during registration.");
     } finally {
       setLoading(false);
     }
