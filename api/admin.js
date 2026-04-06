@@ -50,8 +50,8 @@ export default async function handler(req, res) {
             eventsList.forEach(e => eventMap[String(e._id)] = normalizeEvent(e));
             
             const userMap = {};
-            usersList.forEach(u => userMap[String(u._id)] = u.name);
-            ownersList.forEach(o => userMap[String(o._id)] = o.name);
+            usersList.forEach(u => userMap[String(u._id)] = { name: u.name, email: u.email });
+            ownersList.forEach(o => userMap[String(o._id)] = { name: o.name, email: o.email });
             
             // Assemble final response
             for (let b of bookings) {
@@ -67,11 +67,17 @@ export default async function handler(req, res) {
                 }
                 
                 let resolvedName = String(b.userId || 'Guest');
-                if (userMap[resolvedName]) resolvedName = userMap[resolvedName];
+                let resolvedEmail = b.email || b.phone || 'N/A';
+
+                if (userMap[resolvedName]) {
+                    const profile = userMap[resolvedName];
+                    resolvedName = profile.name;
+                    if (resolvedEmail === 'N/A' || !resolvedEmail) resolvedEmail = profile.email;
+                }
 
                 b.user = { 
                     name: resolvedName, 
-                    email: b.email || b.phone || 'N/A' 
+                    email: resolvedEmail
                 };
             }
             
