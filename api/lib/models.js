@@ -45,6 +45,11 @@ const eventSchema = new mongoose.Schema(
     capacity: { type: Number, default: 0 },
     status: { type: String, default: 'draft', enum: ['draft', 'published', 'cancelled'] },
     organizerId: { type: String, default: null }, // UID of the event owner
+    requiredFields: {
+      name: { type: Boolean, default: true },
+      email: { type: Boolean, default: true },
+      phone: { type: Boolean, default: true },
+    },
     // Backward compatibility for old "Events" project fields
     name: String,
     venue: String,

@@ -159,7 +159,14 @@ const HomePage = () => {
             <div key={idx} className="min-w-full flex items-center justify-center gap-4 px-4 h-full flex-shrink-0">
               <p className="text-black font-black text-sm md:text-xl tracking-wide uppercase text-center w-2/3 md:w-auto">{copy}</p>
               <button 
-                onClick={() => navigate("/tedx-tickets")}
+                onClick={() => {
+                  const firstEvent = filteredEvents[0] || premierMovies[0];
+                  if (firstEvent) {
+                    navigate(`/event/${firstEvent._id || firstEvent.id}`);
+                  } else {
+                    navigate("/tedx-tickets");
+                  }
+                }}
                 className="bg-black text-white px-4 md:px-8 py-2 md:py-2.5 rounded-full font-bold text-[10px] md:text-sm tracking-widest hover:bg-gray-800 transition flex-shrink-0 shadow-lg"
               >
                 BOOK NOW

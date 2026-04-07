@@ -17,7 +17,12 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
     price: 0,
     capacity: 0,
     status: 'published', // Changed default to published for immediate visibility
-    images: []
+    images: [],
+    requiredFields: {
+      name: true,
+      email: true,
+      phone: true
+    }
   });
 
   const [showAdvancedLocation, setShowAdvancedLocation] = useState(false);
@@ -39,6 +44,16 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
       // Auto-show advanced if coordinates exist
       if (initialData.location?.coordinates?.lat || initialData.location?.coordinates?.lng) {
         setShowAdvancedLocation(true);
+      }
+      if (initialData.requiredFields) {
+        setFormData(prev => ({
+          ...prev,
+          requiredFields: {
+            name:  initialData.requiredFields.name  ?? true,
+            email: initialData.requiredFields.email ?? true,
+            phone: initialData.requiredFields.phone ?? true,
+          }
+        }));
       }
     }
   }, [initialData]);
@@ -84,7 +99,8 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
         price: parseInt(formData.price) || 0,
         capacity: parseInt(formData.capacity) || 0,
         lat: parseFloat(formData.lat) || 0,
-        lng: parseFloat(formData.lng) || 0
+        lng: parseFloat(formData.lng) || 0,
+        requiredFields: formData.requiredFields
     };
     onSubmit(submissionData);
   };
@@ -182,6 +198,37 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
                   </div>
                 </div>
               )}
+            </div>
+          </section>
+
+          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6 shadow-sm">
+            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+              <Users className="text-sky-500" size={18} /> Attendee Data Collection
+            </h3>
+            <p className="text-slate-500 text-[10px] font-medium leading-relaxed">Toggle which information attendees must provide during booking. Deselected fields will be hidden from the booking form.</p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {['name', 'email', 'phone'].map(field => (
+                <label key={field} className="flex items-center gap-3 p-4 bg-slate-950 border border-slate-800 rounded-xl cursor-pointer hover:border-sky-500/30 transition-all group">
+                  <div className="relative">
+                    <input 
+                      type="checkbox"
+                      checked={formData.requiredFields[field]}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        requiredFields: { ...prev.requiredFields, [field]: e.target.checked }
+                      }))}
+                      className="sr-only peer"
+                    />
+                    <div className="w-5 h-5 border-2 border-slate-700 rounded-md peer-checked:bg-sky-500 peer-checked:border-sky-500 transition-all flex items-center justify-center">
+                      <svg className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-black text-slate-500 group-hover:text-white uppercase tracking-widest leading-none mt-0.5">Collect {field}</span>
+                </label>
+              ))}
             </div>
           </section>
         </div>

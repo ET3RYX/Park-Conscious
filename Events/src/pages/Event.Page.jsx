@@ -3,12 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { backendAxios } from "../axios";
 import DefaultlayoutHoc from "../layout/Default.layout";
 import EventHero from "../components/EventHero/EventHero.Component";
-import { Info, MapPin, Share2, ShieldCheck, Ticket } from "lucide-react";
+import BookingModal from "../components/Booking/BookingModal.jsx";
+import { Info, MapPin, Share2, ShieldCheck, Ticket, CreditCard } from "lucide-react";
 
 const EventPage = () => {
   const { id } = useParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -113,14 +115,28 @@ const EventPage = () => {
                        <span className="text-[10px] font-black text-white uppercase tracking-widest">Share Event</span>
                        <Share2 size={14} className="text-slate-500 group-hover:text-sky-500 transition" />
                     </button>
-                    <p className="text-center text-[8px] text-slate-600 font-black uppercase leading-relaxed tracking-widest opacity-60">
-                       Secure QR Entry • Non-Refundable • Transferable
-                    </p>
-                 </div>
-              </div>
-           </div>
-        </div>
+                     <p className="text-center text-[8px] text-slate-600 font-black uppercase leading-relaxed tracking-widest opacity-60">
+                        Secure QR Entry • Non-Refundable • Transferable
+                     </p>
+
+                     <button 
+                       onClick={() => setIsBookingOpen(true)}
+                       className="w-full flex items-center justify-center gap-3 px-6 py-5 bg-gradient-to-r from-sky-600 to-indigo-600 text-white rounded-2xl hover:opacity-90 transition shadow-xl shadow-sky-900/20 active:scale-95 group mt-6 font-black uppercase tracking-widest text-[10px]"
+                     >
+                        <CreditCard size={18} className="group-hover:rotate-12 transition-transform" />
+                        {event.displayPrice > 0 ? "Book Tickets Now" : "Register For Free"}
+                     </button>
+                  </div>
+               </div>
+            </div>
+         </div>
       </div>
+
+      <BookingModal 
+        isOpen={isBookingOpen} 
+        setIsOpen={setIsBookingOpen} 
+        event={event} 
+      />
     </div>
   );
 };
