@@ -3,7 +3,7 @@ import {
   Users, Search, Filter, Download, 
   CheckCircle2, XCircle, Clock, 
   ChevronRight, Calendar, Mail, Ticket, Image,
-  Loader2, RefreshCw, Trash2
+  Loader2, RefreshCw, Trash2, History
 } from 'lucide-react';
 import { bookingService } from '../services/api';
 
@@ -33,6 +33,7 @@ const Attendees = () => {
   // Bulk Email State
   const [broadcasting, setBroadcasting] = useState(false);
   const [broadcastProgress, setBroadcastProgress] = useState({ current: 0, total: 0 });
+  const [syncing, setSyncing] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -104,6 +105,23 @@ const Attendees = () => {
     } catch (err) {
       console.error("Delete failed:", err);
       alert("Failed to delete booking.");
+    }
+  };
+
+  const handleSyncPayments = async () => {
+    if (syncing) return;
+    setSyncing(true);
+    try {
+      const { data } = await bookingService.reconcilePayments();
+      alert(data.message);
+      if (data.recovered > 0 || data.failed > 0) {
+        fetchData(); // Refresh list if something changed
+      }
+    } catch (err) {
+      console.error("Reconcile failed:", err);
+      alert("Verification failed: " + (err.response?.data?.message || "Unknown error"));
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -183,6 +201,14 @@ const Attendees = () => {
           >
             <Mail size={16} />
             {broadcasting ? 'Sending...' : 'Broadcast Tickets'}
+          </button>
+          <button 
+            onClick={handleSyncPayments}
+            disabled={loading || broadcasting || syncing}
+            className="flex items-center gap-2 bg-slate-900 border border-slate-800 text-slate-300 hover:text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all disabled:opacity-50"
+          >
+            {syncing ? <Loader2 size={16} className="animate-spin" /> : <History size={16} />}
+            {syncing ? 'Syncing...' : 'Sync Payments'}
           </button>
           <button className="flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all disabled:opacity-50" disabled={broadcasting}>
             <Download size={16} />

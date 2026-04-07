@@ -137,6 +137,11 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+bookingSchema.index({ eventId: 1 });
+bookingSchema.index({ transactionId: 1 });
+bookingSchema.index({ ticketId: 1 });
+bookingSchema.index({ status: 1 });
+
 const commentSchema = new mongoose.Schema(
   {
     discussionId: {

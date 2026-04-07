@@ -53,6 +53,7 @@ export const bookingService = {
   checkIn: (ticketId) => api.post('/api/bookings/check-in', { ticketId }),
   unCheckIn: (ticketId) => api.post('/api/bookings/un-check-in', { ticketId }),
   deleteBooking: (id) => api.delete(`/api/admin/bookings/${id}`),
+  reconcilePayments: () => api.post('/api/admin/reconcile'),
   broadcastEmails: (bookingIds) => api.post('/api/admin/email-batch', { bookingIds })
 };
 

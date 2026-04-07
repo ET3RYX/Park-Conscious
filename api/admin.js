@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
 import crypto from 'crypto';
+import axios from 'axios';
 import { json, setCors, getBody, verifyUser, normalizeEvent } from './lib/utils.js';
 import { Resend } from 'resend';
 
@@ -227,6 +228,75 @@ export default async function handler(req, res) {
 
             await Booking.findByIdAndDelete(bookingId);
             return json(res, 200, { success: true, message: 'Booking removed successfully' });
+        }
+
+        // -- Payment Reconciliation (Force Sync with PhonePe) --
+        if (url.includes('reconcile') && method === 'POST') {
+            if (!user || user.role !== 'admin') return json(res, 403, { message: 'Access Denied' });
+
+            // Find "Initiated" bookings. Only look at those older than 5 mins to avoid active sessions.
+            const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000);
+            const pendingBookings = await Booking.find({ 
+                status: "Initiated", 
+                createdAt: { $lt: fiveMinsAgo } 
+            }).limit(20); // Process in small batches to stay within serverless limits
+
+            if (pendingBookings.length === 0) {
+                return json(res, 200, { success: true, recovered: 0, message: "All transactions are currently up to date." });
+            }
+
+            const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || "PGTESTPAYUAT86";
+            const SALT_KEY = process.env.PHONEPE_SALT_KEY || "96434309-7796-489d-8924-ab56988a6076";
+            const SALT_INDEX = process.env.PHONEPE_SALT_INDEX || 1;
+            const ENV_BASE_URL = process.env.PHONEPE_BASE_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
+
+            let recoveredCount = 0;
+            let failureCount = 0;
+
+            for (const b of pendingBookings) {
+                try {
+                    const txId = b.transactionId;
+                    const checkSum = crypto.createHash("sha256").update(`/pg/v1/status/${MERCHANT_ID}/${txId}` + SALT_KEY).digest("hex") + "###" + SALT_INDEX;
+                    
+                    const response = await axios.get(`${ENV_BASE_URL}/pg/v1/status/${MERCHANT_ID}/${txId}`, {
+                        headers: { "X-VERIFY": checkSum, "X-MERCHANT-ID": MERCHANT_ID },
+                        timeout: 5000
+                    });
+
+                    // If PhonePe confirms SUCCESS (COMPLETED)
+                    if (response.data.success && response.data.data.state === "COMPLETED") {
+                        const updated = await Booking.findOneAndUpdate(
+                            { _id: b._id, status: "Initiated" },
+                            { $set: { 
+                                status: "Confirmed", 
+                                ticketId: "TK-" + crypto.randomUUID().slice(0, 8).toUpperCase() 
+                            } },
+                            { new: true }
+                        );
+                        if (updated) {
+                            recoveredCount++;
+                            // Decrement event capacity
+                            if (updated.eventId && updated.eventId.length === 24) {
+                                await Event.findByIdAndUpdate(updated.eventId, { $inc: { capacity: -1 } });
+                            }
+                        }
+                    } 
+                    // If PhonePe explicitly says FAILED
+                    else if (response.data.data.state === "FAILED" || response.data.data.state === "CANCELLED") {
+                        await Booking.findByIdAndUpdate(b._id, { $set: { status: "Failed" } });
+                        failureCount++;
+                    }
+                } catch (err) {
+                    console.error(`Reconcile failed for ${b.transactionId}:`, err.message);
+                }
+            }
+
+            return json(res, 200, { 
+                success: true, 
+                recovered: recoveredCount, 
+                failed: failureCount,
+                message: `Reconciliation complete. Recovered ${recoveredCount} bookings, flagged ${failureCount} as failed.` 
+            });
         }
 
         return json(res, 404, { message: 'Admin endpoint not matched: ' + url });
