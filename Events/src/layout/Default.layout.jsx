@@ -9,8 +9,8 @@ const DefaultlayoutHoc =
     return (
       <div className="bg-darkBackground-900 min-h-screen">
         <Helmet>
-          <title>TEDx GGSIPU | SANGAM - Ideas, Perspectives, Voices</title>
-          <meta name="description" content="Official Portal for TEDx GGSIPU EDC Event - SANGAM. Join the confluence of ideas." />
+          <title>BACKSTAGE | Premium Event Experiences</title>
+          <meta name="description" content="Official platform for premium event experiences. Book tickets and manage entries seamlessly." />
         </Helmet>
         <Navbar />
         <Component {...props} />

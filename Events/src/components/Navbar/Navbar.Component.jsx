@@ -5,6 +5,7 @@ import RequestEventModal from "../Modal/RequestEventModal";
 import { useAuth } from "../../context/DiscussionAuth.context";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { Plus, Globe, Shield } from 'lucide-react';
 import logo from "../../assets/logo.jpg";
 
 const apiKey = process.env.REACT_APP_OPENCAGE_API_KEY;
@@ -12,38 +13,33 @@ const apiKey = process.env.REACT_APP_OPENCAGE_API_KEY;
 function NavSm({ defaultLocation }) {
   const { user } = useAuth();
   return (
-    <>
-    <div className="text-white flex items-center justify-between">
-      <div>
-        <h3 className="text-xl font-bold">It All Starts Here!</h3>
-        <span className="text-gray-400 text-xs flex items-center cursor-pointer hover:text-white">
-          {defaultLocation || "Select you..."} <BiChevronDown />
+    <div className="text-white flex items-center justify-between px-2">
+      <div className="flex flex-col">
+        <h3 className="text-xl font-black uppercase tracking-tighter leading-none italic italic">BACK<span className="text-indigo-500 italic block">STAGE</span></h3>
+        <span className="text-slate-600 text-[8px] font-black uppercase tracking-[0.4em] flex items-center mt-2 cursor-pointer hover:text-white transition-colors">
+          {defaultLocation || "Select Location"} <BiChevronDown className="ml-1" />
         </span>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-6">
         {user && user.picture && (
-          <img src={user.picture} alt="profile" className="w-8 h-8 rounded-full border border-gray-600" />
+          <img src={user.picture} alt="profile" className="w-10 h-10 rounded-[1.2rem] border border-white/10 p-1 bg-white/5" />
         )}
-        <div className="w-8 h-8">
-          <BiSearch className="w-full h-full" />
-        </div>
+        <BiSearch size={24} className="text-slate-600" />
       </div>
     </div>
-    </>
   );
 }
 
 function NavMd() {
   return (
-    <>
-      <div className="w-full flex items-center gap-3 bg-white px-3 py-1 rounded-md">
-        <BiSearch />
-        <input
-          type="search"
-          className="w-full bg-transparent border-none focus:outline-none"
-        />
-      </div>
-    </>
+    <div className="w-full flex items-center gap-6 bg-white/5 border border-white/5 px-6 py-3.5 rounded-2xl backdrop-blur-3xl">
+      <BiSearch size={20} className="text-slate-700" />
+      <input
+        type="search"
+        placeholder="Search Events..."
+        className="w-full bg-transparent border-none focus:outline-none text-[11px] font-black uppercase tracking-[0.2em] text-white placeholder:text-slate-500"
+      />
+    </div>
   );
 }
 
@@ -53,88 +49,92 @@ function NavLg({ defaultLocation, onRequestOpen }) {
 
   useEffect(() => {
     const getUserLocation = () => {
-      if (navigator.geolocation) {
+      if (navigator.geolocation && apiKey) {
         navigator.geolocation.getCurrentPosition(
           async (position) => {
             const { latitude, longitude } = position.coords;
-
             try {
               const response = await axios.get(
                 `https://api.opencagedata.com/geocode/v1/json?key=${apiKey}&language=en&q=${latitude}+${longitude}`
               );
-
               const state = response.data.results[0].components.state;
               setLocation(state || defaultLocation);
             } catch (error) {
-              console.error("Error getting user location:", error);
               setLocation(defaultLocation);
             }
           },
-          (error) => {
-            console.error("Error getting user location:", error);
-            setLocation(defaultLocation);
-          }
+          () => setLocation(defaultLocation)
         );
       } else {
-        console.error("Geolocation is not supported by this browser");
         setLocation(defaultLocation);
       }
     };
-
     getUserLocation();
   }, [defaultLocation]);
 
   return (
-    <>
-      <div className="container flex mx-auto px-4 items-center justify-between py-2">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 cursor-pointer">
-            <img src={logo} alt="Park Events Logo" className="w-8 h-8 rounded object-cover" />
-            <h1 className="text-2xl font-black text-white uppercase tracking-tighter hidden lg:block">
-              Park <span className="text-gradient">Events</span>
-            </h1>
+    <div className="container flex mx-auto px-8 items-center justify-between py-2">
+      <div className="flex items-center gap-16">
+        <Link to="/" className="flex items-center gap-4 cursor-pointer group">
+          <div className="relative">
+             <img src={logo} alt="Backstage Logo" className="w-11 h-11 rounded-[1.2rem] object-cover group-hover:scale-105 transition-all duration-700 shadow-2xl" />
+             <div className="absolute inset-0 bg-indigo-500/10 rounded-[1.2rem] blur-xl -z-10 group-hover:bg-indigo-500/20 transition-all"></div>
           </div>
-        </div>
-        <div className="flex items-center gap-6">
-          <Link to="/" className="nav-link text-sm font-medium">Home</Link>
-          <a href="https://www.parkconscious.in" className="nav-link text-sm font-medium">Find Parking</a>
-          {user && (
-            <Link to="/my-bookings" className="nav-link text-sm font-medium text-sky-400">My Tickets</Link>
-          )}
-          <button 
-            onClick={onRequestOpen}
-            className="btn-secondary flex items-center gap-2 text-sm py-1.5 px-4"
-          >
-            <span className="text-premier-400 font-bold">+</span> List Your Event
-          </button>
-          <a href="https://parkconscious.in/contact.html" target="_blank" rel="noreferrer" className="btn-secondary py-1.5 px-4 text-sm inline-block">Support</a>
-          <CustomModal />
+          <h1 className="text-[1.8rem] font-black text-white uppercase tracking-tighter leading-none m-0 p-0 italic">
+            BACK<span className="text-indigo-500 italic">STAGE</span>
+          </h1>
+        </Link>
+
+        <div className="hidden xl:flex items-center gap-10 pl-16 border-l border-white/5">
+           <Link to="/" className="text-[10px] font-black uppercase tracking-[0.4em] text-white hover:text-indigo-400 transition-all">Home</Link>
+           <a href="https://www.parkconscious.in" className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 hover:text-white transition-all">Parking</a>
+           {user && (
+             <Link to="/my-bookings" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 hover:text-indigo-300 transition-all">
+                <Shield size={14} className="text-indigo-500/50" /> Wallet
+             </Link>
+           )}
         </div>
       </div>
-    </>
+
+      <div className="flex items-center gap-10">
+         <div className="hidden lg:flex items-center gap-3 text-slate-700">
+            <Globe size={16} />
+            <span className="text-[9px] font-black uppercase tracking-[0.4em]">{location || defaultLocation || "Delhi NCR"}</span>
+         </div>
+        
+        <button 
+          onClick={onRequestOpen}
+          className="flex items-center gap-4 px-8 py-3.5 bg-white text-black rounded-full hover:bg-indigo-600 hover:text-white transition-all shadow-[0_20px_40px_-5px_rgba(255,255,255,0.05)] active:scale-95 group"
+        >
+          <Plus size={16} strokeWidth={4} className="group-hover:rotate-90 transition-transform" />
+           <span className="text-[10px] font-black uppercase tracking-[0.3em] leading-none mt-0.5">List Event</span>
+         </button>
+
+        <a href="https://parkconscious.in/contact.html" className="hidden xl:block text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 hover:text-white transition-all">Support</a>
+        
+        <div className="pl-8 border-l border-white/5">
+           <CustomModal />
+        </div>
+      </div>
+    </div>
   );
 }
 
-// Main NavBar Component
 const Navbar = ({ defaultLocation }) => {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
   return (
-    <nav className="bg-darkBackground-900/80 backdrop-blur-md sticky top-0 z-50 px-4 py-3">
-      {/* Mobile Screen Navbar */}
-      <div className="md:hidden">
-        <NavSm defaultLocation={defaultLocation} />
-      </div>
-      {/* Medium Screen Size */}
-      <div className="hidden md:flex lg:hidden">
-        <NavMd />
-      </div>
-      {/* Large Screen Size */}
-      <div className="hidden md:hidden lg:flex">
-        <NavLg 
-          defaultLocation={defaultLocation} 
-          onRequestOpen={() => setIsRequestModalOpen(true)}
-        />
+    <nav className="bg-[#050507]/90 backdrop-blur-3xl sticky top-0 z-[100] border-b border-white/5 shadow-[0_10px_50px_rgba(0,0,0,0.5)]">
+      <div className="max-w-[1700px] mx-auto px-6 py-5 md:py-6">
+        <div className="lg:hidden">
+          <NavSm defaultLocation={defaultLocation} />
+        </div>
+        <div className="hidden lg:flex">
+          <NavLg 
+            defaultLocation={defaultLocation} 
+            onRequestOpen={() => setIsRequestModalOpen(true)}
+          />
+        </div>
       </div>
       <RequestEventModal 
         isOpen={isRequestModalOpen} 

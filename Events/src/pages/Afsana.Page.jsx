@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { backendAxios } from "../axios";
 import DefaultlayoutHoc from "../layout/Default.layout";
 import { useAuth } from "../context/DiscussionAuth.context";
-import { Car, X, CheckCircle2, MapPin, Music, Utensils, Camera, Star } from 'lucide-react';
+import { Car, X, CheckCircle2, MapPin, Music, Utensils, Camera, Star, AlertCircle, Loader2, CreditCard } from 'lucide-react';
 
 // Parking modal inline - "are you coming with parking?"
 const ParkingModal = ({ isOpen, onClose, onConfirm, ticketPrice }) => {
@@ -21,50 +21,54 @@ const ParkingModal = ({ isOpen, onClose, onConfirm, ticketPrice }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-      <div className="bg-[#0D0D12] border border-white/10 rounded-[2.5rem] p-8 md:p-10 w-full max-w-md shadow-2xl">
-        <div className="flex items-start justify-between mb-8">
-          <div>
-            <div className="w-12 h-12 bg-vibrantBlue/10 rounded-2xl flex items-center justify-center mb-4 border border-vibrantBlue/20">
-              <Car size={24} className="text-vibrantBlue" />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl">
+      <div className="bg-[#050507] border border-white/5 rounded-[3rem] p-10 md:p-16 w-full max-w-xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] relative">
+        {/* Dynamic Background Glow */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 blur-[100px] rounded-full pointer-events-none"></div>
+
+        <div className="flex items-start justify-between mb-12 relative z-10">
+          <div className="space-y-4">
+            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10">
+              <Car size={28} className="text-white" />
             </div>
-            <h2 className="text-2xl font-black text-white tracking-tight">Coming by Car?</h2>
-            <p className="text-gray-500 text-sm mt-1">Add reserved parking for ₹299 extra.</p>
+            <h2 className="text-3xl font-black text-white tracking-tighter uppercase leading-none">Booking Extras</h2>
+            <p className="text-slate-400 text-[10px] mt-2 font-black uppercase tracking-[0.3em]">Reserved transit access: ₹299 Increment</p>
           </div>
-          <button onClick={onClose} className="p-2 text-gray-600 hover:text-white transition-colors rounded-full hover:bg-white/10">
+          <button onClick={onClose} className="p-3 text-slate-700 hover:text-white transition-colors rounded-full bg-white/5 border border-white/5">
             <X size={20} />
           </button>
         </div>
 
-        <div className="space-y-3 mb-6">
+        <div className="space-y-4 mb-10 relative z-10">
           <button
             onClick={() => setWantsParking(true)}
-            className={`w-full p-5 rounded-2xl border-2 transition-all text-left flex items-center justify-between ${wantsParking === true ? 'border-vibrantBlue bg-vibrantBlue/10' : 'border-white/5 hover:border-white/20'}`}
+            className={`w-full p-8 rounded-[2rem] border-2 transition-all text-left flex items-center justify-between ${wantsParking === true ? 'border-white bg-white/5' : 'border-white/5 bg-white/5 hover:border-white/20'}`}
           >
             <div>
-              <p className={`font-bold ${wantsParking === true ? 'text-vibrantBlue' : 'text-gray-200'}`}>Yes, add parking</p>
-              <p className="text-xs text-gray-500 mt-0.5">Guaranteed spot, no stress</p>
+              <p className={`text-[11px] font-black uppercase tracking-[0.3em] ${wantsParking === true ? 'text-white' : 'text-slate-500'}`}>Authorized Parking</p>
+              <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">Guaranteed Zone Assignment</p>
             </div>
-            <span className="font-black text-white">+₹299</span>
+            <span className="text-2xl font-black text-white italic">+₹299</span>
           </button>
 
           <button
             onClick={() => { setWantsParking(false); setVehicleNumber(""); }}
-            className={`w-full p-5 rounded-2xl border-2 transition-all text-left ${wantsParking === false ? 'border-gray-600 bg-white/5' : 'border-white/5 hover:border-white/20'}`}
+            className={`w-full p-8 rounded-[2rem] border-2 transition-all text-left border-white/5 bg-white/5 hover:border-white/20 ${wantsParking === false ? 'border-slate-800' : ''}`}
           >
-            <p className={`font-bold ${wantsParking === false ? 'text-white' : 'text-gray-400'}`}>No thanks, I'll manage</p>
+            <p className={`text-[11px] font-black uppercase tracking-[0.3em] ${wantsParking === false ? 'text-white' : 'text-slate-500'}`}>Independent Transit</p>
+            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">Manual spot searching required</p>
           </button>
         </div>
 
         {wantsParking === true && (
-          <div className="mb-6">
-            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Vehicle Number</label>
+          <div className="mb-10 relative z-10 animate-reveal">
+            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-3 ml-1">Vehicle Identification</label>
             <input
               type="text"
               value={vehicleNumber}
               onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
-              placeholder="e.g. DL 01 AB 1234"
-              className="w-full bg-[#16161C] border border-white/5 rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:border-vibrantBlue/50 transition-all uppercase tracking-widest"
+              placeholder="PLATE NUMBER"
+              className="w-full bg-[#050507] border border-white/5 rounded-2xl px-8 py-5 text-white text-sm focus:outline-none focus:border-white/20 transition-all font-medium uppercase tracking-[0.2em] placeholder:text-slate-500"
             />
           </div>
         )}
@@ -72,9 +76,9 @@ const ParkingModal = ({ isOpen, onClose, onConfirm, ticketPrice }) => {
         <button
           onClick={handleConfirm}
           disabled={wantsParking === null || (wantsParking === true && !vehicleNumber.trim())}
-          className="w-full bg-gradient-to-r from-vibrantBlue to-indigo-500 text-white font-black py-4 rounded-2xl disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:opacity-90 uppercase tracking-wider text-sm"
+          className="w-full bg-white text-black font-black py-6 rounded-full disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:bg-indigo-600 hover:text-white uppercase tracking-[0.3em] text-[11px] relative z-10"
         >
-          Confirm & Proceed to Payment — ₹{ticketPrice + (wantsParking === true ? 299 : 0)}
+          Secure Entry Channel — ₹{ticketPrice + (wantsParking === true ? 299 : 0)}
         </button>
       </div>
     </div>
@@ -159,133 +163,150 @@ const AfsanaPage = () => {
   };
 
   return (
-    <div className="bg-darkBackground-900 min-h-screen text-white pt-24 pb-12 font-sans selection:bg-vibrantBlue/30">
-      <div className="container mx-auto px-4 md:px-12">
+    <div className="bg-[#050507] min-h-screen text-white pt-24 pb-12 font-sans selection:bg-indigo-500/30 relative">
+      <div className="container mx-auto px-4 md:px-12 relative z-10">
 
-        {/* Hero Section — Purple/Gold Gradient */}
-        <div className="relative w-full h-80 md:h-[28rem] rounded-[3rem] overflow-hidden mb-8 md:mb-16 shadow-2xl shadow-premier-900/20 border border-white/5 flex items-center justify-center bg-gradient-to-tr from-[#0a0410] via-[#1a0b2e] to-[#2d0f54]">
-          <div className="absolute -top-32 -left-32 w-96 h-96 bg-vibrantBlue/30 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
-          <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-premier-500/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
+        {/* Hero Section — Minimalist Editorial */}
+        <div className="relative w-full h-80 md:h-[32rem] rounded-[3.5rem] overflow-hidden mb-12 md:mb-24 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] border border-white/5 flex items-center justify-center bg-[#050507]">
+          {/* Breathing Mesh Background */}
+          <div className="absolute top-0 right-0 w-full h-full bg-indigo-600/5 blur-[120px] rounded-full animate-mesh pointer-events-none"></div>
+          <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-blue-600/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-          <div className="relative z-10 flex flex-col items-center justify-center p-6 md:p-8 text-center space-y-4">
-            <span className="text-vibrantBlue font-bold tracking-[0.3em] uppercase text-xs md:text-base bg-vibrantBlue/10 px-6 py-2 rounded-full border border-vibrantBlue/20 backdrop-blur-md">The Grand Finale</span>
-            <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 pb-2">AFSANA '26</h1>
-            <p className="text-gray-300 font-medium tracking-widest uppercase text-xs md:text-lg mt-4 max-w-2xl">One Last Celebration • May 25th, 2026</p>
+          <div className="relative z-10 flex flex-col items-center justify-center p-6 md:p-8 text-center space-y-6">
+            <span className="text-white font-black tracking-[0.4em] uppercase text-[10px] md:text-xs bg-white/5 px-8 py-2.5 rounded-full border border-white/10 backdrop-blur-md">The Grand Finale</span>
+            <div className="space-y-2">
+              <h1 className="text-6xl sm:text-7xl md:text-[10rem] font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/10 leading-[0.8] animate-reveal pb-2">AFSANA</h1>
+              <h1 className="text-4xl sm:text-5xl md:text-8xl font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-indigo-400 to-indigo-800/20 leading-[0.8] animate-reveal pb-4 -mt-2 md:-mt-6" style={{ animationDelay: '0.3s' }}>'26</h1>
+            </div>
+            <p className="text-slate-500 font-bold tracking-[0.4em] uppercase text-[10px] md:text-sm mt-8 max-w-2xl border-t border-white/5 pt-6">One Last Celebration • May 25th, 2026</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 items-start">
           {/* Left: Details */}
-          <div className="lg:col-span-7 space-y-16 mt-4">
-            <section>
-              <h2 className="text-3xl font-bold mb-8 flex items-center gap-4 text-white">
-                <span className="w-1.5 h-8 bg-premier-400 rounded-full"></span>
-                About Afsana
-              </h2>
-              <p className="text-gray-400 text-lg leading-relaxed font-light">
-                Celebrate the end of an era with an unforgettable night. We're bringing together the graduating class for one last celebration filled with music, dance, and awards. Expect a premium dinner, networking with alumni, and a cinematic farewell experience built down to the smallest detail.
+          <div className="lg:col-span-7 space-y-24">
+            <section className="space-y-10">
+              <h2 className="text-sm font-black uppercase tracking-[0.4em] text-slate-500 border-b border-white/5 pb-4">Manifesto</h2>
+              <p className="text-slate-400 text-2xl leading-[1.6] font-medium max-w-2xl italic">
+                Celebrate the end of an era with an unforgettable night. One last celebration filled with music, dance, and awards. A cinematic farewell experience built down to the smallest detail.
               </p>
             </section>
 
-            <section>
-              <h2 className="text-3xl font-bold mb-8 flex items-center gap-4 text-white">
-                <span className="w-1.5 h-8 bg-vibrantBlue rounded-full"></span>
-                Event Highlights
-              </h2>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300 font-medium">
+            <section className="space-y-10">
+              <h2 className="text-sm font-black uppercase tracking-[0.4em] text-slate-500 border-b border-white/5 pb-4">Experience Markers</h2>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[
-                  { icon: Star, label: "Red Carpet Entry", color: "premier" },
-                  { icon: Music, label: "Live DJ & Band", color: "blue" },
-                  { icon: Utensils, label: "5-Course Dinner", color: "premier" },
-                  { icon: Camera, label: "Polaroid Photo Booths", color: "blue" },
-                ].map(({ icon: Icon, label, color }) => (
-                  <li key={label} className={`bg-[#121216] p-6 rounded-3xl border border-white/5 flex items-center gap-4 hover:border-${color === 'premier' ? 'premier-500' : 'vibrantBlue'}/30 transition-colors`}>
-                    <Icon size={18} className={color === 'premier' ? 'text-premier-400' : 'text-vibrantBlue'} />
-                    {label}
+                  { icon: Star, label: "Red Carpet Entry" },
+                  { icon: Music, label: "Sonic Selection" },
+                  { icon: Utensils, label: "Culinary Draft" },
+                  { icon: Camera, label: "Visual Archiving" },
+                ].map(({ icon: Icon, label }) => (
+                  <li key={label} className="bg-white/5 p-8 rounded-[2rem] border border-white/5 flex items-center gap-6 group hover:bg-white/[0.07] transition-all duration-500">
+                    <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/5 group-hover:scale-110 transition-transform">
+                       <Icon size={20} className="text-white" />
+                    </div>
+                    <span className="text-[11px] font-black uppercase tracking-[0.3em] text-white/80">{label}</span>
                   </li>
                 ))}
               </ul>
             </section>
 
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-[#121216] p-8 rounded-3xl border border-white/5 space-y-3">
-                <MapPin className="text-premier-400" size={22} />
-                <h4 className="font-bold text-lg text-white">Venue</h4>
-                <p className="text-gray-500 text-sm">Premium Banquet Hall, Delhi NCR</p>
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/5 space-y-6">
+                <MapPin className="text-indigo-400" size={24} />
+                <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-white">Venue Details</h4>
+                <p className="text-slate-500 text-xs font-black uppercase tracking-widest leading-relaxed">Premium Outpost • Delhi NCR</p>
               </div>
-              <div className="bg-[#121216] p-8 rounded-3xl border border-white/5 space-y-3">
-                <Car className="text-vibrantBlue" size={22} />
-                <h4 className="font-bold text-lg text-white">Parking Available</h4>
-                <p className="text-gray-500 text-sm">Reserve your spot during booking for just ₹299 extra.</p>
+              <div className="bg-white/5 p-10 rounded-[2.5rem] border border-white/5 space-y-6">
+                <Car className="text-indigo-400" size={24} />
+                <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-white">Booking Extras</h4>
+                <p className="text-slate-500 text-xs font-black uppercase tracking-widest leading-relaxed">Reserve your transit spot during secure check-in.</p>
               </div>
             </section>
           </div>
 
           {/* Right: Ticket Card */}
           <div className="lg:col-span-5">
-            <div className="sticky top-28 bg-[#0D0D12] border border-white/10 rounded-[3rem] p-8 md:p-10 shadow-2xl">
-              <h3 className="text-2xl font-bold mb-8 text-white">Select Tickets</h3>
+            <div className="sticky top-32 bg-white/5 border border-white/5 rounded-[3.5rem] p-10 md:p-14 shadow-2xl backdrop-blur-3xl">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] mb-12 text-slate-500 text-center">Entry Configuration</h3>
 
-              <div className="space-y-4 mb-8">
+              <div className="space-y-6 mb-12">
                 <div
                   onClick={() => setSelectedTicket("regular")}
-                  className={`cursor-pointer p-6 rounded-2xl border-2 transition-all flex justify-between items-center ${selectedTicket === "regular" ? "border-vibrantBlue bg-vibrantBlue/5" : "border-white/5 bg-white/5 hover:border-white/20"}`}
+                  className={`cursor-pointer p-8 rounded-[2rem] border-2 transition-all flex justify-between items-center ${selectedTicket === "regular" ? "border-white bg-white/5 shadow-2xl" : "border-white/5 bg-white/5 hover:border-white/20"}`}
                 >
-                  <div>
-                    <h4 className={`font-bold text-lg ${selectedTicket === "regular" ? "text-vibrantBlue" : "text-gray-300"}`}>Regular Entry</h4>
-                    <p className="text-xs text-gray-500 mt-1">General Admission</p>
+                  <div className="space-y-1">
+                    <h4 className={`font-black text-[11px] uppercase tracking-[0.3em] ${selectedTicket === "regular" ? "text-white" : "text-slate-600"}`}>Regular Access</h4>
+                    <p className="text-[8px] text-slate-700 font-black uppercase tracking-widest">General Manifesto</p>
                   </div>
-                  <span className="text-2xl font-black text-white">₹{prices.regular}</span>
+                  <span className="text-3xl font-black text-white italic">₹{prices.regular}</span>
                 </div>
 
                 <div
                   onClick={() => setSelectedTicket("vip")}
-                  className={`cursor-pointer p-6 rounded-2xl border-2 transition-all flex justify-between items-center ${selectedTicket === "vip" ? "border-premier-400 bg-premier-400/5" : "border-white/5 bg-white/5 hover:border-white/20"}`}
+                  className={`cursor-pointer p-8 rounded-[2rem] border-2 transition-all flex justify-between items-center ${selectedTicket === "vip" ? "border-indigo-500 bg-indigo-500/5 shadow-2xl shadow-indigo-500/10" : "border-white/5 bg-white/5 hover:border-white/20"}`}
                 >
-                  <div>
-                    <h4 className={`font-bold text-lg flex items-center gap-2 ${selectedTicket === "vip" ? "text-premier-400" : "text-gray-300"}`}>
+                  <div className="space-y-1">
+                    <h4 className={`font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-3 ${selectedTicket === "vip" ? "text-indigo-400" : "text-slate-600"}`}>
                       VIP Access
-                      {selectedTicket === "vip" && <span className="text-[10px] bg-premier-400 text-black px-2 py-0.5 rounded-full uppercase tracking-wider">Premium</span>}
+                      {selectedTicket === "vip" && <span className="text-[8px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1 rounded-full uppercase tracking-wider">Restricted</span>}
                     </h4>
-                    <p className="text-xs text-gray-500 mt-1">Backstage Access + Red Carpet</p>
+                    <p className="text-[8px] text-slate-500 font-black uppercase tracking-widest">Backstage + Priority</p>
                   </div>
-                  <span className="text-2xl font-black text-white">₹{prices.vip}</span>
+                  <span className="text-3xl font-black text-white italic">₹{prices.vip}</span>
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-8">
                 {[
-                  { label: "Full Name", type: "text", value: name, setter: setName, placeholder: "Enter your name" },
+                  { label: "Full Name", type: "text", value: name, setter: setName, placeholder: "Legal Name" },
                   { label: "Email Address", type: "email", value: email, setter: setEmail, placeholder: "name@example.com" },
-                  { label: "Phone Number", type: "tel", value: phone, setter: setPhone, placeholder: "10-digit number", maxLength: 10 },
+                  { label: "Phone Number", type: "tel", value: phone, setter: setPhone, placeholder: "10-Digit Contact", maxLength: 10 },
                 ].map(({ label, type, value, setter, placeholder, maxLength }) => (
-                  <div key={label}>
-                    <label className="block text-sm font-medium text-gray-400 mb-2 ml-1">{label}</label>
+                  <div key={label} className="space-y-3">
+                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] ml-1">{label}</label>
                     <input
                       type={type}
                       value={value}
                       onChange={(e) => setter(e.target.value)}
                       placeholder={placeholder}
                       maxLength={maxLength}
-                      className="w-full bg-[#16161C] border border-white/5 rounded-2xl px-5 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-vibrantBlue/50 focus:bg-[#1A1A24] transition-colors"
+                      className="w-full bg-[#050507] border border-white/5 rounded-2xl px-8 py-5 text-white placeholder:text-slate-500 focus:outline-none focus:border-white/20 transition-all font-medium text-sm"
                     />
                   </div>
                 ))}
 
-                {error && <p className="text-red-400 text-sm font-medium bg-red-400/10 p-3 rounded-xl border border-red-400/20">{error}</p>}
+                {error && (
+                  <div className="p-6 bg-rose-500/5 border border-rose-500/10 text-rose-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl flex items-center gap-4">
+                    <AlertCircle size={20} /> {error}
+                  </div>
+                )}
 
                 <button
                   onClick={handlePaymentClick}
                   disabled={loading}
-                  className={`w-full font-black py-5 rounded-2xl shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2 tracking-wider uppercase text-sm ${selectedTicket === "vip" ? "bg-gradient-to-r from-premier-400 to-[#F2994A] text-black shadow-premier-500/20 hover:shadow-premier-500/40" : "bg-gradient-to-r from-vibrantBlue to-indigo-500 text-white shadow-vibrantBlue/20 hover:shadow-vibrantBlue/40"}`}
+                  className="w-full bg-white text-black font-black py-6 rounded-full shadow-[0_20px_40px_-10px_rgba(255,255,255,0.1)] hover:bg-indigo-600 hover:text-white transition-all active:scale-95 disabled:opacity-50 mt-4 uppercase tracking-[0.3em] text-[11px] flex items-center justify-center px-12"
                 >
-                  {loading ? "Redirecting to payment..." : `Pay ₹${selectedTicket === "vip" ? prices.vip : prices.regular} Securely`}
+                  {loading ? (
+                    <>
+                      <Loader2 className="animate-spin shrink-0" size={18} />
+                      <span className="flex-1 text-center">Establishing Link...</span>
+                      <div className="w-4 shrink-0" />
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="shrink-0" size={18} />
+                      <span className="flex-1 text-center">{`Pay • ₹${selectedTicket === "vip" ? prices.vip : prices.regular}`}</span>
+                      <div className="w-4 shrink-0" />
+                    </>
+                  )}
                 </button>
-                <p className="text-center text-[10px] text-gray-600 uppercase tracking-[0.2em] font-medium flex items-center justify-center gap-2 mt-2">
-                  <span className="w-4 h-px bg-gray-800"></span>
-                  Powered by Park Conscious
-                  <span className="w-4 h-px bg-gray-800"></span>
-                </p>
+                
+                <div className="flex items-center justify-center gap-4 opacity-20 pt-4">
+                   <div className="w-12 h-px bg-white"></div>
+                   <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white">BACKSTAGE Guarantee</span>
+                   <div className="w-12 h-px bg-white"></div>
+                </div>
               </div>
             </div>
           </div>

@@ -52,78 +52,81 @@ const MyBookingsPage = () => {
   }
 
   return (
-    <div className="bg-darkBackground-900 min-h-screen text-white pb-32">
-       <div className="container mx-auto px-8 lg:px-24 pt-16">
-          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-2"><span className="text-premier-500">My</span> Tickets</h1>
-          <p className="text-gray-400 font-medium mb-12">Manage your upcoming events and past experiences.</p>
+    <div className="bg-[#050507] min-h-screen text-white pb-32">
+       <div className="container mx-auto px-8 lg:px-24 pt-24">
+          <div className="mb-16">
+             <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4 italic">The <span className="text-indigo-400">Wallet</span></h1>
+             <p className="text-slate-400 font-bold uppercase tracking-[0.4em] text-[10px] md:text-xs">Your curated collection of active event credentials.</p>
+          </div>
 
           {bookings.length === 0 ? (
-             <div className="bg-white/5 border border-white/10 rounded-3xl p-16 flex flex-col items-center justify-center text-center">
-                <SearchX size={64} className="text-gray-700 mb-6" />
-                <h2 className="text-2xl font-black uppercase tracking-tighter mb-3">No bookings yet</h2>
-                <p className="text-gray-400 font-medium">It looks like you haven't bought tickets to any events yet.</p>
-                <Link to="/" className="mt-8 bg-premier-600 hover:bg-premier-500 uppercase tracking-widest font-black text-[10px] px-8 py-3 rounded-full transition shadow-xl shadow-premier-900/20">Find an Event</Link>
+             <div className="bg-white/5 border border-white/5 rounded-[3rem] p-24 flex flex-col items-center justify-center text-center backdrop-blur-xl">
+                <Ticket size={80} className="text-white/10 mb-8" />
+                <h2 className="text-3xl font-black uppercase tracking-tighter mb-4 italic">Vault is Empty</h2>
+                <p className="text-slate-500 font-bold uppercase tracking-[0.3em] text-[10px] max-w-sm leading-relaxed">It looks like you haven't secured entry to any upcoming experiences yet.</p>
+                <Link to="/" className="mt-12 bg-white text-black hover:bg-indigo-600 hover:text-white uppercase tracking-[0.3em] font-black text-[11px] px-12 py-4 rounded-full transition-all shadow-2xl active:scale-95">Explore Experiences</Link>
              </div>
           ) : (
-             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12">
                 {bookings.map((booking, idx) => (
-                   <div key={booking._id || idx} className="bg-white/5 border border-white/10 rounded-[2rem] overflow-hidden flex flex-col shadow-2xl relative hover:-translate-y-1 transition duration-500">
+                   <div key={booking._id || idx} className="bg-white/5 border border-white/5 rounded-[2.5rem] overflow-hidden flex flex-col shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] relative hover:-translate-y-2 transition-all duration-700 group">
                       {booking.event?.image && (
-                         <div className="w-full h-48 bg-darkBackground-800 relative">
-                            <img src={booking.event.image} alt={booking.event.title} className="w-full h-full object-cover opacity-80" />
-                            <div className="absolute top-4 right-4 bg-lime-500/20 backdrop-blur-md border border-lime-500 text-lime-400 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                         <div className="w-full h-56 bg-[#050507] relative overflow-hidden">
+                            <img src={booking.event.image} alt={booking.event.title} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700 opacity-80 group-hover:opacity-100" />
+                            <div className="absolute top-6 right-6 bg-indigo-500/10 backdrop-blur-md border border-indigo-500/20 text-indigo-400 text-[9px] font-black uppercase tracking-[0.3em] px-5 py-2 rounded-full">
                                {booking.status}
                             </div>
                          </div>
                       )}
                       
-                      <div className={`p-8 flex-1 flex flex-col ${!booking.event?.image ? "pt-12" : ""}`}>
+                      <div className={`p-10 flex-1 flex flex-col ${!booking.event?.image ? "pt-16" : ""}`}>
                          {!booking.event?.image && (
-                            <div className="mb-6 flex justify-between items-center">
-                               <div className="bg-lime-500/20 backdrop-blur-md border border-lime-500 text-lime-400 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                            <div className="mb-8 flex justify-between items-center">
+                               <div className="bg-indigo-500/10 backdrop-blur-md border border-indigo-500/20 text-indigo-400 text-[9px] font-black uppercase tracking-[0.3em] px-5 py-2 rounded-full">
                                   {booking.status}
                                </div>
                             </div>
                          )}
 
-                         <h3 className="text-2xl font-black uppercase tracking-tighter text-white mb-6 leading-none">
-                            {booking.event?.title || "Unknown Event"}
-                         </h3>
+                         <h3 className="text-3xl font-black uppercase tracking-tighter text-white mb-8 leading-[0.85] italic">
+                            {booking.event?.title || "Classified Event"}
+                          </h3>
                          
-                         <div className="space-y-4 mb-8 flex-1">
-                            <div className="flex items-center gap-3 text-gray-400 font-medium text-xs">
-                               <Calendar size={14} className="text-premier-500" />
+                         <div className="space-y-5 mb-10 flex-1">
+                            <div className="flex items-center gap-4 text-slate-500 font-bold text-[10px] uppercase tracking-[0.3em]">
+                               <Calendar size={14} className="text-white" />
                                 <span>{new Date(booking.event?.date || booking.event?.createdAt || booking.createdAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                             </div>
-                            <div className="flex items-center gap-3 text-gray-400 font-medium text-xs">
-                               <MapPin size={14} className="text-premier-500" />
-                               <span className="truncate">{(typeof booking.event?.location === 'string' ? booking.event.location : booking.event?.location?.name || booking.event?.locationName || booking.event?.venue) || "TBA"}</span>
+                            <div className="flex items-center gap-4 text-slate-500 font-bold text-[10px] uppercase tracking-[0.3em]">
+                               <MapPin size={14} className="text-white" />
+                               <span className="truncate">{(typeof booking.event?.location === 'string' ? booking.event.location : booking.event?.location?.name || booking.event?.locationName || booking.event?.venue) || "Venue Restricted"}</span>
                             </div>
                          </div>
 
-                         <div className="mt-auto border-t border-white/10 pt-6 border-dashed flex justify-between items-end">
+                         <div className="mt-auto border-t border-white/5 pt-8 border-dashed flex justify-between items-end">
                             <div>
-                               <p className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1">Paid</p>
-                               <span className="font-black text-lg text-white">₹{booking.amount}</span>
+                               <p className="text-[9px] uppercase font-black tracking-[0.4em] text-slate-400 mb-2">Ticket Price</p>
+                               <span className="font-black text-2xl text-white italic">₹{booking.amount}</span>
                             </div>
-                            <div className="text-right flex flex-col items-end gap-2">
-                               <p className="text-[10px] uppercase font-black tracking-widest text-gray-500 mb-1">Ticket / QR</p>
-                               <div className="bg-white p-1.5 rounded-lg shadow-lg">
+                            <div className="text-right flex flex-col items-end gap-3">
+                               <p className="text-[9px] uppercase font-black tracking-[0.4em] text-slate-400 mb-2">Scan to Enter</p>
+                               <div className="bg-white p-2 rounded-2xl shadow-2xl">
                                  <img
                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=64x64&data=${encodeURIComponent(booking.ticketId || booking.transactionId)}&ecc=L&margin=0`}
                                    alt="Verify QR"
                                    width={64}
                                    height={64}
+                                   className="rounded-lg"
                                  />
                                </div>
-                               <span className="font-black text-[10px] text-gray-300 tracking-wider">#{String(booking.ticketId || booking.transactionId || booking._id || "000000").slice(-6)}</span>
+                               <span className="font-black text-[9px] text-slate-500 tracking-[0.3em] uppercase">#{String(booking.ticketId || booking.transactionId || booking._id || "000000").slice(-6)}</span>
                             </div>
                          </div>
                       </div>
 
                       {/* Ticket cutouts aesthetic */}
-                      <div className="absolute top-48 -left-3 w-6 h-6 bg-darkBackground-900 rounded-full border-r border-white/10 z-10" style={{ transform: booking.event?.image ? "" : "translateY(-140px)" }}></div>
-                      <div className="absolute top-48 -right-3 w-6 h-6 bg-darkBackground-900 rounded-full border-l border-white/10 z-10" style={{ transform: booking.event?.image ? "" : "translateY(-140px)" }}></div>
+                      <div className="absolute top-[224px] -left-4 w-8 h-8 bg-[#050507] rounded-full border border-white/5 z-10 shadow-inner" style={{ transform: booking.event?.image ? "" : "translateY(-180px)" }}></div>
+                      <div className="absolute top-[224px] -right-4 w-8 h-8 bg-[#050507] rounded-full border border-white/5 z-10 shadow-inner" style={{ transform: booking.event?.image ? "" : "translateY(-180px)" }}></div>
                    </div>
                 ))}
              </div>

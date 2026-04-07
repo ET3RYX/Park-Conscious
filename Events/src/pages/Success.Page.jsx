@@ -60,83 +60,87 @@ const SuccessPage = () => {
   }
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-[#040b17] py-20 px-8">
-      <div className="max-w-xl w-full text-center space-y-10 animate-in fade-in slide-in-from-bottom-5 duration-1000">
+    <div className="min-h-screen flex items-center justify-center bg-[#050507] py-24 px-8 relative">
+      {/* Dynamic Background Glow */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none"></div>
+      
+      <div className="max-w-xl w-full text-center space-y-12 animate-reveal relative z-10">
 
-        {/* Animated Checkmark */}
-        <div className="relative mx-auto w-24 h-24 bg-emerald-500/10 rounded-full flex items-center justify-center border border-emerald-500/20">
-          <CheckCircle size={48} className="text-emerald-500 animate-bounce" />
-          <div className="absolute inset-0 bg-emerald-500/30 rounded-full blur-2xl animate-pulse -z-10"></div>
+        {/* Animated Checkmark — Editorial Orbit */}
+        <div className="relative mx-auto w-32 h-32 bg-white/5 rounded-[2rem] flex items-center justify-center border border-white/10 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)]">
+          <CheckCircle size={56} className="text-white animate-pulse" />
+          <div className="absolute inset-0 bg-indigo-500/10 rounded-[2rem] blur-2xl -z-10 animate-pulse"></div>
         </div>
 
-        <div className="space-y-4 text-center items-center flex flex-col">
-          <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter">{branding.headline}</h1>
-          <p className="text-slate-400 font-medium max-w-md">{branding.subtitle}</p>
+        <div className="space-y-6 text-center items-center flex flex-col">
+          <h1 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter italic leading-[0.8]">{branding.headline}</h1>
+          <p className="text-slate-500 font-bold uppercase tracking-[0.4em] text-[10px] max-w-sm border-t border-white/5 pt-6">{branding.subtitle}</p>
         </div>
 
-        {/* Ticket Details Card */}
-        <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 md:p-12 text-left space-y-8 backdrop-blur-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 blur-3xl -z-10 rounded-full"></div>
+        {/* Ticket Details Card — Verified Passport */}
+        <div className="bg-white/5 border border-white/5 rounded-[3.5rem] p-10 md:p-16 text-left space-y-10 backdrop-blur-3xl relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-600/5 blur-[100px] -z-10 rounded-full"></div>
 
-          <div className="flex flex-col md:flex-row gap-8 items-center md:items-start justify-between border-b border-white/5 pb-8">
-            <div className="space-y-6 flex-1">
+          <div className="flex flex-col md:flex-row gap-12 items-center md:items-start justify-between border-b border-white/5 pb-12">
+            <div className="space-y-8 flex-1">
               <div>
-                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Transaction ID</p>
-                <code className="text-sky-500 font-mono text-sm break-all">{txnId || "N/A"}</code>
+                <p className="text-[9px] text-slate-200 font-black uppercase tracking-[0.4em] mb-2">Transaction ID</p>
+                <code className="text-indigo-400 font-mono text-xs break-all bg-indigo-500/5 px-2 py-1 rounded-lg border border-indigo-500/10 uppercase">{txnId || "N/A"}</code>
               </div>
               <div>
-                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Status</p>
-                <span className="text-emerald-500 text-xs font-black uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/10">Verified ✓</span>
+                <p className="text-[9px] text-slate-200 font-black uppercase tracking-[0.4em] mb-2">Booking Status</p>
+                <span className="text-white text-[10px] font-black uppercase tracking-[0.3em] bg-white/5 px-6 py-2 rounded-full border border-white/10">Verified & Secure ✓</span>
               </div>
               {booking?.ticketId && (
                 <div>
-                  <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Ticket ID</p>
-                  <p className="text-white font-black text-lg tracking-wider">{booking.ticketId}</p>
+                  <p className="text-[9px] text-slate-200 font-black uppercase tracking-[0.4em] mb-2">Ticket Code</p>
+                  <p className="text-white font-black text-3xl tracking-tighter italic uppercase">{booking.ticketId}</p>
                 </div>
               )}
             </div>
 
-            {/* QR Code — always shown using txnId fallback */}
+            {/* QR Code */}
             {qrData && (
-              <div className={`bg-white p-3 rounded-2xl shadow-2xl border-4 ${branding.qrColor} hover:scale-105 transition-transform duration-500 flex-shrink-0`}>
+              <div className="bg-white p-4 rounded-[2rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] group hover:scale-105 transition-transform duration-700 flex-shrink-0">
                 <img
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(qrData)}&ecc=H&margin=0`}
-                  alt={`QR Ticket — ${qrData}`}
+                  alt={`QR Ticket`}
                   width={160}
                   height={160}
-                  className="rounded-lg"
+                  className="rounded-xl transition-all duration-700 hover:scale-105"
                 />
-                <p className="text-center text-[9px] font-black text-gray-400 uppercase tracking-widest mt-2">Scan to Verify</p>
+                <p className="text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] mt-4">Scan QR Ticket</p>
               </div>
             )}
           </div>
 
           {amount && (
-            <div className="flex items-center justify-between bg-emerald-500/5 border border-emerald-500/10 rounded-2xl px-6 py-4">
-              <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Amount Paid</p>
-              <div className="flex items-center gap-1 text-emerald-400 font-black text-xl">
-                <IndianRupee size={18} />
+            <div className="flex items-center justify-between bg-[#050507] border border-white/5 rounded-[2rem] px-8 py-6">
+              <p className="text-[9px] text-slate-400 font-black uppercase tracking-[0.4em]">Amount Paid</p>
+              <div className="flex items-center gap-2 text-white font-black text-2xl italic">
+                <IndianRupee size={20} />
                 {amount}
               </div>
             </div>
           )}
 
-          <div className="pt-2">
+          <div className="pt-4">
             <button
               onClick={() => window.print()}
-              className="w-full bg-white text-black py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-sky-500 hover:text-white transition-all flex items-center justify-center gap-3 shadow-xl shadow-white/5"
+              className="w-full bg-white text-black py-6 rounded-full font-black text-[11px] uppercase tracking-[0.3em] hover:bg-indigo-600 hover:text-white transition-all flex items-center justify-center gap-4 shadow-2xl active:scale-95 group"
             >
-              <Download size={16} /> Save / Print Ticket
+              <Download size={20} className="group-hover:translate-y-1 transition-transform" /> Download Ticket
             </button>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-4">
-          <Link to="/my-bookings" className="text-sky-500 text-xs font-black uppercase tracking-widest hover:text-white transition flex items-center gap-2">
-            View My Tickets <ArrowRight size={14} />
+        <div className="flex flex-col md:flex-row items-center justify-center gap-10 pt-8 opacity-40 hover:opacity-100 transition-opacity">
+          <Link to="/my-bookings" className="text-white text-[10px] font-black uppercase tracking-[0.3em] transition flex items-center gap-3">
+             View Wallet <ArrowRight size={14} />
           </Link>
-          <Link to="/" className="text-slate-500 text-xs font-black uppercase tracking-widest hover:text-white transition flex items-center gap-2">
-            Back to Catalog <ArrowRight size={14} />
+          <div className="w-1.5 h-1.5 bg-white/20 rounded-full hidden md:block"></div>
+          <Link to="/" className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] transition flex items-center gap-3">
+            Return to Home <ArrowRight size={14} />
           </Link>
         </div>
       </div>

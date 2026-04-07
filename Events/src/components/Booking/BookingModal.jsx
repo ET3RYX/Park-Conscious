@@ -3,7 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { backendAxios } from "../../axios";
 import { useAuth } from "../../context/DiscussionAuth.context";
-import { X, CheckCircle2, AlertCircle, Loader2, CreditCard, User, Mail, Phone } from 'lucide-react';
+import { X, CheckCircle2, AlertCircle, Loader2, CreditCard, User, Mail, Phone, ShieldCheck } from 'lucide-react';
 
 const BookingModal = ({ isOpen, setIsOpen, event }) => {
   const { user } = useAuth();
@@ -108,90 +108,103 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-[2.5rem] bg-[#0D0D12] border border-white/10 p-8 md:p-10 text-left align-middle shadow-2xl transition-all">
-                <div className="flex justify-between items-start mb-8">
+              <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-[3rem] bg-[#050507] border border-white/5 p-10 md:p-16 text-left align-middle shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] transition-all relative">
+                {/* Dynamic Background Glow */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 blur-[100px] rounded-full pointer-events-none"></div>
+
+                <div className="flex justify-between items-start mb-12 relative z-10">
                   <div>
-                    <h3 className="text-2xl font-black text-white tracking-tight uppercase">Reserve Your Spot</h3>
-                    <p className="text-slate-500 text-xs mt-1 font-medium italic">Confirms your entry for {event.displayTitle}</p>
+                    <h3 className="text-3xl md:text-4xl font-black text-white tracking-tighter uppercase leading-none">Booking Summary</h3>
+                    <p className="text-slate-500 text-[10px] mt-3 font-black uppercase tracking-[0.3em]">{event.displayTitle}</p>
                   </div>
                   <button 
                     onClick={closeModal}
-                    className="p-2 text-slate-500 hover:text-white transition-colors bg-white/5 rounded-full"
+                    className="p-3 text-slate-500 hover:text-white transition-colors bg-white/5 rounded-full border border-white/5"
                   >
-                    <X size={18} />
+                    <X size={20} />
                   </button>
                 </div>
 
-                <form onSubmit={handleBooking} className="space-y-6">
-                  {reqFields.name && (
-                    <div className="space-y-2">
-                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
-                      <div className="relative">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={16} />
-                        <input 
-                          type="text" name="name" value={formData.name} onChange={handleInputChange}
-                          placeholder="Your Name"
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-all"
-                        />
+                <form onSubmit={handleBooking} className="space-y-10 relative z-10">
+                  <div className="grid grid-cols-1 gap-10">
+                    {reqFields.name && (
+                      <div className="space-y-3">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-1">Full Name</label>
+                        <div className="relative group">
+                          <User className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-700 group-focus-within:text-white transition-colors" size={18} />
+                          <input 
+                            type="text" name="name" value={formData.name} onChange={handleInputChange}
+                            placeholder="Full Legal Name"
+                            className="w-full bg-white/5 border border-white/5 rounded-2xl pl-16 pr-6 py-5 text-white text-sm focus:outline-none focus:border-white/20 transition-all font-medium placeholder:text-slate-500"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {reqFields.email && (
-                    <div className="space-y-2">
-                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
-                      <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={16} />
-                        <input 
-                          type="email" name="email" value={formData.email} onChange={handleInputChange}
-                          placeholder="name@example.com"
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-all"
-                        />
+                    {reqFields.email && (
+                      <div className="space-y-3">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-1">Email Address</label>
+                        <div className="relative group">
+                          <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-700 group-focus-within:text-white transition-colors" size={18} />
+                          <input 
+                            type="email" name="email" value={formData.email} onChange={handleInputChange}
+                            placeholder="your@email.com"
+                            className="w-full bg-white/5 border border-white/5 rounded-2xl pl-16 pr-6 py-5 text-white text-sm focus:outline-none focus:border-white/20 transition-all font-medium placeholder:text-slate-500"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {reqFields.phone && (
-                    <div className="space-y-2">
-                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Phone Number</label>
-                      <div className="relative">
-                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={16} />
-                        <input 
-                          type="tel" name="phone" value={formData.phone} onChange={handleInputChange}
-                          placeholder="10-digit number" maxLength={10}
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-all"
-                        />
+                    {reqFields.phone && (
+                      <div className="space-y-3">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-1">Phone Number</label>
+                        <div className="relative group">
+                          <Phone className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-700 group-focus-within:text-white transition-colors" size={18} />
+                          <input 
+                            type="tel" name="phone" value={formData.phone} onChange={handleInputChange}
+                            placeholder="10 Digit Contact" maxLength={10}
+                            className="w-full bg-white/5 border border-white/5 rounded-2xl pl-16 pr-6 py-5 text-white text-sm focus:outline-none focus:border-white/20 transition-all font-medium placeholder:text-slate-500"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   {error && (
-                    <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[11px] font-bold rounded-2xl flex items-center gap-3">
-                      <AlertCircle size={16} /> {error}
+                    <div className="p-6 bg-rose-500/5 border border-rose-500/10 text-rose-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl flex items-center gap-4">
+                      <AlertCircle size={20} /> {error}
                     </div>
                   )}
 
-                  <div className="pt-4">
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-gradient-to-r from-sky-600 to-indigo-600 text-white font-black py-5 rounded-2xl shadow-xl shadow-sky-900/20 hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-3 uppercase tracking-wider text-xs"
+                  <div className="pt-6 space-y-8">
+                    <button 
+                      type="submit" disabled={loading}
+                      className="w-full bg-indigo-600 text-white font-black py-6 rounded-full hover:bg-white hover:text-indigo-600 transition-all shadow-2xl active:scale-95 disabled:opacity-40 mt-4 uppercase tracking-[0.3em] text-[11px] flex items-center justify-center px-12"
                     >
                       {loading ? (
                         <>
-                          <Loader2 className="animate-spin" size={18} />
-                          Processing...
+                          <Loader2 className="animate-spin shrink-0" size={20} />
+                          <span className="flex-1 text-center">Securing Ticket...</span>
+                          <div className="w-5 shrink-0" />
                         </>
                       ) : (
                         <>
-                          <CreditCard size={18} />
-                          {event.displayPrice > 0 ? `Pay ₹${event.displayPrice} Securely` : "Claim Free Entry"}
+                          <CreditCard className="shrink-0" size={20} />
+                          <span className="flex-1 text-center">{event.displayPrice > 0 ? `Pay • ₹${event.displayPrice}` : "Confirm Ticket Booking"}</span>
+                          <div className="w-5 shrink-0" />
                         </>
                       )}
                     </button>
-                    <p className="text-center text-[8px] text-slate-600 font-bold uppercase tracking-[0.2em] mt-6">
-                      Secure Transaction • Official Park Conscious Partner
-                    </p>
+                    
+                    <div className="flex flex-col items-center gap-4 opacity-30">
+                       <div className="flex items-center gap-2">
+                          <ShieldCheck size={12} className="text-white" />
+                          <span className="text-[8px] text-white font-black uppercase tracking-[0.4em]">Official PhonePe Encryption</span>
+                       </div>
+                       <p className="text-center text-[8px] text-slate-600 font-black uppercase leading-relaxed tracking-[0.3em]">
+                          Non-Refundable Ticket • Individual Assignment Only
+                       </p>
+                    </div>
                   </div>
                 </form>
               </Dialog.Panel>
