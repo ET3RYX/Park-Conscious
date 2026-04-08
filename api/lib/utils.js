@@ -118,6 +118,17 @@ export const setCors = (req, res) => {
 };
 
 export const getBody = async (req) => {
+    if (req.body) {
+        if (typeof req.body === 'object' && !Buffer.isBuffer(req.body) && Object.keys(req.body).length > 0) return req.body;
+        if (Buffer.isBuffer(req.body) && req.body.length > 0) {
+            const raw = req.body.toString('utf-8');
+            try { return JSON.parse(raw); } catch(e) { return {}; }
+        }
+        if (typeof req.body === 'string' && req.body.trim().length > 0) {
+            try { return JSON.parse(req.body); } catch(e) { return {}; }
+        }
+    }
+
     const contentType = req.headers['content-type'] || '';
     const method = req.method || 'GET';
     if ((method === 'POST' || method === 'PUT') && !contentType.includes('multipart/form-data')) {

@@ -18,7 +18,7 @@ const EventHero = ({ event, onOpenBooking }) => {
       <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none"></div>
       <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none"></div>
 
-      <div className="container mx-auto px-8 lg:px-24 flex flex-col md:flex-row items-center gap-12 lg:gap-24 relative z-10">
+      <div className="container mx-auto px-6 md:px-8 lg:px-24 flex flex-col md:flex-row items-center gap-10 lg:gap-24 relative z-10">
         {/* Poster Image - Editorial Shadow */}
         <div className="w-64 h-96 flex-shrink-0 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] rounded-3xl overflow-hidden border border-white/10 group relative mt-8 md:mt-0">
            <img src={eventImage} alt="event poster" className="w-full h-full object-cover transition-all duration-700 hover:scale-105" />
@@ -38,7 +38,7 @@ const EventHero = ({ event, onOpenBooking }) => {
                     <ShieldCheck size={12} /> Live Experience
                  </span>
               </div>
-              <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter uppercase leading-[0.8] mb-4 animate-reveal">
+              <h1 className="text-4xl sm:text-5xl md:text-8xl font-black text-white tracking-tighter uppercase leading-[0.9] md:leading-[0.8] mb-4 animate-reveal">
                 {event.displayTitle}
               </h1>
               
@@ -69,7 +69,7 @@ const EventHero = ({ event, onOpenBooking }) => {
                   <span className="flex-1 text-center">{event.displayPrice > 0 ? "Buy Tickets" : "Reserve Ticket"}</span>
                 </button>
                 <p className="text-center md:text-left text-[8px] font-black text-slate-600 uppercase tracking-[0.2em] opacity-40">
-                   Secure PhonePe Gateway Integration
+                   Secure Checkout Gateway Integration
                 </p>
               </div>
            </div>

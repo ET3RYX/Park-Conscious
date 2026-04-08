@@ -61,7 +61,64 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
         // We'll add more context if needed
       });
 
-      if (response.data?.success && response.data?.redirectUrl) {
+      if (response.data?.success && response.data?.orderId) {
+        const loadScript = (src) => new Promise((resolve) => {
+            const script = document.createElement("script");
+            script.src = src;
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        });
+
+        const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+        if (!res) {
+            setError("Payment SDK failed to load. Please check connection.");
+            setLoading(false);
+            return;
+        }
+
+        const options = {
+            key: response.data.key,
+            amount: response.data.amount,
+            currency: "INR",
+            name: "BACKSTAGE",
+            description: event.displayTitle || event.title || "Event Tickets",
+            order_id: response.data.orderId,
+            handler: async function (paymentResponse) {
+                try {
+                    const verifyRes = await backendAxios.post("/api/payment-callback", paymentResponse);
+                    if (verifyRes.data?.success) {
+                        window.location.href = `/payment-success?txnId=${verifyRes.data.txnId}`;
+                    } else {
+                        setError("Payment verification failed.");
+                        setLoading(false);
+                    }
+                } catch (err) {
+                    setError("Payment verification failed. Please contact support.");
+                    setLoading(false);
+                }
+            },
+            prefill: {
+                name: formData.name,
+                email: formData.email,
+                contact: formData.phone
+            },
+            theme: { color: "#4f46e5" },
+            modal: {
+                ondismiss: function() {
+                    setLoading(false);
+                }
+            }
+        };
+
+        const paymentObject = new window.Razorpay(options);
+        paymentObject.on('payment.failed', function () {
+            setError("Payment failed! Please try again.");
+            setLoading(false);
+        });
+        paymentObject.open();
+
+      } else if (response.data?.success && response.data?.redirectUrl) {
         window.location.href = response.data.redirectUrl;
       } else if (response.data?.success && response.data?.amount === 0) {
           // Handle free events
@@ -108,7 +165,7 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-[3rem] bg-[#050507] border border-white/5 p-10 md:p-16 text-left align-middle shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] transition-all relative">
+              <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-[2.5rem] md:rounded-[3rem] bg-[#050507] border border-white/5 p-6 md:p-16 text-left align-middle shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] transition-all relative">
                 {/* Dynamic Background Glow */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 blur-[100px] rounded-full pointer-events-none"></div>
 
@@ -125,8 +182,8 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
                   </button>
                 </div>
 
-                <form onSubmit={handleBooking} className="space-y-10 relative z-10">
-                  <div className="grid grid-cols-1 gap-10">
+                <form onSubmit={handleBooking} className="space-y-8 md:space-y-10 relative z-10">
+                  <div className="grid grid-cols-1 gap-6 md:gap-10">
                     {reqFields.name && (
                       <div className="space-y-3">
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-1">Full Name</label>

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import crypto from 'crypto';
+import Razorpay from 'razorpay';
 import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
 import { json, setCors, getBody, normalizeEvent } from './lib/utils.js';
@@ -19,7 +20,7 @@ export default async function handler(req, res) {
     const body = await getBody(req);
 
     try {
-        // -- PhonePe Payment Initiation --
+        // -- Razorpay Payment Initiation --
         if (url.includes('/pay') && !url.includes('/payment-callback') && method === 'POST') {
             const { name, amount, phone, eventId, orderId, userId, screenshotUrl } = body;
             const targetEventId = eventId || orderId;
@@ -46,19 +47,17 @@ export default async function handler(req, res) {
                 }
             }
             
-            const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || "PGTESTPAYUAT86";
-            const SALT_KEY = process.env.PHONEPE_SALT_KEY || "96434309-7796-489d-8924-ab56988a6076";
-            const SALT_INDEX = process.env.PHONEPE_SALT_INDEX || 1;
-            const ENV_BASE_URL = process.env.PHONEPE_BASE_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
+            const KEY_ID = process.env.RAZORPAY_KEY_ID || "rzp_test_YourTestKey";
+            const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || "YourTestSecret";
             
             const txId = "TXN_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase();
-            const host = req.headers.host || "events.parkconscious.in";
-            // Ensure redirected traffic stays on the correct domain
-            const redirectBase = host.includes('localhost') ? `http://${host}` : `https://events.parkconscious.in`;
+            const origin = req.headers.origin || `https://events.parkconscious.in`;
+            // Ensure redirected traffic points back to the client application properly
+            const redirectBase = origin;
 
             const numericAmount = Math.round(parseFloat(amount) * 100);
 
-            // Handle FREE tickets (amount = 0) instantly bypassing PhonePe
+            // Handle FREE tickets (amount = 0) instantly bypassing Razorpay
             if (numericAmount === 0 || !amount) {
                 const ticketId = "TK-" + crypto.randomUUID().slice(0, 8).toUpperCase();
                 await Booking.create({ 
@@ -80,23 +79,22 @@ export default async function handler(req, res) {
                 return json(res, 200, { success: true, redirectUrl: `${redirectBase}/payment-success?txnId=${txId}` });
             }
 
-            const payload = {
-                merchantId: MERCHANT_ID,
-                merchantTransactionId: txId,
-                merchantUserId: "USER_" + (phone || "GUEST"),
+            const razorpay = new Razorpay({
+                key_id: KEY_ID,
+                key_secret: KEY_SECRET,
+            });
+
+            // Create Razorpay Order
+            const options = {
                 amount: numericAmount,
-                redirectUrl: `${redirectBase}/payment-success?txnId=${txId}`,
-                redirectMode: "REDIRECT",
-                callbackUrl: `${redirectBase}/api/payment-callback`,
-                mobileNumber: phone,
-                paymentInstrument: { type: "PAY_PAGE" }
+                currency: "INR",
+                receipt: txId,
             };
 
-            const base64 = Buffer.from(JSON.stringify(payload)).toString("base64");
-            const checksum = crypto.createHash("sha256").update(base64 + "/pg/v1/pay" + SALT_KEY).digest("hex") + "###" + SALT_INDEX;
+            const order = await razorpay.orders.create(options);
 
             await Booking.create({ 
-                transactionId: txId, 
+                transactionId: order.id, 
                 eventId: targetEventId, 
                 userId: targetUserId, 
                 amount, 
@@ -106,48 +104,36 @@ export default async function handler(req, res) {
                 email: body.email || null
             });
 
-            const response = await axios.post(`${ENV_BASE_URL}/pg/v1/pay`, { request: base64 }, {
-                headers: { "Content-Type": "application/json", "X-VERIFY": checksum, "X-MERCHANT-ID": MERCHANT_ID }
+            return json(res, 200, { 
+                success: true, 
+                orderId: order.id, 
+                amount: numericAmount, 
+                key: KEY_ID 
             });
-
-            if (response.data.success) {
-                return json(res, 200, { success: true, redirectUrl: response.data.data.instrumentResponse.redirectInfo.url });
-            }
-            return json(res, 500, { message: "Failed to initiate payment" });
         }
 
-        // -- PhonePe Payment Callback (Idempotent) --
+        // -- Razorpay Payment Callback (Verification) --
         if (url.includes('/payment-callback')) {
-            const params = new URLSearchParams(queryPart || '');
-            const txId = params.get('txnId') || body?.merchantTransactionId;
-            if (!txId) return json(res, 400, { message: "Transaction ID missing" });
-
-            const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || "PGTESTPAYUAT86";
-            const SALT_KEY = process.env.PHONEPE_SALT_KEY || "96434309-7796-489d-8924-ab56988a6076";
-            const SALT_INDEX = process.env.PHONEPE_SALT_INDEX || 1;
-            const ENV_BASE_URL = process.env.PHONEPE_BASE_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
-
-            const existingBooking = await Booking.findOne({ transactionId: txId });
-            if (existingBooking && existingBooking.status === "Confirmed") {
-                if (method === 'GET') {
-                    const redirectBase = `https://events.parkconscious.in`;
-                    res.setHeader('Location', `${redirectBase}/payment-success?txnId=${txId}`);
-                    res.statusCode = 302; res.end(); return;
-                }
-                return json(res, 200, { success: true, message: "Already processed" });
+            const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = body;
+            
+            if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+                return json(res, 400, { message: "Invalid payment details" });
             }
 
-            const checkSum = crypto.createHash("sha256").update(`/pg/v1/status/${MERCHANT_ID}/${txId}` + SALT_KEY).digest("hex") + "###" + SALT_INDEX;
-            const response = await axios.get(`${ENV_BASE_URL}/pg/v1/status/${MERCHANT_ID}/${txId}`, {
-                headers: { "X-VERIFY": checkSum, "X-MERCHANT-ID": MERCHANT_ID }
-            });
+            const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || "YourTestSecret";
 
-            const isSuccess = response.data.success && response.data.data.state === "COMPLETED";
-            const redirectBase = `https://events.parkconscious.in`;
+            // Verify signature
+            const bodyString = razorpay_order_id + "|" + razorpay_payment_id;
+            const expectedSignature = crypto
+                .createHmac("sha256", KEY_SECRET)
+                .update(bodyString.toString())
+                .digest("hex");
 
-            if (isSuccess) {
+            const isAuthentic = expectedSignature === razorpay_signature;
+
+            if (isAuthentic) {
                 const updatedBooking = await Booking.findOneAndUpdate(
-                    { transactionId: txId, status: { $ne: "Confirmed" } }, 
+                    { transactionId: razorpay_order_id, status: { $ne: "Confirmed" } }, 
                     { $set: { 
                         status: "Confirmed", 
                         ticketId: "TK-" + crypto.randomUUID().slice(0, 8).toUpperCase() 
@@ -159,18 +145,10 @@ export default async function handler(req, res) {
                     await models.Event.findByIdAndUpdate(updatedBooking.eventId, { $inc: { capacity: -1 } });
                 }
                 
-                if (method === 'GET') {
-                    res.setHeader('Location', `${redirectBase}/payment-success?txnId=${txId}`);
-                    res.statusCode = 302; res.end(); return;
-                }
+                return json(res, 200, { success: true, message: "Payment verified successfully", txnId: razorpay_order_id });
             } else {
-                if (method === 'GET') {
-                    res.setHeader('Location', `${redirectBase}/payment-failure?txnId=${txId}`);
-                    res.statusCode = 302; res.end(); return;
-                }
+                return json(res, 400, { success: false, message: "Invalid signature" });
             }
-            
-            return json(res, 200, { success: isSuccess });
         }
 
         // -- Check-in / Attendance Management --
@@ -230,6 +208,9 @@ export default async function handler(req, res) {
         return json(res, 404, { message: 'Payment endpoint not matched: ' + url });
     } catch (err) {
         console.error('[PAYMENT ERROR]:', err);
-        return json(res, 500, { message: 'Internal Server Error', error: err.message });
+        if (err.statusCode === 401) {
+             return json(res, 500, { success: false, message: 'Razorpay Authentication failed. Please verify RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in your backend .env file.' });
+        }
+        return json(res, 500, { success: false, message: 'Server error processing payment: ' + err.message });
     }
 }

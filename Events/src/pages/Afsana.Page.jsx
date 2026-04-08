@@ -150,7 +150,64 @@ const AfsanaPage = () => {
         parkingIncluded: parkingDetails.wantsParking,
         vehicleNumber: parkingDetails.vehicleNumber
       });
-      if (response.data?.success && response.data?.redirectUrl) {
+      if (response.data?.success && response.data?.orderId) {
+        const loadScript = (src) => new Promise((resolve) => {
+            const script = document.createElement("script");
+            script.src = src;
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        });
+
+        const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+        if (!res) {
+            setError("Payment SDK failed to load. Please check connection.");
+            setLoading(false);
+            return;
+        }
+
+        const options = {
+            key: response.data.key,
+            amount: response.data.amount,
+            currency: "INR",
+            name: "BACKSTAGE",
+            description: "Afsana '26 Ticket",
+            order_id: response.data.orderId,
+            handler: async function (paymentResponse) {
+                try {
+                    const verifyRes = await backendAxios.post("/api/payment-callback", paymentResponse);
+                    if (verifyRes.data?.success) {
+                        window.location.href = `/payment-success?txnId=${verifyRes.data.txnId}`;
+                    } else {
+                        setError("Payment verification failed.");
+                        setLoading(false);
+                    }
+                } catch (err) {
+                    setError("Payment verification failed. Please contact support.");
+                    setLoading(false);
+                }
+            },
+            prefill: {
+                name: name,
+                email: email,
+                contact: phone
+            },
+            theme: { color: "#4f46e5" },
+            modal: {
+                ondismiss: function() {
+                    setLoading(false);
+                }
+            }
+        };
+
+        const paymentObject = new window.Razorpay(options);
+        paymentObject.on('payment.failed', function () {
+            setError("Payment failed! Please try again.");
+            setLoading(false);
+        });
+        paymentObject.open();
+
+      } else if (response.data?.success && response.data?.redirectUrl) {
         window.location.href = response.data.redirectUrl;
       } else {
         setError("Failed to initiate payment. Please try again.");

@@ -57,7 +57,7 @@ const EventPage = () => {
     <div className="bg-[#050507] min-h-screen text-white pb-24 relative">
       <EventHero event={event} onOpenBooking={() => setIsBookingOpen(true)} />
 
-      <div className="container mx-auto px-8 lg:px-24 mt-24 grid grid-cols-1 lg:grid-cols-3 gap-24 relative z-10">
+      <div className="container mx-auto px-6 md:px-8 lg:px-24 mt-16 md:mt-24 grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-24 relative z-10">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-24">
           {event.displayDescription && (
@@ -86,7 +86,7 @@ const EventPage = () => {
 
         {/* Sidebar Controls */}
         <div className="space-y-12">
-           <div className="bg-white/5 border border-white/5 rounded-[3rem] p-12 sticky top-32 backdrop-blur-xl">
+           <div className="bg-white/5 border border-white/5 rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-12 sticky top-32 backdrop-blur-xl">
               <h3 className="text-[10px] font-black uppercase tracking-[0.4em] mb-12 text-slate-500 text-center">Booking Information</h3>
               
               <div className="space-y-12">

@@ -4,12 +4,11 @@ import { CheckCircle, ArrowRight, Download, IndianRupee, Loader2 } from "lucide-
 import { backendAxios } from "../axios";
 import DefaultlayoutHoc from "../layout/Default.layout";
 
-// Determine event branding from booking data
 const getEventBranding = (booking) => {
   const eventId = booking?.eventId || "";
-  const title   = (booking?.event?.title || booking?.locationName || "").toLowerCase();
+  const title   = booking?.event?.title || booking?.location?.name || booking?.event?.name || "Event Ticket";
 
-  if (eventId.includes("farewell") || title.includes("afsana")) {
+  if (eventId.includes("farewell") || title.toLowerCase().includes("afsana")) {
     return {
       headline: "AFSANA '26 Confirmed!",
       subtitle: "Your ticket for Afsana '26 — The Grand Finale is confirmed. See you on May 25th!",
@@ -17,11 +16,22 @@ const getEventBranding = (booking) => {
       qrColor: "border-indigo-500/30 shadow-indigo-500/20",
     };
   }
+  
+  if (eventId.includes("tedx") || title.toLowerCase().includes("tedx") || title.toLowerCase().includes("sangam")) {
+    return {
+      headline: "TEDx SANGAM Confirmed!",
+      subtitle: "Your registration for TEDx GGSIPU EDC is complete. We look forward to seeing you at SANGAM.",
+      accent: "from-sky-500 to-emerald-500",
+      qrColor: "border-sky-500/20 shadow-sky-500/20",
+    };
+  }
+
+  // Generic Catch-All Branding
   return {
-    headline: "TEDx SANGAM Confirmed!",
-    subtitle: "Your registration for TEDx GGSIPU EDC is complete. We look forward to seeing you at SANGAM.",
-    accent: "from-sky-500 to-emerald-500",
-    qrColor: "border-sky-500/20 shadow-sky-500/20",
+    headline: `${title.toUpperCase()} CONFIRMED!`,
+    subtitle: `Your registration for ${title} is complete. Your entry is securely confirmed.`,
+    accent: "from-slate-400 to-white",
+    qrColor: "border-white/20 shadow-white/10",
   };
 };
 

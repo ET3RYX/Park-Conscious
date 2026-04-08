@@ -82,8 +82,8 @@ const TedxTicketsPage = () => {
 
   if (success) {
     return (
-      <div className="bg-[#050507] min-h-screen text-white flex items-center justify-center p-8">
-        <div className="max-w-xl w-full bg-white/5 border border-emerald-500/20 rounded-[3.5rem] p-12 md:p-20 text-center space-y-10 shadow-2xl backdrop-blur-3xl">
+      <div className="bg-[#050507] min-h-screen text-white flex items-center justify-center p-6 md:p-8">
+        <div className="max-w-xl w-full bg-white/5 border border-emerald-500/20 rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-20 text-center space-y-10 shadow-2xl backdrop-blur-3xl">
           <div className="w-24 h-24 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20 shadow-[0_0_50px_-10px_rgba(16,185,129,0.3)]">
             <CheckCircle2 size={48} className="text-emerald-500" />
           </div>
