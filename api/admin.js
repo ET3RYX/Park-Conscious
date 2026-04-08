@@ -124,13 +124,22 @@ export default async function handler(req, res) {
                 return json(res, 200, { success: true, sent: 0, message: 'All requested bookings have already been emailed or not found.' });
             }
 
-            // Sync names for the email batch
+            // Sync names and event titles for the email batch
             const uids = [...new Set(bookings.map(b => b.userId).filter(id => id && id.length === 24))];
-            const usersList = await models.User.find({ _id: { $in: uids } }).lean();
-            const ownersList = await models.Owner.find({ _id: { $in: uids } }).lean();
+            const eids = [...new Set(bookings.map(b => String(b.eventId || '')).filter(id => id && id.length === 24))];
+            
+            const [usersList, ownersList, eventsList] = await Promise.all([
+                models.User.find({ _id: { $in: uids } }).lean(),
+                models.Owner.find({ _id: { $in: uids } }).lean(),
+                models.Event.find({ _id: { $in: eids } }).lean()
+            ]);
+
             const userMap = {};
             usersList.forEach(u => userMap[String(u._id)] = u.name);
             ownersList.forEach(o => userMap[String(o._id)] = o.name);
+
+            const eventMap = {};
+            eventsList.forEach(e => eventMap[String(e._id)] = e.displayTitle || e.title);
 
             const emailsToSend = [];
             for (let b of bookings) {
@@ -142,9 +151,10 @@ export default async function handler(req, res) {
                 const ticketNumber = b.ticketId || b.transactionId || String(b._id).slice(-8);
                 const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(ticketNumber)}&ecc=L&margin=0`;
                 
-                let eventName = "Park Events";
+                let eventName = "BACKSTAGE Experience";
                 if (b.eventId === "tedx_ggsipu_2026") eventName = "TEDx GGSIPU SANGAM";
-                if (b.eventId === "farewell_2024") eventName = "AFSANA '26 Farewell";
+                else if (b.eventId === "farewell_2024" || b.eventId === "afsana_2026") eventName = "AFSANA '26 Farewell";
+                else if (eventMap[String(b.eventId)]) eventName = eventMap[String(b.eventId)];
 
                 const htmlContent = `
                   <div style="font-family: 'Outfit', sans-serif; max-width: 600px; margin: 0 auto; background-color: #050507; color: #ffffff; padding: 60px 40px; border-radius: 40px; text-align: center; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 40px 100px -20px rgba(0,0,0,0.8);">
@@ -183,9 +193,9 @@ export default async function handler(req, res) {
                 `;
 
                 emailsToSend.push({
-                   from: process.env.EMAIL_FROM || 'Park Events <tickets@parkconscious.in>',
+                   from: process.env.EMAIL_FROM || 'BACKSTAGE <tickets@parkconscious.in>',
                    to: b.email,
-                   subject: `Your Ticket for ${eventName}`,
+                   subject: `Your Admittance Pass for ${eventName}`,
                    html: htmlContent
                 });
             }
