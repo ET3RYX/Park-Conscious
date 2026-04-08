@@ -256,7 +256,7 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
                     <div className="flex flex-col items-center gap-4 opacity-30">
                        <div className="flex items-center gap-2">
                           <ShieldCheck size={12} className="text-white" />
-                          <span className="text-[8px] text-white font-black uppercase tracking-[0.4em]">Official PhonePe Encryption</span>
+                          <span className="text-[8px] text-white font-black uppercase tracking-[0.4em]">Secure Checkout Gateway</span>
                        </div>
                        <p className="text-center text-[8px] text-slate-600 font-black uppercase leading-relaxed tracking-[0.3em]">
                           Non-Refundable Ticket • Individual Assignment Only
