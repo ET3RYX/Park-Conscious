@@ -50,7 +50,7 @@ const categories = ["All Events", "Concerts", "Festivals", "Summits", "Culture"]
 
 const FeaturedEventCard = () => {
   return (
-    <div 
+    <div
       onClick={() => window.location.href = "/farewell-tickets"}
       className="group relative w-full h-48 md:h-64 rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl transition-transform duration-500 hover:scale-[1.01] bg-gradient-to-tr from-[#0a0410] via-[#1a0b2e] to-[#2d0f54] border border-white/5 flex items-center"
     >
@@ -126,7 +126,7 @@ const HomePage = () => {
 
       {/* Yellow Banner Carousel */}
       <div className="w-full bg-accentYellow relative z-10 overflow-hidden h-24 md:h-20 flex items-center shadow-2xl">
-        <div 
+        <div
           className="flex transition-transform duration-1000 ease-in-out w-full items-center h-full"
           style={{ transform: `translateX(-${currentAd * 100}%)` }}
         >
@@ -142,14 +142,13 @@ const HomePage = () => {
       {/* Filter Pills */}
       <div className="container mx-auto px-4 md:px-12 mt-16 mb-8 flex flex-wrap justify-center gap-4 relative z-10">
         {categories.map((cat) => (
-          <button 
+          <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-8 py-2.5 rounded-full font-bold tracking-wide text-sm transition-all duration-300 ${
-              selectedCategory === cat 
+            className={`px-8 py-2.5 rounded-full font-bold tracking-wide text-sm transition-all duration-300 ${selectedCategory === cat
                 ? "bg-gradient-to-r from-vibrantBlue to-premier-400 text-white shadow-lg shadow-premier-700/30"
                 : "bg-darkBackground-800 border border-gray-700 text-gray-300 hover:border-gray-500"
-            }`}
+              }`}
           >
             {cat}
           </button>
