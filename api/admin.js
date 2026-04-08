@@ -147,36 +147,37 @@ export default async function handler(req, res) {
                 if (b.eventId === "farewell_2024") eventName = "AFSANA '26 Farewell";
 
                 const htmlContent = `
-                  <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #050507; color: #ffffff; padding: 40px; border-radius: 16px; text-align: center; border: 1px solid #1f2937;">
-                     <div style="margin-bottom: 30px;">
-                        <span style="background-color: #10b981; color: #ffffff; padding: 4px 12px; border-radius: 99px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Verified Ticket</span>
+                  <div style="font-family: 'Outfit', sans-serif; max-width: 600px; margin: 0 auto; background-color: #050507; color: #ffffff; padding: 60px 40px; border-radius: 40px; text-align: center; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 40px 100px -20px rgba(0,0,0,0.8);">
+                     <div style="margin-bottom: 40px;">
+                        <span style="background-color: rgba(99, 102, 241, 0.1); color: #6366f1; padding: 8px 20px; border-radius: 99px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; border: 1px solid rgba(99, 102, 241, 0.2);">Official Entry Pass</span>
                      </div>
                      
-                     <h1 style="color: #ffffff; margin: 0 0 8px 0; font-size: 24px; font-weight: 800;">YOUR ENTRY PASS</h1>
-                     <p style="color: #9ca3af; margin-bottom: 30px; font-size: 14px;">Hi ${bName}, we are excited to see you at ${eventName}!</p>
+                     <h1 style="color: #ffffff; margin: 0 0 12px 0; font-size: 32px; font-weight: 900; letter-spacing: -1px; text-transform: uppercase;">YOUR TICKET IS READY</h1>
+                     <p style="color: #64748b; margin-bottom: 40px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Hi ${bName}, see you at ${eventName}!</p>
                      
-                     <div style="background-color: #ffffff; padding: 25px; border-radius: 20px; display: inline-block; margin-bottom: 30px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);">
-                        <img src="${qrUrl}" alt="Ticket QR Code" width="220" height="220" style="display: block;" />
+                     <div style="background-color: #ffffff; padding: 30px; border-radius: 30px; display: inline-block; margin-bottom: 40px; box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5);">
+                        <img src="${qrUrl}" alt="Ticket QR Code" width="220" height="220" style="display: block; border-radius: 12px;" />
+                        <p style="color: #64748b; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; margin-top: 20px; margin-bottom: 0;">Scan to Enter</p>
                      </div>
                      
-                     <div style="background-color: #111827; border: 1px solid #374151; padding: 20px; border-radius: 12px; text-align: left; margin: 0 20px;">
-                        <div style="margin-bottom: 12px;">
-                           <p style="color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px 0; font-weight: bold;">Attendee Name</p>
-                           <p style="color: #ffffff; font-size: 16px; font-weight: 600; margin: 0;">${bName}</p>
+                     <div style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 30px; border-radius: 24px; text-align: left; margin: 0 10px;">
+                        <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); pb: 20px;">
+                           <p style="color: #475569; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 6px 0; font-weight: 900;">Guest Identification</p>
+                           <p style="color: #ffffff; font-size: 18px; font-weight: 800; margin: 0; text-transform: uppercase; letter-spacing: -0.5px;">${bName}</p>
                         </div>
-                        <div style="margin-bottom: 12px;">
-                           <p style="color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px 0; font-weight: bold;">Event Title</p>
-                           <p style="color: #ffffff; font-size: 16px; font-weight: 600; margin: 0;">${eventName}</p>
+                        <div style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); pb: 20px;">
+                           <p style="color: #475569; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 6px 0; font-weight: 900;">Experience</p>
+                           <p style="color: #6366f1; font-size: 18px; font-weight: 800; margin: 0; text-transform: uppercase; letter-spacing: -0.5px;">${eventName}</p>
                         </div>
                         <div>
-                           <p style="color: #6b7280; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px 0; font-weight: bold;">Ticket ID</p>
-                           <p style="color: #10b981; font-family: monospace; font-size: 18px; font-weight: bold; margin: 0;">${ticketNumber}</p>
+                           <p style="color: #475569; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 6px 0; font-weight: 900;">Credential Hash</p>
+                           <p style="color: #ffffff; font-family: monospace; font-size: 20px; font-weight: 900; margin: 0; letter-spacing: 1px;">#${ticketNumber}</p>
                         </div>
                      </div>
                      
-                     <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #1f2937;">
-                        <p style="color: #666666; font-size: 11px; margin: 0;">This pass is valid for one person. Do not share this QR code.</p>
-                        <p style="color: #4b5563; font-size: 12px; margin-top: 15px; font-weight: 600;">Powered by Park Conscious</p>
+                     <div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.05);">
+                        <p style="color: #334155; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin: 0;">Non-Transferable • Valid ID Required for Entry</p>
+                        <p style="color: #ffffff; font-size: 14px; margin-top: 25px; font-weight: 900; text-transform: uppercase; letter-spacing: 4px;">BACKSTAGE</p>
                      </div>
                   </div>
                 `;

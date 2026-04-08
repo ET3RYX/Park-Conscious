@@ -108,3 +108,44 @@ h1, h2, h3, h4, .font-heading {
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
+
+/* Print Optimization for Ticket Download */
+@media print {
+  /* Hide everything by default */
+  body * {
+    visibility: hidden;
+    background: none !important;
+  }
+
+  /* Show only the ticket card and its children */
+  #ticket-card, #ticket-card * {
+    visibility: visible;
+  }
+
+  #ticket-card {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: auto;
+    margin: 0;
+    padding: 2rem !important;
+    border: none !important;
+    background: #050507 !important; /* Preserve dark theme background */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    border-radius: 2rem !important;
+    box-shadow: none !important;
+  }
+
+  /* Remove browser headers and footers */
+  @page {
+    margin: 0;
+    size: auto;
+  }
+
+  /* Hide background glows and other absolute blobs during print */
+  [class*="blur-"], [class*="bg-indigo-600/5"] {
+    display: none !important;
+  }
+}

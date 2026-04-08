@@ -88,7 +88,7 @@ const SuccessPage = () => {
         </div>
 
         {/* Ticket Details Card — Verified Passport */}
-        <div className="bg-white/5 border border-white/5 rounded-[3.5rem] p-10 md:p-16 text-left space-y-10 backdrop-blur-3xl relative overflow-hidden shadow-2xl">
+        <div id="ticket-card" className="bg-white/5 border border-white/5 rounded-[3.5rem] p-10 md:p-16 text-left space-y-10 backdrop-blur-3xl relative overflow-hidden shadow-2xl">
           <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-600/5 blur-[100px] -z-10 rounded-full"></div>
 
           <div className="flex flex-col md:flex-row gap-12 items-center md:items-start justify-between border-b border-white/5 pb-12">
@@ -99,7 +99,11 @@ const SuccessPage = () => {
               </div>
               <div>
                 <p className="text-[9px] text-slate-200 font-black uppercase tracking-[0.4em] mb-2">Booking Status</p>
-                <span className="text-white text-[10px] font-black uppercase tracking-[0.3em] bg-white/5 px-6 py-2 rounded-full border border-white/10">Verified & Secure ✓</span>
+                <div className="flex">
+                  <span className="text-white text-[10px] font-black uppercase tracking-widest bg-white/5 px-6 py-2 rounded-full border border-white/10 whitespace-nowrap flex items-center gap-2">
+                    Verified & Secure ✓
+                  </span>
+                </div>
               </div>
               {booking?.ticketId && (
                 <div>
