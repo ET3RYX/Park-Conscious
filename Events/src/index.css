@@ -111,41 +111,59 @@ h1, h2, h3, h4, .font-heading {
 
 /* Print Optimization for Ticket Download */
 @media print {
-  /* Hide everything by default */
-  body * {
-    visibility: hidden;
-    background: none !important;
-  }
-
-  /* Show only the ticket card and its children */
-  #ticket-card, #ticket-card * {
-    visibility: visible;
-  }
-
-  #ticket-card {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: auto;
-    margin: 0;
-    padding: 2rem !important;
-    border: none !important;
-    background: #050507 !important; /* Preserve dark theme background */
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-    border-radius: 2rem !important;
-    box-shadow: none !important;
-  }
-
-  /* Remove browser headers and footers */
-  @page {
-    margin: 0;
-    size: auto;
-  }
-
-  /* Hide background glows and other absolute blobs during print */
-  [class*="blur-"], [class*="bg-indigo-600/5"] {
+  /* Hide standard site components using simple selectors */
+  nav, footer, button, .no-print {
     display: none !important;
+  }
+
+  /* Reset body for a clean print slate */
+  body {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide background glows and absolute decorative elements */
+  [class*="blur-"], [class*="animate-mesh"], [class*="bg-indigo-600/5"] {
+    display: none !important;
+  }
+
+  /* Target the ticket card and ensure it's not hidden */
+  #ticket-card {
+    display: block !important;
+    visibility: visible !important;
+    position: relative !important;
+    margin: 40px auto !important;
+    width: 90% !important;
+    max-width: 600px !important;
+    background: #050507 !important; /* Premium dark background */
+    color: white !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 40px !important;
+    padding: 40px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Ensure content inside looks perfect */
+  #ticket-card * {
+    visibility: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Specific: hide the absolute glow inside the ticket-card during print */
+  #ticket-card .absolute {
+    display: none !important;
+  }
+
+  @page {
+    margin: 1cm;
+    size: auto;
   }
 }
