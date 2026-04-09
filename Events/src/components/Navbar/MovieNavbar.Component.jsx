@@ -48,7 +48,7 @@ function NavLg() {
         <div className="flex items-center w-1/2 gap-3">
           <div className="w-10 h-10">
             <img
-              src="/logo.png"
+              src="/Event_logo.png"
               alt="logo"
               className="w-full h-full object-contain"
             />

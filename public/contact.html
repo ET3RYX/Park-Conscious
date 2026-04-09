@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact & Waitlist | Park Conscious</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Contact & Waitlist | Park Conscious">
+    <meta property="og:image" content="/assets/logo.jpg">
+    <meta property="og:type" content="website">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .main-gradient {
+            background: radial-gradient(circle at top right, #1e40af 0%, transparent 40%),
+                radial-gradient(circle at bottom left, #0f766e 0%, transparent 40%),
+                radial-gradient(circle at center, #111827 0%, #000000 100%);
+            background-attachment: fixed;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-950 text-gray-200 main-gradient min-h-screen flex flex-col">
+    <nav class="w-full z-50 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center cursor-pointer" onclick="window.location.href='index.html'">
+                <div
+                    class="relative w-10 h-10 mr-3 flex items-center justify-center bg-gradient-to-br from-blue-600 to-teal-600 rounded-lg shadow-lg overflow-hidden">
+                    <img src="./assets/logo.jpg" alt="Logo"
+                        class="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity">
+                </div>
+                <span class="text-xl font-bold text-white tracking-tight">Park <span
+                        class="text-teal-400">Conscious</span></span>
+            </div>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="about.html"
+                    class="text-gray-300 hover:text-white text-sm font-medium transition-colors">About</a>
+                <a href="technology.html"
+                    class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Technology</a>
+                <div class="h-6 w-px bg-white/10 mx-2"></div>
+                <button onclick="window.location.href='owner/login.html'"
+                    class="text-gray-300 hover:text-white text-sm font-medium transition-colors">Login</button>
+                <button onclick="window.location.href='contact.html'"
+                    class="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-5 py-2 rounded-full text-sm font-medium transition-all backdrop-blur-sm">Contact
+                    Sales</button>
+            </div>
+            <!-- Mobile menu button -->
+            <div class="md:hidden">
+                <button class="text-gray-300 hover:text-white p-2" id="mobile-menu-button">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Drawer -->
+        <div class="fixed inset-0 z-[60] hidden" id="mobile-menu">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="mobile-menu-overlay"></div>
+            <div class="absolute right-0 top-0 h-full w-64 bg-gray-900 border-l border-white/10 p-6 transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl"
+                id="mobile-menu-drawer">
+                <div class="flex justify-end mb-8">
+                    <button class="text-gray-400 hover:text-white" id="mobile-menu-close">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex flex-col space-y-6">
+                    <a href="index.html"
+                        class="text-lg font-medium text-white hover:text-teal-400 transition-colors">Home</a>
+                    <a href="about.html"
+                        class="text-lg font-medium text-white hover:text-teal-400 transition-colors">About</a>
+                    <a href="technology.html"
+                        class="text-lg font-medium text-white hover:text-teal-400 transition-colors">Technology</a>
+                    <div class="h-px bg-white/10 w-full"></div>
+                    <button onclick="window.location.href='owner/login.html'"
+                        class="w-full bg-white/5 hover:bg-white/10 text-white border border-white/20 py-3 rounded-xl text-sm font-medium transition-colors">
+                        Login
+                    </button>
+                    <button onclick="window.location.href='contact.html'"
+                        class="w-full bg-gradient-to-r from-blue-600 to-teal-500 text-white py-3 rounded-xl text-sm font-semibold shadow-lg shadow-blue-500/30 transition-colors">
+                        Contact Sales
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex-1 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-lg p-8 rounded-2xl shadow-2xl">
+            <h1 class="text-3xl font-bold text-white mb-2">Join the Revolution</h1>
+            <p class="text-gray-400 mb-8">We are currently in pilot phase. Sign up to get invited.</p>
+
+            <form class="space-y-6" id="contactForm">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Full Name</label>
+                    <input type="text" name="name" required
+                        class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-teal-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Email Address</label>
+                    <input type="email" name="email" required
+                        class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-teal-500 transition-colors">
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <label
+                        class="flex items-center p-4 border border-white/10 rounded-xl cursor-pointer hover:bg-white/5 transition-colors flex-1">
+                        <input type="radio" name="role" value="User" checked
+                            class="text-teal-500 focus:ring-teal-500 h-4 w-4 bg-gray-800 border-gray-600">
+                        <span class="ml-3 text-sm font-medium text-white">I'm a User</span>
+                    </label>
+                    <label
+                        class="flex items-center p-4 border border-white/10 rounded-xl cursor-pointer hover:bg-white/5 transition-colors flex-1">
+                        <input type="radio" name="role" value="Parking Owner"
+                            class="text-teal-500 focus:ring-teal-500 h-4 w-4 bg-gray-800 border-gray-600">
+                        <span class="ml-3 text-sm font-medium text-white">I'm a Parking Owner</span>
+                    </label>
+                </div>
+
+                <button type="submit" id="submitBtn"
+                    class="w-full bg-gradient-to-r from-blue-600 to-teal-500 text-white font-bold py-4 rounded-xl hover:shadow-lg hover:shadow-blue-500/20 transition-all transform hover:-translate-y-0.5">
+                    Join Waitlist
+                </button>
+            </form>
+
+            <script>
+                document.getElementById('contactForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const btn = document.getElementById('submitBtn');
+                    const originalText = btn.innerText;
+                    btn.innerText = 'Sending...';
+                    btn.disabled = true;
+
+                    const formData = new FormData(e.target);
+                    const data = {
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        role: formData.get('role')
+                    };
+
+                    try {
+                        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                        const API_URL = isLocal ? (window.location.port === '3000' ? '' : 'http://localhost:5050') : '';
+
+                        const response = await fetch(`${API_URL}/api/contact`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+
+                        if (response.ok) {
+                            alert('Thanks for joining! We will be in touch.');
+                            window.location.href = 'index.html';
+                        } else {
+                            const err = await response.json();
+                            alert('Error: ' + (err.message || 'Something went wrong'));
+                            btn.innerText = originalText;
+                            btn.disabled = false;
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Failed to connect to server.');
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    }
+                });
+
+                // Mobile Menu Logic
+                const mobileMenuButton = document.getElementById('mobile-menu-button');
+                const mobileMenuClose = document.getElementById('mobile-menu-close');
+                const mobileMenu = document.getElementById('mobile-menu');
+                const mobileMenuDrawer = document.getElementById('mobile-menu-drawer');
+                const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+
+                function openMobileMenu() {
+                    mobileMenu.classList.remove('hidden');
+                    setTimeout(() => {
+                        mobileMenuDrawer.classList.remove('translate-x-full');
+                    }, 10);
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeMobileMenu() {
+                    mobileMenuDrawer.classList.add('translate-x-full');
+                    setTimeout(() => {
+                        mobileMenu.classList.add('hidden');
+                    }, 300);
+                    document.body.style.overflow = '';
+                }
+
+                mobileMenuButton?.addEventListener('click', openMobileMenu);
+                mobileMenuClose?.addEventListener('click', closeMobileMenu);
+                mobileMenuOverlay?.addEventListener('click', closeMobileMenu);
+            </script>
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer class="bg-gray-950 py-20 border-t border-white/5 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-16 mb-16">
+                <div class="max-w-xs">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="relative w-10 h-10 flex items-center justify-center bg-gradient-to-br from-blue-600 to-teal-600 rounded-lg shadow-lg overflow-hidden">
+                            <img src="./assets/logo.jpg" alt="Logo" class="w-full h-full object-cover">
+                        </div>
+                        <div class="text-2xl font-bold text-white tracking-tight">Park Conscious</div>
+                    </div>
+                    <p class="text-gray-500 text-sm leading-relaxed">
+                        Building the next generation of urban infrastructure through AI and intelligent automation.
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-16 flex-1">
+                    <div>
+                        <h4 class="text-white font-bold mb-6">Product</h4>
+                        <ul class="space-y-4 text-gray-500 text-sm">
+                            <li><a href="find-parking.html" class="hover:text-teal-400 transition-colors">Find Parking</a></li>
+                            <li><a href="index.html#solution" class="hover:text-teal-400 transition-colors">Solutions</a></li>
+                            <li><a href="about.html" class="hover:text-teal-400 transition-colors">Infrastructure</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-6">Company</h4>
+                        <ul class="space-y-4 text-gray-500 text-sm">
+                            <li><a href="about.html" class="hover:text-teal-400 transition-colors">About Us</a></li>
+                            <li><a href="contact.html" class="hover:text-teal-400 transition-colors">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-6">Legal</h4>
+                        <ul class="space-y-4 text-gray-500 text-sm">
+                            <li><a href="javascript:void(0)" onclick="showLegal('privacy')" class="hover:text-teal-400 transition-colors">Privacy Policy</a></li>
+                            <li><a href="javascript:void(0)" onclick="showLegal('terms')" class="hover:text-teal-400 transition-colors">Terms of Service</a></li>
+                            <li><a href="javascript:void(0)" onclick="showLegal('refunds')" class="hover:text-teal-400 transition-colors">Refund Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                <p class="text-gray-600 text-xs">© 2026 Park Conscious. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Legal Modal Script -->
+    <script src="./scripts/legal-modal.js"></script>
+
+    <!-- Vercel Speed Insights & Analytics -->
+    <script>
+        window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+    <script defer src="/_vercel/insights/script.js"></script>
+</body>
+
+</html>

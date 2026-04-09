@@ -1,0 +1,3 @@
+window.PARK_CONFIG = {
+    MAPS_KEY: "AIzaSyAbGNHEFN2Ta57Gz_5YB4w8ZDbuw6OVgRk"
+};
