@@ -74,11 +74,7 @@ function NavLg({ defaultLocation, onRequestOpen }) {
   return (
     <div className="container flex mx-auto px-8 items-center justify-between py-2">
       <div className="flex items-center gap-16">
-        <Link to="/" className="flex items-center gap-4 cursor-pointer group">
-          <div className="relative">
-             <img src="/Event_logo.png" alt="Backstage Logo" className="w-11 h-11 rounded-[1.2rem] object-cover group-hover:scale-105 transition-all duration-700 shadow-2xl" />
-             <div className="absolute inset-0 bg-indigo-500/10 rounded-[1.2rem] blur-xl -z-10 group-hover:bg-indigo-500/20 transition-all"></div>
-          </div>
+        <Link to="/" className="cursor-pointer group">
           <h1 className="text-[1.8rem] font-black text-white uppercase tracking-tighter leading-none m-0 p-0 italic">
             BACK<span className="text-indigo-500 italic">STAGE</span>
           </h1>
