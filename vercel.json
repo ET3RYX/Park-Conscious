@@ -23,12 +23,12 @@
     {
       "source": "/booking-confirmed",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
-      "destination": "/Events/dist/index.html"
+      "destination": "/Events/build/index.html"
     },
     {
       "source": "/payment-:path*",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
-      "destination": "/Events/dist/index.html"
+      "destination": "/Events/build/index.html"
     },
     {
       "source": "/payment-:path*",
@@ -39,7 +39,7 @@
     {
       "source": "/((?!api/).*)",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
-      "destination": "/Events/dist/index.html"
+      "destination": "/Events/build/index.html"
     },
     {
       "source": "/((?!api/).*)",
