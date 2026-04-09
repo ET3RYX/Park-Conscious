@@ -47,7 +47,7 @@ export default async function handler(req, res) {
                 uid: String(u._id),
                 name: u.name, 
                 email: u.email, 
-                role: isOwner ? (u.role || 'organizer') : 'user' 
+                role: isOwner ? (u.role || 'organizer').toLowerCase() : 'user' 
             };
             const token = issueCookie(req, res, payload);
             return json(res, 200, { user: payload, token });
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
                 uid: String(u._id), 
                 name: u.name, 
                 email: u.email, 
-                role: isOwner ? (u.role || 'organizer') : 'user' 
+                role: isOwner ? (u.role || 'organizer').toLowerCase() : 'user' 
             };
             const token = issueCookie(req, res, payload);
             return json(res, 200, { user: payload, token, message: 'Logged in with Google' });

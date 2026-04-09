@@ -102,11 +102,21 @@ export default async function handler(req, res) {
             if (!user) return json(res, 401, { message: 'Authentication required. Please log in again.' });
             
             let query = { status: { $in: ["Confirmed", "confirmed"] } };
+            const role = (user.role || '').toLowerCase();
+            const isGodMode = role === 'superadmin';
             
-            // If restricted organizer, find their own events first. Superadmins and admins see everything.
-            if (user.role !== 'superadmin' && user.role !== 'admin') {
+            // Hybrid visibility: Admins with assignments are scoped, others are global.
+            // Organizers and Owners are always scoped.
+            let isScoped = role === 'organizer' || role === 'owner';
+            let myEventIds = [];
+
+            if (role === 'admin' || isScoped) {
                 const myEvents = await Event.find({ organizerId: user.id }).select('_id').lean();
-                const myEventIds = myEvents.map(e => String(e._id));
+                myEventIds = myEvents.map(e => String(e._id));
+                if (myEventIds.length > 0) isScoped = true;
+            }
+
+            if (!isGodMode && isScoped) {
                 query.eventId = { $in: myEventIds };
             }
 
@@ -421,12 +431,24 @@ export default async function handler(req, res) {
             
             console.log(`[ADMIN STATS] User Auth: ID=${user.id}, Role=${user.role}, Email=${user.email}`);
             
+            const role = (user.role || '').toLowerCase();
+            const isGodMode = role === 'superadmin';
+            
             let eventQuery = {};
-            if (user.role !== 'superadmin' && user.role !== 'admin') {
-                eventQuery.organizerId = user.id;
-                console.log(`[ADMIN STATS] Restricting to organizerId: ${user.id}`);
+            let isScoped = role === 'organizer' || role === 'owner';
+
+            if (role === 'admin' || isScoped) {
+                const dbCheck = await Event.find({ organizerId: user.id }).select('_id').lean();
+                if (dbCheck.length > 0) {
+                    isScoped = true;
+                    eventQuery.organizerId = user.id;
+                }
+            }
+
+            if (isGodMode || (!isScoped && role === 'admin')) {
+                console.log(`[ADMIN STATS] Global access granted for role: ${role}`);
             } else {
-                console.log(`[ADMIN STATS] Global access granted for role: ${user.role}`);
+                console.log(`[ADMIN STATS] Restricting to organizerId: ${user.id} for role: ${role}`);
             }
 
             // Perform check before fetching
