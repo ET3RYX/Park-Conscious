@@ -44,19 +44,15 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
         locationAddress: initialData.location?.address || '',
         lat: initialData.location?.coordinates?.lat || '',
         lng: initialData.location?.coordinates?.lng || '',
+        // Ensure requiredFields exists even if database record doesn't have it
+        requiredFields: {
+          name:  initialData.requiredFields?.name  ?? true,
+          email: initialData.requiredFields?.email ?? true,
+          phone: initialData.requiredFields?.phone ?? true,
+        }
       });
       if (initialData.location?.coordinates?.lat || initialData.location?.coordinates?.lng) {
         setShowAdvancedLocation(true);
-      }
-      if (initialData.requiredFields) {
-        setFormData(prev => ({
-          ...prev,
-          requiredFields: {
-            name:  initialData.requiredFields.name  ?? true,
-            email: initialData.requiredFields.email ?? true,
-            phone: initialData.requiredFields.phone ?? true,
-          }
-        }));
       }
     }
   }, [initialData]);

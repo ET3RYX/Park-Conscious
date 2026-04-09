@@ -7,9 +7,16 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedAdmin = localStorage.getItem('adminUser');
-    if (savedAdmin) {
-      setAdmin(JSON.parse(savedAdmin));
+    const savedSession = localStorage.getItem('adminUser');
+    if (savedSession) {
+      try {
+        const data = JSON.parse(savedSession);
+        // data contains { user, token }. We set admin to data.user
+        setAdmin(data.user || data);
+      } catch (e) {
+        console.error("Session corruption detected");
+        localStorage.removeItem('adminUser');
+      }
     }
     setLoading(false);
   }, []);
