@@ -103,8 +103,8 @@ export default async function handler(req, res) {
             
             let query = { status: { $in: ["Confirmed", "confirmed"] } };
             
-            // If organizer, find their own events first
-            if (user.role !== 'superadmin') {
+            // If restricted organizer, find their own events first. Superadmins and admins see everything.
+            if (user.role !== 'superadmin' && user.role !== 'admin') {
                 const myEvents = await Event.find({ organizerId: user.id }).select('_id').lean();
                 const myEventIds = myEvents.map(e => String(e._id));
                 query.eventId = { $in: myEventIds };

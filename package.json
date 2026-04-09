@@ -2,8 +2,12 @@
   "name": "park-conscious",
   "version": "1.0.0",
   "type": "module",
+  "workspaces": [
+    "Events",
+    "AdminPanel"
+  ],
   "scripts": {
-    "build": "mkdir -p public && cp *.html favicon.ico favicon.png public/ 2>/dev/null || true && cp -r assets scripts styles public/ 2>/dev/null || true && cd Events && npm install && npm run build && cd .. && cd AdminPanel && npm install && npm run build",
+    "build": "mkdir -p public && cp *.html favicon.ico favicon.png public/ 2>/dev/null || true && cp -r assets scripts styles public/ 2>/dev/null || true && npm run build --workspaces",
     "dev:backend": "node local-server.js"
   },
   "dependencies": {
