@@ -14,7 +14,7 @@ import {
   Settings as SettingsIcon,
   ChevronRight
 } from 'lucide-react';
-import { userService } from '../services/api';
+import { userService, eventService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 const RoleBadge = ({ role }) => {
@@ -36,7 +36,8 @@ const Settings = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'organizer' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'organizer', assignedEventIds: [] });
+  const [allEvents, setAllEvents] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [copySuccess, setCopySuccess] = useState(null);
 
@@ -45,8 +46,18 @@ const Settings = () => {
   useEffect(() => {
     if (isSuperAdmin) {
       fetchUsers();
+      fetchEvents();
     }
   }, [isSuperAdmin]);
+
+  const fetchEvents = async () => {
+    try {
+      const { data } = await eventService.getAll();
+      setAllEvents(data || []);
+    } catch (err) {
+      console.error('Failed to fetch events:', err);
+    }
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -66,7 +77,7 @@ const Settings = () => {
     try {
       await userService.create(formData);
       setShowModal(false);
-      setFormData({ name: '', email: '', password: '', role: 'organizer' });
+      setFormData({ name: '', email: '', password: '', role: 'organizer', assignedEventIds: [] });
       fetchUsers();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to create user');
@@ -287,6 +298,61 @@ const Settings = () => {
                       <option value="organizer">Organizer</option>
                       <option value="superadmin">Super Admin</option>
                     </select>
+                  </div>
+                </div>
+
+                {/* Event Assignment Section */}
+                <div className="space-y-4 pt-4 border-t border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Experience Assignment</label>
+                      <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest ml-1 mt-0.5">Select events to assign immediately</p>
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        const allIds = allEvents.map(e => e._id);
+                        const allSelected = formData.assignedEventIds.length === allEvents.length;
+                        setFormData({ ...formData, assignedEventIds: allSelected ? [] : allIds });
+                      }}
+                      className="text-[9px] font-black text-sky-500 uppercase tracking-widest hover:text-white transition-colors"
+                    >
+                      {formData.assignedEventIds.length === allEvents.length ? 'Deselect All' : 'Select All'}
+                    </button>
+                  </div>
+                  
+                  <div className="max-h-[160px] overflow-y-auto bg-slate-950 border border-slate-800 rounded-2xl p-2 custom-scrollbar">
+                    {allEvents.length === 0 ? (
+                      <div className="py-8 text-center text-slate-700 text-[10px] font-black uppercase tracking-widest">
+                        No events available to assign
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        {allEvents.map(event => (
+                          <label key={event._id} className="flex items-center gap-3 p-2.5 hover:bg-slate-900 rounded-xl cursor-pointer group transition-all">
+                            <input 
+                              type="checkbox"
+                              checked={formData.assignedEventIds.includes(event._id)}
+                              onChange={(e) => {
+                                const ids = e.target.checked 
+                                  ? [...formData.assignedEventIds, event._id]
+                                  : formData.assignedEventIds.filter(id => id !== event._id);
+                                setFormData({ ...formData, assignedEventIds: ids });
+                              }}
+                              className="w-4 h-4 rounded border-slate-800 bg-slate-950 text-sky-500 focus:ring-sky-500/20"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[11px] font-bold text-slate-300 group-hover:text-white truncate uppercase tracking-tight">
+                                {event.displayTitle || event.title || event.name}
+                              </p>
+                              <p className="text-[8px] text-slate-600 font-black uppercase tracking-widest">
+                                {event.status} • {event.date ? new Date(event.date).toLocaleDateString() : 'TBA'}
+                              </p>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

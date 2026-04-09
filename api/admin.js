@@ -31,7 +31,7 @@ export default async function handler(req, res) {
         if (url.includes('users') && method === 'POST') {
             if (!user || user.role !== 'superadmin') return json(res, 403, { message: 'Access Denied: SuperAdmin only' });
             
-            const { name, email, password, role } = body;
+            const { name, email, password, role, assignedEventIds } = body;
             if (!name || !email || !password) return json(res, 400, { message: 'Missing required fields' });
 
             const existing = await Owner.findOne({ email: email.toLowerCase() });
@@ -45,7 +45,20 @@ export default async function handler(req, res) {
                 role: role || 'organizer'
             });
 
-            return json(res, 201, { success: true, user: { id: newUser._id, name, email, role: newUser.role } });
+            // Handle bulk event assignment
+            if (Array.isArray(assignedEventIds) && assignedEventIds.length > 0) {
+               await Event.updateMany(
+                   { _id: { $in: assignedEventIds } },
+                   { $set: { organizerId: String(newUser._id) } }
+               );
+               console.log(`[USER MGMT] Assigned ${assignedEventIds.length} events to new user ${newUser._id}`);
+            }
+
+            return json(res, 201, { 
+                success: true, 
+                user: { id: newUser._id, name, email, role: newUser.role },
+                assignedCount: assignedEventIds?.length || 0
+            });
         }
 
         if (url.includes('users/') && method === 'DELETE') {
