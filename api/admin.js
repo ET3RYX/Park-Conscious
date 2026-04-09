@@ -388,7 +388,12 @@ export default async function handler(req, res) {
 
         // -- Organizer Dashboard Stats (Global/Scoped) --
         if (url.includes('organizer/stats/global') && method === 'GET') {
-            if (!user) return json(res, 401, { message: 'Auth required' });
+            if (!user) {
+                console.warn(`[ADMIN STATS] Unauthorized stats request from ${req.headers.host}`);
+                return json(res, 401, { message: 'Auth required' });
+            }
+            
+            console.log(`[ADMIN STATS] Fetching dashboard global telemetry for ${user.email} (${user.role})`);
             
             let eventQuery = {};
             if (user.role !== 'superadmin') {
@@ -398,6 +403,8 @@ export default async function handler(req, res) {
             const events = await Event.find(eventQuery).lean();
             const eventIds = events.map(e => String(e._id));
             
+            console.log(`[ADMIN STATS] Found ${events.length} scoped events for ${user.role}`);
+
             // Gather all confirmed/attended bookings for these events
             const bookings = await Booking.find({ 
                 eventId: { $in: eventIds },
@@ -422,6 +429,8 @@ export default async function handler(req, res) {
                     revenue: rev
                 };
             });
+
+            console.log(`[ADMIN STATS] Stats generated: Rev ₹${totalRevenue}, Sales ${totalSales}`);
 
             return json(res, 200, {
                 totalEvents: events.length,

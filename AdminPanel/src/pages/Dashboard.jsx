@@ -127,7 +127,7 @@ const Dashboard = () => {
 
     try {
       // New: fetch organizer/booking stats
-      const { data } = await api.get('/api/organizer/stats/global');
+      const { data } = await api.get('/api/admin/organizer/stats/global');
       setBookingStats(data);
     } catch (e) {
       console.error('Booking stats fetch failed', e);
