@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { eventService } from '../services/api';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 // ── Stat Card (existing style preserved) ─────────────────────────────────────
 const StatsCard = ({ title, value, icon: Icon, color = 'sky', sub }) => {
@@ -101,6 +102,9 @@ const CheckInTool = () => {
 
 // ── Main Dashboard ────────────────────────────────────────────────────────────
 const Dashboard = () => {
+  const { admin } = useAuth();
+  const isSuperAdmin = admin?.role === 'superadmin' || admin?.role === 'admin' || admin?.role === 'owner';
+
   const [eventStats, setEventStats] = useState({ totalEvents: 0, published: 0, draft: 0 });
   const [bookingStats, setBookingStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -144,8 +148,15 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">DASHBOARD</h1>
-          <p className="text-slate-500 text-sm mt-1 font-medium">System overview, event performance and ticket telemetry.</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">
+            {isSuperAdmin ? 'DASHBOARD' : 'ORGANIZER OVERVIEW'}
+          </h1>
+          <p className="text-slate-500 text-sm mt-1 font-medium">
+            {isSuperAdmin 
+              ? 'System overview, event performance and ticket telemetry.' 
+              : 'Real-time performance and guest data for your assigned experiences.'
+            }
+          </p>
         </div>
         <button
           onClick={fetchAll}
@@ -157,9 +168,9 @@ const Dashboard = () => {
 
       {/* Row 1 — Event Counts (existing) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatsCard title="Total Repository"  value={eventStats.totalEvents} icon={BarChart3}  color="sky"    />
-        <StatsCard title="Active Listings"   value={eventStats.published}   icon={Calendar}   color="emerald" />
-        <StatsCard title="Draft Protocol"    value={eventStats.draft}       icon={Activity}   color="amber"  />
+        <StatsCard title={isSuperAdmin ? "Total Repository" : "Your Experiences"}  value={eventStats.totalEvents} icon={BarChart3}  color="sky"    />
+        <StatsCard title={isSuperAdmin ? "Active Listings" : "Live Tickets"}   value={eventStats.published}   icon={Calendar}   color="emerald" />
+        <StatsCard title={isSuperAdmin ? "Draft Protocol" : "Assigned Folders"}    value={eventStats.draft}       icon={Activity}   color="amber"  />
       </div>
 
       {/* Row 2 — Booking / Revenue Stats */}

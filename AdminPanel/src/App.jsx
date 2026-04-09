@@ -9,6 +9,7 @@ import EditEvent from './pages/EditEvent';
 import Login from './pages/Login';
 import PriceUpdater from './pages/PriceUpdater';
 import Attendees from './pages/Attendees';
+import Settings from './pages/Settings';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -83,15 +84,7 @@ function App() {
             
             {/* Work in Progress Modules */}
             <Route path="attendees" element={<Attendees />} />
-            <Route path="settings" element={
-              <div className="h-[60vh] flex flex-col items-center justify-center opacity-40">
-                <div className="w-24 h-24 rounded-full border-4 border-dashed border-white/20 mb-6 flex items-center justify-center">
-                  <span className="text-4xl">⚙️</span>
-                </div>
-                <h2 className="text-2xl font-black uppercase tracking-widest">System Protocols</h2>
-                <p className="mt-2 text-sm font-medium">Core configuration locked. Terminal inactive.</p>
-              </div>
-            } />
+            <Route path="settings" element={<Settings />} />
           </Route>
 
           {/* 404 Redirect */}

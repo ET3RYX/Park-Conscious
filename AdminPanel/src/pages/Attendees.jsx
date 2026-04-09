@@ -22,7 +22,12 @@ const StatusBadge = ({ attended, onToggle, loading }) => (
   </button>
 );
 
+import { useAuth } from '../context/AuthContext';
+
 const Attendees = () => {
+  const { admin } = useAuth();
+  const isSuperAdmin = admin?.role === 'superadmin' || admin?.role === 'admin' || admin?.role === 'owner';
+
   const [attendees, setAttendees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -178,10 +183,13 @@ const Attendees = () => {
         <div>
           <h1 className="text-3xl font-black text-white tracking-tighter flex items-center gap-3">
             <Users className="text-sky-500" size={32} />
-            ATTENDEE NEXUS
+            {isSuperAdmin ? 'ATTENDEE NEXUS' : 'ENTRY CONTROL'}
           </h1>
           <p className="text-slate-500 text-sm font-medium mt-1">
-            Real-time management of {attendees.length} verified ticket holders.
+            {isSuperAdmin 
+              ? `Global management of ${attendees.length} ticket holders across all events.`
+              : `Managing ${attendees.length} guests for your registered experiences.`
+            }
           </p>
         </div>
         
@@ -202,14 +210,18 @@ const Attendees = () => {
             <Mail size={16} />
             {broadcasting ? 'Sending...' : 'Broadcast Tickets'}
           </button>
-          <button 
-            onClick={handleSyncPayments}
-            disabled={loading || broadcasting || syncing}
-            className="flex items-center gap-2 bg-slate-900 border border-slate-800 text-slate-300 hover:text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all disabled:opacity-50"
-          >
-            {syncing ? <Loader2 size={16} className="animate-spin" /> : <History size={16} />}
-            {syncing ? 'Syncing...' : 'Sync Payments'}
-          </button>
+          
+          {isSuperAdmin && (
+            <button 
+              onClick={handleSyncPayments}
+              disabled={loading || broadcasting || syncing}
+              className="flex items-center gap-2 bg-slate-900 border border-slate-800 text-slate-300 hover:text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all disabled:opacity-50"
+            >
+              {syncing ? <Loader2 size={16} className="animate-spin" /> : <History size={16} />}
+              {syncing ? 'Syncing...' : 'Sync Payments'}
+            </button>
+          )}
+
           <button className="flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all disabled:opacity-50" disabled={broadcasting}>
             <Download size={16} />
             Export CSV

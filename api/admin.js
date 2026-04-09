@@ -21,13 +21,58 @@ export default async function handler(req, res) {
     const user = verifyUser(req);
 
     try {
+        // -- User Management (SuperAdmin Only) --
+        if (url.includes('users') && method === 'GET') {
+            if (!user || user.role !== 'superadmin') return json(res, 403, { message: 'Access Denied: SuperAdmin only' });
+            const admins = await Owner.find({}).select('-password').lean();
+            return json(res, 200, admins);
+        }
+
+        if (url.includes('users') && method === 'POST') {
+            if (!user || user.role !== 'superadmin') return json(res, 403, { message: 'Access Denied: SuperAdmin only' });
+            
+            const { name, email, password, role } = body;
+            if (!name || !email || !password) return json(res, 400, { message: 'Missing required fields' });
+
+            const existing = await Owner.findOne({ email: email.toLowerCase() });
+            if (existing) return json(res, 400, { message: 'User already exists' });
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const newUser = await Owner.create({
+                name,
+                email: email.toLowerCase(),
+                password: hashedPassword,
+                role: role || 'organizer'
+            });
+
+            return json(res, 201, { success: true, user: { id: newUser._id, name, email, role: newUser.role } });
+        }
+
+        if (url.includes('users/') && method === 'DELETE') {
+            if (!user || user.role !== 'superadmin') return json(res, 403, { message: 'Access Denied: SuperAdmin only' });
+            
+            const userId = url.split('/').pop();
+            if (String(user.id) === userId) return json(res, 400, { message: 'Cannot delete your own account' });
+
+            await Owner.findByIdAndDelete(userId);
+            return json(res, 200, { success: true, message: 'User removed' });
+        }
+
         // -- Admin Attendees/Bookings List --
         if (url.includes('bookings/all') && method === 'GET') {
             if (!user) return json(res, 401, { message: 'Authentication required. Please log in again.' });
-            if (user.role !== 'admin') return json(res, 403, { message: 'Access Denied: Admin role required' });
             
-            const bookings = await Booking.find({ status: "Confirmed" }).sort({ createdAt: -1 }).limit(200).lean();
-            console.log(`[ADMIN API] Confirmed bookings fetched: ${bookings.length}`);
+            let query = { status: "Confirmed" };
+            
+            // If organizer, find their own events first
+            if (user.role !== 'superadmin') {
+                const myEvents = await Event.find({ organizerId: user.id }).select('_id').lean();
+                const myEventIds = myEvents.map(e => String(e._id));
+                query.eventId = { $in: myEventIds };
+            }
+
+            const bookings = await Booking.find(query).sort({ createdAt: -1 }).limit(200).lean();
+            console.log(`[ADMIN API] Bookings fetched for role ${user.role}: ${bookings.length}`);
             
             // Gather unique IDs to fetch in bulk
             const eventIds = new Set();
@@ -105,7 +150,7 @@ export default async function handler(req, res) {
 
         // -- Bulk Emailing --
         if (url.includes('email-batch') && method === 'POST') {
-            if (!user || user.role !== 'admin') return json(res, 403, { message: 'Access Denied' });
+            if (!user) return json(res, 403, { message: 'Access Denied' });
             
             const { bookingIds } = body;
             if (!Array.isArray(bookingIds) || bookingIds.length === 0) {
@@ -118,10 +163,20 @@ export default async function handler(req, res) {
             }
 
             const resend = new Resend(RESEND_API_KEY);
-            const bookings = await Booking.find({ _id: { $in: bookingIds }, emailSent: { $ne: true } }).lean();
+            
+            let bookingQuery = { _id: { $in: bookingIds }, emailSent: { $ne: true } };
+            
+            // If organizer, ensure they only email their own bookings
+            if (user.role !== 'superadmin') {
+                const myEvents = await Event.find({ organizerId: user.id }).select('_id').lean();
+                const myEventIds = myEvents.map(e => String(e._id));
+                bookingQuery.eventId = { $in: myEventIds };
+            }
+
+            const bookings = await Booking.find(bookingQuery).lean();
             
             if (bookings.length === 0) {
-                return json(res, 200, { success: true, sent: 0, message: 'All requested bookings have already been emailed or not found.' });
+                return json(res, 200, { success: true, sent: 0, message: 'No eligible bookings found for this batch (or they were already emailed).' });
             }
 
             // Sync names and event titles for the email batch
@@ -226,11 +281,19 @@ export default async function handler(req, res) {
 
         // -- Delete Booking (Admin Only) --
         if (url.includes('bookings/') && method === 'DELETE') {
-            if (!user || user.role !== 'admin') return json(res, 403, { message: 'Access Denied' });
+            if (!user) return json(res, 403, { message: 'Access Denied' });
             
             const bookingId = url.split('/').pop();
             const booking = await Booking.findById(bookingId);
             if (!booking) return json(res, 404, { message: 'Booking not found' });
+
+            // Permission check: Superadmin or owner of the associated event
+            if (user.role !== 'superadmin') {
+                const event = await Event.findById(booking.eventId);
+                if (!event || String(event.organizerId) !== String(user.id)) {
+                    return json(res, 403, { message: 'Access Denied: You do not own the event associated with this booking' });
+                }
+            }
 
             // Restore capacity if it was a real event and was confirmed
             if (booking.status === "Confirmed" && booking.eventId && booking.eventId.length === 24) {
@@ -307,6 +370,54 @@ export default async function handler(req, res) {
                 recovered: recoveredCount, 
                 failed: failureCount,
                 message: `Reconciliation complete. Recovered ${recoveredCount} bookings, flagged ${failureCount} as failed.` 
+            });
+        }
+
+        // -- Organizer Dashboard Stats (Global/Scoped) --
+        if (url.includes('organizer/stats/global') && method === 'GET') {
+            if (!user) return json(res, 401, { message: 'Auth required' });
+            
+            let eventQuery = {};
+            if (user.role !== 'superadmin') {
+                eventQuery.organizerId = user.id;
+            }
+
+            const events = await Event.find(eventQuery).lean();
+            const eventIds = events.map(e => String(e._id));
+            
+            // Gather all confirmed/attended bookings for these events
+            const bookings = await Booking.find({ 
+                eventId: { $in: eventIds },
+                status: "Confirmed"
+            }).lean();
+
+            // Aggregation
+            let totalRevenue = 0;
+            let totalSales = bookings.length;
+            let totalAttended = bookings.filter(b => b.attended).length;
+            
+            const eventStats = events.map(e => {
+                const eb = bookings.filter(b => String(b.eventId) === String(e._id));
+                const rev = eb.reduce((acc, b) => acc + (parseFloat(b.amount) || 0), 0);
+                totalRevenue += rev;
+                
+                return {
+                    eventId: e._id,
+                    title: e.displayTitle || e.title,
+                    totalTickets: eb.length,
+                    attended: eb.filter(b => b.attended).length,
+                    revenue: rev
+                };
+            });
+
+            return json(res, 200, {
+                totalEvents: events.length,
+                published: events.filter(e => e.status === 'published').length,
+                draft: events.filter(e => e.status === 'draft').length,
+                totalRevenue,
+                totalSales,
+                totalAttended,
+                events: eventStats.sort((a, b) => b.revenue - a.revenue)
             });
         }
 

@@ -47,7 +47,7 @@ export default async function handler(req, res) {
                 uid: String(u._id),
                 name: u.name, 
                 email: u.email, 
-                role: isOwner ? 'admin' : 'user' 
+                role: isOwner ? (u.role || 'organizer') : 'user' 
             };
             const token = issueCookie(req, res, payload);
             return json(res, 200, { user: payload, token });
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
                 uid: String(u._id), 
                 name: u.name, 
                 email: u.email, 
-                role: isOwner ? 'admin' : 'user' 
+                role: isOwner ? (u.role || 'organizer') : 'user' 
             };
             const token = issueCookie(req, res, payload);
             return json(res, 200, { user: payload, token, message: 'Logged in with Google' });
@@ -103,11 +103,12 @@ export default async function handler(req, res) {
             const isAdminHost = host.includes('admin.events');
             
             // Firewall: Ensure the user's role matches the portal they are accessing
-            if (decoded.role === 'admin' && !isAdminHost) {
-                // Return 401 to force the frontend to clear the corrupted session
+            const isPortalAdmin = decoded.role === 'admin' || decoded.role === 'superadmin' || decoded.role === 'organizer' || decoded.role === 'owner';
+            
+            if (isPortalAdmin && !isAdminHost) {
                 return json(res, 401, { authenticated: false, message: 'Admin sessions not allowed on public portal' });
             }
-            if (decoded.role !== 'admin' && isAdminHost) {
+            if (!isPortalAdmin && isAdminHost) {
                 return json(res, 401, { authenticated: false, message: 'Public sessions not allowed on admin portal' });
             }
 

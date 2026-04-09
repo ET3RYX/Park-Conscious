@@ -56,8 +56,12 @@ const MainLayout = () => {
                 <div className="flex items-center gap-3">
                     <ShieldCheck className="text-sky-500" size={24} />
                     <div>
-                        <h1 className="font-bold tracking-tight text-lg leading-none text-white">PARK</h1>
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Admin Nexus</p>
+                        <h1 className="font-bold tracking-tight text-lg leading-none text-white">
+                          {admin?.role === 'superadmin' ? 'SYSTEM' : 'BACKSTAGE'}
+                        </h1>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">
+                          {admin?.role === 'superadmin' ? 'Super Admin Console' : 'Organizer Portal'}
+                        </p>
                     </div>
                 </div>
                 <button className="md:hidden text-slate-500 hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
@@ -69,21 +73,39 @@ const MainLayout = () => {
             <nav className="flex-1 px-4 space-y-1 pt-4">
                 <SidebarItem icon={BarChart3} label="Dashboard" to="/" />
                 <SidebarItem icon={Calendar} label="Events" to="/events" />
-                <SidebarItem icon={IndianRupee} label="Price Controller" to="/price-updater" />
                 <SidebarItem icon={Users} label="Attendees" to="/attendees" />
-                <SidebarItem icon={Settings} label="System" to="/settings" />
+                
+                {/* Global System Admin Tools - SuperAdmin Only */}
+                {admin?.role === 'superadmin' && (
+                  <>
+                    <SidebarItem icon={IndianRupee} label="Price Controller" to="/price-updater" />
+                    <SidebarItem icon={Settings} label="System" to="/settings" />
+                  </>
+                )}
             </nav>
 
             {/* User Profile - Fixed at Bottom with Clean Layout */}
             <div className="p-4 border-t border-slate-800 mt-auto">
                 <div className="bg-slate-800/40 rounded-xl p-3 flex items-center gap-3 border border-slate-700/50">
-                    <img 
-                      src={`https://ui-avatars.com/api/?name=${admin?.name || 'Admin'}&background=334155&color=fff&bold=true`} 
-                      className="w-10 h-10 rounded-lg border border-slate-700 shadow-sm" 
-                      alt="Admin" 
-                    />
+                    <div className="relative">
+                      <img 
+                        src={`https://ui-avatars.com/api/?name=${admin?.name || 'Admin'}&background=334155&color=fff&bold=true`} 
+                        className="w-10 h-10 rounded-lg border border-slate-700 shadow-sm" 
+                        alt="Admin" 
+                      />
+                      <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-slate-900 ${admin?.role === 'superadmin' ? 'bg-amber-500' : 'bg-sky-500'}`} />
+                    </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-white truncate">{admin?.name || 'Admin'}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs font-bold text-white truncate">{admin?.name || 'Admin'}</p>
+                          <span className={`text-[8px] px-1.5 py-0.5 rounded border font-black uppercase tracking-tighter ${
+                            admin?.role === 'superadmin' 
+                              ? 'text-amber-400 bg-amber-400/10 border-amber-400/20' 
+                              : 'text-sky-400 bg-sky-400/10 border-sky-400/20'
+                          }`}>
+                            {admin?.role || 'admin'}
+                          </span>
+                        </div>
                         <button 
                             onClick={handleLogout}
                             className="text-[10px] text-slate-500 font-bold uppercase hover:text-rose-400 transition-colors flex items-center gap-1.5 mt-0.5"

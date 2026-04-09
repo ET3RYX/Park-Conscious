@@ -3,6 +3,8 @@ import { Plus, Search, Filter, Edit2, Trash2, Calendar, Tag, ChevronRight, MapPi
 import { eventService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
+import { useAuth } from '../context/AuthContext';
+
 const EventStatusBadge = ({ status }) => {
   const styles = {
     draft: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
@@ -18,6 +20,9 @@ const EventStatusBadge = ({ status }) => {
 };
 
 const Events = () => {
+  const { admin } = useAuth();
+  const isSuperAdmin = admin?.role === 'superadmin' || admin?.role === 'admin' || admin?.role === 'owner';
+
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,8 +76,15 @@ const Events = () => {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">EVENT REPOSITORY</h1>
-          <p className="text-slate-500 text-sm mt-1 font-medium">Manage and audit the Park Conscious inventory.</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">
+            {isSuperAdmin ? 'EVENT REPOSITORY' : 'EXPERIENCE HUB'}
+          </h1>
+          <p className="text-slate-500 text-sm mt-1 font-medium">
+            {isSuperAdmin 
+              ? 'Global registry of all Park Conscious inventory and organizational assets.' 
+              : 'Active management of your assigned experiences and ticket protocols.'
+            }
+          </p>
         </div>
         <button 
           onClick={() => navigate('/events/create')}

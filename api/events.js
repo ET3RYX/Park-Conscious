@@ -44,9 +44,17 @@ export default async function handler(req, res) {
                     return json(res, 200, normalizeEvent(event));
                 }
 
-                // Admin: fetch all events
+                // Admin: fetch all events (restricted by role)
                 if (url.includes('/admin/all')) {
-                    const list = await Event.find().sort({ date: 1 }).lean();
+                    if (!user) return json(res, 401, { message: 'Auth required' });
+                    
+                    let query = {};
+                    // If not a superadmin, only show their own events
+                    if (user.role !== 'superadmin') {
+                        query.organizerId = user.id;
+                    }
+
+                    const list = await Event.find(query).sort({ date: 1 }).lean();
                     return json(res, 200, list.map(normalizeEvent));
                 }
 
@@ -66,13 +74,30 @@ export default async function handler(req, res) {
 
             if (method === 'PUT' && isIndividual) {
                 if (!user) return json(res, 401, { message: 'Auth required' });
+                
+                const event = await Event.findById(eventId);
+                if (!event) return json(res, 404, { message: 'Event not found' });
+                
+                // Permission Check: Superadmin or the exact organizer
+                if (user.role !== 'superadmin' && String(event.organizerId) !== String(user.id)) {
+                    return json(res, 403, { message: 'Access Denied: You do not own this event' });
+                }
+
                 const updated = await Event.findByIdAndUpdate(eventId, body, { new: true }).lean();
-                if (!updated) return json(res, 404, { message: 'Event not found' });
                 return json(res, 200, normalizeEvent(updated));
             }
 
             if (method === 'DELETE' && isIndividual) {
                 if (!user) return json(res, 401, { message: 'Auth required' });
+                
+                const event = await Event.findById(eventId);
+                if (!event) return json(res, 404, { message: 'Event not found' });
+
+                // Permission Check: Superadmin or the exact organizer
+                if (user.role !== 'superadmin' && String(event.organizerId) !== String(user.id)) {
+                    return json(res, 403, { message: 'Access Denied: You do not own this event' });
+                }
+
                 await Event.findByIdAndDelete(eventId);
                 return json(res, 200, { message: 'Event removed' });
             }

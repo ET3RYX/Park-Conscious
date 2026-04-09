@@ -57,4 +57,10 @@ export const bookingService = {
   broadcastEmails: (bookingIds) => api.post('/api/admin/email-batch', { bookingIds })
 };
 
+export const userService = {
+  getAll: () => api.get('/api/admin/users'),
+  create: (userData) => api.post('/api/admin/users', userData),
+  delete: (id) => api.delete(`/api/admin/users/${id}`),
+};
+
 export default api;
