@@ -49,13 +49,13 @@ export default async function handler(req, res) {
 
         // -- User Management (SuperAdmin Only) --
         if (url.includes('users') && method === 'GET') {
-            if (!user || user.role !== 'superadmin') return json(res, 403, { message: 'Access Denied: SuperAdmin only' });
+            if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) return json(res, 403, { message: 'Access Denied: Administrative privileges required' });
             const admins = await Owner.find({}).select('-password').lean();
             return json(res, 200, admins);
         }
 
         if (url.includes('users') && method === 'POST') {
-            if (!user || user.role !== 'superadmin') return json(res, 403, { message: 'Access Denied: SuperAdmin only' });
+            if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) return json(res, 403, { message: 'Access Denied: Administrative privileges required' });
             
             const { name, email, password, role, assignedEventIds } = body;
             if (!name || !email || !password) return json(res, 400, { message: 'Missing required fields' });
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
         }
 
         if (url.includes('users/') && method === 'DELETE') {
-            if (!user || user.role !== 'superadmin') return json(res, 403, { message: 'Access Denied: SuperAdmin only' });
+            if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) return json(res, 403, { message: 'Access Denied: Administrative privileges required' });
             
             const userId = url.split('/').pop();
             if (String(user.id) === userId) return json(res, 400, { message: 'Cannot delete your own account' });
