@@ -389,27 +389,36 @@ export default async function handler(req, res) {
         // -- Organizer Dashboard Stats (Global/Scoped) --
         if (url.includes('organizer/stats/global') && method === 'GET') {
             if (!user) {
-                console.warn(`[ADMIN STATS] Unauthorized stats request from ${req.headers.host}`);
+                console.warn(`[ADMIN STATS] Auth fail: No user from host ${req.headers.host}`);
                 return json(res, 401, { message: 'Auth required' });
             }
             
-            console.log(`[ADMIN STATS] Fetching dashboard global telemetry for ${user.email} (${user.role})`);
+            console.log(`[ADMIN STATS] User Auth: ID=${user.id}, Role=${user.role}, Email=${user.email}`);
             
             let eventQuery = {};
-            if (user.role !== 'superadmin') {
+            if (user.role !== 'superadmin' && user.role !== 'admin') {
                 eventQuery.organizerId = user.id;
+                console.log(`[ADMIN STATS] Restricting to organizerId: ${user.id}`);
+            } else {
+                console.log(`[ADMIN STATS] Global access granted for role: ${user.role}`);
             }
+
+            // Perform check before fetching
+            const dbCheck = await Event.countDocuments(eventQuery);
+            console.log(`[ADMIN STATS] Pre-fetch count for query ${JSON.stringify(eventQuery)}: ${dbCheck}`);
 
             const events = await Event.find(eventQuery).lean();
             const eventIds = events.map(e => String(e._id));
             
-            console.log(`[ADMIN STATS] Found ${events.length} scoped events for ${user.role}`);
+            console.log(`[ADMIN STATS] Fetched ${events.length} events. IDs: ${eventIds.join(', ')}`);
 
-            // Gather all confirmed/attended bookings for these events
+            // Gather all confirmed bookings
             const bookings = await Booking.find({ 
                 eventId: { $in: eventIds },
                 status: "Confirmed"
             }).lean();
+            
+            console.log(`[ADMIN STATS] Found ${bookings.length} confirmed bookings for these events`);
 
             // Aggregation
             let totalRevenue = 0;
@@ -430,7 +439,7 @@ export default async function handler(req, res) {
                 };
             });
 
-            console.log(`[ADMIN STATS] Stats generated: Rev ₹${totalRevenue}, Sales ${totalSales}`);
+            console.log(`[ADMIN STATS] Final Aggregation: Revenue=${totalRevenue}, Sales=${totalSales}`);
 
             return json(res, 200, {
                 totalEvents: events.length,

@@ -5,25 +5,23 @@ import MainLayout from './layout/MainLayout';
 import Dashboard from './pages/Dashboard';
 import Events from './pages/Events';
 import CreateEvent from './pages/CreateEvent';
-import EditEvent from './pages/EditEvent';
-import Login from './pages/Login';
 import PriceUpdater from './pages/PriceUpdater';
 import Attendees from './pages/Attendees';
 import Settings from './pages/Settings';
+import Login from './pages/Login';
+import { Loader2 } from 'lucide-react';
 
-// Protected Route Component
-const ProtectedRoute = ({ children }) => {
+const PrivateRoute = ({ children }) => {
   const { admin, loading } = useAuth();
   
   if (loading) return (
-    <div className="min-h-screen bg-darkBackground-900 flex items-center justify-center">
-      <div className="w-16 h-16 rounded-full border-4 border-premier-400 border-r-transparent animate-spin"></div>
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4">
+      <Loader2 className="text-sky-500 animate-spin" size={40} />
+      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Authenticating Session</span>
     </div>
   );
   
-  if (!admin) return <Navigate to="/login" replace />;
-  
-  return children;
+  return admin ? children : <Navigate to="/login" replace />;
 };
 
 class AppErrorBoundary extends React.Component {
@@ -36,10 +34,10 @@ class AppErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 text-center">
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 text-center text-slate-200">
           <div className="max-w-md space-y-6">
             <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto border border-rose-500/20">
-              <span className="text-4xl">☢️</span>
+              <span className="text-4xl text-rose-500">☢️</span>
             </div>
             <h1 className="text-white text-2xl font-black uppercase tracking-tighter">System Malfunction</h1>
             <p className="text-slate-400 text-sm font-medium">A critical error occurred in the Admin Panel runtime. This is likely due to a missing component or an unexpected API response.</p>
@@ -60,38 +58,34 @@ class AppErrorBoundary extends React.Component {
   }
 }
 
+import EditEvent from './pages/EditEvent';
+
 function App() {
   return (
     <AppErrorBoundary>
       <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<Login />} />
-
-          {/* Protected Admin Routes */}
-          <Route path="/" element={
-            <ProtectedRoute>
-              <MainLayout />
-            </ProtectedRoute>
-          }>
-
-            <Route index element={<Dashboard />} />
-            <Route path="events" element={<Events />} />
-            <Route path="events/create" element={<CreateEvent />} />
-            <Route path="events/edit/:id" element={<EditEvent />} />
-            <Route path="price-updater" element={<PriceUpdater />} />
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
             
-            {/* Work in Progress Modules */}
-            <Route path="attendees" element={<Attendees />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
+            <Route path="/" element={
+              <PrivateRoute>
+                <MainLayout />
+              </PrivateRoute>
+            }>
+              <Route index element={<Dashboard />} />
+              <Route path="events" element={<Events />} />
+              <Route path="events/create" element={<CreateEvent />} />
+              <Route path="events/edit/:id" element={<EditEvent />} />
+              <Route path="price-updater" element={<PriceUpdater />} />
+              <Route path="attendees" element={<Attendees />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
 
-          {/* 404 Redirect */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
     </AppErrorBoundary>
   );
 }

@@ -48,20 +48,35 @@ const EditEvent = () => {
   }
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <button 
             onClick={() => navigate('/events')}
-            className="flex items-center gap-2 text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-widest mb-4 transition"
+            className="group flex items-center gap-2 text-[10px] font-black text-slate-500 hover:text-sky-500 uppercase tracking-[0.3em] mb-6 transition-all"
           >
-            <ChevronLeft size={14} /> Back to Repository
+            <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> 
+            Asset Repository
           </button>
-          <h1 className="text-2xl font-bold text-white tracking-tight uppercase">Edit Experience</h1>
-          <p className="text-slate-500 text-sm mt-1 font-medium italic">Modifying entity: <span className="text-slate-300 not-italic">"{event?.title}"</span></p>
+          <h1 className="text-4xl font-black text-white tracking-tighter uppercase flex items-center gap-4 leading-none">
+            Modify Protocol
+            <div className="h-1 w-12 bg-sky-600 rounded-full" />
+          </h1>
+          <p className="text-slate-500 text-sm font-medium mt-4">
+            Reconfiguring entity: <span className="text-sky-400 font-bold tracking-tight">"{event?.title || event?.name}"</span>
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+            <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest border border-slate-800 px-4 py-2 rounded-full bg-slate-950">
+                UID: {id.slice(-8).toUpperCase()}
+            </span>
         </div>
       </div>
-      <div className="bg-slate-900/30 border border-slate-800/50 rounded-[2rem] p-4 md:p-8">
+      
+      <div className="bg-slate-900 border border-slate-800 rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-12 opacity-[0.02] pointer-events-none rotate-12">
+            <Loader2 size={320} className={loading ? 'animate-spin' : ''} />
+        </div>
         <EventForm initialData={event} onSubmit={handleUpdate} loading={loading} />
       </div>
     </div>

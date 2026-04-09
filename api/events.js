@@ -47,20 +47,20 @@ export default async function handler(req, res) {
                 // Admin: fetch all events (restricted by role)
                 if (url.includes('admin/all')) {
                     if (!user) {
-                        console.warn(`[EVENT API] Unauthorized access attempt to /admin/all from ${req.headers.host}`);
+                        console.warn(`[EVENT API] Unauthorized access attempt from ${req.headers.host}`);
                         return json(res, 401, { message: 'Auth required' });
                     }
                     
-                    console.log(`[EVENT API] Fetching all events for ${user.email} (${user.role})`);
+                    console.log(`[EVENT API] Session: ${user.email} (${user.role}) fetching admin registry`);
                     
                     let query = {};
-                    // If not a superadmin, only show their own events
-                    if (user.role !== 'superadmin') {
+                    if (user.role !== 'superadmin' && user.role !== 'admin') {
                         query.organizerId = user.id;
+                        console.log(`[EVENT API] Scope restricted to UID: ${user.id}`);
                     }
 
                     const list = await Event.find(query).sort({ date: 1 }).lean();
-                    console.log(`[EVENT API] Returned ${list.length} events for ${user.role}`);
+                    console.log(`[EVENT API] Successfully resolved ${list.length} events for ${user.role}`);
                     return json(res, 200, list.map(normalizeEvent));
                 }
 

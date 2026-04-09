@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, X, MapPin, Calendar, Tag, ShieldCheck, Info, IndianRupee, Users, PlusCircle, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { 
+  Upload, X, MapPin, Calendar, Tag, ShieldCheck, 
+  Info, IndianRupee, Users, PlusCircle, 
+  ChevronDown, ChevronUp, AlertCircle, Sparkles,
+  Fingerprint, Layout, Monitor, Globe
+} from 'lucide-react';
 import { eventService } from '../services/api';
 import { uploadToCloudinary } from '../utils/cloudinary';
 
@@ -16,7 +21,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
     category: [],
     price: 0,
     capacity: 0,
-    status: 'published', // Changed default to published for immediate visibility
+    status: 'published',
     images: [],
     requiredFields: {
       name: true,
@@ -26,7 +31,6 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
   });
 
   const [showAdvancedLocation, setShowAdvancedLocation] = useState(false);
-  const [newCategory, setNewCategory] = useState('');
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
 
@@ -41,7 +45,6 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
         lat: initialData.location?.coordinates?.lat || '',
         lng: initialData.location?.coordinates?.lng || '',
       });
-      // Auto-show advanced if coordinates exist
       if (initialData.location?.coordinates?.lat || initialData.location?.coordinates?.lng) {
         setShowAdvancedLocation(true);
       }
@@ -70,16 +73,14 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
     setUploading(true);
     setError('');
     try {
-      // Bypassing Vercel backend constraints - Direct Cloudinary Uplink
       const secureUrl = await uploadToCloudinary(file);
       setFormData(prev => ({
         ...prev,
         images: [...prev.images, secureUrl]
       }));
-      console.log('%c[MEDIA_SYNC] Image Link Active:', 'color: #10b981;', secureUrl);
     } catch (err) {
         console.error('Upload Error:', err);
-        setError(`UPLOAD FAILED: ${err.message}`);
+        setError(`MEDIA TRANSMISSION FAILURE: ${err.message}`);
     } finally {
       setUploading(false);
     }
@@ -106,94 +107,105 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {error && (
-        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 px-6 py-4 rounded-xl text-xs font-bold flex flex-col gap-1 shadow-sm">
-          <div className="flex items-center gap-3">
-             <AlertCircle size={18} /> {error}
-          </div>
-          <p className="text-[10px] text-rose-400 mt-1 ml-7 opacity-80">(You can still click 'Deploy Live' at the bottom to create the event without this image)</p>
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 px-6 py-4 rounded-3xl text-[10px] font-black uppercase tracking-widest flex items-center gap-4 shadow-2xl shadow-rose-950/10">
+           <AlertCircle size={20} /> 
+           <span>{error}</span>
+           <span className="ml-auto opacity-50">Image bypass available</span>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left: Content */}
-        <div className="lg:col-span-2 space-y-6">
-          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6">
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
-              <Info className="text-sky-500" size={18} /> Event Identity
-            </h3>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        {/* Main Content Pane */}
+        <div className="lg:col-span-8 space-y-12">
+          {/* Identity Section */}
+          <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 space-y-8 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                <Layout className="text-sky-500" size={20} /> CORE IDENTITY
+              </h3>
+              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest bg-slate-950 px-3 py-1 rounded-full border border-slate-800">Section 01</span>
+            </div>
             
-            <div className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Title</label>
+            <div className="space-y-8">
+              <div className="group">
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Asset Title</label>
                 <input 
                   type="text" name="title" required value={formData.title} onChange={handleChange}
-                  placeholder="e.g. TEDx GGSIPU 2026"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition font-medium"
+                  placeholder="Theatrical Performance, Tech Symposium, etc."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-all shadow-inner placeholder:text-slate-800 font-medium"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Project Description</label>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Experience Narrative</label>
                 <textarea 
-                  name="description" rows="5" value={formData.description} onChange={handleChange}
-                  placeholder="Describe the experience..."
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition resize-none font-medium"
+                  name="description" rows="6" value={formData.description} onChange={handleChange}
+                  placeholder="Define the vision and specific details of this encounter..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-all shadow-inner resize-none font-medium placeholder:text-slate-800"
                 />
               </div>
             </div>
           </section>
 
-          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6">
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
-              <MapPin className="text-sky-500" size={18} /> Venue Profile
-            </h3>
+          {/* Venue Section */}
+          <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 space-y-8 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                <MapPin className="text-sky-500" size={20} /> DEPOT LOCATION
+              </h3>
+              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest bg-slate-950 px-3 py-1 rounded-full border border-slate-800">Section 02</span>
+            </div>
             
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-8">
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Venue Name</label>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Venue Primary Identity</label>
                 <input 
                   type="text" name="locationName" required value={formData.locationName} onChange={handleChange}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition font-medium"
+                  placeholder="Global Convention Centre"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-all font-medium"
                 />
               </div>
               
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Full Address</label>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Physical Coordinates</label>
                 <input 
                   type="text" name="locationAddress" value={formData.locationAddress} onChange={handleChange}
-                  placeholder="Street, City, Area"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition font-medium"
+                  placeholder="Block 4, Industrial Area, Noida, UP"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-all font-medium"
                 />
               </div>
 
-              {/* Advanced Toggle */}
               <div className="pt-2">
                 <button 
                   type="button" 
                   onClick={() => setShowAdvancedLocation(!showAdvancedLocation)}
-                  className="flex items-center gap-2 text-[10px] font-bold text-slate-500 hover:text-sky-500 uppercase tracking-widest transition"
+                  className="flex items-center gap-3 text-[10px] font-black text-slate-600 hover:text-sky-500 uppercase tracking-[0.2em] transition-all group"
                 >
-                  {showAdvancedLocation ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                  {showAdvancedLocation ? 'Hide Precise Coordinates' : 'Show Precise Coordinates (LAT/LNG)'}
+                  <div className="w-8 h-8 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-center group-hover:border-sky-500/50">
+                    {showAdvancedLocation ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  </div>
+                  Geospatial Telemetry
                 </button>
               </div>
 
               {showAdvancedLocation && (
-                <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1 text-sky-500/60 font-black">LAT (Optional)</label>
+                <div className="grid grid-cols-2 gap-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-sky-500/60 uppercase tracking-[0.2em] ml-1">Latitude</label>
                     <input 
                       type="number" step="any" name="lat" value={formData.lat} onChange={handleChange}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-xs focus:outline-none focus:border-sky-500/50 transition"
+                      placeholder="0.00000"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-xs font-mono focus:outline-none focus:border-sky-500/50"
                     />
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1 text-sky-500/60 font-black">LNG (Optional)</label>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-sky-500/60 uppercase tracking-[0.2em] ml-1">Longitude</label>
                     <input 
                       type="number" step="any" name="lng" value={formData.lng} onChange={handleChange}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-xs focus:outline-none focus:border-sky-500/50 transition"
+                      placeholder="0.00000"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-xs font-mono focus:outline-none focus:border-sky-500/50"
                     />
                   </div>
                 </div>
@@ -201,142 +213,176 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
             </div>
           </section>
 
-          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-6 shadow-sm">
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
-              <Users className="text-sky-500" size={18} /> Attendee Data Collection
-            </h3>
-            <p className="text-slate-500 text-[10px] font-medium leading-relaxed">Toggle which information attendees must provide during booking. Deselected fields will be hidden from the booking form.</p>
+          {/* Protocols Section */}
+          <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 space-y-8 shadow-sm relative overflow-hidden">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                <Fingerprint className="text-sky-500" size={20} /> ENTRY PROTOCOLS
+              </h3>
+              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest bg-slate-950 px-3 py-1 rounded-full border border-slate-800">Section 03</span>
+            </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {['name', 'email', 'phone'].map(field => (
-                <label key={field} className="flex items-center gap-3 p-4 bg-slate-950 border border-slate-800 rounded-xl cursor-pointer hover:border-sky-500/30 transition-all group">
-                  <div className="relative">
-                    <input 
-                      type="checkbox"
-                      checked={formData.requiredFields[field]}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        requiredFields: { ...prev.requiredFields, [field]: e.target.checked }
-                      }))}
-                      className="sr-only peer"
-                    />
-                    <div className="w-5 h-5 border-2 border-slate-700 rounded-md peer-checked:bg-sky-500 peer-checked:border-sky-500 transition-all flex items-center justify-center">
-                      <svg className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
+                <label key={field} className="flex flex-col gap-4 p-6 bg-slate-950 border border-slate-800 rounded-3xl cursor-pointer hover:border-sky-500/50 transition-all group relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-2 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
+                    <Users size={64} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black text-slate-500 group-hover:text-white uppercase tracking-[0.2em] mt-0.5">Collect {field}</span>
+                    <div className="relative">
+                      <input 
+                        type="checkbox"
+                        checked={formData.requiredFields[field]}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          requiredFields: { ...prev.requiredFields, [field]: e.target.checked }
+                        }))}
+                        className="sr-only peer"
+                      />
+                      <div className="w-6 h-6 border-2 border-slate-800 rounded-lg peer-checked:bg-sky-500 peer-checked:border-sky-500 transition-all flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-black text-slate-500 group-hover:text-white uppercase tracking-widest leading-none mt-0.5">Collect {field}</span>
                 </label>
               ))}
             </div>
           </section>
         </div>
 
-        {/* Right: Controls */}
-        <div className="space-y-6">
-          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 shadow-sm">
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
-              <ShieldCheck className="text-emerald-500" size={18} /> Deployment State
+        {/* Sidebar Controls */}
+        <div className="lg:col-span-4 space-y-12">
+          {/* Status */}
+          <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 space-y-8 shadow-sm">
+            <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+              <Globe className="text-emerald-500" size={20} /> ECOSYSTEM STATE
             </h3>
-            <div className="grid grid-cols-1 gap-2">
+            <div className="space-y-3">
               {[
-                { id: 'published', label: 'Published (Visible)', icon: ShieldCheck },
-                { id: 'draft', label: 'Draft (Internal Only)', icon: Info },
-                { id: 'cancelled', label: 'Cancelled', icon: X }
+                { id: 'published', label: 'DEPLOY LIVE', description: 'Immediate public visibility', icon: Sparkles },
+                { id: 'draft', label: 'INCUBATING', description: 'Internal restricted access', icon: Monitor },
+                { id: 'cancelled', label: 'DEACTIVATED', description: 'Protocol suspended', icon: X }
               ].map(item => (
                 <button
                   key={item.id} type="button" onClick={() => setFormData(prev => ({ ...prev, status: item.id }))}
-                  className={`px-4 py-3 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-3 ${
+                  className={`w-full text-left p-5 rounded-3xl border transition-all relative overflow-hidden group ${
                     formData.status === item.id 
-                    ? 'bg-sky-500/10 border-sky-500/30 text-sky-400' 
-                    : 'bg-slate-950 border-slate-800 text-slate-500 hover:text-white'
+                    ? 'bg-sky-500 border-sky-400 text-white shadow-xl shadow-sky-900/20' 
+                    : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700'
                   }`}
                 >
-                  <item.icon size={12} />
-                  {item.label}
+                  <div className="flex items-center gap-4 relative z-10">
+                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${formData.status === item.id ? 'bg-white/20' : 'bg-slate-900 group-hover:bg-slate-800'}`}>
+                      <item.icon size={18} />
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-widest">{item.label}</p>
+                      <p className={`text-[9px] font-bold uppercase tracking-widest opacity-60 mt-0.5`}>{item.description}</p>
+                    </div>
+                  </div>
                 </button>
               ))}
             </div>
           </section>
 
-          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 shadow-sm">
-             <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
-              <IndianRupee className="text-sky-500" size={18} /> Parameters
+          {/* Pricing */}
+          <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 space-y-8 shadow-sm">
+             <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+              <IndianRupee className="text-sky-500" size={20} /> ECONOMIC PARAMS
             </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Ticket Price</label>
-                <div className="relative">
-                  <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Ticket Multiplier</label>
+                <div className="relative group">
+                  <IndianRupee className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-sky-500 transition-colors" size={18} />
                   <input 
                     type="number" name="price" value={formData.price} onChange={handleChange}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-slate-200 text-sm font-bold focus:outline-none focus:border-sky-500/50 transition"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-16 pr-6 py-5 text-2xl font-black text-white focus:outline-none focus:border-sky-500/50 transition-all"
                   />
                 </div>
               </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Capacity Limit</label>
-                <div className="relative">
-                  <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Density Threshold</label>
+                <div className="relative group">
+                  <Users className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-sky-500 transition-colors" size={18} />
                   <input 
                     type="number" name="capacity" value={formData.capacity} onChange={handleChange}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-slate-200 text-sm font-bold focus:outline-none focus:border-sky-500/50 transition"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-16 pr-6 py-5 text-2xl font-black text-white focus:outline-none focus:border-sky-500/50 transition-all font-mono"
                   />
                 </div>
               </div>
             </div>
           </section>
 
-          <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 shadow-sm">
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
-              <Calendar className="text-sky-500" size={18} /> Timeline
+          {/* Timeline */}
+          <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 space-y-8 shadow-sm">
+            <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+              <Calendar className="text-sky-500" size={20} /> TEMPORAL VECTOR
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-2">
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Activation Date</label>
                 <input 
                   type="date" name="date" required value={formData.date} onChange={handleChange}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 text-sm focus:outline-none focus:border-sky-500/50 transition"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-5 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-all font-mono uppercase tracking-widest"
                 />
             </div>
           </section>
         </div>
 
-        {/* Media Row */}
-        <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-2xl p-10 space-y-6">
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
-              <Upload className="text-sky-500" size={18} /> Visual Assets
-            </h3>
+        {/* Media Block Full Width */}
+        <div className="lg:col-span-12 bg-slate-900 border border-slate-800 rounded-[3rem] p-12 space-y-10 shadow-2xl shadow-slate-950/20">
+            <div className="flex items-center justify-between">
+               <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                <Upload className="text-sky-500" size={24} /> MEDIA REPOSITORY
+              </h3>
+              <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest bg-slate-950 px-4 py-2 rounded-full border border-slate-800">Support: JPG, PNG, WEBP (v4.0)</p>
+            </div>
             
-            <div className="flex flex-wrap gap-5">
+            <div className="flex flex-wrap gap-8">
               {formData.images.map((img, idx) => (
-                <div key={idx} className="relative group w-32 h-32">
-                  <img src={img} className="w-full h-full object-cover rounded-2xl border border-slate-800" alt="" />
+                <div key={idx} className="relative group w-48 h-48 rounded-[2rem] overflow-hidden border border-slate-800 shadow-xl transition-all hover:scale-105 duration-500">
+                  <img src={img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="" />
+                  <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-transparent transition-all" />
                   <button 
                     type="button" onClick={() => handleRemoveImage(idx)}
-                    className="absolute -top-3 -right-3 bg-rose-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition shadow-xl"
+                    className="absolute top-4 right-4 bg-rose-600 text-white p-2.5 rounded-2xl opacity-0 group-hover:opacity-100 transition-animate translate-y-2 group-hover:translate-y-0 shadow-2xl"
                   >
-                    <X size={14} />
+                    <X size={16} />
                   </button>
                 </div>
               ))}
               
-              <label className={`w-32 h-32 flex flex-col items-center justify-center border border-dashed border-slate-800 rounded-2xl cursor-pointer hover:border-sky-500/50 transition-all ${uploading ? 'animate-pulse' : ''}`}>
+              <label className={`w-48 h-48 flex flex-col items-center justify-center border-4 border-dashed border-slate-800 rounded-[2rem] cursor-pointer hover:border-sky-500/50 transition-all group ${uploading ? 'animate-pulse' : ''}`}>
                 <input type="file" className="hidden" onChange={handleImageUpload} disabled={uploading} />
-                <PlusCircle size={24} className={uploading ? 'text-sky-500' : 'text-slate-700'} />
-                <span className="text-[9px] font-bold text-slate-700 uppercase tracking-widest mt-2">{uploading ? 'Uploading...' : 'Add Image'}</span>
+                <div className="w-16 h-16 rounded-3xl bg-slate-950 border border-slate-800 flex items-center justify-center mb-4 transition-all group-hover:bg-sky-500/10 group-hover:border-sky-500/50 group-hover:scale-110">
+                   {uploading ? <Sparkles size={24} className="text-sky-500 animate-spin" /> : <PlusCircle size={24} className="text-slate-600 group-hover:text-sky-500" />}
+                </div>
+                <span className="text-[9px] font-black text-slate-600 group-hover:text-sky-500 uppercase tracking-[0.3em]">{uploading ? 'Transmitting...' : 'Link Asset'}</span>
               </label>
             </div>
         </div>
       </div>
 
-      <div className="pt-8 flex justify-end gap-3 pb-12">
-        <button type="button" onClick={() => window.history.back()} className="px-6 py-2.5 rounded-xl text-slate-500 text-xs font-bold uppercase transition hover:text-white">Cancel</button>
-        <button 
-          type="submit" disabled={loading || uploading}
-          className="bg-sky-600 text-white px-10 py-3 rounded-xl text-xs font-bold uppercase shadow-xl shadow-sky-900/20 hover:bg-sky-500 active:scale-95 transition-all disabled:opacity-50"
-        >
-          {loading ? 'Processing...' : initialData ? 'Update Record' : (formData.status === 'published' ? 'Deploy Live' : 'Save Draft')}
+      {/* Global Actions */}
+      <div className="pt-12 flex items-center justify-between border-t border-slate-800/50 pb-20">
+        <button type="button" onClick={() => window.history.back()} className="px-10 py-5 rounded-[2rem] text-slate-600 text-[11px] font-black uppercase tracking-[0.3em] transition-all hover:text-white hover:bg-slate-900 border border-transparent hover:border-slate-800">
+          Abound Experience
         </button>
+        <div className="flex items-center gap-6">
+           <div className="text-right hidden md:block">
+              <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Authorized Synchronization</p>
+              <p className="text-[9px] font-bold text-slate-700 uppercase tracking-widest mt-1">Session ID: {Math.random().toString(36).substring(7).toUpperCase()}</p>
+           </div>
+           <button 
+            type="submit" disabled={loading || uploading}
+            className="bg-sky-600 hover:bg-sky-500 text-white px-16 py-6 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-sky-900/30 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center gap-3"
+          >
+            {loading ? <Fingerprint className="animate-pulse" size={18} /> : (initialData ? 'Synchronize Updates' : (formData.status === 'published' ? 'Execute Deployment' : 'Preserve Protocol'))}
+          </button>
+        </div>
       </div>
     </form>
   );

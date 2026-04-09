@@ -2,31 +2,38 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   BarChart3, Calendar, Users, TrendingUp, Activity,
   IndianRupee, Ticket, QrCode, ScanLine, CheckCircle2,
-  XCircle, Loader2, RefreshCw,
+  XCircle, Loader2, RefreshCw, ChevronRight,
+  TrendingDown,
+  ArrowUpRight
 } from 'lucide-react';
 import { eventService } from '../services/api';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-// ── Stat Card (existing style preserved) ─────────────────────────────────────
-const StatsCard = ({ title, value, icon: Icon, color = 'sky', sub }) => {
-  const colorStyles = {
+const StatsCard = ({ title, value, icon: Icon, color = 'sky', trend }) => {
+  const colors = {
     sky:     'text-sky-500 bg-sky-500/10 border-sky-500/20',
     emerald: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
     amber:   'text-amber-500 bg-amber-500/10 border-amber-500/20',
-    rose:    'text-rose-500 bg-rose-500/10 border-rose-500/20',
     violet:  'text-violet-500 bg-violet-500/10 border-violet-500/20',
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 transition-all hover:border-slate-700">
-      <div className="flex justify-between items-start mb-2">
-        <div>
-          <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">{title}</p>
-          <h3 className="text-3xl font-bold text-white tracking-tight">{value}</h3>
-          {sub && <p className="text-slate-500 text-xs mt-1">{sub}</p>}
+    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition-all group">
+      <div className="flex justify-between items-start">
+        <div className="space-y-1">
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{title}</p>
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-3xl font-bold text-white tracking-tight">{value}</h3>
+            {trend && (
+              <span className={`text-[10px] font-black flex items-center gap-0.5 ${trend > 0 ? 'text-emerald-500' : 'text-slate-500'}`}>
+                {trend > 0 && <ArrowUpRight size={10} />}
+                {trend}%
+              </span>
+            )}
+          </div>
         </div>
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${colorStyles[color]}`}>
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center border transition-all group-hover:scale-110 ${colors[color]}`}>
           <Icon size={20} />
         </div>
       </div>
@@ -34,7 +41,6 @@ const StatsCard = ({ title, value, icon: Icon, color = 'sky', sub }) => {
   );
 };
 
-// ── QR Check-In Tool ──────────────────────────────────────────────────────────
 const CheckInTool = () => {
   const [ticketInput, setTicketInput] = useState('');
   const [result, setResult] = useState(null);
@@ -57,14 +63,14 @@ const CheckInTool = () => {
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 space-y-5">
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center">
-          <ScanLine size={18} className="text-sky-500" />
+    <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 space-y-6">
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 rounded-xl bg-sky-600 flex items-center justify-center shadow-lg shadow-sky-900/20">
+          <ScanLine size={20} className="text-white" />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-white uppercase tracking-widest">QR Ticket Check-In</h3>
-          <p className="text-slate-600 text-xs mt-0.5">Scan or type a Ticket ID to mark attendance</p>
+          <h3 className="text-sm font-bold text-white uppercase tracking-widest">Entry Verification</h3>
+          <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1">Live Ticket Validation</p>
         </div>
       </div>
 
@@ -73,26 +79,26 @@ const CheckInTool = () => {
           value={ticketInput}
           onChange={(e) => setTicketInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleCheckIn()}
-          placeholder="e.g. TKT-A1B2C3D4"
-          className="flex-1 bg-slate-800 border border-slate-700 text-white placeholder-slate-600 rounded-xl px-4 py-3 font-mono text-sm focus:outline-none focus:border-sky-500/60 transition-all"
+          placeholder="ENTER TICKET CREDENTIALS..."
+          className="flex-1 bg-slate-950 border border-slate-800 text-white placeholder:text-slate-700 rounded-xl px-5 py-4 font-mono text-xs focus:outline-none focus:border-sky-500/50 transition-all uppercase tracking-widest"
         />
         <button
           onClick={handleCheckIn}
           disabled={loading || !ticketInput.trim()}
-          className="bg-sky-600 hover:bg-sky-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs uppercase tracking-widest px-5 py-3 rounded-xl transition-all flex items-center gap-2 whitespace-nowrap"
+          className="bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-bold text-[10px] uppercase tracking-[0.2em] px-8 rounded-xl transition-all flex items-center gap-2"
         >
-          {loading ? <Loader2 size={15} className="animate-spin" /> : <QrCode size={15} />}
-          Check In
+          {loading ? <Loader2 size={16} className="animate-spin" /> : <QrCode size={16} />}
+          Validate
         </button>
       </div>
 
       {result && (
-        <div className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold border ${
+        <div className={`flex items-center gap-3 px-5 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in slide-in-from-top-2 ${
           result.success
             ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
             : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
         }`}>
-          {result.success ? <CheckCircle2 size={17} /> : <XCircle size={17} />}
+          {result.success ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
           {result.message}
         </div>
       )}
@@ -100,10 +106,9 @@ const CheckInTool = () => {
   );
 };
 
-// ── Main Dashboard ────────────────────────────────────────────────────────────
 const Dashboard = () => {
   const { admin } = useAuth();
-  const isSuperAdmin = admin?.role === 'superadmin' || admin?.role === 'admin' || admin?.role === 'owner';
+  const isSuperAdmin = admin?.role === 'superadmin';
 
   const [eventStats, setEventStats] = useState({ totalEvents: 0, published: 0, draft: 0 });
   const [bookingStats, setBookingStats] = useState(null);
@@ -112,12 +117,11 @@ const Dashboard = () => {
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      // Existing: fetch events for event counts
       const { data } = await eventService.getAll();
       if (Array.isArray(data)) {
         setEventStats({
           totalEvents: data.length,
-          published:   data.filter(e => e.status === 'published').length,
+          published:   data.filter(e => e.status === 'published' || e.status === 'Published').length,
           draft:       data.filter(e => e.status === 'draft').length,
         });
       }
@@ -126,13 +130,11 @@ const Dashboard = () => {
     }
 
     try {
-      // New: fetch organizer/booking stats
       const { data } = await api.get('/api/admin/organizer/stats/global');
       setBookingStats(data);
     } catch (e) {
       console.error('Booking stats fetch failed', e);
     }
-
     setLoading(false);
   }, []);
 
@@ -143,108 +145,153 @@ const Dashboard = () => {
     : 0;
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Header Area */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
-            {isSuperAdmin ? 'DASHBOARD' : 'ORGANIZER OVERVIEW'}
+          <div className="flex items-center gap-2 text-sky-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">
+            <Activity size={12} /> Live System Status
+          </div>
+          <h1 className="text-4xl font-black text-white tracking-tighter uppercase flex items-center gap-4">
+            System Dashboard
+            <div className="h-1 w-12 bg-sky-600 rounded-full" />
           </h1>
-          <p className="text-slate-500 text-sm mt-1 font-medium">
-            {isSuperAdmin 
-              ? 'System overview, event performance and ticket telemetry.' 
-              : 'Real-time performance and guest data for your assigned experiences.'
-            }
+          <p className="text-slate-500 text-sm font-medium mt-1">
+            {isSuperAdmin ? 'Global organizational metrics and ticket telemetry.' : 'Assigned event performance and guest data.'}
           </p>
         </div>
         <button
           onClick={fetchAll}
-          className="flex items-center gap-2 text-slate-500 hover:text-white text-xs font-bold uppercase tracking-widest transition"
+          disabled={loading}
+          className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all disabled:opacity-50"
         >
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+          Force Sync
         </button>
       </div>
 
-      {/* Row 1 — Event Counts (existing) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatsCard title={isSuperAdmin ? "Total Repository" : "Your Experiences"}  value={eventStats.totalEvents} icon={BarChart3}  color="sky"    />
-        <StatsCard title={isSuperAdmin ? "Active Listings" : "Live Tickets"}   value={eventStats.published}   icon={Calendar}   color="emerald" />
-        <StatsCard title={isSuperAdmin ? "Draft Protocol" : "Assigned Folders"}    value={eventStats.draft}       icon={Activity}   color="amber"  />
-      </div>
-
-      {/* Row 2 — Booking / Revenue Stats */}
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="text-sky-500 animate-spin" size={32} />
+      {loading && !bookingStats ? (
+        <div className="h-96 flex flex-col items-center justify-center gap-4">
+          <Loader2 className="text-sky-600 animate-spin" size={48} />
+          <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Accessing Data Stream</span>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatsCard
-              title="Total Revenue"
-              value={`₹${(bookingStats?.totalRevenue || 0).toLocaleString('en-IN')}`}
-              icon={IndianRupee} color="emerald"
+          {/* Top Line Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatsCard 
+              title="Total Events" 
+              value={eventStats.totalEvents} 
+              icon={BarChart3} 
+              color="sky" 
+              trend={+12}
             />
-            <StatsCard
-              title="Tickets Sold"
-              value={bookingStats?.totalSales || 0}
-              icon={Ticket} color="sky"
+            <StatsCard 
+              title="Global Revenue" 
+              value={`₹${(bookingStats?.totalRevenue || 0).toLocaleString('en-IN')}`} 
+              icon={IndianRupee} 
+              color="emerald" 
+              trend={+8}
             />
-            <StatsCard
-              title="Attended"
-              value={bookingStats?.totalAttended || 0}
-              icon={Users} color="violet"
+            <StatsCard 
+              title="Tickets Sold" 
+              value={bookingStats?.totalSales || 0} 
+              icon={Ticket} 
+              color="sky" 
             />
-            <StatsCard
-              title="Attendance Rate"
-              value={`${attendanceRate}%`}
-              icon={TrendingUp} color="amber"
+            <StatsCard 
+              title="Attendance Rate" 
+              value={`${attendanceRate}%`} 
+              icon={TrendingUp} 
+              color="violet" 
             />
           </div>
 
-          {/* Row 3 — Check-In + Event Breakdown */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Tools */}
+            <div className="lg:col-span-1 space-y-8">
+              <CheckInTool />
+              
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8">
+                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Inventory Breakdown</h4>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-slate-950 border border-slate-800 rounded-2xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <span className="text-xs font-bold text-slate-200">Active Listings</span>
+                    </div>
+                    <span className="text-xs font-black text-emerald-500">{eventStats.published}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-slate-950 border border-slate-800 rounded-2xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                      <span className="text-xs font-bold text-slate-200">Draft Protocols</span>
+                    </div>
+                    <span className="text-xs font-black text-slate-400">{eventStats.draft}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            {/* QR Check-In tool */}
-            <CheckInTool />
-
-            {/* Attendee breakdown per event */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-              <div className="px-6 py-5 border-b border-slate-800">
-                <h3 className="text-sm font-bold text-white uppercase tracking-widest">Attendee Stream</h3>
-                <p className="text-slate-600 text-xs mt-1">Revenue and attendance per event</p>
+            {/* Right Column - Stream */}
+            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+              <div className="px-8 py-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/40">
+                <div>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-widest">Experience Stream</h3>
+                  <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.1em] mt-1">Live Revenue & Admittance</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center">
+                  <Users size={16} className="text-slate-400" />
+                </div>
               </div>
 
               {bookingStats?.events?.length > 0 ? (
-                <div className="overflow-y-auto max-h-64">
-                  <table className="w-full text-xs">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
                     <thead>
-                      <tr className="border-b border-slate-800 text-[10px] text-slate-600 font-black uppercase tracking-widest">
-                        <th className="text-left px-5 py-3">Event</th>
-                        <th className="text-right px-5 py-3">Sold</th>
-                        <th className="text-right px-5 py-3">In</th>
-                        <th className="text-right px-5 py-3">Revenue</th>
+                      <tr className="bg-slate-950/30 text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em] border-b border-slate-800">
+                        <th className="px-8 py-5">Assigned Experience</th>
+                        <th className="px-8 py-5 text-center">Tickets</th>
+                        <th className="px-8 py-5 text-center">Admitted</th>
+                        <th className="px-8 py-5 text-right">Revenue</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-slate-800/50">
                       {bookingStats.events.map((ev, i) => (
-                        <tr key={ev.eventId || i} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
-                          <td className="px-5 py-3 text-slate-300 font-medium truncate max-w-[140px]">{ev.title || 'Untitled'}</td>
-                          <td className="px-5 py-3 text-right text-slate-400 font-mono">{ev.totalTickets}</td>
-                          <td className="px-5 py-3 text-right text-emerald-400 font-mono font-bold">{ev.attended}</td>
-                          <td className="px-5 py-3 text-right text-emerald-400 font-mono font-bold">₹{ev.revenue.toLocaleString('en-IN')}</td>
+                        <tr key={ev.eventId || i} className="group hover:bg-slate-800/20 transition-all duration-300">
+                          <td className="px-8 py-6">
+                            <div className="flex items-center gap-4">
+                              <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-black text-sky-500 uppercase">
+                                {ev.title?.charAt(0)}
+                              </div>
+                              <span className="text-sm font-bold text-white group-hover:text-sky-400 transition-colors uppercase tracking-tight">{ev.title || 'Untitled'}</span>
+                            </div>
+                          </td>
+                          <td className="px-8 py-6 text-center font-mono text-xs text-slate-400">{ev.totalTickets}</td>
+                          <td className="px-8 py-6 text-center">
+                            <span className="text-xs font-bold text-emerald-400 font-mono">
+                              {ev.attended}
+                            </span>
+                          </td>
+                          <td className="px-8 py-6 text-right">
+                            <span className="text-xs font-bold text-white font-mono">₹{ev.revenue.toLocaleString('en-IN')}</span>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center min-h-[200px] space-y-3">
-                  <Users className="text-slate-800" size={40} />
-                  <p className="text-slate-600 text-xs font-medium text-center max-w-xs">
-                    User transaction records will populate here once active bookings begin.
-                  </p>
+                <div className="p-20 flex flex-col items-center justify-center text-center space-y-6">
+                  <div className="w-20 h-20 rounded-full bg-slate-800/50 border border-slate-800 flex items-center justify-center text-slate-700">
+                    <TrendingDown size={32} />
+                  </div>
+                  <div className="max-w-xs">
+                    <p className="text-sm font-bold text-slate-400 uppercase tracking-tight">No Active Streams Detected</p>
+                    <p className="text-[10px] text-slate-600 font-medium uppercase tracking-widest mt-2 leading-relaxed">
+                      Attendee records and revenue data will populate once valid bookings occur in the production gateway.
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
