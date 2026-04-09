@@ -75,7 +75,7 @@ export default async function handler(req, res) {
         if (url.includes('bookings/all') && method === 'GET') {
             if (!user) return json(res, 401, { message: 'Authentication required. Please log in again.' });
             
-            let query = { status: "Confirmed" };
+            let query = { status: { $in: ["Confirmed", "confirmed"] } };
             
             // If organizer, find their own events first
             if (user.role !== 'superadmin') {
@@ -177,7 +177,7 @@ export default async function handler(req, res) {
 
             const resend = new Resend(RESEND_API_KEY);
             
-            let bookingQuery = { _id: { $in: bookingIds }, emailSent: { $ne: true } };
+            let bookingQuery = { _id: { $in: bookingIds }, emailSent: { $ne: true }, status: { $in: ["Confirmed", "confirmed"] } };
             
             // If organizer, ensure they only email their own bookings
             if (user.role !== 'superadmin') {
@@ -415,7 +415,7 @@ export default async function handler(req, res) {
             // Gather all confirmed bookings
             const bookings = await Booking.find({ 
                 eventId: { $in: eventIds },
-                status: "Confirmed"
+                status: { $in: ["Confirmed", "confirmed"] }
             }).lean();
             
             console.log(`[ADMIN STATS] Found ${bookings.length} confirmed bookings for these events`);
