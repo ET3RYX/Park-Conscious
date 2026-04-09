@@ -21,6 +21,32 @@ export default async function handler(req, res) {
     const user = verifyUser(req);
 
     try {
+        // -- System Diagnostics --
+        if (url.includes('diagnose') && method === 'GET') {
+            if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) {
+                return json(res, 403, { message: 'Diagnostics Restricted', detectedRole: user?.role });
+            }
+
+            const stats = {
+                authenticatedAs: user.email,
+                role: user.role,
+                counts: {
+                    bookings: await Booking.countDocuments(),
+                    confirmedBookings: await Booking.countDocuments({ status: { $in: ["Confirmed", "confirmed"] } }),
+                    events: await Event.countDocuments(),
+                    owners: await Owner.countDocuments(),
+                    users: await User.countDocuments()
+                },
+                dbState: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
+                env: {
+                    hasMongoUri: !!process.env.MONGODB_URI,
+                    hasJwtSecret: !!process.env.JWT_SECRET,
+                    nodeEnv: process.env.NODE_ENV
+                }
+            };
+            return json(res, 200, stats);
+        }
+
         // -- User Management (SuperAdmin Only) --
         if (url.includes('users') && method === 'GET') {
             if (!user || user.role !== 'superadmin') return json(res, 403, { message: 'Access Denied: SuperAdmin only' });
