@@ -110,7 +110,9 @@ export default async function handler(req, res) {
         }
         // -- Parkings (Public) --
         if (url.includes('/parking') && method === 'GET') {
-            const parkings = await models.Parking.find({ Status: "Active" }).lean();
+            const parkings = await models.Parking.find({ 
+                Status: { $in: ["Active", "Recommended", "active"] } 
+            }).lean();
             return json(res, 200, parkings);
         }
 
