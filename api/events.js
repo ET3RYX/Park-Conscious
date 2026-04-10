@@ -108,6 +108,11 @@ export default async function handler(req, res) {
                 return json(res, 200, { message: 'Event removed' });
             }
         }
+        // -- Parkings (Public) --
+        if (url.includes('/parking') && method === 'GET') {
+            const parkings = await models.Parking.find({ Status: "Active" }).lean();
+            return json(res, 200, parkings);
+        }
 
         // -- Discussions & Comments --
         if (url.includes('/discussions')) {

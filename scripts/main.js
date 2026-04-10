@@ -291,7 +291,7 @@ async function renderBookingsList() {
 
     try {
         const user = JSON.parse(userStr);
-        const resp = await fetch(`/api/user/${user.id}/bookings`);
+        const resp = await fetch(`/api/bookings/${user.id}`);
         if (resp.ok) {
             bookings = await resp.json();
         } else {
