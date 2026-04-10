@@ -241,7 +241,7 @@ export default async function handler(req, res) {
             let bookingQuery = { _id: { $in: bookingIds }, emailSent: { $ne: true }, status: { $in: ["Confirmed", "confirmed"] } };
             
             // If organizer, ensure they only email their own bookings
-            if (user.role !== 'superadmin') {
+            if (user.role !== 'superadmin' && user.role !== 'admin') {
                 const myEvents = await Event.find({ organizerId: user.id }).select('_id').lean();
                 const myEventIds = myEvents.map(e => String(e._id));
                 bookingQuery.eventId = { $in: myEventIds };
