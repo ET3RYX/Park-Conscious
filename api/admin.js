@@ -361,8 +361,8 @@ export default async function handler(req, res) {
             const booking = await Booking.findById(bookingId);
             if (!booking) return json(res, 404, { message: 'Booking not found' });
 
-            // Permission check: Superadmin or owner of the associated event
-            if (user.role !== 'superadmin') {
+            // Permission check: Superadmin, Admin, or owner of the associated event
+            if (user.role !== 'superadmin' && user.role !== 'admin') {
                 const event = await Event.findById(booking.eventId);
                 if (!event || String(event.organizerId) !== String(user.id)) {
                     return json(res, 403, { message: 'Access Denied: You do not own the event associated with this booking' });
