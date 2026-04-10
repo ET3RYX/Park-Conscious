@@ -7,7 +7,7 @@
     "AdminPanel"
   ],
   "scripts": {
-    "build": "mkdir -p public && cp *.html favicon.ico favicon.png public/ 2>/dev/null || true && cp -r assets scripts styles public/ 2>/dev/null || true && DISABLE_ESLINT_PLUGIN=true npm run build --workspaces",
+    "build": "mkdir -p public && cp *.html favicon.ico favicon.png public/ 2>/dev/null || true && cp -r assets scripts styles public/ 2>/dev/null || true && cp -r owner public/ 2>/dev/null || true && DISABLE_ESLINT_PLUGIN=true npm run build --workspaces",
     "dev:backend": "node local-server.js"
   },
   "devDependencies": {
