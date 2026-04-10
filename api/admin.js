@@ -170,6 +170,40 @@ export default async function handler(req, res) {
             return json(res, 200, bookings);
         }
 
+        // -- Owner Dashboard Stats --
+        if (url.includes('/owner/') && url.includes('/dashboard') && method === 'GET') {
+            const parts = url.split('/');
+            const ownerId = parts[parts.indexOf('owner') + 1];
+
+            const parkings = await Parking.find({ owner: ownerId }).lean();
+            const parkingIds = parkings.map(p => String(p._id));
+
+            const allBookings = await Booking.find({ parkingId: { $in: parkingIds } }).lean();
+            const activeBookings = allBookings.filter(b => b.status === 'Confirmed' || b.status === 'confirmed').length;
+            const revenueToday = allBookings.reduce((sum, b) => sum + (parseFloat(b.amount) || 0), 0);
+
+            return json(res, 200, {
+                totalParkings: parkings.length,
+                activeBookings,
+                revenueToday,
+                parkings
+            });
+        }
+
+        // -- Owner Booking Logs --
+        if (url.includes('/owner/') && url.includes('/logs') && method === 'GET') {
+            const parts = url.split('/');
+            const ownerId = parts[parts.indexOf('owner') + 1];
+
+            const parkings = await Parking.find({ owner: ownerId }).lean();
+            const parkingIds = parkings.map(p => String(p._id));
+
+            const bookings = await Booking.find({ parkingId: { $in: parkingIds } })
+                .sort({ createdAt: -1 }).limit(200).lean();
+
+            return json(res, 200, bookings);
+        }
+
         // -- Parking Management (Admin/Owner) --
         if (url.includes('/owner/') && url.includes('/parkings')) {
              if (!user) return json(res, 401, { message: 'Auth required' });
