@@ -181,36 +181,36 @@ export default async function handler(req, res) {
         // -- User's Personal Bookings (My Tickets) --
         if (url.includes('/bookings/') && !url.includes('/status') && method === 'GET') {
             const userId = url.split('/').pop();
-            if (!userId || userId === 'undefined') return json(res, 400, { message: 'User ID missing or invalid' });
-            
-            // 1. Fetch the seed user record. Handle potential string/ObjectId mismatches.
-            let seedUser = null;
-            try {
-                seedUser = await Owner.findOne({ $or: [{ _id: userId }, { uid: userId }] }).lean();
+            // Secure Solution: Extract the user's email directly from their session for truth
+            const authUser = verifyUser(req);
+            let targetEmail = authUser?.email?.toLowerCase()?.trim();
+
+            // Fallback: If no session, try to get email from database records via userId
+            if (!targetEmail && userId && userId !== 'undefined') {
+                let seedUser = await Owner.findOne({ $or: [{ _id: userId }, { uid: userId }] }).lean();
                 if (!seedUser) seedUser = await User.findOne({ $or: [{ _id: userId }, { uid: userId }] }).lean();
-            } catch (e) {
-                // If userId is not an ObjectId, find by custom uid field
-                seedUser = await Owner.findOne({ uid: userId }).lean();
-                if (!seedUser) seedUser = await User.findOne({ uid: userId }).lean();
+                if (seedUser) targetEmail = seedUser.email?.toLowerCase()?.trim();
             }
             
+            if (!targetEmail && (!userId || userId === 'undefined')) {
+                return json(res, 400, { message: 'Identification failed. Please sign in again.' });
+            }
+
             let query = { status: { $in: ["Confirmed", "confirmed"] } };
             
-            if (seedUser && seedUser.email) {
-                const targetEmail = seedUser.email.toLowerCase().trim();
-                
-                // 2. Deep Identity Discovery: Find ALL record IDs associated with this email
+            if (targetEmail) {
+                // Bridge: Resolve EVERY ID associated with this verified email
                 const allOwners = await Owner.find({ email: targetEmail }).select('_id uid').lean();
                 const allUsers = await User.find({ email: targetEmail }).select('_id uid').lean();
                 
-                const allIds = new Set([String(userId)]);
+                const allIds = new Set();
+                if (userId && userId !== 'undefined') allIds.add(String(userId));
                 [...allOwners, ...allUsers].forEach(u => {
                     if (u._id) allIds.add(String(u._id));
                     if (u.uid) allIds.add(String(u.uid));
-                    if (u.id) allIds.add(String(u.id));
                 });
                 
-                // 3. Aggregate Query: Match any known ID OR the email directly
+                // Final Collective Query
                 query.$or = [
                     { userId: { $in: Array.from(allIds) } },
                     { email: new RegExp(`^${targetEmail}$`, 'i') }

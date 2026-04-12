@@ -119,23 +119,25 @@ const Navbar = ({ defaultLocation }) => {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
   return (
-    <nav className="bg-[#050507]/90 backdrop-blur-3xl sticky top-0 z-[100] border-b border-white/5 shadow-[0_10px_50px_rgba(0,0,0,0.5)]">
-      <div className="max-w-[1700px] mx-auto px-6 py-5 md:py-6">
-        <div className="lg:hidden">
-          <NavSm defaultLocation={defaultLocation} />
+    <>
+      <nav className="bg-[#050507]/90 backdrop-blur-3xl sticky top-0 z-[100] border-b border-white/5 shadow-[0_10px_50px_rgba(0,0,0,0.5)]">
+        <div className="max-w-[1700px] mx-auto px-6 py-5 md:py-6">
+          <div className="lg:hidden">
+            <NavSm defaultLocation={defaultLocation} />
+          </div>
+          <div className="hidden lg:flex">
+            <NavLg 
+              defaultLocation={defaultLocation} 
+              onRequestOpen={() => setIsRequestModalOpen(true)}
+            />
+          </div>
         </div>
-        <div className="hidden lg:flex">
-          <NavLg 
-            defaultLocation={defaultLocation} 
-            onRequestOpen={() => setIsRequestModalOpen(true)}
-          />
-        </div>
-      </div>
+      </nav>
       <RequestEventModal 
         isOpen={isRequestModalOpen} 
         onClose={() => setIsRequestModalOpen(false)} 
       />
-    </nav>
+    </>
   );
 };
 
