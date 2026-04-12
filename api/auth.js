@@ -56,14 +56,23 @@ export default async function handler(req, res) {
         // -- Logout --
         if (url.includes('/logout') && method === 'POST') {
             const host = req.headers.host || '';
-            let domainPattern = undefined;
-            if (host.includes('admin.events')) domainPattern = host;
-            else if (host.includes('parkconscious.in')) domainPattern = host;
+            const rootDomain = 'parkconscious.in';
+            
+            // Blast the cookie across all possible domain scopes to destroy zombies
+            const scopesToClear = [
+                host, // Exact current host
+                rootDomain, // Strict parent
+                `.${rootDomain}` // Wildcard parent
+            ];
 
-            res.setHeader('Set-Cookie', serialize('token', '', {
-                httpOnly: true, secure: true, sameSite: 'lax', domain: domainPattern, maxAge: -1, path: '/'
-            }));
-            return json(res, 200, { message: 'Logged out successfully' });
+            const clearHeaders = scopesToClear.map(scope => 
+                serialize('token', '', { httpOnly: true, secure: true, sameSite: 'lax', domain: scope, maxAge: -1, path: '/' })
+            );
+            // Also add one without domain just in case
+            clearHeaders.push(serialize('token', '', { httpOnly: true, secure: true, sameSite: 'lax', maxAge: -1, path: '/' }));
+
+            res.setHeader('Set-Cookie', clearHeaders);
+            return json(res, 200, { message: 'Logged out successfully globally' });
         }
 
         // -- Google Auth --
