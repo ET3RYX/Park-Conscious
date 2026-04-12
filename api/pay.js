@@ -183,35 +183,42 @@ export default async function handler(req, res) {
             const userId = url.split('/').pop();
             if (!userId || userId === 'undefined') return json(res, 400, { message: 'User ID missing or invalid' });
             
-            // 1. Fetch the seed user record to get the target email
-            let seedUser = await Owner.findById(userId).lean();
-            if (!seedUser) seedUser = await User.findById(userId).lean();
+            // 1. Fetch the seed user record. Handle potential string/ObjectId mismatches.
+            let seedUser = null;
+            try {
+                seedUser = await Owner.findOne({ $or: [{ _id: userId }, { uid: userId }] }).lean();
+                if (!seedUser) seedUser = await User.findOne({ $or: [{ _id: userId }, { uid: userId }] }).lean();
+            } catch (e) {
+                // If userId is not an ObjectId, find by custom uid field
+                seedUser = await Owner.findOne({ uid: userId }).lean();
+                if (!seedUser) seedUser = await User.findOne({ uid: userId }).lean();
+            }
             
             let query = { status: { $in: ["Confirmed", "confirmed"] } };
             
             if (seedUser && seedUser.email) {
                 const targetEmail = seedUser.email.toLowerCase().trim();
                 
-                // 2. Deep Identity Discovery: Find ALL IDs (Owner + User) associated with this email
-                const allOwners = await Owner.find({ email: targetEmail }).select('_id').lean();
-                const allUsers = await User.find({ email: targetEmail }).select('_id').lean();
+                // 2. Deep Identity Discovery: Find ALL record IDs associated with this email
+                const allOwners = await Owner.find({ email: targetEmail }).select('_id uid').lean();
+                const allUsers = await User.find({ email: targetEmail }).select('_id uid').lean();
                 
-                const allIds = [
-                    ...allOwners.map(o => String(o._id)),
-                    ...allUsers.map(u => String(u._id)),
-                    String(userId) // Always include the current session ID
-                ];
+                const allIds = new Set([String(userId)]);
+                [...allOwners, ...allUsers].forEach(u => {
+                    if (u._id) allIds.add(String(u._id));
+                    if (u.uid) allIds.add(String(u.uid));
+                    if (u.id) allIds.add(String(u.id));
+                });
                 
-                // 3. Aggregate Query: Match any of the known IDs OR the email directly (case-insensitive)
+                // 3. Aggregate Query: Match any known ID OR the email directly
                 query.$or = [
-                    { userId: { $in: allIds } },
+                    { userId: { $in: Array.from(allIds) } },
                     { email: new RegExp(`^${targetEmail}$`, 'i') }
                 ];
             } else {
                 query.userId = String(userId);
             }
 
-            console.log(`[WALLET RECOVERY] Deep search for email: ${seedUser?.email || 'unknown'} across IDs: ${query.$or?.[0]?.userId?.$in?.length || 1}`);
             const bookings = await Booking.find(query).sort({ createdAt: -1 }).lean();
 
             for (let b of bookings) {

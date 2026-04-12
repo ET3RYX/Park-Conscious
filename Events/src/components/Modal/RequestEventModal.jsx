@@ -41,26 +41,26 @@ const RequestEventModal = ({ isOpen, onClose }) => {
       {/* Background decoration */}
       <div className="fixed inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-sky-500/10 opacity-50 pointer-events-none" />
 
-      {/* Modal Container - Using items-start with spacing to prevent "half-cut" issues on small screens */}
-      <div className="min-h-full flex items-start justify-center p-4 md:p-12 lg:p-24 relative z-10 pt-10 pb-20">
+      {/* Modal Container - Centering Wrapper */}
+      <div className="min-h-full flex items-center justify-center p-4 md:p-12 lg:p-24 relative z-10">
         
-        {/* Modal Box - Removed overflow-hidden to allow natural expansion */}
-        <div className="relative w-full max-w-2xl bg-[#08080a] border border-white/5 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] flex flex-col animate-in zoom-in-95 duration-500">
+        {/* Modal Box - Using my-auto to center vertically while allowing top-alignment on small screens */}
+        <div className="relative my-auto w-full max-w-2xl bg-[#08080a] border border-white/5 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] flex flex-col animate-in zoom-in-95 duration-500">
         
           {/* Decorative elements */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-30" />
           
           {/* Header Area */}
           <div className="p-8 md:p-12 pb-0 flex justify-between items-start relative z-10">
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1">
                <div className="flex items-center gap-3">
                  <Zap size={16} className="text-indigo-400 fill-indigo-400" />
                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">Proposal Submission</span>
                </div>
-               <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter italic leading-none">
+               <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tighter italic leading-none whitespace-normal">
                   List Your <span className="text-indigo-400 underline decoration-indigo-500/30 underline-offset-8">Event</span>
                </h2>
-               <p className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] max-w-sm pt-4 leading-relaxed">
+               <p className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] max-w-sm pt-4 leading-relaxed hidden sm:block">
                   Connect your experience with thousands of seekers across Delhi NCR.
                </p>
             </div>
