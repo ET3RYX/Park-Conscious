@@ -105,9 +105,6 @@ export default async function handler(req, res) {
             // Firewall: Ensure the user's role matches the portal they are accessing
             const isPortalAdmin = decoded.role === 'admin' || decoded.role === 'superadmin' || decoded.role === 'organizer' || decoded.role === 'owner';
             
-            if (isPortalAdmin && !isAdminHost) {
-                return json(res, 401, { authenticated: false, message: 'Admin sessions not allowed on public portal' });
-            }
             if (!isPortalAdmin && isAdminHost) {
                 return json(res, 401, { authenticated: false, message: 'Public sessions not allowed on admin portal' });
             }
