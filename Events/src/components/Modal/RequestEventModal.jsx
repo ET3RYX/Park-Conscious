@@ -37,17 +37,15 @@ const RequestEventModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-500">
-      {/* Dynamic Backdrop */}
-      <div 
-        className="absolute inset-0 bg-[#050507]/90 backdrop-blur-3xl"
-        onClick={onClose}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-sky-500/10 opacity-50" />
-      </div>
+    <div className="fixed inset-0 z-[99999] overflow-y-auto bg-[#050507]/90 backdrop-blur-3xl animate-in fade-in duration-500">
+      {/* Background decoration */}
+      <div className="fixed inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-sky-500/10 opacity-50 pointer-events-none" />
 
-      {/* Modal Container */}
-      <div className="relative w-full max-w-2xl bg-[#08080a] border border-white/5 rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-500">
+      {/* Modal Container - Centering Wrapper */}
+      <div className="min-h-full flex items-center justify-center p-4 md:p-12 lg:p-24 relative z-10">
+        
+        {/* Modal Box */}
+        <div className="relative w-full max-w-2xl bg-[#08080a] border border-white/5 rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] flex flex-col animate-in zoom-in-95 duration-500">
         
         {/* Decorative elements */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-30" />

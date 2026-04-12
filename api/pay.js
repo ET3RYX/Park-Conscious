@@ -183,22 +183,35 @@ export default async function handler(req, res) {
             const userId = url.split('/').pop();
             if (!userId || userId === 'undefined') return json(res, 400, { message: 'User ID missing or invalid' });
             
-            // Core Solution: Fetch the user's email first to bridge fragmented identities
-            let u = await Owner.findById(userId);
-            if (!u) u = await User.findById(userId);
+            // 1. Fetch the seed user record to get the target email
+            let seedUser = await Owner.findById(userId).lean();
+            if (!seedUser) seedUser = await User.findById(userId).lean();
             
             let query = { status: { $in: ["Confirmed", "confirmed"] } };
             
-            if (u && u.email) {
-                // Bridge: Find ANY booking tied to this user's email OR their specific ID
+            if (seedUser && seedUser.email) {
+                const targetEmail = seedUser.email.toLowerCase().trim();
+                
+                // 2. Deep Identity Discovery: Find ALL IDs (Owner + User) associated with this email
+                const allOwners = await Owner.find({ email: targetEmail }).select('_id').lean();
+                const allUsers = await User.find({ email: targetEmail }).select('_id').lean();
+                
+                const allIds = [
+                    ...allOwners.map(o => String(o._id)),
+                    ...allUsers.map(u => String(u._id)),
+                    String(userId) // Always include the current session ID
+                ];
+                
+                // 3. Aggregate Query: Match any of the known IDs OR the email directly (case-insensitive)
                 query.$or = [
-                    { userId: String(userId) },
-                    { email: u.email.toLowerCase().trim() }
+                    { userId: { $in: allIds } },
+                    { email: new RegExp(`^${targetEmail}$`, 'i') }
                 ];
             } else {
                 query.userId = String(userId);
             }
 
+            console.log(`[WALLET RECOVERY] Deep search for email: ${seedUser?.email || 'unknown'} across IDs: ${query.$or?.[0]?.userId?.$in?.length || 1}`);
             const bookings = await Booking.find(query).sort({ createdAt: -1 }).lean();
 
             for (let b of bookings) {
