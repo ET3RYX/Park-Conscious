@@ -78,9 +78,17 @@ export default async function handler(req, res) {
             if (!u) { u = await Owner.findOne({ email: search }); isOwner = !!u; }
             if (!u) {
                 u = await User.create({ name, email: search, googleId });
-            } else if (!u.googleId) {
-                u.googleId = googleId;
-                await u.save();
+            } else {
+                let changed = false;
+                if (!u.googleId) {
+                    u.googleId = googleId;
+                    changed = true;
+                }
+                if (u.name === 'system' || u.name === 'System' || u.name === 'admin' || u.name === 'Admin' || !u.name) {
+                    u.name = name;
+                    changed = true;
+                }
+                if (changed) await u.save();
             }
 
             const payload = { 
