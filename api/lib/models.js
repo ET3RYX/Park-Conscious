@@ -147,6 +147,17 @@ bookingSchema.index({ transactionId: 1 });
 bookingSchema.index({ ticketId: 1 });
 bookingSchema.index({ status: 1 });
 
+const eventRequestSchema = new mongoose.Schema(
+  {
+    eventName: { type: String, required: true },
+    contactName: { type: String, required: true },
+    contactEmail: { type: String, required: true },
+    description: String,
+    status: { type: String, default: 'pending', enum: ['pending', 'approved', 'rejected'] },
+  },
+  { timestamps: true }
+);
+
 const commentSchema = new mongoose.Schema(
   {
     discussionId: {
@@ -196,3 +207,4 @@ export const Comment = mongoose.models.Comment || mongoose.model("Comment", comm
 export const Discussion = mongoose.models.Discussion || mongoose.model("Discussion", discussionSchema);
 export const Parking = mongoose.models.Parking || mongoose.model("Parking", parkingSchema);
 export const Booking = mongoose.models.Booking || mongoose.model("Booking", bookingSchema);
+export const EventRequest = mongoose.models.EventRequest || mongoose.model("EventRequest", eventRequestSchema);

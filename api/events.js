@@ -24,6 +24,21 @@ export default async function handler(req, res) {
             return json(res, 200, { status: 'ONLINE', timestamp: new Date().toISOString() });
         }
 
+        // -- Event Submission / Proposals --
+        if (url.includes('/event-request')) {
+            if (method === 'POST') {
+                const { eventName, contactName, contactEmail, description } = body;
+                if (!eventName || !contactName || !contactEmail) {
+                    return json(res, 400, { message: 'Required fields missing: eventName, contactName, contactEmail' });
+                }
+                const request = await models.EventRequest.create({ 
+                    eventName, contactName, contactEmail, description 
+                });
+                return json(res, 201, { success: true, id: request._id });
+            }
+            return json(res, 405, { message: 'Method Not Allowed' });
+        }
+
         // -- Event Management --
         if (url.includes('/events')) {
             const parts = url.split('/');
