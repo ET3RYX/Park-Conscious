@@ -183,10 +183,23 @@ export default async function handler(req, res) {
             const userId = url.split('/').pop();
             if (!userId || userId === 'undefined') return json(res, 400, { message: 'User ID missing or invalid' });
             
-            const bookings = await Booking.find({ 
-                userId: String(userId), 
-                status: "Confirmed" 
-            }).sort({ createdAt: -1 }).lean();
+            // Core Solution: Fetch the user's email first to bridge fragmented identities
+            let u = await Owner.findById(userId);
+            if (!u) u = await User.findById(userId);
+            
+            let query = { status: { $in: ["Confirmed", "confirmed"] } };
+            
+            if (u && u.email) {
+                // Bridge: Find ANY booking tied to this user's email OR their specific ID
+                query.$or = [
+                    { userId: String(userId) },
+                    { email: u.email.toLowerCase().trim() }
+                ];
+            } else {
+                query.userId = String(userId);
+            }
+
+            const bookings = await Booking.find(query).sort({ createdAt: -1 }).lean();
 
             for (let b of bookings) {
                 const eid = String(b.eventId || '');
