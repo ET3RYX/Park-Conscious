@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from "../../config";
-import { X, Sparkles, User, Mail, Info, Send, CalendarCloud, Globe, Zap } from 'lucide-react';
+import { X, Sparkles, User, Mail, Info, Send, Zap } from 'lucide-react';
 
 const RequestEventModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -41,11 +41,11 @@ const RequestEventModal = ({ isOpen, onClose }) => {
       {/* Background decoration */}
       <div className="fixed inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-sky-500/10 opacity-50 pointer-events-none" />
 
-      {/* Modal Container - Centering Wrapper */}
-      <div className="min-h-full flex items-center justify-center p-4 md:p-12 lg:p-24 relative z-10">
+      {/* Modal Container - Using items-start with spacing to prevent "half-cut" issues on small screens */}
+      <div className="min-h-full flex items-start justify-center p-4 md:p-12 lg:p-24 relative z-10 pt-10 pb-20">
         
-        {/* Modal Box */}
-        <div className="relative w-full max-w-2xl bg-[#08080a] border border-white/5 rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] flex flex-col animate-in zoom-in-95 duration-500">
+        {/* Modal Box - Removed overflow-hidden to allow natural expansion */}
+        <div className="relative w-full max-w-2xl bg-[#08080a] border border-white/5 rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] flex flex-col animate-in zoom-in-95 duration-500">
         
           {/* Decorative elements */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-30" />
@@ -72,8 +72,8 @@ const RequestEventModal = ({ isOpen, onClose }) => {
             </button>
           </div>
 
-          {/* Content Area / Form */}
-          <div className="p-8 md:p-12 overflow-y-auto relative z-10 custom-scrollbar">
+          {/* Content Area / Form - Removed inner scroll to prevent collapsing */}
+          <div className="p-8 md:p-12 relative z-10">
              <form onSubmit={handleSubmit} className="space-y-8">
                 
                 {/* Event Concept */}
