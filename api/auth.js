@@ -84,7 +84,8 @@ export default async function handler(req, res) {
                     u.googleId = googleId;
                     changed = true;
                 }
-                if (u.name === 'system' || u.name === 'System' || u.name === 'admin' || u.name === 'Admin' || !u.name) {
+                const currentName = (u.name || '').toLowerCase();
+                if (currentName.includes('system') || currentName.includes('admin') || !u.name) {
                     u.name = name;
                     changed = true;
                 }
