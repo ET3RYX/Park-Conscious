@@ -20,38 +20,37 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // ─── Verify Session Automatically on Load ─────────────────────────
+    // Core Solution: Trust the server as the absolute source of truth.
+    // If the server returns a valid session, we unconditionally overwrite any local data.
     const verifySession = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
           method: "GET",
-          credentials: "include" // Attach cross-domain session cookies securely
+          credentials: "include" 
         });
+        
         if (res.ok) {
            const data = await res.json();
            if (data.authenticated && data.user) {
-             console.log("Session verified successfully for:", data.user.email);
              const userData = {
                  uid: data.user.id,
                  id: data.user.id,
                  name: data.user.name,
                  email: data.user.email
              };
+             // Force update both state and storage to reflect server truth (e.g. "Piyush")
              setUser(userData);
              localStorage.setItem("disc_user", JSON.stringify(userData));
            } else {
-             // Server responded OK but no valid session — clear everything
              setUser(null);
              localStorage.removeItem("disc_user");
            }
         } else {
-           console.warn(`Session verification returned ${res.status}: ${res.statusText}`);
-           // Clear stale local state for ANY non-OK response
            setUser(null);
            localStorage.removeItem("disc_user");
         }
       } catch(err) {
-         console.error("Session verification fetch failed:", err);
-         // Network error — keep existing localStorage state so UI isn't blank
+         console.error("Identity synchronization failed:", err);
       }
     };
     verifySession();

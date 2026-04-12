@@ -7,18 +7,44 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedSession = localStorage.getItem('adminUser');
-    if (savedSession) {
+    const checkSession = async () => {
       try {
-        const data = JSON.parse(savedSession);
-        // data contains { user, token }. We set admin to data.user
-        setAdmin(data.user || data);
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.authenticated && data.user) {
+            // Priority: Check if the user has an admin-level role
+            const role = data.user.role;
+            const isAdmin = role === 'admin' || role === 'superadmin' || role === 'organizer' || role === 'owner';
+            
+            if (isAdmin) {
+              setAdmin(data.user);
+              // Sync to localStorage for other components
+              localStorage.setItem('adminUser', JSON.stringify({ user: data.user }));
+            } else {
+              setAdmin(null);
+              localStorage.removeItem('adminUser');
+            }
+          } else {
+            setAdmin(null);
+            localStorage.removeItem('adminUser');
+          }
+        } else {
+          // Fallback to localStorage if server is unreachable but don't clear immediately
+          const saved = localStorage.getItem('adminUser');
+          if (saved) {
+            const data = JSON.parse(saved);
+            setAdmin(data.user || data);
+          }
+        }
       } catch (e) {
-        console.error("Session corruption detected");
-        localStorage.removeItem('adminUser');
+        console.error("Session sync failed:", e);
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+
+    checkSession();
   }, []);
 
   const login = (sessionData) => {

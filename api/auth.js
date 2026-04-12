@@ -22,19 +22,15 @@ export default async function handler(req, res) {
         // -- Login --
         if ((url.includes('/login') || url.endsWith('/auth/login')) && method === 'POST') {
             const { email, password } = body;
-            const rawEmail = (email || '').toLowerCase().trim();
+            const search = (email || '').toLowerCase().trim();
             
-            // Try both .com and .in domain variants
-            const emailVariants = [rawEmail];
-            if (rawEmail.endsWith('.com')) emailVariants.push(rawEmail.replace('.com', '.in'));
-            else if (rawEmail.endsWith('.in')) emailVariants.push(rawEmail.replace('.in', '.com'));
-
-            let u = null;
-            let isOwner = false;
-            for (const e of emailVariants) {
-                u = await User.findOne({ email: e });
-                if (!u) { u = await Owner.findOne({ email: e }); isOwner = !!u; }
-                if (u) break;
+            // PRIORITY: Check Owner first to ensure Admin role takes precedence
+            let u = await Owner.findOne({ email: search });
+            let isOwner = !!u;
+            
+            if (!u) {
+                u = await User.findOne({ email: search });
+                isOwner = false;
             }
 
             if (!u) return json(res, 401, { message: 'Invalid credentials' });
@@ -55,21 +51,12 @@ export default async function handler(req, res) {
 
         // -- Logout --
         if (url.includes('/logout') && method === 'POST') {
-            const host = req.headers.host || '';
-            const rootDomain = 'parkconscious.in';
-            
-            // Blast the cookie across all possible domain scopes to destroy zombies
-            const scopesToClear = [
-                host, // Exact current host
-                rootDomain, // Strict parent
-                `.${rootDomain}` // Wildcard parent
+            // Unconditionally clear from the root domain and the host
+            const rootDomain = '.parkconscious.in';
+            const clearHeaders = [
+                serialize('token', '', { httpOnly: true, secure: true, sameSite: 'lax', domain: rootDomain, maxAge: -1, path: '/' }),
+                serialize('token', '', { httpOnly: true, secure: true, sameSite: 'lax', maxAge: -1, path: '/' })
             ];
-
-            const clearHeaders = scopesToClear.map(scope => 
-                serialize('token', '', { httpOnly: true, secure: true, sameSite: 'lax', domain: scope, maxAge: -1, path: '/' })
-            );
-            // Also add one without domain just in case
-            clearHeaders.push(serialize('token', '', { httpOnly: true, secure: true, sameSite: 'lax', maxAge: -1, path: '/' }));
 
             res.setHeader('Set-Cookie', clearHeaders);
             return json(res, 200, { message: 'Logged out successfully globally' });
@@ -81,18 +68,26 @@ export default async function handler(req, res) {
             if (!email) return json(res, 400, { message: 'Email required for Google Auth' });
             
             const search = email.toLowerCase();
-            let u = await User.findOne({ email: search });
-            let isOwner = false;
             
-            if (!u) { u = await Owner.findOne({ email: search }); isOwner = !!u; }
+            // PRIORITY: Check Owner first
+            let u = await Owner.findOne({ email: search });
+            let isOwner = !!u;
+            
+            if (!u) {
+                u = await User.findOne({ email: search });
+                isOwner = false;
+            }
+
             if (!u) {
                 u = await User.create({ name, email: search, googleId });
+                isOwner = false;
             } else {
                 let changed = false;
                 if (!u.googleId) {
                     u.googleId = googleId;
                     changed = true;
                 }
+                // Unconditional name sync - force "Piyush" over placeholder names
                 if (u.name !== name) {
                     u.name = name;
                     changed = true;

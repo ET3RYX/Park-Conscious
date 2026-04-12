@@ -83,16 +83,19 @@ export const issueCookie = (req, res, u) => {
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
     
-    // Strict scoping to prevent Admin sessions from bleeding into public events
+    // Unified domain strategy: Use '.parkconscious.in' to share session across all subdomains
     let domainPattern = undefined;
-    if (host.includes('admin.events')) {
-        domainPattern = host; // Strictly bind to admin.events...
-    } else if (host.includes('parkconscious.in')) {
-        domainPattern = host; // Strictly bind to events... or www...
+    if (host.includes('parkconscious.in')) {
+        domainPattern = '.parkconscious.in';
     }
 
     res.setHeader('Set-Cookie', serialize('token', token, {
-        httpOnly: true, secure: true, sameSite: 'lax', domain: domainPattern, maxAge: 7 * 24 * 60 * 60, path: '/'
+        httpOnly: true, 
+        secure: true, 
+        sameSite: 'lax', 
+        domain: domainPattern, 
+        maxAge: 7 * 24 * 60 * 60, 
+        path: '/'
     }));
     return token;
 };
