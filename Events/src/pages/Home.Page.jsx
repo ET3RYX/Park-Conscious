@@ -129,11 +129,29 @@ const HomePage = () => {
       <div className="bg-[#050507] min-h-screen text-white pb-24 w-full selection:bg-indigo-500/30">
         {/* Dynamic Editorial Hero */}
         <div className="w-full relative py-32 md:py-48 flex flex-col items-center overflow-hidden">
+           {/* Abstract Ribbon SVG */}
+           <svg 
+             className="absolute top-0 left-0 w-full h-[150%] pointer-events-none z-0 opacity-40 animate-pulse" 
+             style={{ animationDuration: '8s', minHeight: '800px' }}
+             viewBox="0 0 1440 800" 
+             fill="none" 
+             xmlns="http://www.w3.org/2000/svg"
+             preserveAspectRatio="xMidYMid slice"
+           >
+             <path 
+               d="M-50,600 C 150,600 350,550 400,400 C 450,200 200,150 150,350 C 100,550 400,650 700,500 C 1000,350 1300,150 1540,200" 
+               stroke="#6366f1" 
+               strokeWidth="6" 
+               strokeLinecap="round" 
+               style={{ filter: 'drop-shadow(0 0 12px rgba(99,102,241,0.6))' }}
+             />
+           </svg>
+
            {/* Moving Mesh Glows */}
-           <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/10 blur-[120px] rounded-full animate-mesh pointer-events-none"></div>
-           <div className="absolute bottom-[0%] right-[-5%] w-[40%] h-[60%] bg-blue-600/5 blur-[120px] rounded-full animate-mesh pointer-events-none" style={{ animationDelay: '-5s' }}></div>
+           <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/10 blur-[120px] rounded-full animate-mesh pointer-events-none z-0"></div>
+           <div className="absolute bottom-[0%] right-[-5%] w-[40%] h-[60%] bg-blue-600/5 blur-[120px] rounded-full animate-mesh pointer-events-none z-0" style={{ animationDelay: '-5s' }}></div>
            
-           <div className="container mx-auto px-6 text-center z-10">
+           <div className="container mx-auto px-6 text-center relative z-10">
               <div className="flex flex-col items-center">
                  <h1 className="text-7xl sm:text-8xl md:text-[10rem] lg:text-[14rem] font-black uppercase tracking-tighter leading-[0.85] md:leading-[0.75] m-0 p-0 text-transparent bg-clip-text bg-gradient-to-b from-white to-white/10 select-none animate-reveal" style={{ animationDelay: '0.1s' }}>
                     DON'T MISS
