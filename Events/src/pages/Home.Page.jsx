@@ -131,19 +131,19 @@ const HomePage = () => {
         <div className="w-full relative py-32 md:py-48 flex flex-col items-center overflow-hidden">
            {/* Abstract Ribbon SVG */}
            <svg 
-             className="absolute top-0 left-0 w-full h-[150%] pointer-events-none z-0 opacity-40 animate-pulse" 
-             style={{ animationDuration: '8s', minHeight: '800px' }}
-             viewBox="0 0 1440 800" 
+             className="absolute top-0 left-0 w-full h-full pointer-events-none z-0 opacity-80 animate-pulse" 
+             style={{ animationDuration: '8s' }}
+             viewBox="0 0 1440 600" 
              fill="none" 
              xmlns="http://www.w3.org/2000/svg"
              preserveAspectRatio="xMidYMid slice"
            >
              <path 
-               d="M-50,600 C 150,600 350,550 400,400 C 450,200 200,150 150,350 C 100,550 400,650 700,500 C 1000,350 1300,150 1540,200" 
+               d="M -50 450 C 150 500, 600 650, 600 300 C 600 -50, 250 -50, 250 300 C 250 650, 1000 400, 1550 100" 
                stroke="#6366f1" 
-               strokeWidth="6" 
+               strokeWidth="5" 
                strokeLinecap="round" 
-               style={{ filter: 'drop-shadow(0 0 12px rgba(99,102,241,0.6))' }}
+               style={{ filter: 'drop-shadow(0 0 20px rgba(99,102,241,0.8))' }}
              />
            </svg>
 
