@@ -212,7 +212,6 @@ const HomePage = () => {
             isDark={true}
           />
         </div>
-  
         {/* Discussion Overhaul */}
         <div className="container mx-auto px-6 md:px-12 mt-32">
           <div className="mb-8">

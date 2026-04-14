@@ -16,11 +16,13 @@ import SuccessPage from "./pages/Success.Page";
 import FailurePage from "./pages/Failure.Page";
 import MyBookingsPage from "./pages/MyBookings.Page";
 import AdminPage from "./pages/Admin.Page";
+import HostPage from "./pages/Host.Page";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/host" element={<HostPage />} />
       <Route path="/my-bookings" element={<MyBookingsPage />} />
       <Route path="/movie/:id" element={<MoviePage />} />
       <Route path="/plays" element={<PlayPage />} />

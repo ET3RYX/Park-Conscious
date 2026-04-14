@@ -82,6 +82,7 @@ function NavLg({ defaultLocation, onRequestOpen }) {
 
         <div className="hidden xl:flex items-center gap-10 pl-16 border-l border-white/5">
            <Link to="/" className="text-[10px] font-black uppercase tracking-[0.4em] text-white hover:text-indigo-400 transition-all">Home</Link>
+           <Link to="/host" className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 hover:text-white transition-all">Host</Link>
            <a href="https://www.parkconscious.in" className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 hover:text-white transition-all">Parking</a>
            {user && (
              <Link to="/my-bookings" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 hover:text-indigo-300 transition-all">
