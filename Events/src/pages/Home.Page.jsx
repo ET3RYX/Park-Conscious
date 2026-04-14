@@ -128,22 +128,22 @@ const HomePage = () => {
     return (
       <div className="bg-[#050507] min-h-screen text-white pb-24 w-full selection:bg-indigo-500/30">
         {/* Dynamic Editorial Hero */}
-        <div className="w-full relative py-32 md:py-48 flex flex-col items-center overflow-hidden">
-           {/* Abstract Ribbon SVG */}
+        <div className="w-full relative py-32 md:py-48 flex flex-col items-center overflow-hidden isolation-isolate">
+           {/* Abstract Ribbon SVG - Force behind with negative Z */}
            <svg 
-             className="absolute top-0 left-0 w-full h-full pointer-events-none z-0 opacity-80 animate-pulse" 
-             style={{ animationDuration: '8s' }}
+             className="absolute top-0 left-0 w-full h-full pointer-events-none z-[-1] opacity-30 animate-pulse" 
+             style={{ animationDuration: '12s' }}
              viewBox="0 0 1440 600" 
              fill="none" 
              xmlns="http://www.w3.org/2000/svg"
              preserveAspectRatio="xMidYMid slice"
            >
              <path 
-               d="M -50 450 C 150 500, 600 650, 600 300 C 600 -50, 250 -50, 250 300 C 250 650, 1000 400, 1550 100" 
+               d="M-100,600 C 200,600 400,500 720,400 C 1040,300 1240,200 1540,250" 
                stroke="#6366f1" 
-               strokeWidth="5" 
+               strokeWidth="3" 
                strokeLinecap="round" 
-               style={{ filter: 'drop-shadow(0 0 20px rgba(99,102,241,0.8))' }}
+               style={{ filter: 'drop-shadow(0 0 20px rgba(99,102,241,0.3))' }}
              />
            </svg>
 
