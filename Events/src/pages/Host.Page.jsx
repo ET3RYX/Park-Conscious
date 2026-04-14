@@ -1,10 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Zap, MapPin, Shield, Globe, Send, Sparkles } from 'lucide-react';
+import { ArrowRight, Zap, MapPin, Shield, Globe, Send, Sparkles, LogIn } from 'lucide-react';
 import DefaultlayoutHoc from "../layout/Default.layout";
+import RequestEventModal from "../components/Modal/RequestEventModal";
 
 const HostPage = () => {
   const navigate = useNavigate();
+  const [isRequestModalOpen, setIsRequestModalOpen] = React.useState(false);
 
   return (
     <div className="bg-[#050507] min-h-screen text-white pb-24 overflow-hidden">
@@ -19,27 +21,40 @@ const HostPage = () => {
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-300">The Organizer Ecosystem</span>
           </div>
           
-          <h1 className="text-7xl sm:text-8xl md:text-[10rem] lg:text-[12rem] font-black uppercase tracking-tighter leading-[0.8] mb-12 animate-reveal" style={{ animationDelay: '0.2s' }}>
-            HOST WITH<br/>
-            <span className="text-white italic">BACK<span className="text-indigo-500 italic">STAGE.</span></span>
-          </h1>
+          <div className="flex flex-col items-center">
+             <h1 className="text-7xl sm:text-8xl md:text-[10rem] lg:text-[12rem] font-black uppercase tracking-tighter leading-[0.85] md:leading-[0.75] m-0 p-0 text-transparent bg-clip-text bg-gradient-to-b from-white to-white/10 select-none animate-reveal" style={{ animationDelay: '0.2s' }}>
+                HOST WITH
+             </h1>
+             <h1 className="text-7xl sm:text-8xl md:text-[10rem] lg:text-[12rem] font-black uppercase tracking-tighter leading-[0.85] md:leading-[0.75] m-0 p-0 text-transparent bg-clip-text bg-gradient-to-b from-indigo-400 to-indigo-800/20 select-none pb-4 animate-reveal -mt-1 sm:-mt-2 md:-mt-4 italic" style={{ animationDelay: '0.4s' }}>
+                BACKSTAGE.
+             </h1>
+          </div>
 
           <p className="text-slate-400 text-lg md:text-2xl font-medium max-w-3xl mx-auto leading-relaxed animate-reveal" style={{ animationDelay: '0.4s' }}>
             Elevate your event from a spreadsheet to a premium experience. Professional ticketing, secure entries, and built-in logistics for Delhi's top creators.
           </p>
 
-          <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-6 animate-reveal" style={{ animationDelay: '0.6s' }}>
+          <div className="mt-16 flex flex-col items-center gap-8 animate-reveal" style={{ animationDelay: '0.6s' }}>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+              <button 
+                onClick={() => setIsRequestModalOpen(true)}
+                className="px-12 py-5 bg-white text-black rounded-full font-black text-[12px] uppercase tracking-[0.3em] hover:bg-indigo-600 hover:text-white transition-all shadow-2xl active:scale-95"
+              >
+                Launch Your Event
+              </button>
+              <button 
+                onClick={() => document.getElementById('value-prop').scrollIntoView({ behavior: 'smooth' })}
+                className="px-12 py-5 border border-white/10 text-white rounded-full font-black text-[12px] uppercase tracking-[0.3em] hover:bg-white/5 transition-all"
+              >
+                Why Backstage?
+              </button>
+            </div>
+            
             <button 
               onClick={() => navigate("/admin")}
-              className="px-12 py-5 bg-white text-black rounded-full font-black text-[12px] uppercase tracking-[0.3em] hover:bg-indigo-600 hover:text-white transition-all shadow-2xl active:scale-95"
+              className="flex items-center gap-3 text-slate-500 hover:text-white transition-colors text-[9px] font-black uppercase tracking-[0.4em]"
             >
-              Get Started Now
-            </button>
-            <button 
-              onClick={() => document.getElementById('value-prop').scrollIntoView({ behavior: 'smooth' })}
-              className="px-12 py-5 border border-white/10 text-white rounded-full font-black text-[12px] uppercase tracking-[0.3em] hover:bg-white/5 transition-all"
-            >
-              Why Backstage?
+               <LogIn size={14} /> Already an Organizer? Sign In
             </button>
           </div>
         </div>
@@ -102,11 +117,20 @@ const HostPage = () => {
               </div>
 
               <button 
-                onClick={() => navigate("/admin")}
+                onClick={() => setIsRequestModalOpen(true)}
                 className="w-full py-6 bg-white text-black rounded-full font-black text-[12px] uppercase tracking-[0.4em] hover:bg-indigo-600 hover:text-white transition-all active:scale-95"
               >
-                Launch Your Event
+                Get Started
               </button>
+
+              <div className="text-center pt-4">
+                 <button 
+                   onClick={() => navigate("/admin")}
+                   className="text-[9px] font-black text-slate-600 hover:text-indigo-400 uppercase tracking-[0.3em] transition-colors"
+                 >
+                    Existing Organizer? Login here
+                 </button>
+              </div>
             </div>
           </div>
         </div>
@@ -125,13 +149,18 @@ const HostPage = () => {
            </div>
            
            <button 
-             onClick={() => navigate("/admin")}
+             onClick={() => setIsRequestModalOpen(true)}
              className="inline-flex items-center gap-6 px-16 py-6 bg-white text-black rounded-full font-black text-[12px] uppercase tracking-[0.4em] hover:bg-white hover:shadow-[0_0_50px_rgba(255,255,255,0.2)] transition-all"
            >
-             Create Organizer Account <ArrowRight size={20} />
+             Start Your Journey <ArrowRight size={20} />
            </button>
         </div>
       </div>
+
+      <RequestEventModal 
+        isOpen={isRequestModalOpen} 
+        onClose={() => setIsRequestModalOpen(false)} 
+      />
     </div>
   );
 };
