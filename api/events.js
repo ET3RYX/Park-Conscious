@@ -8,8 +8,6 @@ export default async function handler(req, res) {
     setCors(req, res);
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
-    await connectDB();
-
     // Parse URL cleanly — preserve query string separately
     const fullUrl = req.url || '/';
     const [pathPart, queryPart] = fullUrl.split('?');
@@ -19,6 +17,8 @@ export default async function handler(req, res) {
     const user = verifyUser(req);
 
     try {
+        await connectDB();
+
         // -- Health Check --
         if (url.includes('/health')) {
             return json(res, 200, { status: 'ONLINE', timestamp: new Date().toISOString() });
@@ -77,6 +77,13 @@ export default async function handler(req, res) {
                     const list = await Event.find(query).sort({ date: 1 }).lean();
                     console.log(`[EVENT API] Successfully resolved ${list.length} events for ${user.role}`);
                     return json(res, 200, list.map(normalizeEvent));
+                }
+
+                // Fetch featured events (e.g. ?featured=true)
+                const params = new URLSearchParams(queryPart || '');
+                if (params.get('featured') === 'true') {
+                    const featuredList = await Event.find({ isFeatured: true, status: { $in: ['published', 'Published'] } }).sort({ createdAt: -1 }).lean();
+                    return json(res, 200, featuredList.map(normalizeEvent));
                 }
 
                 // Public: fetch published events, fallback to all
@@ -152,6 +159,10 @@ export default async function handler(req, res) {
 
         return json(res, 404, { message: 'Events endpoint not matched: ' + url });
     } catch (err) {
+        if (err.missingConfig) {
+            console.warn('[EVENT API Warn]: Database configuration missing. Returning graceful fallback.');
+            return json(res, 200, { missingConfig: true, message: 'Database Connection Missing', data: [] });
+        }
         console.error('[EVENT ERROR]:', err);
         return json(res, 500, { message: 'Internal Server Error', error: err.message });
     }

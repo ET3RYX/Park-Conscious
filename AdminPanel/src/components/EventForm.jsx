@@ -18,11 +18,16 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
     locationAddress: '',
     lat: '',
     lng: '',
-    category: [],
+    category: '',
     price: 0,
     capacity: 0,
     status: 'published',
     images: [],
+    isFeatured: false,
+    featuredTitle: '',
+    featuredSubtitle: '',
+    featuredLabel: '',
+    accentColor: 'indigo-500',
     requiredFields: {
       name: true,
       email: true,
@@ -44,6 +49,12 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
         locationAddress: initialData.location?.address || '',
         lat: initialData.location?.coordinates?.lat || '',
         lng: initialData.location?.coordinates?.lng || '',
+        category: initialData.category || '',
+        isFeatured: initialData.isFeatured || false,
+        featuredTitle: initialData.featuredTitle || '',
+        featuredSubtitle: initialData.featuredSubtitle || '',
+        featuredLabel: initialData.featuredLabel || '',
+        accentColor: initialData.accentColor || 'indigo-500',
         // Ensure requiredFields exists even if database record doesn't have it
         requiredFields: {
           name:  initialData.requiredFields?.name  ?? true,
@@ -58,8 +69,11 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
   }, [initialData]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: type === 'checkbox' ? checked : value 
+    }));
   };
 
   const handleImageUpload = async (e) => {
@@ -142,6 +156,18 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
                   className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-all shadow-inner resize-none font-medium placeholder:text-slate-800"
                 />
               </div>
+              <div>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Category</label>
+                <select
+                  name="category" value={formData.category} onChange={handleChange}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-all font-medium appearance-none"
+                >
+                  <option value="">Select a category...</option>
+                  {['Music', 'Arts', 'Tech', 'Sports', 'Comedy', 'Culture', 'Summits', 'Food', 'Fashion', 'Film', 'Education', 'Gaming', 'Wellness', 'Other'].map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </section>
 
@@ -209,13 +235,93 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
             </div>
           </section>
 
+          {/* Handpicked Experiences Section */}
+          <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 space-y-8 shadow-sm relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-950/20 to-transparent pointer-events-none" />
+            <div className="flex items-center justify-between relative z-10">
+              <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                <Sparkles className="text-violet-400" size={20} /> HANDPICKED EXPERIENCES
+              </h3>
+              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest bg-slate-950 px-3 py-1 rounded-full border border-slate-800">Section 03 — Featured</span>
+            </div>
+
+            {/* Featured Toggle */}
+            <label className="flex items-center justify-between p-6 bg-slate-950 border border-slate-800 rounded-3xl cursor-pointer hover:border-violet-500/40 transition-all group relative z-10">
+              <div>
+                <p className="text-[11px] font-black text-white uppercase tracking-widest">Feature on Homepage</p>
+                <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mt-1">Showcase in the Handpicked Experiences carousel</p>
+              </div>
+              <div className="relative">
+                <input
+                  type="checkbox" name="isFeatured"
+                  checked={formData.isFeatured}
+                  onChange={handleChange}
+                  className="sr-only peer"
+                />
+                <div className="w-12 h-6 bg-slate-800 rounded-full peer-checked:bg-violet-500 transition-all relative">
+                  <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-6 group-[.peer-checked]:translate-x-6" style={{transform: formData.isFeatured ? 'translateX(24px)' : 'translateX(0)'}} />
+                </div>
+              </div>
+            </label>
+
+            {formData.isFeatured && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500 relative z-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Featured Card Title</label>
+                    <input
+                      type="text" name="featuredTitle" value={formData.featuredTitle} onChange={handleChange}
+                      placeholder="e.g. Afsana 2026"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-all font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Badge Label</label>
+                    <input
+                      type="text" name="featuredLabel" value={formData.featuredLabel} onChange={handleChange}
+                      placeholder="e.g. FEATURED · MUSIC"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-all font-medium"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Featured Subtitle / Tagline</label>
+                  <input
+                    type="text" name="featuredSubtitle" value={formData.featuredSubtitle} onChange={handleChange}
+                    placeholder="e.g. The farewell you'll never forget · GGSIPU · May 2026"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-sm focus:outline-none focus:border-violet-500/50 transition-all font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Accent Color</label>
+                  <div className="flex flex-wrap gap-3">
+                    {['indigo-500', 'violet-500', 'rose-500', 'amber-500', 'emerald-500', 'sky-500', 'pink-500', 'orange-500'].map(color => {
+                      const colorMap = {
+                        'indigo-500': '#6366f1', 'violet-500': '#8b5cf6', 'rose-500': '#f43f5e',
+                        'amber-500': '#f59e0b', 'emerald-500': '#10b981', 'sky-500': '#0ea5e9',
+                        'pink-500': '#ec4899', 'orange-500': '#f97316'
+                      };
+                      return (
+                        <button key={color} type="button" onClick={() => setFormData(prev => ({ ...prev, accentColor: color }))}
+                          className={`w-10 h-10 rounded-2xl transition-all border-2 ${formData.accentColor === color ? 'scale-110 border-white shadow-lg' : 'border-transparent hover:scale-105'}`}
+                          style={{ backgroundColor: colorMap[color] }}
+                          title={color}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+          </section>
+
           {/* Protocols Section */}
           <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 space-y-8 shadow-sm relative overflow-hidden">
             <div className="flex items-center justify-between">
               <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
                 <Fingerprint className="text-sky-500" size={20} /> ENTRY PROTOCOLS
               </h3>
-              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest bg-slate-950 px-3 py-1 rounded-full border border-slate-800">Section 03</span>
+              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest bg-slate-950 px-3 py-1 rounded-full border border-slate-800">Section 04</span>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

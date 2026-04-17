@@ -10,8 +10,6 @@ export default async function handler(req, res) {
     setCors(req, res);
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
-    await connectDB();
-
     const fullUrl = req.url || '/';
     const [pathPart, queryPart] = fullUrl.split('?');
     const url = pathPart.replace(/\/+/g, '/').replace(/\/$/, '') || '/';
@@ -19,6 +17,8 @@ export default async function handler(req, res) {
     const body = await getBody(req);
 
     try {
+        await connectDB();
+        
         // -- Login --
         if ((url.includes('/login') || url.endsWith('/auth/login')) && method === 'POST') {
             const { email, password } = body;
@@ -135,6 +135,9 @@ export default async function handler(req, res) {
 
         return json(res, 404, { message: 'Auth endpoint not matched: ' + url });
     } catch (err) {
+        if (err.missingConfig) {
+             return json(res, 200, { authenticated: false, missingConfig: true, message: 'Database Connection Missing' });
+        }
         console.error('[AUTH ERROR]:', err);
         return json(res, 500, { message: 'Internal Server Error', error: err.message });
     }

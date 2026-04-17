@@ -11,8 +11,6 @@ export default async function handler(req, res) {
     setCors(req, res);
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
-    await connectDB();
-
     const fullUrl = req.url || '/';
     const [pathPart, queryPart] = fullUrl.split('?');
     const url = pathPart.replace(/\/+/g, '/').replace(/\/$/, '') || '/';
@@ -20,6 +18,8 @@ export default async function handler(req, res) {
     const body = await getBody(req);
 
     try {
+        await connectDB();
+        
         // -- Razorpay Payment Initiation --
         if (url.includes('/pay') && !url.includes('/payment-callback') && method === 'POST') {
             const { name, amount, phone, eventId, orderId, userId, screenshotUrl } = body;
@@ -47,8 +47,15 @@ export default async function handler(req, res) {
                 }
             }
             
-            const KEY_ID = process.env.RAZORPAY_KEY_ID || "rzp_test_YourTestKey";
-            const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || "YourTestSecret";
+            const KEY_ID = process.env.RAZORPAY_KEY_ID;
+            const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+
+            if (!KEY_ID || !KEY_SECRET) {
+                console.error("[SECURITY ALERT]: Razorpay Keys are missing from environment variables.");
+                return json(res, 500, { 
+                    message: "Internal Configuration Error: Payment keys not found." 
+                });
+            }
             
             const txId = "TXN_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase();
             const origin = req.headers.origin || `https://events.parkconscious.in`;
@@ -120,7 +127,7 @@ export default async function handler(req, res) {
                 return json(res, 400, { message: "Invalid payment details" });
             }
 
-            const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || "YourTestSecret";
+            const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
             // Verify signature
             const bodyString = razorpay_order_id + "|" + razorpay_payment_id;
@@ -240,6 +247,9 @@ export default async function handler(req, res) {
 
         return json(res, 404, { message: 'Payment endpoint not matched: ' + url });
     } catch (err) {
+        if (err.missingConfig) {
+             return json(res, 200, { success: false, missingConfig: true, message: 'Missing database configuration.' });
+        }
         console.error('[PAYMENT ERROR]:', err);
         if (err.statusCode === 401) {
              return json(res, 500, { success: false, message: 'Razorpay Authentication failed. Please verify RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in your backend .env file.' });

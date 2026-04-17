@@ -56,7 +56,13 @@ const eventSchema = new mongoose.Schema(
     venueCity: String,
     attendees: String,
     image: String,
-    badge: String
+    badge: String,
+    // Featured Event Fields
+    isFeatured: { type: Boolean, default: false },
+    featuredTitle: String,
+    featuredSubtitle: String,
+    featuredLabel: String,
+    accentColor: String // Tailwind class name like 'red-600' or 'indigo-500'
   },
   { timestamps: true }
 );

@@ -23,64 +23,66 @@ const adCopies = [
 
 const categories = ["All Events", "Concerts", "Festivals", "Summits", "Culture"];
 
-const FeaturedEventsSection = () => {
+const FeaturedEventsSection = ({ featuredEvents }) => {
     const navigate = useNavigate();
+    
+    if (!featuredEvents || featuredEvents.length === 0) return null;
+
+    // Tailwind Safelist Mapping
+    const colorStyles = {
+        "red-600":    { border: "group-hover:border-red-600/30",     mesh: "bg-red-600/5",     label: "bg-red-600",     btn: "hover:bg-red-600" },
+        "indigo-500": { border: "group-hover:border-indigo-500/30",  mesh: "bg-indigo-500/5",  label: "bg-indigo-600",  btn: "hover:bg-indigo-600" },
+        "violet-500": { border: "group-hover:border-violet-500/30",  mesh: "bg-violet-500/5",  label: "bg-violet-600",  btn: "hover:bg-violet-600" },
+        "rose-500":   { border: "group-hover:border-rose-500/30",    mesh: "bg-rose-500/5",    label: "bg-rose-600",    btn: "hover:bg-rose-600" },
+        "amber-500":  { border: "group-hover:border-amber-500/30",   mesh: "bg-amber-500/5",   label: "bg-amber-600",   btn: "hover:bg-amber-600" },
+        "emerald-500":{ border: "group-hover:border-emerald-500/30", mesh: "bg-emerald-500/5", label: "bg-emerald-600", btn: "hover:bg-emerald-600" },
+        "sky-500":    { border: "group-hover:border-sky-500/30",     mesh: "bg-sky-500/5",     label: "bg-sky-600",     btn: "hover:bg-sky-600" },
+        "pink-500":   { border: "group-hover:border-pink-500/30",    mesh: "bg-pink-500/5",    label: "bg-pink-600",    btn: "hover:bg-pink-600" },
+        "orange-500": { border: "group-hover:border-orange-500/30",  mesh: "bg-orange-500/5",  label: "bg-orange-600",  btn: "hover:bg-orange-600" },
+        "default":    { border: "group-hover:border-indigo-500/30",  mesh: "bg-indigo-500/5",  label: "bg-indigo-600",  btn: "hover:bg-indigo-600" },
+    };
+
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-        {/* TEDx SANGAM - Editorial Layout */}
-        <div 
-          onClick={() => navigate("/tedx-tickets")}
-          className="group relative h-[32rem] rounded-[3rem] overflow-hidden cursor-pointer shadow-3xl bg-slate-900 border border-white/5 flex items-end p-10 md:p-14 hover:border-red-600/30 transition-all duration-700"
-        >
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
+        {featuredEvents.map((event) => {
+          const styles = colorStyles[event.accentColor] || colorStyles["default"];
           
-          {/* Animated Background Mesh */}
-          <div className="absolute top-0 right-0 w-full h-full bg-red-600/5 blur-[120px] group-hover:scale-150 transition-transform duration-[2s]"></div>
-          
-          <div className="relative z-20 space-y-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-             <div className="flex items-center gap-3">
-                <span className="bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full">LIVE • Free Entry</span>
-                <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest">SANGAM '26</span>
-             </div>
-             <div>
-                <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-[0.8] mb-4">TEDx<br/><span className="text-red-600">GGSIPU</span></h2>
-                <p className="text-slate-400 text-sm md:text-base font-medium max-w-sm">Where ideas, perspectives, and voices converge to shape the future.</p>
-             </div>
-             <button className="flex items-center gap-4 bg-white text-black pl-8 pr-2 py-2 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all group/btn">
-                Reserve Seat 
-                <div className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-black transition-colors">
-                   <ArrowRight size={16} />
-                </div>
-             </button>
-          </div>
-        </div>
-  
-        {/* AFSANA '24 - Premium Editorial Layout */}
-        <div 
-          onClick={() => navigate("/afsana-tickets")}
-          className="group relative h-[32rem] rounded-[3rem] overflow-hidden cursor-pointer shadow-3xl bg-[#0a0410] border border-white/5 flex items-end p-10 md:p-14 hover:border-indigo-500/30 transition-all duration-700"
-        >
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-[#0a0410]/40 to-transparent z-10"></div>
-          
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none group-hover:bg-indigo-500/20 transition-all duration-1000"></div>
-          
-          <div className="relative z-20 space-y-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-             <div className="flex items-center gap-3">
-                <span className="bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full">Farewell • May 25</span>
-                <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Memories Live Forever</span>
-             </div>
-             <div>
-                <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-[0.8] mb-4 italic">AFSANA<br/><span className="text-indigo-500">'26</span></h2>
-                <p className="text-slate-400 text-sm md:text-base font-medium max-w-sm italic">The final chapter of an era. One night of pure celebration and farewells.</p>
-             </div>
-             <button className="flex items-center gap-4 bg-indigo-600 text-white pl-8 pr-2 py-2 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-white hover:text-black transition-all group/btn">
-                Book Tickets 
-                <div className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center group-hover/btn:bg-indigo-600 group-hover/btn:text-white transition-colors">
-                   <ArrowRight size={16} />
-                </div>
-             </button>
-          </div>
-        </div>
+          return (
+            <div 
+              key={event._id}
+              onClick={() => navigate(`/event/${event._id}`)}
+              className={`group relative h-[32rem] rounded-[3rem] overflow-hidden cursor-pointer shadow-3xl bg-slate-900 border border-white/5 flex items-end p-10 md:p-14 transition-all duration-700 ${styles.border}`}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
+              
+              {/* Animated Background Mesh */}
+              <div className={`absolute top-0 right-0 w-full h-full blur-[120px] group-hover:scale-150 transition-transform duration-[2s] ${styles.mesh}`}></div>
+              
+              <div className="relative z-20 space-y-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                 <div className="flex items-center gap-3">
+                    <span className={`text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full ${styles.label}`}>
+                      {event.featuredLabel || 'Featured Event'}
+                    </span>
+                    <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest">{event.category || 'Special Experience'}</span>
+                 </div>
+                 <div>
+                    <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-[0.8] mb-4">
+                      {event.featuredTitle || event.title}
+                    </h2>
+                    <p className="text-slate-400 text-sm md:text-base font-medium max-w-sm">
+                      {event.featuredSubtitle || event.description}
+                    </p>
+                 </div>
+                 <button className={`flex items-center gap-4 bg-white text-black pl-8 pr-2 py-2 rounded-full font-black text-[10px] uppercase tracking-widest transition-all group/btn ${styles.btn} hover:text-white`}>
+                    View Details 
+                    <div className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-black transition-colors">
+                       <ArrowRight size={16} />
+                    </div>
+                 </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -88,8 +90,10 @@ const FeaturedEventsSection = () => {
 const HomePage = () => {
     const navigate = useNavigate();
     const [premierMovies, setpremierMovies] = useState([]);
+    const [featuredEvents, setFeaturedEvents] = useState([]);
     const [currentAd, setCurrentAd] = useState(0);
     const [selectedCategory, setSelectedCategory] = useState("All Events");
+    const [missingConfig, setMissingConfig] = useState(false);
   
     useEffect(() => {
       const interval = setInterval(() => {
@@ -102,6 +106,12 @@ const HomePage = () => {
       const fetchCurrentEvents = async () => {
         try {
           const { data } = await backendAxios.get(`${API_BASE_URL}/api/events`);
+          
+          if (data && data.missingConfig) {
+             setMissingConfig(true);
+             return;
+          }
+
           const mappedEvents = data.map(event => ({
               ...event,
               original_title: event.title || event.name || 'Untitled Event',
@@ -109,6 +119,10 @@ const HomePage = () => {
               backdrop_path: (event.images && event.images[0]) || event.image || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14'
           }));
           setpremierMovies(mappedEvents);
+          
+          // Fetch Featured Events separately
+          const { data: featuredData } = await backendAxios.get(`${API_BASE_URL}/api/events?featured=true`);
+          if (Array.isArray(featuredData)) setFeaturedEvents(featuredData);
         } catch (err) {
           console.error("Failed to fetch events:", err);
         }
@@ -191,6 +205,25 @@ const HomePage = () => {
               ))}
            </div>
         </div>
+
+        {/* Missing Config Banner */}
+        {missingConfig && (
+          <div className="container mx-auto px-6 mt-16 relative z-30">
+             <div className="bg-amber-500/10 border border-amber-500/30 rounded-3xl p-8 md:p-12 text-center max-w-2xl mx-auto backdrop-blur-md">
+                <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                   <Zap size={32} className="text-amber-500" />
+                </div>
+                <h3 className="text-2xl font-black text-amber-500 uppercase tracking-tight mb-4">Deployment Successful!</h3>
+                <p className="text-slate-300 text-sm md:text-base leading-relaxed">
+                   The frontend application is running perfectly. However, it looks like you haven't connected a database yet.
+                </p>
+                <div className="mt-8 inline-block bg-black/40 px-6 py-4 rounded-2xl border border-white/5 text-left w-full">
+                   <p className="text-xs font-mono text-slate-400 mb-2">// To fix this, add the following to your .env</p>
+                   <p className="text-sm font-mono text-emerald-400">MONGODB_URI="your_mongodb_connection_string"</p>
+                </div>
+             </div>
+          </div>
+        )}
   
         {/* Editorial Category Tabs */}
         <div className="container mx-auto px-6 mt-32 mb-16 relative z-10 overflow-x-auto no-scrollbar">
@@ -218,7 +251,7 @@ const HomePage = () => {
              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Handpicked Experiences</p>
              <div className="h-px flex-1 bg-white/5 mx-8"></div>
           </div>
-          <FeaturedEventsSection />
+          <FeaturedEventsSection featuredEvents={featuredEvents} />
         </div>
   
         {/* Precision Grid Section */}

@@ -12,8 +12,6 @@ export default async function handler(req, res) {
     setCors(req, res);
     if (req.method === 'OPTIONS') { res.statusCode = 200; res.end(); return; }
 
-    await connectDB();
-
     const fullUrl = req.url || '/';
     const url = fullUrl.split('?')[0].replace(/\/+/g, '/').replace(/\/$/, '') || '/';
     const method = req.method || 'GET';
@@ -21,6 +19,8 @@ export default async function handler(req, res) {
     const user = verifyUser(req);
 
     try {
+        await connectDB();
+        
         // -- System Diagnostics --
         if (url.includes('diagnose') && method === 'GET') {
             if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) {
@@ -393,10 +393,14 @@ export default async function handler(req, res) {
                 return json(res, 200, { success: true, recovered: 0, message: "All transactions are currently up to date." });
             }
 
-            const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID || "PGTESTPAYUAT86";
-            const SALT_KEY = process.env.PHONEPE_SALT_KEY || "96434309-7796-489d-8924-ab56988a6076";
-            const SALT_INDEX = process.env.PHONEPE_SALT_INDEX || 1;
-            const ENV_BASE_URL = process.env.PHONEPE_BASE_URL || "https://api-preprod.phonepe.com/apis/pg-sandbox";
+            const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID;
+            const SALT_KEY = process.env.PHONEPE_SALT_KEY;
+            const SALT_INDEX = process.env.PHONEPE_SALT_INDEX;
+            const ENV_BASE_URL = process.env.PHONEPE_BASE_URL;
+
+            if (!MERCHANT_ID || !SALT_KEY || !SALT_INDEX) {
+                return json(res, 500, { success: false, message: "System Configuration Error: PhonePe credentials missing." });
+            }
 
             let recoveredCount = 0;
             let failureCount = 0;
@@ -518,6 +522,9 @@ export default async function handler(req, res) {
 
         return json(res, 404, { message: 'Admin endpoint not matched: ' + url });
     } catch (err) {
+        if (err.missingConfig) {
+             return json(res, 200, { success: false, missingConfig: true, message: 'Database Connection Missing' });
+        }
         console.error('[ADMIN ERROR]:', err);
         return json(res, 500, { message: 'Internal Server Error', error: err.message });
     }
