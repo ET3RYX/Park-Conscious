@@ -1,7 +1,7 @@
 .vercel
-# Build outputs - never commit these, Vercel builds from source
-Events/build/
+# AdminPanel built output - not tracked (served from dist/ via vercel rewrite)
 AdminPanel/dist/
+
 
 frontend/scripts/config.js
 
