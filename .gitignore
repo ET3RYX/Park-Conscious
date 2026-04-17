@@ -1,4 +1,8 @@
 .vercel
+# Build outputs - never commit these, Vercel builds from source
+Events/build/
+AdminPanel/dist/
+
 frontend/scripts/config.js
 
 # Environment variables
