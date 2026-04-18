@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
-  BarChart3, Calendar, Users, Settings, 
+  BarChart, Calendar, Users, Settings, 
   LogOut, Menu, X, Shield, Bell,
-  Search, ChevronRight, Shield, Command
+  Search, ChevronRight, Command
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -66,7 +66,7 @@ const MainLayout = () => {
             {/* Navigation Items */}
             <nav className="space-y-1">
               <div className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.2em] mb-4 ml-1">Management</div>
-              <SidebarItem icon={BarChart3} label="Dashboard" to="/" />
+              <SidebarItem icon={BarChart} label="Dashboard" to="/" />
               <SidebarItem icon={Calendar} label="Events" to="/events" />
               <SidebarItem icon={Users} label="Attendees" to="/attendees" />
               

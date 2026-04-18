@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, Search, Filter, Edit2, Trash2, Calendar, 
   Tag, ChevronRight, MapPin, Activity, 
-  Archive, FileEdit, ExternalLink, Loader2
+  Archive, FileEdit, ExternalLink, RefreshCw
 } from 'lucide-react';
 import { eventService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
@@ -118,7 +118,7 @@ const Events = () => {
       <div className="glass-card rounded-[2.5rem] overflow-hidden">
         {loading ? (
           <div className="h-96 flex flex-col items-center justify-center gap-4">
-            <Loader2 className="text-sky-500/50 animate-spin" size={32} />
+            <RefreshCw className="text-sky-500/50 animate-spin" size={32} />
             <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.3em]">Syncing Repository</span>
           </div>
         ) : filteredEvents.length === 0 ? (

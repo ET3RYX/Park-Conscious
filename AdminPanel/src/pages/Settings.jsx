@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   Users, UserPlus, Trash2, Shield, Mail, Calendar, 
   Search, Filter, Plus, X, Check, ArrowRight,
-  ShieldCheck, AlertCircle, Loader2, MoreVertical,
-  RefreshCw, Copy, CheckCircle2
+  Shield, AlertCircle, RefreshCw, MoreVertical,
+  Copy, CheckCircle
 } from "lucide-react";
 import { userService, eventService } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -129,7 +129,7 @@ const Settings = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <div className="flex items-center gap-2 text-sky-500 text-[10px] font-black uppercase tracking-[0.3em] mb-2">
-            <ShieldCheck size={12} /> System Management
+            <Shield size={12} /> System Management
           </div>
           <h1 className="text-4xl font-black text-white tracking-tighter uppercase flex items-center gap-4">
             Network Registry
@@ -147,7 +147,7 @@ const Settings = () => {
 
       {loading ? (
         <div className="h-96 flex flex-col items-center justify-center gap-4">
-          <Loader2 className="text-sky-600 animate-spin" size={48} />
+          <RefreshCw className="text-sky-600 animate-spin" size={48} />
           <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Accessing Registry</span>
         </div>
       ) : (
@@ -323,7 +323,7 @@ const Settings = () => {
                   disabled={submitting || !form.name || !form.email || !form.password}
                   className="w-full bg-sky-600 hover:bg-sky-500 text-white font-black text-[10px] uppercase tracking-[0.2em] py-5 rounded-2xl transition-all shadow-xl shadow-sky-900/20 disabled:opacity-50 flex items-center justify-center gap-3"
                 >
-                  {submitting ? <Loader2 size={20} className="animate-spin" /> : <ShieldCheck size={20} />}
+                  {submitting ? <RefreshCw size={20} className="animate-spin" /> : <Shield size={20} />}
                   Commit Registration Protocol
                 </button>
                 
@@ -333,7 +333,7 @@ const Settings = () => {
                     onClick={copyCredentials}
                     className="w-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold text-[10px] uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2"
                   >
-                    {copySuccess ? <CheckCircle2 size={12} className="text-emerald-500" /> : <Copy size={12} />}
+                    {copySuccess ? <CheckCircle size={12} className="text-emerald-500" /> : <Copy size={12} />}
                     {copySuccess ? 'Copied to Clipboard' : 'Copy Full Access Hash'}
                   </button>
                 )}
