@@ -1,18 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --backstage-blue: theme('colors.sky.500');
+    --backstage-indigo: theme('colors.indigo-500');
+  }
+
   body {
-    @apply bg-darkBackground-950 text-slate-200 font-sans antialiased selection:bg-primary-500/30;
+    @apply bg-[#050508] text-zinc-400 font-inter antialiased selection:bg-sky-500/30;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-outfit text-zinc-100 tracking-tight;
   }
 }
 
 @layer utilities {
-  .sidebar-shadow {
-    box-shadow: 1px 0 0 0 rgba(255, 255, 255, 0.05);
+  .glass {
+    @apply bg-zinc-950/20 backdrop-blur-xl border border-white/5;
   }
-  .card-border {
-    @apply border border-slate-800 bg-slate-900;
+  .glass-card {
+    @apply bg-zinc-900/40 backdrop-blur-xl border border-white/[0.05] shadow-2xl;
+  }
+  .sidebar-shadow {
+    box-shadow: 1px 0 0 0 rgba(255, 255, 255, 0.03);
+  }
+  .text-glow {
+    text-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
   }
 }

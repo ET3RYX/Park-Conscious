@@ -12,30 +12,28 @@ import { useAuth } from '../context/AuthContext';
 
 const StatsCard = ({ title, value, icon: Icon, color = 'sky', trend }) => {
   const colors = {
-    sky:     'text-sky-500 bg-sky-500/10 border-sky-500/20',
-    emerald: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
-    amber:   'text-amber-500 bg-amber-500/10 border-amber-500/20',
-    violet:  'text-violet-500 bg-violet-500/10 border-violet-500/20',
+    sky:     'text-sky-400 bg-sky-500/5 border-sky-500/10',
+    emerald: 'text-emerald-400 bg-emerald-500/5 border-emerald-500/10',
+    amber:   'text-amber-400 bg-amber-500/5 border-amber-500/10',
+    violet:  'text-violet-400 bg-violet-500/5 border-violet-500/10',
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-slate-700 transition-all group">
-      <div className="flex justify-between items-start">
-        <div className="space-y-1">
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{title}</p>
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-3xl font-bold text-white tracking-tight">{value}</h3>
-            {trend && (
-              <span className={`text-[10px] font-black flex items-center gap-0.5 ${trend > 0 ? 'text-emerald-500' : 'text-slate-500'}`}>
-                {trend > 0 && <ArrowUpRight size={10} />}
-                {trend}%
-              </span>
-            )}
-          </div>
+    <div className="glass-card rounded-[2rem] p-7 group cursor-default">
+      <div className="flex justify-between items-start mb-4">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-all duration-500 group-hover:scale-110 group-hover:bg-white/5 ${colors[color]}`}>
+          <Icon size={18} />
         </div>
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center border transition-all group-hover:scale-110 ${colors[color]}`}>
-          <Icon size={20} />
-        </div>
+        {trend && (
+          <span className={`text-[10px] font-bold flex items-center gap-1 px-2 py-1 rounded-full ${trend > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+            {trend > 0 ? <ArrowUpRight size={10} /> : <TrendingDown size={10} />}
+            {Math.abs(trend)}%
+          </span>
+        )}
+      </div>
+      <div className="space-y-1">
+        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">{title}</p>
+        <h3 className="text-3xl font-bold font-outfit text-zinc-100 tracking-tight">{value}</h3>
       </div>
     </div>
   );
@@ -63,42 +61,42 @@ const CheckInTool = () => {
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 space-y-6">
+    <div className="glass-card rounded-[2.5rem] p-8 space-y-6">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-xl bg-sky-600 flex items-center justify-center shadow-lg shadow-sky-900/20">
-          <ScanLine size={20} className="text-white" />
+        <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center">
+          <ScanLine size={18} className="text-sky-400" />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-white uppercase tracking-widest">Entry Verification</h3>
-          <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1">Live Ticket Validation</p>
+          <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-[0.1em]">Entry Verification</h3>
+          <p className="text-zinc-600 text-[9px] font-bold uppercase tracking-widest mt-0.5">Live Ticket Validation</p>
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-2">
         <input
           value={ticketInput}
           onChange={(e) => setTicketInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleCheckIn()}
           placeholder="ENTER TICKET CREDENTIALS..."
-          className="flex-1 bg-slate-950 border border-slate-800 text-white placeholder:text-slate-700 rounded-xl px-5 py-4 font-mono text-xs focus:outline-none focus:border-sky-500/50 transition-all uppercase tracking-widest"
+          className="flex-1 bg-white/[0.02] border border-white/5 text-zinc-100 placeholder:text-zinc-800 rounded-xl px-5 py-3.5 font-mono text-[10px] focus:outline-none focus:border-sky-500/30 transition-all uppercase tracking-widest"
         />
         <button
           onClick={handleCheckIn}
           disabled={loading || !ticketInput.trim()}
-          className="bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-bold text-[10px] uppercase tracking-[0.2em] px-8 rounded-xl transition-all flex items-center gap-2"
+          className="bg-sky-500 hover:bg-sky-400 disabled:opacity-50 text-[#050508] font-black text-[9px] uppercase tracking-[0.2em] px-6 rounded-xl transition-all flex items-center gap-2"
         >
-          {loading ? <Loader2 size={16} className="animate-spin" /> : <QrCode size={16} />}
+          {loading ? <Loader2 size={14} className="animate-spin" /> : <QrCode size={14} />}
           Validate
         </button>
       </div>
 
       {result && (
-        <div className={`flex items-center gap-3 px-5 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in slide-in-from-top-2 ${
+        <div className={`flex items-center gap-3 px-5 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest border animate-in slide-in-from-top-2 ${
           result.success
-            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-            : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+            ? 'bg-emerald-500/5 border-emerald-500/10 text-emerald-400'
+            : 'bg-red-500/5 border-red-500/10 text-red-400'
         }`}>
-          {result.success ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+          {result.success ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
           {result.message}
         </div>
       )}
@@ -145,40 +143,40 @@ const Dashboard = () => {
     : 0;
 
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       {/* Header Area */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <div className="flex items-center gap-2 text-sky-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">
-            <Activity size={12} /> Live System Status
+          <div className="flex items-center gap-2 text-sky-400 text-[9px] font-bold uppercase tracking-[0.3em] mb-2">
+            <Activity size={10} /> Live System Status
           </div>
-          <h1 className="text-4xl font-black text-white tracking-tighter uppercase flex items-center gap-4">
+          <h1 className="text-3xl font-black text-zinc-100 tracking-tight uppercase flex items-center gap-3">
             System Dashboard
-            <div className="h-1 w-12 bg-sky-600 rounded-full" />
+            <div className="h-[2px] w-8 bg-sky-500 rounded-full opacity-50" />
           </h1>
-          <p className="text-slate-500 text-sm font-medium mt-1">
+          <p className="text-zinc-600 text-xs font-medium mt-1">
             {isSuperAdmin ? 'Global organizational metrics and ticket telemetry.' : 'Assigned event performance and guest data.'}
           </p>
         </div>
         <button
           onClick={fetchAll}
           disabled={loading}
-          className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all disabled:opacity-50"
+          className="flex items-center gap-2 bg-zinc-900/50 hover:bg-zinc-900 border border-white/5 text-zinc-500 hover:text-zinc-200 px-5 py-2 rounded-xl text-[9px] font-bold uppercase tracking-[0.2em] transition-all disabled:opacity-50"
         >
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+          <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
           Force Sync
         </button>
       </div>
 
       {loading && !bookingStats ? (
-        <div className="h-96 flex flex-col items-center justify-center gap-4">
-          <Loader2 className="text-sky-600 animate-spin" size={48} />
-          <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Accessing Data Stream</span>
+        <div className="h-[50vh] flex flex-col items-center justify-center gap-4">
+          <Loader2 className="text-sky-500/50 animate-spin" size={32} />
+          <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.3em]">Accessing Data Stream</span>
         </div>
       ) : (
         <>
           {/* Top Line Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatsCard 
               title="Total Events" 
               value={eventStats.totalEvents} 
@@ -212,36 +210,36 @@ const Dashboard = () => {
             <div className="lg:col-span-1 space-y-8">
               <CheckInTool />
               
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8">
-                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Inventory Breakdown</h4>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-slate-950 border border-slate-800 rounded-2xl">
+              <div className="glass-card rounded-[2.5rem] p-8">
+                <h4 className="text-[9px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-6 ml-1">Inventory Breakdown</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.04] rounded-2xl">
                     <div className="flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      <span className="text-xs font-bold text-slate-200">Active Listings</span>
+                      <div className="w-1 h-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                      <span className="text-[11px] font-bold text-zinc-400">Active Listings</span>
                     </div>
-                    <span className="text-xs font-black text-emerald-500">{eventStats.published}</span>
+                    <span className="text-xs font-black font-outfit text-emerald-400">{eventStats.published}</span>
                   </div>
-                  <div className="flex items-center justify-between p-4 bg-slate-950 border border-slate-800 rounded-2xl">
+                  <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.04] rounded-2xl">
                     <div className="flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
-                      <span className="text-xs font-bold text-slate-200">Draft Protocols</span>
+                      <div className="w-1 h-1 rounded-full bg-zinc-700" />
+                      <span className="text-[11px] font-bold text-zinc-400">Draft Protocols</span>
                     </div>
-                    <span className="text-xs font-black text-slate-400">{eventStats.draft}</span>
+                    <span className="text-xs font-black font-outfit text-zinc-600">{eventStats.draft}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Right Column - Stream */}
-            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-              <div className="px-8 py-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/40">
+            <div className="lg:col-span-2 glass-card rounded-[2.5rem] overflow-hidden">
+              <div className="px-8 py-7 border-b border-white/[0.02] flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-white uppercase tracking-widest">Experience Stream</h3>
-                  <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.1em] mt-1">Live Revenue & Admittance</p>
+                  <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-[0.1em]">Experience Stream</h3>
+                  <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mt-1">Live Revenue & Admittance</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center">
-                  <Users size={16} className="text-slate-400" />
+                <div className="w-9 h-9 rounded-lg bg-zinc-900 border border-white/5 flex items-center justify-center">
+                  <Users size={14} className="text-zinc-500" />
                 </div>
               </div>
 
@@ -249,32 +247,32 @@ const Dashboard = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
-                      <tr className="bg-slate-950/30 text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em] border-b border-slate-800">
+                      <tr className="text-[9px] text-zinc-700 font-bold uppercase tracking-[0.2em] border-b border-white/[0.02]">
                         <th className="px-8 py-5">Assigned Experience</th>
                         <th className="px-8 py-5 text-center">Tickets</th>
                         <th className="px-8 py-5 text-center">Admitted</th>
                         <th className="px-8 py-5 text-right">Revenue</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/50">
+                    <tbody className="divide-y divide-white/[0.02]">
                       {bookingStats.events.map((ev, i) => (
-                        <tr key={ev.eventId || i} className="group hover:bg-slate-800/20 transition-all duration-300">
+                        <tr key={ev.eventId || i} className="group hover:bg-white/[0.01] transition-all duration-300">
                           <td className="px-8 py-6">
                             <div className="flex items-center gap-4">
-                              <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-black text-sky-500 uppercase">
+                              <div className="w-7 h-7 rounded-lg bg-zinc-900 border border-white/5 flex items-center justify-center text-[9px] font-bold text-sky-400 group-hover:border-sky-500/20 transition-all">
                                 {ev.title?.charAt(0)}
                               </div>
-                              <span className="text-sm font-bold text-white group-hover:text-sky-400 transition-colors uppercase tracking-tight">{ev.title || 'Untitled'}</span>
+                              <span className="text-xs font-semibold text-zinc-200 group-hover:text-white transition-colors tracking-tight">{ev.title || 'Untitled'}</span>
                             </div>
                           </td>
-                          <td className="px-8 py-6 text-center font-mono text-xs text-slate-400">{ev.totalTickets}</td>
+                          <td className="px-8 py-6 text-center font-outfit text-xs text-zinc-600">{ev.totalTickets}</td>
                           <td className="px-8 py-6 text-center">
-                            <span className="text-xs font-bold text-emerald-400 font-mono">
+                            <span className="text-xs font-bold text-emerald-500/80 font-outfit">
                               {ev.attended}
                             </span>
                           </td>
                           <td className="px-8 py-6 text-right">
-                            <span className="text-xs font-bold text-white font-mono">₹{ev.revenue.toLocaleString('en-IN')}</span>
+                            <span className="text-xs font-bold text-zinc-200 font-outfit">₹{ev.revenue.toLocaleString('en-IN')}</span>
                           </td>
                         </tr>
                       ))}
@@ -282,14 +280,14 @@ const Dashboard = () => {
                   </table>
                 </div>
               ) : (
-                <div className="p-20 flex flex-col items-center justify-center text-center space-y-6">
-                  <div className="w-20 h-20 rounded-full bg-slate-800/50 border border-slate-800 flex items-center justify-center text-slate-700">
-                    <TrendingDown size={32} />
+                <div className="p-24 flex flex-col items-center justify-center text-center space-y-4">
+                  <div className="w-14 h-14 rounded-full bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-800">
+                    <TrendingDown size={24} />
                   </div>
                   <div className="max-w-xs">
-                    <p className="text-sm font-bold text-slate-400 uppercase tracking-tight">No Active Streams Detected</p>
-                    <p className="text-[10px] text-slate-600 font-medium uppercase tracking-widest mt-2 leading-relaxed">
-                      Attendee records and revenue data will populate once valid bookings occur in the production gateway.
+                    <p className="text-xs font-bold text-zinc-600 uppercase tracking-tight">No Active Streams Detected</p>
+                    <p className="text-[9px] text-zinc-800 font-bold uppercase tracking-widest mt-2 leading-relaxed">
+                      Attendee records and revenue data will populate once valid bookings occur.
                     </p>
                   </div>
                 </div>

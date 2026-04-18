@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EventForm from '../components/EventForm';
 import { eventService } from '../services/api';
-import { ChevronLeft, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, AlertTriangle, Sparkles } from 'lucide-react';
 
 const CreateEvent = () => {
   const [loading, setLoading] = useState(false);
@@ -28,28 +28,31 @@ const CreateEvent = () => {
   };
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <button 
             onClick={() => navigate('/events')}
-            className="flex items-center gap-2 text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-widest mb-4 transition"
+            className="flex items-center gap-2 text-[9px] font-bold text-zinc-600 hover:text-white uppercase tracking-[0.2em] mb-4 transition-all group"
           >
-            <ChevronLeft size={14} /> Back to Repository
+            <ChevronLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> Back to Repository
           </button>
-          <h1 className="text-2xl font-bold text-white tracking-tight uppercase">Deploy New Event</h1>
-          <p className="text-slate-500 text-sm mt-1 font-medium">Initial configuration of a new Park Conscious experience.</p>
+          <h1 className="text-3xl font-black text-zinc-100 tracking-tight uppercase flex items-center gap-3">
+             Initialize Asset
+             <Sparkles size={20} className="text-sky-500/50" />
+          </h1>
+          <p className="text-zinc-600 text-xs font-medium mt-1">Deploying a new high-end experience to the Backstage core.</p>
         </div>
       </div>
       
       {globalError && (
-        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 px-6 py-4 rounded-xl text-sm font-bold flex items-center gap-3 shadow-sm mx-auto max-w-5xl">
-          <AlertTriangle size={20} />
+        <div className="bg-red-500/5 border border-red-500/10 text-red-400 px-6 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest flex items-center gap-3 max-w-4xl">
+          <AlertTriangle size={16} />
           {globalError}
         </div>
       )}
 
-      <div className="bg-slate-900/30 border border-slate-800/50 rounded-[2rem] p-4 md:p-8">
+      <div className="glass-card rounded-[2.5rem] p-6 md:p-10">
         <EventForm onSubmit={handleCreate} loading={loading} />
       </div>
     </div>
