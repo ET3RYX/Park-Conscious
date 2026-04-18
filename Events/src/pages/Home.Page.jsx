@@ -23,7 +23,24 @@ const adCopies = [
 
 const categories = ["All Events", "Concerts", "Festivals", "Summits", "Culture"];
 
-const FeaturedEventsSection = ({ featuredEvents }) => {
+const SkeletonFeaturedEvent = () => (
+  <div className="group relative h-[32rem] rounded-[3rem] overflow-hidden bg-slate-900 border border-white/5 flex items-end p-10 md:p-14 animate-pulse">
+    <div className="absolute inset-0 bg-slate-800/20"></div>
+    <div className="relative z-20 space-y-6 w-full">
+      <div className="flex items-center gap-3">
+        <div className="w-24 h-6 bg-slate-800 rounded-full"></div>
+        <div className="w-32 h-4 bg-slate-800 rounded"></div>
+      </div>
+      <div>
+        <div className="w-3/4 h-12 md:h-16 bg-slate-800 rounded-xl mb-4"></div>
+        <div className="w-1/2 h-4 md:h-5 bg-slate-800 rounded"></div>
+      </div>
+      <div className="w-40 h-10 bg-slate-800 rounded-full"></div>
+    </div>
+  </div>
+);
+
+const FeaturedEventsSection = ({ featuredEvents, isLoading }) => {
     const navigate = useNavigate();
     
     if (!featuredEvents || featuredEvents.length === 0) return null;
@@ -44,7 +61,12 @@ const FeaturedEventsSection = ({ featuredEvents }) => {
 
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-        {featuredEvents.map((event) => {
+        {isLoading ? (
+          <>
+            <SkeletonFeaturedEvent />
+            <SkeletonFeaturedEvent />
+          </>
+        ) : featuredEvents.map((event) => {
           const styles = colorStyles[event.accentColor] || colorStyles["default"];
           
           return (
@@ -89,12 +111,21 @@ const FeaturedEventsSection = ({ featuredEvents }) => {
 
 const HomePage = () => {
     const navigate = useNavigate();
-    const [premierMovies, setpremierMovies] = useState([]);
-    const [featuredEvents, setFeaturedEvents] = useState([]);
+    const [premierMovies, setpremierMovies] = useState(() => {
+        const cached = localStorage.getItem('__cached_events__');
+        return cached ? JSON.parse(cached) : [];
+    });
+    const [featuredEvents, setFeaturedEvents] = useState(() => {
+        const cached = localStorage.getItem('__cached_featured_events__');
+        return cached ? JSON.parse(cached) : [];
+    });
+    const [isInitialLoading, setIsInitialLoading] = useState(() => {
+        return !localStorage.getItem('__cached_events__');
+    });
     const [currentAd, setCurrentAd] = useState(0);
     const [selectedCategory, setSelectedCategory] = useState("All Events");
     const [missingConfig, setMissingConfig] = useState(false);
-  
+
     useEffect(() => {
       const interval = setInterval(() => {
         setCurrentAd((prev) => (prev + 1) % adCopies.length);
@@ -119,12 +150,18 @@ const HomePage = () => {
               backdrop_path: (event.images && event.images[0]) || event.image || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14'
           }));
           setpremierMovies(mappedEvents);
+          localStorage.setItem('__cached_events__', JSON.stringify(mappedEvents));
           
           // Fetch Featured Events separately
           const { data: featuredData } = await backendAxios.get(`${API_BASE_URL}/api/events?featured=true`);
-          if (Array.isArray(featuredData)) setFeaturedEvents(featuredData);
+          if (Array.isArray(featuredData)) {
+              setFeaturedEvents(featuredData);
+              localStorage.setItem('__cached_featured_events__', JSON.stringify(featuredData));
+          }
         } catch (err) {
           console.error("Failed to fetch events:", err);
+        } finally {
+          setIsInitialLoading(false);
         }
       };
       fetchCurrentEvents();
@@ -261,6 +298,7 @@ const HomePage = () => {
             subtitle={selectedCategory === "All Events" ? "Authentic experiences powered by BACKSTAGE" : `Now viewing curated highlights for ${selectedCategory}`}
             posters={filteredEvents}
             isDark={true}
+            isLoading={isInitialLoading}
           />
         </div>
         {/* Discussion Overhaul */}

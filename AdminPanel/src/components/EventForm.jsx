@@ -32,7 +32,8 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
       name: true,
       email: true,
       phone: true
-    }
+    },
+    customForms: []
   });
 
   const [showAdvancedLocation, setShowAdvancedLocation] = useState(false);
@@ -49,6 +50,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
         locationAddress: initialData.location?.address || '',
         lat: initialData.location?.coordinates?.lat || '',
         lng: initialData.location?.coordinates?.lng || '',
+        customForms: initialData.customForms || [],
         category: initialData.category || '',
         isFeatured: initialData.isFeatured || false,
         featuredTitle: initialData.featuredTitle || '',
@@ -351,6 +353,88 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
                   </div>
                 </label>
               ))}
+            </div>
+
+            {/* Custom Dynamic Fields Builder */}
+            <div className="pt-8 border-t border-slate-800">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
+                    <ListPlus className="text-sky-500" size={16} /> Dynamic Data Collection
+                  </h4>
+                  <p className="text-[9px] font-medium text-slate-500 uppercase tracking-widest mt-1">Add custom text inputs for checkout</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({
+                    ...prev,
+                    customForms: [...prev.customForms, { id: Date.now().toString(), label: '', required: false }]
+                  }))}
+                  className="flex items-center gap-2 bg-sky-500/10 hover:bg-sky-500/20 text-sky-500 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] transition-all border border-sky-500/20"
+                >
+                  <PlusCircle size={14} /> Add Field
+                </button>
+              </div>
+
+              {formData.customForms && formData.customForms.length > 0 ? (
+                <div className="space-y-4">
+                  {formData.customForms.map((field, index) => (
+                    <div key={field.id} className="flex items-center gap-4 p-4 bg-slate-950 border border-slate-800 rounded-2xl group animate-in slide-in-from-left-2">
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          placeholder="e.g. University Name, T-Shirt Size"
+                          value={field.label}
+                          onChange={(e) => {
+                            const newForms = [...formData.customForms];
+                            newForms[index].label = e.target.value;
+                            setFormData(prev => ({ ...prev, customForms: newForms }));
+                          }}
+                          className="w-full bg-transparent text-sm text-white focus:outline-none placeholder:text-slate-700 font-medium"
+                        />
+                      </div>
+                      
+                      <label className="flex items-center gap-2 cursor-pointer border-l border-slate-800 pl-4 py-1">
+                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 group-hover:text-amber-500 transition-colors">Required</span>
+                        <div className="relative">
+                          <input 
+                            type="checkbox"
+                            checked={field.required}
+                            onChange={(e) => {
+                              const newForms = [...formData.customForms];
+                              newForms[index].required = e.target.checked;
+                              setFormData(prev => ({ ...prev, customForms: newForms }));
+                            }}
+                            className="sr-only peer"
+                          />
+                          <div className="w-5 h-5 border-2 border-slate-700 rounded-md peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-all flex items-center justify-center">
+                            <svg className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          </div>
+                        </div>
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            customForms: prev.customForms.filter(f => f.id !== field.id)
+                          }));
+                        }}
+                        className="p-2 text-slate-600 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all ml-2"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center p-8 border border-dashed border-slate-800 rounded-2xl bg-slate-950/50">
+                  <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">No custom fields deployed</p>
+                </div>
+              )}
             </div>
           </section>
         </div>

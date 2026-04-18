@@ -47,7 +47,7 @@ const PrevArrow = (props) => {
 };
 
 const PosterSlider = (props) => {
-  const { title, subtitle, posters, isDark } = props;
+  const { title, subtitle, posters, isDark, isLoading } = props;
 
   const settings = {
     infinite: false,
@@ -100,7 +100,15 @@ const PosterSlider = (props) => {
         </p>
       </div>
       <Slider {...settings}>
-        {posters && posters.length > 0 ? (
+        {isLoading ? (
+          [...Array(5)].map((_, index) => (
+             <div key={`skeleton-${index}`} className="px-2">
+                 <div className="w-full h-80 bg-slate-800/80 rounded-[3rem] animate-pulse"></div>
+                 <div className="w-3/4 h-4 bg-slate-800 rounded-full mt-4 animate-pulse mx-2"></div>
+                 <div className="w-1/2 h-3 bg-slate-800 rounded-full mt-2 animate-pulse mx-2"></div>
+             </div>
+          ))
+        ) : posters && posters.length > 0 ? (
           posters.map((each, index) => (
             <Poster {...each} isDark={isDark} key={index} />
           ))

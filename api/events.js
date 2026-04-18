@@ -83,6 +83,7 @@ export default async function handler(req, res) {
                 const params = new URLSearchParams(queryPart || '');
                 if (params.get('featured') === 'true') {
                     const featuredList = await Event.find({ isFeatured: true, status: { $in: ['published', 'Published'] } }).sort({ createdAt: -1 }).lean();
+                    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=86400');
                     return json(res, 200, featuredList.map(normalizeEvent));
                 }
 
@@ -91,6 +92,7 @@ export default async function handler(req, res) {
                 if (!evts.length) {
                     evts = await Event.find().sort({ createdAt: -1 }).limit(20).lean();
                 }
+                res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=86400');
                 return json(res, 200, evts.map(normalizeEvent));
             }
 

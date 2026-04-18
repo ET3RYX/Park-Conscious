@@ -50,6 +50,11 @@ const eventSchema = new mongoose.Schema(
       email: { type: Boolean, default: true },
       phone: { type: Boolean, default: true },
     },
+    customForms: [{
+      id: { type: String, required: true },
+      label: { type: String, required: true },
+      required: { type: Boolean, default: false }
+    }],
     // Backward compatibility for old "Events" project fields
     name: String,
     venue: String,
@@ -143,6 +148,7 @@ const bookingSchema = new mongoose.Schema(
     emailSent: { type: Boolean, default: false },
     screenshotUrl: { type: String, default: null },
     status: { type: String, default: "Confirmed" },
+    customData: { type: mongoose.Schema.Types.Mixed, default: {} },
     date: { type: Date, default: Date.now },
   },
   { timestamps: true }

@@ -299,6 +299,20 @@ const Attendees = () => {
                             {item.user?.email || item.email || 'N/A'}
                             {item.emailSent && <span className="ml-2 py-0.5 px-1.5 rounded bg-emerald-500/10 text-emerald-500 text-[8px] font-black uppercase tracking-widest border border-emerald-500/20">Sent</span>}
                           </p>
+                          {item.customData && Object.keys(item.customData).length > 0 && (
+                            <div className="mt-2 space-y-1.5 border-t border-slate-800 pt-2">
+                              {Object.entries(item.customData).map(([fieldId, value]) => {
+                                const customFieldObj = item.event?.customForms?.find(f => String(f.id) === String(fieldId));
+                                const label = customFieldObj ? customFieldObj.label : fieldId;
+                                return (
+                                  <div key={fieldId} className="flex flex-col gap-0.5">
+                                    <span className="text-[8px] font-black uppercase tracking-widest text-sky-500/70">{label}</span>
+                                    <span className="text-[10px] font-bold text-slate-300 truncate max-w-[150px]">{value}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>

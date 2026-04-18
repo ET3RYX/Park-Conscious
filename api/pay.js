@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         
         // -- Razorpay Payment Initiation --
         if (url.includes('/pay') && !url.includes('/payment-callback') && method === 'POST') {
-            const { name, amount, phone, eventId, orderId, userId, screenshotUrl } = body;
+            const { name, amount, phone, eventId, orderId, userId, screenshotUrl, customData } = body;
             const targetEventId = eventId || orderId;
             const targetUserId = userId || name || "Guest";
             
@@ -76,7 +76,8 @@ export default async function handler(req, res) {
                     status: "Confirmed",
                     phone: phone,
                     email: body.email || null,
-                    ticketId: ticketId
+                    ticketId: ticketId,
+                    customData: customData || {}
                 });
 
                 if (targetEventId && targetEventId.length === 24) {
@@ -108,7 +109,8 @@ export default async function handler(req, res) {
                 screenshotUrl: screenshotUrl || null,
                 status: "Initiated",
                 phone: phone,
-                email: body.email || null
+                email: body.email || null,
+                customData: customData || {}
             });
 
             return json(res, 200, { 

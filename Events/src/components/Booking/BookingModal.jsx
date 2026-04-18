@@ -14,17 +14,20 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
     phone: ""
   });
   
+  const [customData, setCustomData] = useState({});
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   // Pre-fill user data
   useEffect(() => {
-    if (user && isOpen) {
+    if (isOpen) {
       setFormData({
-        name: user.name || "",
-        email: user.email || "",
+        name: user?.name || "",
+        email: user?.email || "",
         phone: ""
       });
+      setCustomData({});
     }
   }, [user, isOpen]);
 
@@ -48,6 +51,15 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
     if (reqFields.email && (!formData.email.trim() || !/^\S+@\S+\.\S+$/.test(formData.email))) return setError("Valid email is required");
     if (reqFields.phone && (!formData.phone || formData.phone.length < 10)) return setError("Valid 10-digit phone number is required");
 
+    // Custom Fields Validation
+    if (event.customForms && event.customForms.length > 0) {
+      for (const field of event.customForms) {
+        if (field.required && !customData[field.id]?.trim()) {
+          return setError(`${field.label} is required`);
+        }
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -58,7 +70,7 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
         amount: event.displayPrice || 0,
         userId: user ? (user.uid || user.id) : (formData.name || "Guest"),
         eventId: event.id || event._id,
-        // We'll add more context if needed
+        customData: customData
       });
 
       if (response.data?.success && response.data?.orderId) {
@@ -225,6 +237,27 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
                         </div>
                       </div>
                     )}
+
+                    {event.customForms && event.customForms.length > 0 && event.customForms.map(field => (
+                      <div key={field.id} className="space-y-3">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-1">
+                          {field.label} {field.required && <span className="text-amber-500">*</span>}
+                        </label>
+                        <div className="relative group">
+                          <div className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 rounded-sm border-2 border-slate-700 group-focus-within:border-white transition-colors flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 bg-slate-700 group-focus-within:bg-white rounded-[1px] transition-colors" />
+                          </div>
+                          <input 
+                            type="text" 
+                            name={field.id} 
+                            value={customData[field.id] || ''} 
+                            onChange={(e) => setCustomData(prev => ({ ...prev, [field.id]: e.target.value }))}
+                            placeholder={`Your ${field.label}`}
+                            className="w-full bg-white/5 border border-white/5 rounded-2xl pl-16 pr-6 py-5 text-white text-sm focus:outline-none focus:border-white/20 transition-all font-medium placeholder:text-slate-500"
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
                   {error && (
