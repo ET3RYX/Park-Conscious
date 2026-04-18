@@ -3,7 +3,7 @@ import {
   Upload, X, MapPin, Calendar, Tag, ShieldCheck, 
   Info, IndianRupee, Users, PlusCircle, 
   ChevronDown, ChevronUp, AlertCircle, Sparkles,
-  Fingerprint, Layout, Monitor, Globe, ListPlus
+  Fingerprint, Layout, Monitor, Globe, PlusCircle
 } from 'lucide-react';
 import { eventService } from '../services/api';
 import { uploadToCloudinary } from '../utils/cloudinary';
@@ -362,7 +362,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
-                    <ListPlus className="text-sky-500" size={16} /> Dynamic Data Collection
+                    <PlusCircle className="text-sky-500" size={16} /> Dynamic Data Collection
                   </h4>
                   <p className="text-[9px] font-medium text-slate-500 uppercase tracking-widest mt-1">Add custom text inputs for checkout</p>
                 </div>

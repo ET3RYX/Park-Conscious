@@ -81,15 +81,18 @@ export default async function handler(req, res) {
                 });
 
                 if (targetEventId && targetEventId.length === 24) {
-                    console.log(`[BOOKING_DEBUG_FREE] Confirming free booking for Event: ${targetEventId}`);
                     const eventBefore = await models.Event.findById(targetEventId).lean();
-                    console.log(`[BOOKING_DEBUG_FREE] Stats BEFORE: Capacity=${eventBefore?.capacity}, Price=${eventBefore?.price}`);
-                    
                     const updateResult = await models.Event.findByIdAndUpdate(targetEventId, { $inc: { capacity: -1 } }, { new: true }).lean();
                     
-                    console.log(`[BOOKING_DEBUG_FREE] Stats AFTER: Capacity=${updateResult?.capacity}, Price=${updateResult?.price}`);
+                    console.log(`[BOOKING_DEBUG_FREE] CID: ${targetEventId}`);
+                    console.log(`[BOOKING_DEBUG_FREE] BEFORE: Cap=${eventBefore?.capacity}, Price=${eventBefore?.price}`);
+                    console.log(`[BOOKING_DEBUG_FREE] AFTER:  Cap=${updateResult?.capacity}, Price=${updateResult?.price}`);
+                    
+                    if (eventBefore && updateResult && eventBefore.price !== updateResult.price) {
+                        console.error(`[CRITICAL_BUG_DETECTED]: Price changed from ${eventBefore.price} to ${updateResult.price} during capacity decrement!`);
+                    }
                 } else {
-                    console.warn(`[BOOKING_DEBUG_FREE] Skipping capacity decrement for non-ObjectId eventId: ${targetEventId}`);
+                    console.warn(`[BOOKING_DEBUG_FREE] Skipping capacity decrement for non-ObjectId: ${targetEventId}`);
                 }
 
                 return json(res, 200, { success: true, redirectUrl: `${redirectBase}/payment-success?txnId=${txId}` });
@@ -159,15 +162,18 @@ export default async function handler(req, res) {
                 );
 
                 if (updatedBooking && updatedBooking.eventId && updatedBooking.eventId.length === 24) {
-                    console.log(`[BOOKING_DEBUG] Confirming booking for Event: ${updatedBooking.eventId}`);
                     const eventBefore = await models.Event.findById(updatedBooking.eventId).lean();
-                    console.log(`[BOOKING_DEBUG] Stats BEFORE: Capacity=${eventBefore?.capacity}, Price=${eventBefore?.price}`);
-                    
                     const updateResult = await models.Event.findByIdAndUpdate(updatedBooking.eventId, { $inc: { capacity: -1 } }, { new: true }).lean();
                     
-                    console.log(`[BOOKING_DEBUG] Stats AFTER: Capacity=${updateResult?.capacity}, Price=${updateResult?.price}`);
+                    console.log(`[BOOKING_DEBUG] CID: ${updatedBooking.eventId}`);
+                    console.log(`[BOOKING_DEBUG] BEFORE: Cap=${eventBefore?.capacity}, Price=${eventBefore?.price}`);
+                    console.log(`[BOOKING_DEBUG] AFTER:  Cap=${updateResult?.capacity}, Price=${updateResult?.price}`);
+
+                    if (eventBefore && updateResult && eventBefore.price !== updateResult.price) {
+                        console.error(`[CRITICAL_BUG_DETECTED]: Price changed from ${eventBefore.price} to ${updateResult.price} during capacity decrement!`);
+                    }
                 } else {
-                    console.warn(`[BOOKING_DEBUG] Skipping capacity decrement for non-ObjectId eventId: ${updatedBooking?.eventId}`);
+                    console.warn(`[BOOKING_DEBUG] Skipping capacity decrement for non-ObjectId: ${updatedBooking?.eventId}`);
                 }
                 
                 return json(res, 200, { success: true, message: "Payment verified successfully", txnId: razorpay_order_id });

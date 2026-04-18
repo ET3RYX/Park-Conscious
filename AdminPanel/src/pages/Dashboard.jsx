@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   BarChart3, Calendar, Users, TrendingUp, Activity,
-  IndianRupee, Ticket, QrCode, ScanLine, CheckCircle2,
+  IndianRupee, Ticket, QrCode, Maximize, CheckCircle2,
   XCircle, Loader2, RefreshCw, ChevronRight,
   TrendingDown,
   ArrowUpRight
@@ -64,7 +64,7 @@ const CheckInTool = () => {
     <div className="glass-card rounded-[2.5rem] p-8 space-y-6">
       <div className="flex items-center gap-4">
         <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center">
-          <ScanLine size={18} className="text-sky-400" />
+          <Maximize size={18} className="text-sky-400" />
         </div>
         <div>
           <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-[0.1em]">Entry Verification</h3>
