@@ -3,7 +3,7 @@ import {
   Search, IndianRupee, Save, Loader2, 
   CheckCircle2, AlertCircle, ChevronRight, 
   Calendar, Fingerprint, Database, Target,
-  RefreshCcw, ShieldAlert
+  RefreshCw, ShieldAlert
 } from 'lucide-react';
 import { eventService } from '../services/api';
 
@@ -91,7 +91,7 @@ const PriceUpdater = () => {
                             <h3 className="text-[10px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-3">
                                 <Search className="text-sky-500" size={16} /> ENTITY SEARCH
                             </h3>
-                            {loading && <RefreshCcw className="animate-spin text-slate-700" size={14} />}
+                            {loading && <RefreshCw className="animate-spin text-slate-700" size={14} />}
                         </div>
                         
                         <div className="relative group">

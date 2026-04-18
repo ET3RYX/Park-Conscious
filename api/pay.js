@@ -81,7 +81,15 @@ export default async function handler(req, res) {
                 });
 
                 if (targetEventId && targetEventId.length === 24) {
-                    await models.Event.findByIdAndUpdate(targetEventId, { $inc: { capacity: -1 } });
+                    console.log(`[BOOKING_DEBUG_FREE] Confirming free booking for Event: ${targetEventId}`);
+                    const eventBefore = await models.Event.findById(targetEventId).lean();
+                    console.log(`[BOOKING_DEBUG_FREE] Stats BEFORE: Capacity=${eventBefore?.capacity}, Price=${eventBefore?.price}`);
+                    
+                    const updateResult = await models.Event.findByIdAndUpdate(targetEventId, { $inc: { capacity: -1 } }, { new: true }).lean();
+                    
+                    console.log(`[BOOKING_DEBUG_FREE] Stats AFTER: Capacity=${updateResult?.capacity}, Price=${updateResult?.price}`);
+                } else {
+                    console.warn(`[BOOKING_DEBUG_FREE] Skipping capacity decrement for non-ObjectId eventId: ${targetEventId}`);
                 }
 
                 return json(res, 200, { success: true, redirectUrl: `${redirectBase}/payment-success?txnId=${txId}` });
@@ -151,7 +159,15 @@ export default async function handler(req, res) {
                 );
 
                 if (updatedBooking && updatedBooking.eventId && updatedBooking.eventId.length === 24) {
-                    await models.Event.findByIdAndUpdate(updatedBooking.eventId, { $inc: { capacity: -1 } });
+                    console.log(`[BOOKING_DEBUG] Confirming booking for Event: ${updatedBooking.eventId}`);
+                    const eventBefore = await models.Event.findById(updatedBooking.eventId).lean();
+                    console.log(`[BOOKING_DEBUG] Stats BEFORE: Capacity=${eventBefore?.capacity}, Price=${eventBefore?.price}`);
+                    
+                    const updateResult = await models.Event.findByIdAndUpdate(updatedBooking.eventId, { $inc: { capacity: -1 } }, { new: true }).lean();
+                    
+                    console.log(`[BOOKING_DEBUG] Stats AFTER: Capacity=${updateResult?.capacity}, Price=${updateResult?.price}`);
+                } else {
+                    console.warn(`[BOOKING_DEBUG] Skipping capacity decrement for non-ObjectId eventId: ${updatedBooking?.eventId}`);
                 }
                 
                 return json(res, 200, { success: true, message: "Payment verified successfully", txnId: razorpay_order_id });

@@ -9,6 +9,7 @@ import PriceUpdater from './pages/PriceUpdater';
 import Attendees from './pages/Attendees';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
+import EditEvent from './pages/EditEvent';
 import { Loader2 } from 'lucide-react';
 
 const PrivateRoute = ({ children }) => {
@@ -57,8 +58,6 @@ class AppErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
-
-import EditEvent from './pages/EditEvent';
 
 function App() {
   return (
