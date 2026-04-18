@@ -31,6 +31,22 @@ api.interceptors.request.use(
   }
 );
 
+// Add a response interceptor to handle expired sessions
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      console.warn('[AXIOS INTERCEPTOR] Session Expired. Clearing cache and redirecting to login.');
+      localStorage.removeItem('adminUser');
+      // If we're not already on the login page, redirect
+      if (window.location.pathname !== '/login') {
+         window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const authService = {
   login: (username, password) => api.post('/api/auth/login', { email: username, password }), // Backend uses email
 };

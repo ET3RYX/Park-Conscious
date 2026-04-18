@@ -3,7 +3,7 @@ import {
   Upload, X, MapPin, Calendar, Tag, ShieldCheck, 
   Info, IndianRupee, Users, PlusCircle, 
   ChevronDown, ChevronUp, AlertCircle, Sparkles,
-  Fingerprint, Layout, Monitor, Globe
+  Fingerprint, Layout, Monitor, Globe, ListPlus
 } from 'lucide-react';
 import { eventService } from '../services/api';
 import { uploadToCloudinary } from '../utils/cloudinary';
@@ -57,6 +57,8 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
         featuredSubtitle: initialData.featuredSubtitle || '',
         featuredLabel: initialData.featuredLabel || '',
         accentColor: initialData.accentColor || 'indigo-500',
+        price: initialData.price ?? initialData.regularPrice ?? 0,
+        capacity: initialData.capacity ?? 0,
         // Ensure requiredFields exists even if database record doesn't have it
         requiredFields: {
           name:  initialData.requiredFields?.name  ?? true,

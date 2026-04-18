@@ -30,8 +30,8 @@ export function normalizeEvent(evt) {
     }
 
     // Pricing Sync
-    e.price = e.price || e.regularPrice || 0;
-    e.regularPrice = e.regularPrice || e.price || 0;
+    e.price = e.price ?? e.regularPrice ?? 0;
+    e.regularPrice = e.regularPrice ?? e.price ?? 0;
     
     // Image Sync
     e.image = e.image || (e.images && e.images[0]) || "";
