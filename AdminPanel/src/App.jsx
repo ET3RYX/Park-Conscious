@@ -10,14 +10,14 @@ import Attendees from './pages/Attendees';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import EditEvent from './pages/EditEvent';
-import { Loader2 } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 
 const PrivateRoute = ({ children }) => {
   const { admin, loading } = useAuth();
   
   if (loading) return (
     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4">
-      <Loader2 className="text-sky-500 animate-spin" size={40} />
+      <RefreshCw className="text-sky-500 animate-spin" size={40} />
       <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Authenticating Session</span>
     </div>
   );

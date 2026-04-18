@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Mail, Lock, Activity, ChevronRight, Loader2, Sparkles } from 'lucide-react';
+import { Shield, Mail, Lock, Activity, ChevronRight, RefreshCw, Star } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
@@ -44,7 +44,7 @@ const Login = () => {
           <div className="flex flex-col items-center mb-14">
             <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center mb-8 shadow-2xl relative group overflow-hidden transition-all hover:border-sky-500/30">
               <div className="absolute inset-0 bg-gradient-to-tr from-sky-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <ShieldCheck className="text-sky-500 relative z-10 group-hover:scale-110 transition-transform duration-700" size={32} />
+              <Shield className="text-sky-500 relative z-10 group-hover:scale-110 transition-transform duration-700" size={32} />
             </div>
             <h1 className="text-3xl font-black text-zinc-100 tracking-tighter uppercase text-center leading-none">
               Backstage
@@ -97,7 +97,7 @@ const Login = () => {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               {loading ? (
-                <Loader2 className="animate-spin" size={18} />
+                <RefreshCw className="animate-spin" size={18} />
               ) : (
                 <>
                   Initialize Session
@@ -113,7 +113,7 @@ const Login = () => {
                   <span className="text-[8px] text-zinc-400 font-bold uppercase tracking-widest">Core Active</span>
               </div>
               <div className="flex items-center gap-2">
-                  <Sparkles size={10} className="text-sky-500" />
+                  <Star size={10} className="text-sky-500" />
                   <span className="text-[8px] text-zinc-400 font-bold uppercase tracking-widest">Backstage v4.2</span>
               </div>
           </div>

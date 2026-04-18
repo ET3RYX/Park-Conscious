@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  BarChart3, Calendar, Users, TrendingUp, Activity,
-  IndianRupee, Ticket, QrCode, Maximize, CheckCircle2,
-  XCircle, Loader2, RefreshCw, ChevronRight,
+  BarChart, Calendar, Users, TrendingUp, Activity,
+  IndianRupee, Ticket, QrCode, Maximize, CheckCircle,
+  XCircle, RefreshCw, ChevronRight,
   TrendingDown,
   ArrowUpRight
 } from 'lucide-react';
@@ -85,7 +85,7 @@ const CheckInTool = () => {
           disabled={loading || !ticketInput.trim()}
           className="bg-sky-500 hover:bg-sky-400 disabled:opacity-50 text-[#050508] font-black text-[9px] uppercase tracking-[0.2em] px-6 rounded-xl transition-all flex items-center gap-2"
         >
-          {loading ? <Loader2 size={14} className="animate-spin" /> : <QrCode size={14} />}
+          {loading ? <RefreshCw size={14} className="animate-spin" /> : <QrCode size={14} />}
           Validate
         </button>
       </div>
@@ -96,7 +96,7 @@ const CheckInTool = () => {
             ? 'bg-emerald-500/5 border-emerald-500/10 text-emerald-400'
             : 'bg-red-500/5 border-red-500/10 text-red-400'
         }`}>
-          {result.success ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+          {result.success ? <CheckCircle size={14} /> : <XCircle size={14} />}
           {result.message}
         </div>
       )}
@@ -170,7 +170,7 @@ const Dashboard = () => {
 
       {loading && !bookingStats ? (
         <div className="h-[50vh] flex flex-col items-center justify-center gap-4">
-          <Loader2 className="text-sky-500/50 animate-spin" size={32} />
+          <RefreshCw className="text-sky-500/50 animate-spin" size={32} />
           <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.3em]">Accessing Data Stream</span>
         </div>
       ) : (
@@ -180,7 +180,7 @@ const Dashboard = () => {
             <StatsCard 
               title="Total Events" 
               value={eventStats.totalEvents} 
-              icon={BarChart3} 
+              icon={BarChart} 
               color="sky" 
               trend={+12}
             />

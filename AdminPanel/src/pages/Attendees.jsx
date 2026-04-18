@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Users, Search, Filter, Download, 
-  CheckCircle2, XCircle, Clock, 
+  CheckCircle, XCircle, Clock, 
   ChevronRight, Calendar, Mail, Ticket, Image,
-  Loader2, RefreshCw, Trash2, History,
+  RefreshCw, Trash2, History,
   Activity, ArrowUpRight
 } from 'lucide-react';
 import { bookingService } from '../services/api';
@@ -18,7 +18,7 @@ const StatusBadge = ({ attended, onToggle, loading }) => (
       ? 'bg-emerald-500/5 text-emerald-500 border border-emerald-500/10' 
       : 'bg-amber-500/5 text-amber-500 border border-amber-500/10'
   } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-white/5'}`}>
-    {loading ? <Loader2 size={10} className="animate-spin" /> : attended ? <CheckCircle2 size={10} /> : <Clock size={10} />}
+    {loading ? <RefreshCw size={10} className="animate-spin" /> : attended ? <CheckCircle size={10} /> : <Clock size={10} />}
     {attended ? 'Verified' : 'Pending'}
   </button>
 );
@@ -262,7 +262,7 @@ const Attendees = () => {
       <div className="glass-card rounded-[2.5rem] overflow-hidden">
         {loading ? (
           <div className="h-96 flex flex-col items-center justify-center gap-4">
-            <Loader2 className="text-sky-500/50 animate-spin" size={32} />
+            <RefreshCw className="text-sky-500/50 animate-spin" size={32} />
             <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.3em]">Accessing Data Stream</span>
           </div>
         ) : filteredData.length > 0 ? (

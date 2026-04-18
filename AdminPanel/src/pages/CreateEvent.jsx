@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EventForm from '../components/EventForm';
 import { eventService } from '../services/api';
-import { ChevronLeft, AlertTriangle, Sparkles } from 'lucide-react';
+import { ChevronLeft, AlertTriangle, Star } from 'lucide-react';
 
 const CreateEvent = () => {
   const [loading, setLoading] = useState(false);
@@ -39,7 +39,7 @@ const CreateEvent = () => {
           </button>
           <h1 className="text-3xl font-black text-zinc-100 tracking-tight uppercase flex items-center gap-3">
              Initialize Asset
-             <Sparkles size={20} className="text-sky-500/50" />
+             <Star size={20} className="text-sky-500/50" />
           </h1>
           <p className="text-zinc-600 text-xs font-medium mt-1">Deploying a new high-end experience to the Backstage core.</p>
         </div>

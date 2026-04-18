@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Search, IndianRupee, Save, Loader2, 
-  CheckCircle2, AlertCircle, ChevronRight, 
-  Calendar, Fingerprint, Database, Target,
+  Search, IndianRupee, Save, RefreshCw, 
+  CheckCircle, AlertCircle, ChevronRight, 
+  Calendar, Lock, HardDrive, Target,
   RefreshCw, ShieldAlert
 } from 'lucide-react';
 import { eventService } from '../services/api';
@@ -73,7 +73,7 @@ const PriceUpdater = () => {
                         Economic Terminal
                     </h1>
                     <p className="text-slate-500 text-[10px] sm:text-[11px] mt-4 font-black uppercase tracking-[0.4em] flex items-center gap-2">
-                        <Database size={14} className="text-sky-500" /> Ticket Tariff Modification Layer
+                        <HardDrive size={14} className="text-sky-500" /> Ticket Tariff Modification Layer
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -213,11 +213,11 @@ const PriceUpdater = () => {
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                                         {updating ? (
-                                            <Loader2 size={20} className="animate-spin" />
+                                            <RefreshCw size={20} className="animate-spin" />
                                         ) : (
                                             <>
                                                 INITIALIZE SYNC
-                                                <Fingerprint size={20} className="group-hover:scale-110 transition-transform" />
+                                                <Lock size={20} className="group-hover:scale-110 transition-transform" />
                                             </>
                                         )}
                                     </button>

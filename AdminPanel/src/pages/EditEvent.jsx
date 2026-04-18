@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import EventForm from '../components/EventForm';
 import { eventService } from '../services/api';
-import { ChevronLeft, Loader2, Sparkles } from 'lucide-react';
+import { ChevronLeft, RefreshCw, Star } from 'lucide-react';
 
 const EditEvent = () => {
   const { id } = useParams();
@@ -41,7 +41,7 @@ const EditEvent = () => {
   if (fetching) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="text-sky-500/50 animate-spin" size={32} />
+        <RefreshCw className="text-sky-500/50 animate-spin" size={32} />
         <p className="text-[9px] font-bold text-zinc-700 uppercase tracking-widest leading-none">Retrieving Record</p>
       </div>
     );
@@ -74,7 +74,7 @@ const EditEvent = () => {
       
       <div className="glass-card rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden">
         <div className="absolute top-0 right-0 p-12 opacity-[0.01] pointer-events-none rotate-12">
-            <Loader2 size={320} className={loading ? 'animate-spin' : ''} />
+            <RefreshCw size={320} className={loading ? 'animate-spin' : ''} />
         </div>
         <EventForm initialData={event} onSubmit={handleUpdate} loading={loading} />
       </div>

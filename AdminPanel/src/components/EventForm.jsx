@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Upload, X, MapPin, Calendar, Tag, ShieldCheck, 
+  Upload, X, MapPin, Calendar, Tag, Shield, 
   Info, IndianRupee, Users, PlusCircle, 
-  ChevronDown, ChevronUp, AlertCircle, Sparkles,
-  Fingerprint, Layout, Monitor, Globe, PlusCircle
+  ChevronDown, ChevronUp, AlertCircle, Star,
+  Lock, Layout, Monitor, Globe, PlusCircle
 } from 'lucide-react';
 import { eventService } from '../services/api';
 import { uploadToCloudinary } from '../utils/cloudinary';
@@ -244,7 +244,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
             <div className="absolute inset-0 bg-gradient-to-br from-violet-950/20 to-transparent pointer-events-none" />
             <div className="flex items-center justify-between relative z-10">
               <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
-                <Sparkles className="text-violet-400" size={20} /> HANDPICKED EXPERIENCES
+                <Star className="text-violet-400" size={20} /> HANDPICKED EXPERIENCES
               </h3>
               <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest bg-slate-950 px-3 py-1 rounded-full border border-slate-800">Section 03 — Featured</span>
             </div>
@@ -323,7 +323,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
           <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 space-y-8 shadow-sm relative overflow-hidden">
             <div className="flex items-center justify-between">
               <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
-                <Fingerprint className="text-sky-500" size={20} /> ENTRY PROTOCOLS
+                <Lock className="text-sky-500" size={20} /> ENTRY PROTOCOLS
               </h3>
               <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest bg-slate-950 px-3 py-1 rounded-full border border-slate-800">Section 04</span>
             </div>
@@ -450,7 +450,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
             </h3>
             <div className="space-y-3">
               {[
-                { id: 'published', label: 'DEPLOY LIVE', description: 'Immediate public visibility', icon: Sparkles },
+                { id: 'published', label: 'DEPLOY LIVE', description: 'Immediate public visibility', icon: Star },
                 { id: 'draft', label: 'INCUBATING', description: 'Internal restricted access', icon: Monitor },
                 { id: 'cancelled', label: 'DEACTIVATED', description: 'Protocol suspended', icon: X }
               ].map(item => (
@@ -546,7 +546,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
               <label className={`w-48 h-48 flex flex-col items-center justify-center border-4 border-dashed border-slate-800 rounded-[2rem] cursor-pointer hover:border-sky-500/50 transition-all group ${uploading ? 'animate-pulse' : ''}`}>
                 <input type="file" className="hidden" onChange={handleImageUpload} disabled={uploading} />
                 <div className="w-16 h-16 rounded-3xl bg-slate-950 border border-slate-800 flex items-center justify-center mb-4 transition-all group-hover:bg-sky-500/10 group-hover:border-sky-500/50 group-hover:scale-110">
-                   {uploading ? <Sparkles size={24} className="text-sky-500 animate-spin" /> : <PlusCircle size={24} className="text-slate-600 group-hover:text-sky-500" />}
+                   {uploading ? <RefreshCw size={24} className="text-sky-500 animate-spin" /> : <PlusCircle size={24} className="text-slate-600 group-hover:text-sky-500" />}
                 </div>
                 <span className="text-[9px] font-black text-slate-600 group-hover:text-sky-500 uppercase tracking-[0.3em]">{uploading ? 'Transmitting...' : 'Link Asset'}</span>
               </label>
@@ -568,7 +568,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
             type="submit" disabled={loading || uploading}
             className="bg-sky-600 hover:bg-sky-500 text-white px-16 py-6 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-sky-900/30 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center gap-3"
           >
-            {loading ? <Fingerprint className="animate-pulse" size={18} /> : (initialData ? 'Synchronize Updates' : (formData.status === 'published' ? 'Execute Deployment' : 'Preserve Protocol'))}
+            {loading ? <Lock className="animate-pulse" size={18} /> : (initialData ? 'Synchronize Updates' : (formData.status === 'published' ? 'Execute Deployment' : 'Preserve Protocol'))}
           </button>
         </div>
       </div>

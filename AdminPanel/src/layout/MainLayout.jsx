@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   BarChart3, Calendar, Users, Settings, 
-  LogOut, Menu, X, ShieldCheck, Bell,
+  LogOut, Menu, X, Shield, Bell,
   Search, ChevronRight, Shield, Command
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
