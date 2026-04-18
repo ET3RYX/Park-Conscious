@@ -3,7 +3,7 @@ import {
   Upload, X, MapPin, Calendar, Tag, Shield, 
   Info, IndianRupee, Users, PlusCircle, 
   ChevronDown, ChevronUp, AlertCircle, Star,
-  Lock, Layout, Monitor, Globe, PlusCircle
+  Lock, Layout, Monitor, Globe
 } from 'lucide-react';
 import { eventService } from '../services/api';
 import { uploadToCloudinary } from '../utils/cloudinary';

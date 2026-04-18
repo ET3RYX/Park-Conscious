@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Users, UserPlus, Trash2, Shield, Mail, Calendar, 
   Search, Filter, Plus, X, Check, ArrowRight,
-  Shield, AlertCircle, RefreshCw, MoreVertical,
+  AlertCircle, RefreshCw, MoreVertical,
   Copy, CheckCircle
 } from "lucide-react";
 import { userService, eventService } from "../services/api";
