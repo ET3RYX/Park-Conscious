@@ -9,6 +9,7 @@
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.1",
     "@testing-library/user-event": "^14.5.2",
+    "@vercel/analytics": "^1.4.1",
     "axios": "^1.13.6",
     "busboy": "^1.6.0",
     "cloudinary": "^2.9.0",
