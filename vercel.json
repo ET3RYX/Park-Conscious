@@ -16,6 +16,36 @@
     { "source": "/api/booking/status/:path*", "destination": "/api/pay.js" },
     { "source": "/api/bookings/:path*", "destination": "/api/pay.js" },
     { "source": "/api/:path*", "destination": "/api/events.js" },
+    {
+      "source": "/sitemap.xml",
+      "has": [{ "type": "host", "value": "events.parkconscious.in" }],
+      "destination": "/Events/build/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "has": [{ "type": "host", "value": "events.parkconscious.in" }],
+      "destination": "/Events/build/robots.txt"
+    },
+    {
+      "source": "/sitemap.xml",
+      "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
+      "destination": "/AdminPanel/dist/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
+      "destination": "/AdminPanel/dist/robots.txt"
+    },
+    {
+      "source": "/sitemap.xml",
+      "has": [{ "type": "host", "value": "www.parkconscious.in" }],
+      "destination": "/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "has": [{ "type": "host", "value": "www.parkconscious.in" }],
+      "destination": "/robots.txt"
+    },
 
     {
       "source": "/admin/events/:path*",
@@ -40,12 +70,12 @@
     },
 
     {
-      "source": "/((?!api/).*)",
+      "source": "/((?!api/|sitemap\\.xml|robots\\.txt).*)",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
       "destination": "/Events/build/index.html"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/((?!api/|sitemap\\.xml|robots\\.txt).*)",
       "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
       "destination": "/AdminPanel/dist/index.html"
     },
@@ -53,6 +83,11 @@
     {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "parkconscious.in" }],
+      "destination": "/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.parkconscious.in" }],
       "destination": "/$1"
     }
   ],
