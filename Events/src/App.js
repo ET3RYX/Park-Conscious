@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { Analytics } from "@vercel/analytics/react";
 import HomePage from "./pages/Home.Page";
 import MoviePage from "./pages/Movie.Page";
 import PlayPage from "./pages/Play.Page";
@@ -20,22 +21,25 @@ import HostPage from "./pages/Host.Page";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/host" element={<HostPage />} />
-      <Route path="/my-bookings" element={<MyBookingsPage />} />
-      <Route path="/movie/:id" element={<MoviePage />} />
-      <Route path="/plays" element={<PlayPage />} />
-      <Route path="/category/:id" element={<CategoryPage />} />
-      <Route path="/discussion/:id" element={<DiscussionPage />} />
-      <Route path="/tedx-tickets" element={<TedxTicketsPage />} />
-      <Route path="/afsana-tickets" element={<AfsanaPage />} />
-      <Route path="/event/:id" element={<EventPage />} />
-      <Route path="/payment-success" element={<SuccessPage />} />
-      <Route path="/payment-failure" element={<FailurePage />} />
-      <Route path="/admin" element={<AdminPage />} />
-      <Route path="*" element={<ErrorPage />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/host" element={<HostPage />} />
+        <Route path="/my-bookings" element={<MyBookingsPage />} />
+        <Route path="/movie/:id" element={<MoviePage />} />
+        <Route path="/plays" element={<PlayPage />} />
+        <Route path="/category/:id" element={<CategoryPage />} />
+        <Route path="/discussion/:id" element={<DiscussionPage />} />
+        <Route path="/tedx-tickets" element={<TedxTicketsPage />} />
+        <Route path="/afsana-tickets" element={<AfsanaPage />} />
+        <Route path="/event/:id" element={<EventPage />} />
+        <Route path="/payment-success" element={<SuccessPage />} />
+        <Route path="/payment-failure" element={<FailurePage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="*" element={<ErrorPage />} />
+      </Routes>
+      <Analytics />
+    </>
   );
 }
 
