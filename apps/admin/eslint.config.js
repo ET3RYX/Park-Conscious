@@ -24,6 +24,7 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { 
+        // Ignore variables starting with uppercase (Components) or underscore
         varsIgnorePattern: '^[A-Z_].*',
         argsIgnorePattern: '^[A-Z_].*',
         caughtErrorsIgnorePattern: '^[A-Z_].*'
