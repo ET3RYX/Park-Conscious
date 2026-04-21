@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Users, UserPlus, Trash2, Shield, Mail, Calendar, 
   Search, Filter, Plus, X, Check, ArrowRight,
@@ -41,7 +41,7 @@ const Settings = () => {
 
   const isSuperAdmin = admin?.role === 'superadmin';
 
-  const fetchRegistry = async (force = false) => {
+  const fetchRegistry = useCallback(async (force = false) => {
     if (force) setLoading(true);
     try {
       const { data } = await userService.getAll();
@@ -53,13 +53,13 @@ const Settings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (isSuperAdmin) {
       fetchRegistry();
     }
-  }, [isSuperAdmin]);
+  }, [isSuperAdmin, fetchRegistry]);
 
   const handleCreate = async (e) => {
     if (e) e.preventDefault();

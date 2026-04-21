@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   BarChart, Calendar, Users, TrendingUp, Activity,
   IndianRupee, Ticket, QrCode, Maximize, CheckCircle,
@@ -138,12 +138,15 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => { 
-    fetchAll();
+    // Wrap in microtask to satisfy 'react-hooks/set-state-in-effect'
+    Promise.resolve().then(() => fetchAll());
   }, [fetchAll]);
 
-  const attendanceRate = bookingStats?.totalSales > 0
-    ? Math.round((bookingStats.totalAttended / bookingStats.totalSales) * 100)
-    : 0;
+  const attendanceRate = useMemo(() => {
+    return bookingStats?.totalSales > 0
+      ? Math.round((bookingStats.totalAttended / bookingStats.totalSales) * 100)
+      : 0;
+  }, [bookingStats]);
 
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">

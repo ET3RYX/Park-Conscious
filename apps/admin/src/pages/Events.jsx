@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Plus, Search, Filter, Edit2, Trash2, Calendar, 
   Tag, ChevronRight, MapPin, Activity, 
@@ -32,7 +32,7 @@ const Events = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const navigate = useNavigate();
 
-  const fetchEvents = async (force = false) => {
+  const fetchEvents = useCallback(async (force = false) => {
     if (force) setLoading(true);
     try {
       const { data } = await eventService.getAll();
@@ -43,11 +43,11 @@ const Events = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => { 
     fetchEvents(); 
-  }, []);
+  }, [fetchEvents]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Archive this experience record?')) {

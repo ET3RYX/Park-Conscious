@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Users, Search, Filter, Download, 
   CheckCircle, XCircle, Clock, 
@@ -38,7 +38,7 @@ const Attendees = () => {
   const [broadcastProgress, setBroadcastProgress] = useState({ current: 0, total: 0 });
   const [syncing, setSyncing] = useState(false);
 
-  const fetchData = async (force = false) => {
+  const fetchData = useCallback(async (force = false) => {
     if (force) setLoading(true);
     try {
       const { data } = await bookingService.getAllAttendees();
@@ -48,11 +48,11 @@ const Attendees = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => { 
     fetchData(); 
-  }, []);
+  }, [fetchData]);
 
   const eventOptions = useMemo(() => {
     if (!Array.isArray(attendees)) return ['all'];
