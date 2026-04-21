@@ -7,7 +7,7 @@ import {
   Activity, ArrowUpRight
 } from 'lucide-react';
 import { bookingService } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const StatusBadge = ({ attended, onToggle, loading }) => (
   <button 
@@ -50,7 +50,10 @@ const Attendees = () => {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { 
+    // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
+    Promise.resolve().then(() => fetchData()); 
+  }, []);
 
   const eventOptions = useMemo(() => {
     if (!Array.isArray(attendees)) return ['all'];

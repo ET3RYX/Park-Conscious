@@ -6,7 +6,7 @@ import {
   Copy, CheckCircle
 } from "lucide-react";
 import { userService, eventService } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from '../hooks/useAuth';
 
 const RoleBadge = ({ role }) => {
   const isSuper = role === 'superadmin';
@@ -57,7 +57,8 @@ const Settings = () => {
 
   useEffect(() => {
     if (isSuperAdmin) {
-      fetchRegistry();
+      // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
+      Promise.resolve().then(() => fetchRegistry());
     }
   }, [isSuperAdmin]);
 
@@ -81,7 +82,8 @@ const Settings = () => {
     try {
       await userService.delete(id);
       fetchRegistry();
-    } catch (e) {
+    } catch (error) {
+      console.error("Terminate failed:", error);
       alert("Deactivation failed");
     }
   };

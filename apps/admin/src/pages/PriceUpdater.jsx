@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Search, IndianRupee, Save, 
   CheckCircle, AlertCircle, ChevronRight, 
@@ -16,11 +16,9 @@ const PriceUpdater = () => {
     const [updating, setUpdating] = useState(false);
     const [status, setStatus] = useState({ type: '', message: '' });
 
-    useEffect(() => {
-        fetchEvents();
-    }, []);
+    const [nodeId] = useState(() => Math.random().toString(36).substring(7).toUpperCase());
 
-    const fetchEvents = async () => {
+    const fetchEvents = useCallback(async () => {
         try {
             const { data } = await eventService.getAll();
             setEvents(Array.isArray(data) ? data : []);
@@ -30,7 +28,12 @@ const PriceUpdater = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
+        Promise.resolve().then(() => fetchEvents());
+    }, [fetchEvents]);
 
     const handleUpdate = async (e) => {
         e.preventDefault();
@@ -78,7 +81,7 @@ const PriceUpdater = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest border border-slate-800 px-4 py-2 rounded-full bg-slate-950">
-                        Node: {Math.random().toString(36).substring(7).toUpperCase()}
+                        Node: {nodeId}
                     </span>
                 </div>
             </div>

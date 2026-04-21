@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   BarChart, Calendar, Users, Settings, 
-  LogOut, Menu, X, Shield, Bell,
-  Search, ChevronRight, Command
+  LogOut, Menu, Shield, Bell,
+  Search
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const SidebarItem = ({ icon: Icon, label, to }) => (
   <NavLink 

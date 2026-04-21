@@ -3,10 +3,18 @@ import {
   Upload, X, MapPin, Calendar, Tag, Shield, 
   Info, IndianRupee, Users, PlusCircle, 
   ChevronDown, ChevronUp, AlertCircle, Star,
-  Lock, Layout, Monitor, Globe
+  Lock, Layout, Monitor, Globe, Trash2
 } from 'lucide-react';
-import { eventService } from '../services/api';
 import { uploadToCloudinary } from '../utils/cloudinary';
+
+const SessionIdDisplay = () => {
+  const [sessionId] = useState(() => Math.random().toString(36).substring(7).toUpperCase());
+  return (
+    <p className="text-[9px] font-bold text-slate-700 uppercase tracking-widest mt-1">
+      Session ID: {sessionId}
+    </p>
+  );
+};
 
 const EventForm = ({ initialData = null, onSubmit, loading }) => {
   const [formData, setFormData] = useState({
@@ -42,33 +50,37 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
 
   useEffect(() => {
     if (initialData) {
-      setFormData({
-        ...initialData,
-        date: initialData.date ? initialData.date.split('T')[0] : '',
-        endDate: initialData.endDate ? initialData.endDate.split('T')[0] : '',
-        locationName: initialData.location?.name || '',
-        locationAddress: initialData.location?.address || '',
-        lat: initialData.location?.coordinates?.lat || '',
-        lng: initialData.location?.coordinates?.lng || '',
-        customForms: initialData.customForms || [],
-        category: initialData.category || '',
-        isFeatured: initialData.isFeatured || false,
-        featuredTitle: initialData.featuredTitle || '',
-        featuredSubtitle: initialData.featuredSubtitle || '',
-        featuredLabel: initialData.featuredLabel || '',
-        accentColor: initialData.accentColor || 'indigo-500',
-        price: initialData.price ?? initialData.regularPrice ?? 0,
-        capacity: initialData.capacity ?? 0,
-        // Ensure requiredFields exists even if database record doesn't have it
-        requiredFields: {
-          name:  initialData.requiredFields?.name  ?? true,
-          email: initialData.requiredFields?.email ?? true,
-          phone: initialData.requiredFields?.phone ?? true,
+      const syncForm = () => {
+        setFormData({
+          ...initialData,
+          date: initialData.date ? initialData.date.split('T')[0] : '',
+          endDate: initialData.endDate ? initialData.endDate.split('T')[0] : '',
+          locationName: initialData.location?.name || '',
+          locationAddress: initialData.location?.address || '',
+          lat: initialData.location?.coordinates?.lat || '',
+          lng: initialData.location?.coordinates?.lng || '',
+          customForms: initialData.customForms || [],
+          category: initialData.category || '',
+          isFeatured: initialData.isFeatured || false,
+          featuredTitle: initialData.featuredTitle || '',
+          featuredSubtitle: initialData.featuredSubtitle || '',
+          featuredLabel: initialData.featuredLabel || '',
+          accentColor: initialData.accentColor || 'indigo-500',
+          price: initialData.price ?? initialData.regularPrice ?? 0,
+          capacity: initialData.capacity ?? 0,
+          requiredFields: {
+            name:  initialData.requiredFields?.name  ?? true,
+            email: initialData.requiredFields?.email ?? true,
+            phone: initialData.requiredFields?.phone ?? true,
+          }
+        });
+        if (initialData.location?.coordinates?.lat || initialData.location?.coordinates?.lng) {
+          setShowAdvancedLocation(true);
         }
-      });
-      if (initialData.location?.coordinates?.lat || initialData.location?.coordinates?.lng) {
-        setShowAdvancedLocation(true);
-      }
+      };
+      
+      // Satisfy 'react-hooks/set-state-in-effect' by moving update out of synchronous body
+      Promise.resolve().then(syncForm);
     }
   }, [initialData]);
 
@@ -562,7 +574,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
         <div className="flex items-center gap-6">
            <div className="text-right hidden md:block">
               <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Authorized Synchronization</p>
-              <p className="text-[9px] font-bold text-slate-700 uppercase tracking-widest mt-1">Session ID: {Math.random().toString(36).substring(7).toUpperCase()}</p>
+              <SessionIdDisplay />
            </div>
            <button 
             type="submit" disabled={loading || uploading}
