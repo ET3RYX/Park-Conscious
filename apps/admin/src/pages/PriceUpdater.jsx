@@ -31,7 +31,7 @@ const PriceUpdater = () => {
     }, []);
 
     useEffect(() => {
-        fetchEvents();
+        Promise.resolve().then(() => fetchEvents());
     }, [fetchEvents]);
 
     const handleUpdate = async (e) => {

@@ -46,7 +46,7 @@ const Events = () => {
   }, []);
 
   useEffect(() => { 
-    fetchEvents(); 
+    Promise.resolve().then(() => fetchEvents());
   }, [fetchEvents]);
 
   const handleDelete = async (id) => {

@@ -51,7 +51,7 @@ const Attendees = () => {
   }, []);
 
   useEffect(() => { 
-    fetchData(); 
+    Promise.resolve().then(() => fetchData());
   }, [fetchData]);
 
   const eventOptions = useMemo(() => {

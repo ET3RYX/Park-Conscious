@@ -57,7 +57,7 @@ const Settings = () => {
 
   useEffect(() => {
     if (isSuperAdmin) {
-      fetchRegistry();
+      Promise.resolve().then(() => fetchRegistry());
     }
   }, [isSuperAdmin, fetchRegistry]);
 
