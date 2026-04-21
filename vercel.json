@@ -19,76 +19,76 @@
     {
       "source": "/sitemap.xml",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
-      "destination": "/Events/build/sitemap.xml"
+      "destination": "/apps/events/build/sitemap.xml"
     },
     {
       "source": "/robots.txt",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
-      "destination": "/Events/build/robots.txt"
+      "destination": "/apps/events/build/robots.txt"
     },
     {
       "source": "/sitemap.xml",
       "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
-      "destination": "/AdminPanel/dist/sitemap.xml"
+      "destination": "/apps/admin/dist/sitemap.xml"
     },
     {
       "source": "/robots.txt",
       "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
-      "destination": "/AdminPanel/dist/robots.txt"
+      "destination": "/apps/admin/dist/robots.txt"
     },
     {
       "source": "/sitemap.xml",
       "has": [{ "type": "host", "value": "www.parkconscious.in" }],
-      "destination": "/sitemap.xml"
+      "destination": "/web/sitemap.xml"
     },
     {
       "source": "/robots.txt",
       "has": [{ "type": "host", "value": "www.parkconscious.in" }],
-      "destination": "/robots.txt"
+      "destination": "/web/robots.txt"
     },
 
     {
       "source": "/admin/events/:path*",
       "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
-      "destination": "/AdminPanel/dist/:path*"
+      "destination": "/apps/admin/dist/:path*"
     },
 
     {
       "source": "/booking-confirmed",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
-      "destination": "/Events/build/index.html"
+      "destination": "/apps/events/build/index.html"
     },
     {
       "source": "/payment-:path*",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
-      "destination": "/Events/build/index.html"
+      "destination": "/apps/events/build/index.html"
     },
     {
       "source": "/payment-:path*",
       "has": [{ "type": "host", "value": "parkconscious.in" }],
-      "destination": "/Events/dist/index.html"
+      "destination": "/apps/events/dist/index.html"
     },
 
     {
       "source": "/((?!api/|sitemap\\.xml|robots\\.txt).*)",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
-      "destination": "/Events/build/index.html"
+      "destination": "/apps/events/build/index.html"
     },
     {
       "source": "/((?!api/|sitemap\\.xml|robots\\.txt).*)",
       "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
-      "destination": "/AdminPanel/dist/index.html"
+      "destination": "/apps/admin/dist/index.html"
     },
 
     {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "parkconscious.in" }],
-      "destination": "/$1"
+      "destination": "/web/$1"
     },
     {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "www.parkconscious.in" }],
-      "destination": "/$1"
+      "destination": "/web/$1"
     }
   ],
   "headers": [

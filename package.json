@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "workspaces": [
-    "Events",
-    "AdminPanel"
+    "apps/events",
+    "apps/admin"
   ],
   "scripts": {
-    "start": "npm start --workspace=Events",
-    "dev:admin": "npm run dev --workspace=AdminPanel",
-    "build": "mkdir -p public && cp *.html favicon.ico favicon.png sitemap.xml robots.txt public/ 2>/dev/null || true && cp -r assets scripts styles public/ 2>/dev/null || true && cp -r owner public/ 2>/dev/null || true && DISABLE_ESLINT_PLUGIN=true npm run build --workspaces",
+    "start": "npm start --workspace=apps/events",
+    "dev:admin": "npm run dev --workspace=apps/admin",
+    "build": "mkdir -p public && cp web/*.html web/favicon.ico web/favicon.png web/sitemap.xml web/robots.txt public/ 2>/dev/null || true && cp -r web/assets web/scripts web/styles public/ 2>/dev/null || true && cp -r web/owner public/ 2>/dev/null || true && DISABLE_ESLINT_PLUGIN=true npm run build --workspaces",
     "dev:backend": "node local-server.js"
   },
   "devDependencies": {
