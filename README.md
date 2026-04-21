@@ -33,6 +33,18 @@ The project is organized into a modular structure to improve maintainability and
 
 ---
 
+## 🚀 Vercel Deployment Note (CRITICAL)
+
+Because of the folder reorganization, you **must** update the **Root Directory** settings in your Vercel Dashboard for each project:
+
+1.  **Events Project**: Set Root Directory to `apps/events`.
+2.  **Admin Project**: Set Root Directory to `apps/admin`.
+3.  **Main/Root Project**: Keep Root Directory as `.` (root).
+
+After updating these settings, trigger a **manual redeploy** to apply the changes.
+
+---
+
 ## 🚦 Getting Started
 
 ### Prerequisites
@@ -57,15 +69,6 @@ The project is organized into a modular structure to improve maintainability and
 4.  **Run Frontend Apps**:
     -   **Admin Panel**: `npm run dev:admin`
     -   **Events Portal**: `cd apps/events && npm start`
-
----
-
-## 🚀 Deployment
-
-The project is optimized for deployment on **Vercel**.
-
--   **Subdomain Routing**: Managed via `vercel.json`.
--   **Build Process**: The root `npm run build` command automatically gathers static files from `web/` and builds all workspaces into their respective production directories.
 
 ---
 
