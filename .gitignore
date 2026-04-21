@@ -6,10 +6,8 @@ AdminPanel/dist/
 frontend/scripts/config.js
 
 # Environment variables
-.env
-.env.local
-backend/.env
-backend/.env.local
+.env*
+!.env.example
 
 # Dependencies
 node_modules/
