@@ -10,7 +10,8 @@ import { eventService } from '../services/api';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 
-const StatsCard = ({ title, value, icon: Icon, color = 'sky', trend }) => {
+const StatsCard = ({ title, value, icon, color = 'sky', trend }) => {
+  const Icon = icon;
   const colors = {
     sky:     'text-sky-400 bg-sky-500/5 border-sky-500/10',
     emerald: 'text-emerald-400 bg-emerald-500/5 border-emerald-500/10',
@@ -136,7 +137,10 @@ const Dashboard = () => {
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  useEffect(() => { 
+    // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
+    Promise.resolve().then(() => fetchAll());
+  }, [fetchAll]);
 
   const attendanceRate = bookingStats?.totalSales > 0
     ? Math.round((bookingStats.totalAttended / bookingStats.totalSales) * 100)

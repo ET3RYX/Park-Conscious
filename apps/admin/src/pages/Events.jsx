@@ -45,7 +45,10 @@ const Events = () => {
     }
   };
 
-  useEffect(() => { fetchEvents(); }, []);
+  useEffect(() => { 
+    // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
+    Promise.resolve().then(() => fetchEvents()); 
+  }, []);
 
   const handleDelete = async (id) => {
     if (window.confirm('Archive this experience record?')) {

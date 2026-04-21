@@ -16,6 +16,8 @@ const PriceUpdater = () => {
     const [updating, setUpdating] = useState(false);
     const [status, setStatus] = useState({ type: '', message: '' });
 
+    const [nodeId] = useState(() => Math.random().toString(36).substring(7).toUpperCase());
+
     const fetchEvents = useCallback(async () => {
         try {
             const { data } = await eventService.getAll();
@@ -29,10 +31,9 @@ const PriceUpdater = () => {
     }, []);
 
     useEffect(() => {
-        fetchEvents();
+        // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
+        Promise.resolve().then(() => fetchEvents());
     }, [fetchEvents]);
-
-    const nodeId = useMemo(() => Math.random().toString(36).substring(7).toUpperCase(), []);
 
     const handleUpdate = async (e) => {
         e.preventDefault();

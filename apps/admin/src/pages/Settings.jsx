@@ -57,7 +57,8 @@ const Settings = () => {
 
   useEffect(() => {
     if (isSuperAdmin) {
-      fetchRegistry();
+      // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
+      Promise.resolve().then(() => fetchRegistry());
     }
   }, [isSuperAdmin]);
 

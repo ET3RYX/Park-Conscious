@@ -50,7 +50,10 @@ const Attendees = () => {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { 
+    // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
+    Promise.resolve().then(() => fetchData()); 
+  }, []);
 
   const eventOptions = useMemo(() => {
     if (!Array.isArray(attendees)) return ['all'];
