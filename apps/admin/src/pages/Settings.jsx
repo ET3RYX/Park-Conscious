@@ -82,7 +82,8 @@ const Settings = () => {
     try {
       await userService.delete(id);
       fetchRegistry();
-    } catch (_e) {
+    } catch (error) {
+      console.error("Terminate failed:", error);
       alert("Deactivation failed");
     }
   };
