@@ -4,7 +4,7 @@ Welcome to **Park Conscious**, a smart parking and event management platform des
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 The project is organized into a modular structure to improve maintainability and scalability.
 
@@ -33,7 +33,7 @@ The project is organized into a modular structure to improve maintainability and
 
 ---
 
-## 🚀 Vercel Deployment Note (CRITICAL)
+## Vercel Deployment Note (CRITICAL)
 
 Because of the folder reorganization, you **must** update the **Root Directory** settings in your Vercel Dashboard for each project:
 
@@ -45,7 +45,7 @@ After updating these settings, trigger a **manual redeploy** to apply the change
 
 ---
 
-## 🚦 Getting Started
+## Getting Started
 
 ### Prerequisites
 -   **Node.js**: v18 or later
@@ -72,7 +72,7 @@ After updating these settings, trigger a **manual redeploy** to apply the change
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 -   **Frontend**: React (Apps), Vanilla HTML5/JS (Landing Page)
 -   **Styling**: Tailwind CSS, AOS (Animations)
@@ -83,7 +83,7 @@ After updating these settings, trigger a **manual redeploy** to apply the change
 
 ---
 
-## 📜 System Documentation
+## System Documentation
 
 For a deep dive into the API architecture and data flow, please refer to:
 - [SYSTEM_DOCUMENTATION.md](SYSTEM_DOCUMENTATION.md)
