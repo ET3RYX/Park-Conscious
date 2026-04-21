@@ -50,37 +50,32 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
 
   useEffect(() => {
     if (initialData) {
-      const syncForm = () => {
-        setFormData({
-          ...initialData,
-          date: initialData.date ? initialData.date.split('T')[0] : '',
-          endDate: initialData.endDate ? initialData.endDate.split('T')[0] : '',
-          locationName: initialData.location?.name || '',
-          locationAddress: initialData.location?.address || '',
-          lat: initialData.location?.coordinates?.lat || '',
-          lng: initialData.location?.coordinates?.lng || '',
-          customForms: initialData.customForms || [],
-          category: initialData.category || '',
-          isFeatured: initialData.isFeatured || false,
-          featuredTitle: initialData.featuredTitle || '',
-          featuredSubtitle: initialData.featuredSubtitle || '',
-          featuredLabel: initialData.featuredLabel || '',
-          accentColor: initialData.accentColor || 'indigo-500',
-          price: initialData.price ?? initialData.regularPrice ?? 0,
-          capacity: initialData.capacity ?? 0,
-          requiredFields: {
-            name:  initialData.requiredFields?.name  ?? true,
-            email: initialData.requiredFields?.email ?? true,
-            phone: initialData.requiredFields?.phone ?? true,
-          }
-        });
-        if (initialData.location?.coordinates?.lat || initialData.location?.coordinates?.lng) {
-          setShowAdvancedLocation(true);
+      setFormData({
+        ...initialData,
+        date: initialData.date ? initialData.date.split('T')[0] : '',
+        endDate: initialData.endDate ? initialData.endDate.split('T')[0] : '',
+        locationName: initialData.location?.name || '',
+        locationAddress: initialData.location?.address || '',
+        lat: initialData.location?.coordinates?.lat || '',
+        lng: initialData.location?.coordinates?.lng || '',
+        customForms: initialData.customForms || [],
+        category: initialData.category || '',
+        isFeatured: initialData.isFeatured || false,
+        featuredTitle: initialData.featuredTitle || '',
+        featuredSubtitle: initialData.featuredSubtitle || '',
+        featuredLabel: initialData.featuredLabel || '',
+        accentColor: initialData.accentColor || 'indigo-500',
+        price: initialData.price ?? initialData.regularPrice ?? 0,
+        capacity: initialData.capacity ?? 0,
+        requiredFields: {
+          name:  initialData.requiredFields?.name  ?? true,
+          email: initialData.requiredFields?.email ?? true,
+          phone: initialData.requiredFields?.phone ?? true,
         }
-      };
-      
-      // Satisfy 'react-hooks/set-state-in-effect' by moving update out of synchronous body
-      Promise.resolve().then(syncForm);
+      });
+      if (initialData.location?.coordinates?.lat || initialData.location?.coordinates?.lng) {
+        setShowAdvancedLocation(true);
+      }
     }
   }, [initialData]);
 

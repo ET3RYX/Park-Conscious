@@ -31,8 +31,7 @@ const PriceUpdater = () => {
     }, []);
 
     useEffect(() => {
-        // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
-        Promise.resolve().then(() => fetchEvents());
+        fetchEvents();
     }, [fetchEvents]);
 
     const handleUpdate = async (e) => {

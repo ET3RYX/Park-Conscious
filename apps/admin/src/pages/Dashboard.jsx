@@ -113,8 +113,8 @@ const Dashboard = () => {
   const [bookingStats, setBookingStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
+  const fetchAll = useCallback(async (force = false) => {
+    if (force) setLoading(true);
     try {
       const { data } = await eventService.getAll();
       if (Array.isArray(data)) {
@@ -138,8 +138,7 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => { 
-    // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
-    Promise.resolve().then(() => fetchAll());
+    fetchAll();
   }, [fetchAll]);
 
   const attendanceRate = bookingStats?.totalSales > 0
@@ -163,7 +162,7 @@ const Dashboard = () => {
           </p>
         </div>
         <button
-          onClick={fetchAll}
+          onClick={() => fetchAll(true)}
           disabled={loading}
           className="flex items-center gap-2 bg-zinc-900/50 hover:bg-zinc-900 border border-white/5 text-zinc-500 hover:text-zinc-200 px-5 py-2 rounded-xl text-[9px] font-bold uppercase tracking-[0.2em] transition-all disabled:opacity-50"
         >

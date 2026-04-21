@@ -38,8 +38,8 @@ const Attendees = () => {
   const [broadcastProgress, setBroadcastProgress] = useState({ current: 0, total: 0 });
   const [syncing, setSyncing] = useState(false);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (force = false) => {
+    if (force) setLoading(true);
     try {
       const { data } = await bookingService.getAllAttendees();
       setAttendees(data || []);
@@ -51,8 +51,7 @@ const Attendees = () => {
   };
 
   useEffect(() => { 
-    // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
-    Promise.resolve().then(() => fetchData()); 
+    fetchData(); 
   }, []);
 
   const eventOptions = useMemo(() => {
@@ -171,7 +170,7 @@ const Attendees = () => {
         
         <div className="flex items-center gap-2">
           <button 
-            onClick={fetchData}
+            onClick={() => fetchData(true)}
             className="p-2.5 bg-zinc-900/50 border border-white/5 text-zinc-500 hover:text-white rounded-xl transition-all"
             disabled={loading}
           >
