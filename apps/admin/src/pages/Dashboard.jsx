@@ -2,13 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   BarChart, Calendar, Users, TrendingUp, Activity,
   IndianRupee, Ticket, QrCode, Maximize, CheckCircle,
-  XCircle, RefreshCw, ChevronRight,
+  XCircle, RefreshCw,
   TrendingDown,
   ArrowUpRight
 } from 'lucide-react';
 import { eventService } from '../services/api';
 import api from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const StatsCard = ({ title, value, icon: Icon, color = 'sky', trend }) => {
   const colors = {

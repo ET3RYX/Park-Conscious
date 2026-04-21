@@ -6,7 +6,7 @@ import {
   Copy, CheckCircle
 } from "lucide-react";
 import { userService, eventService } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from '../hooks/useAuth';
 
 const RoleBadge = ({ role }) => {
   const isSuper = role === 'superadmin';
@@ -81,7 +81,7 @@ const Settings = () => {
     try {
       await userService.delete(id);
       fetchRegistry();
-    } catch (e) {
+    } catch (_e) {
       alert("Deactivation failed");
     }
   };

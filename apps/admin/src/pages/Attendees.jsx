@@ -7,7 +7,7 @@ import {
   Activity, ArrowUpRight
 } from 'lucide-react';
 import { bookingService } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const StatusBadge = ({ attended, onToggle, loading }) => (
   <button 

@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { eventService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const EventStatusBadge = ({ status }) => {
   const styles = {

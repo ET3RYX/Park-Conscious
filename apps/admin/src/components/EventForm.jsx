@@ -1,12 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Upload, X, MapPin, Calendar, Tag, Shield, 
   Info, IndianRupee, Users, PlusCircle, 
   ChevronDown, ChevronUp, AlertCircle, Star,
-  Lock, Layout, Monitor, Globe
+  Lock, Layout, Monitor, Globe, Trash2
 } from 'lucide-react';
-import { eventService } from '../services/api';
 import { uploadToCloudinary } from '../utils/cloudinary';
+
+const SessionIdDisplay = () => {
+  const sessionId = useMemo(() => Math.random().toString(36).substring(7).toUpperCase(), []);
+  return (
+    <p className="text-[9px] font-bold text-slate-700 uppercase tracking-widest mt-1">
+      Session ID: {sessionId}
+    </p>
+  );
+};
 
 const EventForm = ({ initialData = null, onSubmit, loading }) => {
   const [formData, setFormData] = useState({
@@ -562,7 +570,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
         <div className="flex items-center gap-6">
            <div className="text-right hidden md:block">
               <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Authorized Synchronization</p>
-              <p className="text-[9px] font-bold text-slate-700 uppercase tracking-widest mt-1">Session ID: {Math.random().toString(36).substring(7).toUpperCase()}</p>
+              <SessionIdDisplay />
            </div>
            <button 
             type="submit" disabled={loading || uploading}
