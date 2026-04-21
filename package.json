@@ -10,6 +10,7 @@
     "start": "npm start --workspace=apps/events",
     "dev:admin": "npm run dev --workspace=apps/admin",
     "build": "mkdir -p public && cp web/*.html web/favicon.ico web/favicon.png web/sitemap.xml web/robots.txt public/ 2>/dev/null || true && cp -r web/assets web/scripts web/styles public/ 2>/dev/null || true && cp -r web/owner public/ 2>/dev/null || true && DISABLE_ESLINT_PLUGIN=true npm run build --workspaces",
+    "lint": "npm run lint --workspaces --if-present",
     "dev:backend": "node local-server.js"
   },
   "devDependencies": {
