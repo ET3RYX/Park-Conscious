@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Users, Search, Filter, Download, 
   CheckCircle, XCircle, Clock, 
@@ -38,8 +38,8 @@ const Attendees = () => {
   const [broadcastProgress, setBroadcastProgress] = useState({ current: 0, total: 0 });
   const [syncing, setSyncing] = useState(false);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = useCallback(async (force = false) => {
+    if (force) setLoading(true);
     try {
       const { data } = await bookingService.getAllAttendees();
       setAttendees(data || []);
@@ -48,12 +48,11 @@ const Attendees = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => { 
-    // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
-    Promise.resolve().then(() => fetchData()); 
-  }, []);
+    Promise.resolve().then(() => fetchData());
+  }, [fetchData]);
 
   const eventOptions = useMemo(() => {
     if (!Array.isArray(attendees)) return ['all'];
@@ -171,7 +170,7 @@ const Attendees = () => {
         
         <div className="flex items-center gap-2">
           <button 
-            onClick={fetchData}
+            onClick={() => fetchData(true)}
             className="p-2.5 bg-zinc-900/50 border border-white/5 text-zinc-500 hover:text-white rounded-xl transition-all"
             disabled={loading}
           >

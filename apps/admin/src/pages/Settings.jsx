@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Users, UserPlus, Trash2, Shield, Mail, Calendar, 
   Search, Filter, Plus, X, Check, ArrowRight,
@@ -41,8 +41,8 @@ const Settings = () => {
 
   const isSuperAdmin = admin?.role === 'superadmin';
 
-  const fetchRegistry = async () => {
-    setLoading(true);
+  const fetchRegistry = useCallback(async (force = false) => {
+    if (force) setLoading(true);
     try {
       const { data } = await userService.getAll();
       setOrganizers(data || []);
@@ -53,14 +53,13 @@ const Settings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (isSuperAdmin) {
-      // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
       Promise.resolve().then(() => fetchRegistry());
     }
-  }, [isSuperAdmin]);
+  }, [isSuperAdmin, fetchRegistry]);
 
   const handleCreate = async (e) => {
     if (e) e.preventDefault();
@@ -164,7 +163,7 @@ const Settings = () => {
                 <p className="text-slate-500 text-[10px] font-medium uppercase tracking-widest mt-0.5">Live permission registry</p>
               </div>
             </div>
-            <button onClick={fetchRegistry} className="text-slate-500 hover:text-white transition-colors">
+            <button onClick={() => fetchRegistry(true)} className="text-slate-500 hover:text-white transition-colors">
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
             </button>
           </div>

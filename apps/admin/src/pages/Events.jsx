@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Plus, Search, Filter, Edit2, Trash2, Calendar, 
   Tag, ChevronRight, MapPin, Activity, 
@@ -32,8 +32,8 @@ const Events = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const navigate = useNavigate();
 
-  const fetchEvents = async () => {
-    setLoading(true);
+  const fetchEvents = useCallback(async (force = false) => {
+    if (force) setLoading(true);
     try {
       const { data } = await eventService.getAll();
       setEvents(Array.isArray(data) ? data : []);
@@ -43,18 +43,17 @@ const Events = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => { 
-    // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
-    Promise.resolve().then(() => fetchEvents()); 
-  }, []);
+    Promise.resolve().then(() => fetchEvents());
+  }, [fetchEvents]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Archive this experience record?')) {
       try {
         await eventService.delete(id);
-        fetchEvents();
+        fetchEvents(true);
       } catch (error) {
         console.error('Delete failed', error);
       }

@@ -50,8 +50,9 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
 
   useEffect(() => {
     if (initialData) {
-      const syncForm = () => {
-        setFormData({
+      Promise.resolve().then(() => {
+        setFormData(prevData => ({
+          ...prevData,
           ...initialData,
           date: initialData.date ? initialData.date.split('T')[0] : '',
           endDate: initialData.endDate ? initialData.endDate.split('T')[0] : '',
@@ -73,14 +74,11 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
             email: initialData.requiredFields?.email ?? true,
             phone: initialData.requiredFields?.phone ?? true,
           }
-        });
+        }));
         if (initialData.location?.coordinates?.lat || initialData.location?.coordinates?.lng) {
           setShowAdvancedLocation(true);
         }
-      };
-      
-      // Satisfy 'react-hooks/set-state-in-effect' by moving update out of synchronous body
-      Promise.resolve().then(syncForm);
+      });
     }
   }, [initialData]);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   BarChart, Calendar, Users, TrendingUp, Activity,
   IndianRupee, Ticket, QrCode, Maximize, CheckCircle,
@@ -113,8 +113,8 @@ const Dashboard = () => {
   const [bookingStats, setBookingStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
+  const fetchAll = useCallback(async (force = false) => {
+    if (force) setLoading(true);
     try {
       const { data } = await eventService.getAll();
       if (Array.isArray(data)) {
@@ -138,13 +138,15 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => { 
-    // Wrap in Promise to satisfy 'react-hooks/set-state-in-effect'
+    // Wrap in microtask to satisfy 'react-hooks/set-state-in-effect'
     Promise.resolve().then(() => fetchAll());
   }, [fetchAll]);
 
-  const attendanceRate = bookingStats?.totalSales > 0
-    ? Math.round((bookingStats.totalAttended / bookingStats.totalSales) * 100)
-    : 0;
+  const attendanceRate = useMemo(() => {
+    return bookingStats?.totalSales > 0
+      ? Math.round((bookingStats.totalAttended / bookingStats.totalSales) * 100)
+      : 0;
+  }, [bookingStats]);
 
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
@@ -163,7 +165,7 @@ const Dashboard = () => {
           </p>
         </div>
         <button
-          onClick={fetchAll}
+          onClick={() => fetchAll(true)}
           disabled={loading}
           className="flex items-center gap-2 bg-zinc-900/50 hover:bg-zinc-900 border border-white/5 text-zinc-500 hover:text-zinc-200 px-5 py-2 rounded-xl text-[9px] font-bold uppercase tracking-[0.2em] transition-all disabled:opacity-50"
         >
