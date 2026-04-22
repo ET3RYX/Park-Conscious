@@ -132,6 +132,7 @@ const DiscussionPage = () => {
   });
 
   const fetchData = useCallback(async () => {
+    try {
       const [disRes, comRes] = await Promise.all([
         fetch(`/api/discussions/details?id=${id}`),
         fetch(`/api/discussions/comments?id=${id}`),
