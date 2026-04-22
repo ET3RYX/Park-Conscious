@@ -45,7 +45,7 @@ const NewPostForm = ({ onClose, onSuccess, preselectedMovie = null }) => {
     setError("");
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/discussions`, {
+      const res = await fetch(`/api/discussions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

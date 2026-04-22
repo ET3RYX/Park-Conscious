@@ -23,7 +23,7 @@ const RequestEventModal = ({ isOpen, onClose }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/event-request`, formData);
+      const response = await axios.post(`/api/event-request`, formData);
       if (response.data.success) {
         alert("Success! Your event proposal has been submitted.");
         setFormData({ eventName: '', description: '', contactName: '', contactEmail: '' });

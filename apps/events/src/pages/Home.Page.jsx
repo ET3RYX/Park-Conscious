@@ -136,7 +136,7 @@ const HomePage = () => {
     useEffect(() => {
       const fetchCurrentEvents = async () => {
         try {
-          const { data } = await backendAxios.get(`${API_BASE_URL}/api/events`);
+          const { data } = await backendAxios.get(`/api/events`);
           
           if (data && data.missingConfig) {
              setMissingConfig(true);
@@ -153,7 +153,7 @@ const HomePage = () => {
           localStorage.setItem('__cached_events__', JSON.stringify(mappedEvents));
           
           // Fetch Featured Events separately
-          const { data: featuredData } = await backendAxios.get(`${API_BASE_URL}/api/events?featured=true`);
+          const { data: featuredData } = await backendAxios.get(`/api/events?featured=true`);
           if (Array.isArray(featuredData)) {
               setFeaturedEvents(featuredData);
               localStorage.setItem('__cached_featured_events__', JSON.stringify(featuredData));
