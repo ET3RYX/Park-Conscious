@@ -55,10 +55,10 @@ const MainLayout = () => {
               </div>
               <div>
                 <h1 className="font-bold text-zinc-100 tracking-tighter text-sm uppercase">
-                  {isSuperAdmin ? 'System' : 'Backstage'}
+                  Park Conscious
                 </h1>
                 <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-[0.2em]">
-                  {isSuperAdmin ? 'Core Console' : 'Partner Hub'}
+                  {isSuperAdmin ? 'Admin Dashboard' : 'Organizer Portal'}
                 </p>
               </div>
             </div>
@@ -72,8 +72,8 @@ const MainLayout = () => {
               
               {isSuperAdmin && (
                 <>
-                  <div className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.2em] mt-8 mb-4 ml-1">Infrastructure</div>
-                  <SidebarItem icon={Settings} label="User Registry" to="/settings" />
+                  <div className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.2em] mt-8 mb-4 ml-1">Team</div>
+                  <SidebarItem icon={Settings} label="Settings" to="/settings" />
                 </>
               )}
             </nav>
@@ -112,7 +112,7 @@ const MainLayout = () => {
             </button>
             <div className="hidden md:flex items-center gap-2 group cursor-pointer border border-white/[0.05] bg-zinc-900/40 rounded-lg px-3 py-1.5 transition-all hover:bg-zinc-900/60">
               <Search size={12} className="text-zinc-600" />
-              <span className="text-[10px] font-medium text-zinc-500">Search system...</span>
+              <span className="text-[10px] font-medium text-zinc-500">Search...</span>
               <kbd className="ml-8 px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-600 text-[8px] font-bold border border-white/5">⌘K</kbd>
             </div>
           </div>
@@ -120,7 +120,7 @@ const MainLayout = () => {
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/5">
               <div className="w-1 h-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-              <span className="text-[8px] font-bold text-emerald-500/80 uppercase tracking-widest">Protocol Active</span>
+              <span className="text-[8px] font-bold text-emerald-500/80 uppercase tracking-widest">System Online</span>
             </div>
             <button className="p-2 text-zinc-500 hover:text-white transition-colors relative">
               <Bell size={18} />

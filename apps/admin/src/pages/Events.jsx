@@ -74,21 +74,20 @@ const Events = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <div className="flex items-center gap-2 text-sky-400 text-[9px] font-bold uppercase tracking-[0.3em] mb-2">
-            <Activity size={10} /> Asset Repository
+            <Activity size={10} /> Events Overview
           </div>
           <h1 className="text-3xl font-black text-zinc-100 tracking-tight uppercase flex items-center gap-3">
-            Experience Hub
-            <div className="h-[2px] w-8 bg-sky-500 rounded-full opacity-50" />
+            Events
           </h1>
           <p className="text-zinc-600 text-xs font-medium mt-1">
-            {isSuperAdmin ? 'Global registry of organizational assets.' : 'Active management of assigned experiences.'}
+            {isSuperAdmin ? 'Manage all platform events.' : 'Active management of assigned experiences.'}
           </p>
         </div>
         <button 
           onClick={() => navigate('/events/create')}
           className="bg-sky-500 hover:bg-sky-400 text-zinc-950 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2 shadow-xl shadow-sky-900/10 active:scale-[0.98]"
         >
-          <Plus size={16} /> Deploy Asset
+          <Plus size={16} /> Create Event
         </button>
       </div>
 
@@ -98,7 +97,7 @@ const Events = () => {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-700" size={14} />
           <input 
             type="text" 
-            placeholder="Search Protocol or Venue..."
+            placeholder="Search Events or Venues..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-white/[0.02] border border-white/[0.03] text-zinc-200 pl-11 pr-4 py-3 rounded-xl focus:outline-none focus:border-sky-500/20 transition-all font-mono text-[10px] uppercase tracking-widest"
@@ -121,7 +120,7 @@ const Events = () => {
         {loading ? (
           <div className="h-96 flex flex-col items-center justify-center gap-4">
             <RefreshCw className="text-sky-500/50 animate-spin" size={32} />
-            <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.3em]">Syncing Repository</span>
+            <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.3em]">Loading Events...</span>
           </div>
         ) : filteredEvents.length === 0 ? (
           <div className="p-32 flex flex-col items-center justify-center text-center space-y-4">
@@ -129,9 +128,9 @@ const Events = () => {
               <Archive size={24} />
             </div>
             <div className="max-w-xs">
-              <p className="text-xs font-bold text-zinc-600 uppercase tracking-tight">No Experiences Detected</p>
+              <p className="text-xs font-bold text-zinc-600 uppercase tracking-tight">No Events Found</p>
               <p className="text-[9px] text-zinc-800 font-bold uppercase tracking-widest mt-2 leading-relaxed">
-                Repository is initialized empty or matching filters failed.
+                Try adjusting your search filters or create a new event.
               </p>
             </div>
           </div>
@@ -140,9 +139,9 @@ const Events = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="text-[9px] text-zinc-700 font-bold uppercase tracking-[0.2em] border-b border-white/[0.02]">
-                  <th className="px-8 py-5">Entity Details</th>
-                  <th className="px-8 py-5">Deployment Metadata</th>
-                  <th className="px-8 py-5">Shared Logic</th>
+                  <th className="px-8 py-5">Event Details</th>
+                  <th className="px-8 py-5">Date & Location</th>
+                  <th className="px-8 py-5">Team</th>
                   <th className="px-8 py-5 text-right w-32 px-12"></th>
                 </tr>
               </thead>
