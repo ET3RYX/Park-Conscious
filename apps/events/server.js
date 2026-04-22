@@ -11,17 +11,17 @@ app.use(express.static("public"));
 
 // ─── Sandbox Credentials ─────────────────────────────────────────────────────
 const MERCHANT_ID = "PGTESTPAYUAT86";
-const SALT_KEY    = "96434309-7796-489d-8924-ab56988a6076";
-const SALT_INDEX  = 1;
-const BASE_URL    = "https://api-preprod.phonepe.com/apis/pg-sandbox";
-const APP_URL     = "http://localhost:3000";
+const SALT_KEY = "96434309-7796-489d-8924-ab56988a6076";
+const SALT_INDEX = 1;
+const BASE_URL = "https://api-preprod.phonepe.com/apis/pg-sandbox";
+const APP_URL = "http://localhost:3000";
 // ─────────────────────────────────────────────────────────────────────────────
 
 
 // ─── Helper: Generate Checksum ───────────────────────────────────────────────
 function generateChecksum(base64Payload, endpoint) {
   const hashInput = base64Payload + endpoint + SALT_KEY;
-  const sha256    = crypto.createHash("sha256").update(hashInput).digest("hex");
+  const sha256 = crypto.createHash("sha256").update(hashInput).digest("hex");
   return `${sha256}###${SALT_INDEX}`;
 }
 // ─────────────────────────────────────────────────────────────────────────────
@@ -54,31 +54,31 @@ app.post("/api/pay", async (req, res) => {
     const amountInPaise = parseInt(amount) * 100;
 
     const payload = {
-      merchantId:            MERCHANT_ID,
+      merchantId: MERCHANT_ID,
       merchantTransactionId: merchantTransactionId,
-      merchantUserId:        "USER_" + phone,
-      amount:                amountInPaise,
-      redirectUrl:           `${APP_URL}/payment-callback?txnId=${merchantTransactionId}`,
-      redirectMode:          "REDIRECT",
-      callbackUrl:           `${APP_URL}/callback`,
-      mobileNumber:          phone,
+      merchantUserId: "USER_" + phone,
+      amount: amountInPaise,
+      redirectUrl: `${APP_URL}/payment-callback?txnId=${merchantTransactionId}`,
+      redirectMode: "REDIRECT",
+      callbackUrl: `${APP_URL}/callback`,
+      mobileNumber: phone,
       paymentInstrument: {
         type: "PAY_PAGE"
       }
     };
 
     const base64Payload = Buffer.from(JSON.stringify(payload)).toString("base64");
-    const checksum      = generateChecksum(base64Payload, "/pg/v1/pay");
+    const checksum = generateChecksum(base64Payload, "/pg/v1/pay");
 
     const response = await axios.post(
       `${BASE_URL}/pg/v1/pay`,
       { request: base64Payload },
       {
         headers: {
-          "Content-Type":  "application/json",
-          "X-VERIFY":       checksum,
-          "X-MERCHANT-ID":  MERCHANT_ID,
-          "accept":         "application/json"
+          "Content-Type": "application/json",
+          "X-VERIFY": checksum,
+          "X-MERCHANT-ID": MERCHANT_ID,
+          "accept": "application/json"
         }
       }
     );
@@ -87,8 +87,8 @@ app.post("/api/pay", async (req, res) => {
 
     if (success && data?.instrumentResponse?.redirectInfo?.url) {
       return res.json({
-        success:       true,
-        redirectUrl:   data.instrumentResponse.redirectInfo.url,
+        success: true,
+        redirectUrl: data.instrumentResponse.redirectInfo.url,
         transactionId: merchantTransactionId
       });
     } else {
@@ -104,17 +104,17 @@ app.post("/api/pay", async (req, res) => {
 
 // ─── Helper: Check Payment Status with PhonePe ───────────────────────────────
 async function checkPaymentStatus(txnId) {
-  const endpoint  = `/pg/v1/status/${MERCHANT_ID}/${txnId}`;
+  const endpoint = `/pg/v1/status/${MERCHANT_ID}/${txnId}`;
   const hashInput = endpoint + SALT_KEY;
-  const sha256    = crypto.createHash("sha256").update(hashInput).digest("hex");
-  const checksum  = `${sha256}###${SALT_INDEX}`;
+  const sha256 = crypto.createHash("sha256").update(hashInput).digest("hex");
+  const checksum = `${sha256}###${SALT_INDEX}`;
 
   const response = await axios.get(`${BASE_URL}${endpoint}`, {
     headers: {
-      "Content-Type":  "application/json",
-      "X-VERIFY":       checksum,
-      "X-MERCHANT-ID":  MERCHANT_ID,
-      "accept":         "application/json"
+      "Content-Type": "application/json",
+      "X-VERIFY": checksum,
+      "X-MERCHANT-ID": MERCHANT_ID,
+      "accept": "application/json"
     }
   });
 
@@ -175,7 +175,7 @@ async function handlePaymentCallback(req, res) {
   }
 }
 
-app.get("/payment-callback",  handlePaymentCallback);
+app.get("/payment-callback", handlePaymentCallback);
 app.post("/payment-callback", handlePaymentCallback);
 // ─────────────────────────────────────────────────────────────────────────────
 

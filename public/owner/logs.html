@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Logs | Park Conscious</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+          --primary: #00C39A;
+          --primary-dark: #00A683;
+          --slate-900: #0F172A;
+          --slate-800: #1E293B;
+          --slate-600: #475569;
+          --slate-500: #64748B;
+          --slate-400: #94A3B8;
+          --slate-100: #F1F5F9;
+          --slate-50: #F8FAFC;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: var(--slate-900);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--slate-900);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 195, 154, 0.2);
+        }
+    </style>
+</head>
+
+<body class="bg-white text-slate-900 h-screen flex overflow-hidden">
+
+    <!-- Mobile Sidebar Drawer -->
+    <div id="mobile-sidebar" class="fixed inset-0 z-[100] hidden">
+        <div id="mobile-sidebar-overlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0"></div>
+        <div id="mobile-sidebar-drawer" class="absolute left-0 top-0 h-full w-[280px] glass-panel bg-white flex flex-col translate-x-full transition-transform duration-300 border-r border-slate-200">
+            <div class="h-16 flex items-center justify-between px-6 border-b border-slate-200">
+                <div class="flex items-center">
+                    <div class="relative w-8 h-8 mr-3 flex items-center justify-center bg-white rounded-lg shadow-sm overflow-hidden">
+                        <img src="../assets/logo.jpg" alt="Logo" class="w-full h-full object-cover">
+                    </div>
+                    <span class="text-base font-bold text-slate-900 tracking-tight">Park <span class="text-[#00C39A]">Owner</span></span>
+                </div>
+                <button id="mobile-sidebar-close" class="p-2 text-slate-400 hover:text-slate-900">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50">Dashboard</a>
+                <a href="logs.html" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-[#00C39A]/10 text-slate-900 font-medium">Access Logs</a>
+                <a href="add-parking.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">Add Parking</a>
+            </nav>
+            <div class="p-4 border-t border-slate-200">
+                <button onclick="window.location.href='index.html'" class="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-red-600 hover:bg-red-50 transition-colors text-sm font-medium">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar (Desktop) -->
+    <aside class="w-64 glass-panel flex-none hidden md:flex flex-col">
+        <div class="h-16 flex items-center px-6 border-b border-slate-200 cursor-pointer" onclick="window.location.href='../index.html'">
+            <div class="relative w-8 h-8 mr-3 flex items-center justify-center bg-white rounded-lg shadow-sm overflow-hidden">
+                <img src="../assets/logo.jpg" alt="Logo" class="w-full h-full object-cover opacity-90">
+            </div>
+            <span class="text-lg font-bold text-slate-900 tracking-tight">Park <span class="text-[#00C39A]">Owner</span></span>
+        </div>
+
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                Dashboard
+            </a>
+            <a href="logs.html" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-[#00C39A]/10 text-slate-900 font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Access Logs
+            </a>
+            <a href="add-parking.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Parking
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Analytics
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-200">
+            <button onclick="window.location.href='index.html'" class="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-red-600 hover:bg-red-50 transition-colors text-sm font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Logout
+            </button>
+        </div>
+    </aside>
+                    class=\"text-[#00C39A]\">Owner</span></span>
+        </div>
+
+        <nav class=\"flex-1 p-4 space-y-2\">
+            <a href=\"dashboard.html\"
+                class=\"flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors\">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                Dashboard
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-[#00C39A]/10 text-slate-900 font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Access Logs
+            </a>
+            <a href="add-parking.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Parking
+            </a>
+            <a href="#"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Analytics
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-200">
+            <button onclick="window.location.href='index.html'"
+                class="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-red-600 hover:bg-red-50 transition-colors text-sm font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto relative">
+        <header class="h-16 flex items-center justify-between px-4 md:px-8 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-10">
+            <div class="flex items-center gap-4">
+                <button id="mobile-sidebar-open" class="md:hidden p-1 text-slate-600 hover:text-slate-900">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <h2 class="text-base md:text-xl font-bold text-slate-900">Live Access Logs</h2>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span class="text-[10px] md:text-sm text-slate-600 uppercase tracking-widest font-bold">Scanner Online</span>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 max-w-7xl mx-auto">
+            <div class="glass-card rounded-xl overflow-x-auto">
+        <div class="p-4 md:p-8 max-w-7xl mx-auto">
+            <div class="glass-card rounded-xl overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-slate-200 bg-slate-50">
+                            <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Time</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Plate Number
+                            </th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Location</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsBody" class="divide-y divide-slate-200">
+                        <!-- Logs will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function fetchLogs() {
+            try {
+                // Determine API URL
+                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const API_URL = isLocal ? (window.location.port === '3000' ? '/api/logs' : 'http://localhost:5050/api/logs') : '/api/logs';
+
+                const response = await fetch(API_URL);
+                const data = await response.json();
+
+                const body = document.getElementById('logsBody');
+                body.innerHTML = '';
+
+                data.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-white/5 transition-colors';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 text-sm text-gray-300 font-mono">${new Date(log.timestamp).toLocaleString()}</td>
+                        <td class="px-6 py-4">
+                            <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1 rounded-md font-bold tracking-widest uppercase">
+                                ${log.plateNumber}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-400">${log.location}</td>
+                        <td class="px-6 py-4">
+                            <span class="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full">Detected</span>
+                        </td>
+                    `;
+                    body.appendChild(row);
+                });
+
+                if (data.length === 0) {
+                    body.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500">No detections logged yet...</td></tr>';
+                }
+            } catch (error) {
+                console.error('Failed to fetch logs:', error);
+            }
+        }
+
+        // Poll for new logs every 5 seconds
+        fetchLogs();
+        setInterval(fetchLogs, 5000);
+        // Mobile sidebar logic
+        const openBtn = document.getElementById('mobile-sidebar-open');
+        const closeBtn = document.getElementById('mobile-sidebar-close');
+        const overlay = document.getElementById('mobile-sidebar-overlay');
+        const sidebar = document.getElementById('mobile-sidebar');
+        const drawer = document.getElementById('mobile-sidebar-drawer');
+
+        function openSidebar() {
+            sidebar.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                drawer.classList.remove('translate-x-full');
+            }, 10);
+        }
+
+        function closeSidebar() {
+            overlay.classList.add('opacity-0');
+            drawer.classList.add('translate-x-full');
+            setTimeout(() => {
+                sidebar.classList.add('hidden');
+            }, 300);
+        }
+
+        openBtn?.addEventListener('click', openSidebar);
+        closeBtn?.addEventListener('click', closeSidebar);
+        overlay?.addEventListener('click', closeSidebar);
+    </script>
+</body>
+
+</html>
