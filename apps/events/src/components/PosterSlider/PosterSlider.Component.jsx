@@ -9,14 +9,14 @@ const NextArrow = (props) => {
 
   return (
     <div
-      className={`absolute top-0 bottom-0 right-0 w-20 md:w-32 z-10 flex flex-col justify-center items-end group cursor-pointer bg-gradient-to-l from-[#050507] via-[#050507]/80 to-transparent transition-opacity duration-300 pointer-events-none ${disabled ? 'opacity-0' : 'opacity-100'}`}
+      className={`absolute top-0 bottom-0 right-0 w-12 md:w-32 z-10 flex flex-col justify-center items-end group cursor-pointer bg-gradient-to-l from-[#050507] via-[#050507]/80 to-transparent transition-opacity duration-300 pointer-events-none ${disabled ? 'opacity-0' : 'opacity-100'}`}
       style={{ ...style, display: "flex" }} // Override slick's block display
     >
       <div 
-        className="w-10 h-10 md:w-12 md:h-12 mr-2 md:mr-6 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all shadow-xl group-hover:scale-110 pointer-events-auto"
+        className="w-8 h-8 md:w-12 md:h-12 mr-1 md:mr-6 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all shadow-xl group-hover:scale-110 pointer-events-auto"
         onClick={onClick}
       >
-         <ChevronRight className="w-6 h-6" />
+         <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
       </div>
     </div>
   );
@@ -28,14 +28,14 @@ const PrevArrow = (props) => {
 
   return (
     <div
-       className={`absolute top-0 bottom-0 left-0 w-20 md:w-32 z-10 flex flex-col justify-center items-start group cursor-pointer bg-gradient-to-r from-[#050507] via-[#050507]/80 to-transparent transition-opacity duration-300 pointer-events-none ${disabled ? 'opacity-0' : 'opacity-100'}`}
+       className={`absolute top-0 bottom-0 left-0 w-12 md:w-32 z-10 flex flex-col justify-center items-start group cursor-pointer bg-gradient-to-r from-[#050507] via-[#050507]/80 to-transparent transition-opacity duration-300 pointer-events-none ${disabled ? 'opacity-0' : 'opacity-100'}`}
        style={{ ...style, display: "flex" }} // Override slick's block display
     >
       <div 
-        className="w-10 h-10 md:w-12 md:h-12 ml-2 md:ml-6 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all shadow-xl group-hover:scale-110 pointer-events-auto"
+        className="w-8 h-8 md:w-12 md:h-12 ml-1 md:ml-6 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all shadow-xl group-hover:scale-110 pointer-events-auto"
         onClick={onClick}
       >
-         <ChevronLeft className="w-6 h-6" />
+         <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
       </div>
     </div>
   );
@@ -73,7 +73,7 @@ const PosterSlider = (props) => {
       {
         breakpoint: 480,
         settings: {
-          slidesToShow: 1,
+          slidesToShow: 1.15,
           slidesToScroll: 1,
         },
       },
