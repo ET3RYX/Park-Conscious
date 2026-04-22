@@ -1,48 +1,43 @@
 import React from "react";
 import Slider from "react-slick";
 import Poster from "../Poster/Poster.Component";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 
 const NextArrow = (props) => {
   const { className, style, onClick } = props;
+  const disabled = className?.includes("slick-disabled");
+
   return (
     <div
-      className={className}
-      style={{
-        ...style,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(0, 0, 0, 0.7)",
-        borderRadius: "50%",
-        zIndex: 10,
-        right: "10px",
-        width: "30px",
-        height: "30px"
-      }}
-      onClick={onClick}
-    />
+      className={`absolute top-0 bottom-0 right-0 w-20 md:w-32 z-10 flex flex-col justify-center items-end group cursor-pointer bg-gradient-to-l from-[#050507] via-[#050507]/80 to-transparent transition-opacity duration-300 pointer-events-none ${disabled ? 'opacity-0' : 'opacity-100'}`}
+      style={{ ...style, display: "flex" }} // Override slick's block display
+    >
+      <div 
+        className="w-10 h-10 md:w-12 md:h-12 mr-2 md:mr-6 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all shadow-xl group-hover:scale-110 pointer-events-auto"
+        onClick={onClick}
+      >
+         <ChevronRight className="w-6 h-6" />
+      </div>
+    </div>
   );
 };
 
 const PrevArrow = (props) => {
   const { className, style, onClick } = props;
+  const disabled = className?.includes("slick-disabled");
+
   return (
     <div
-      className={className}
-      style={{
-        ...style,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(0, 0, 0, 0.7)",
-        borderRadius: "50%",
-        zIndex: 10,
-        left: "10px",
-        width: "30px",
-        height: "30px"
-      }} // Explicitly position over the content
-      onClick={onClick}
-    />
+       className={`absolute top-0 bottom-0 left-0 w-20 md:w-32 z-10 flex flex-col justify-center items-start group cursor-pointer bg-gradient-to-r from-[#050507] via-[#050507]/80 to-transparent transition-opacity duration-300 pointer-events-none ${disabled ? 'opacity-0' : 'opacity-100'}`}
+       style={{ ...style, display: "flex" }} // Override slick's block display
+    >
+      <div 
+        className="w-10 h-10 md:w-12 md:h-12 ml-2 md:ml-6 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all shadow-xl group-hover:scale-110 pointer-events-auto"
+        onClick={onClick}
+      >
+         <ChevronLeft className="w-6 h-6" />
+      </div>
+    </div>
   );
 };
 
