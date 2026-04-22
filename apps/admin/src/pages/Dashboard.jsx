@@ -68,8 +68,8 @@ const CheckInTool = () => {
           <Maximize size={18} className="text-sky-400" />
         </div>
         <div>
-          <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-[0.1em]">Entry Verification</h3>
-          <p className="text-zinc-600 text-[9px] font-bold uppercase tracking-widest mt-0.5">Live Ticket Validation</p>
+          <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-[0.1em]">Ticket Scanner</h3>
+          <p className="text-zinc-600 text-[9px] font-bold uppercase tracking-widest mt-0.5">Enter Ticket ID</p>
         </div>
       </div>
 
@@ -78,7 +78,7 @@ const CheckInTool = () => {
           value={ticketInput}
           onChange={(e) => setTicketInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleCheckIn()}
-          placeholder="ENTER TICKET CREDENTIALS..."
+          placeholder="ENTER TICKET ID..."
           className="flex-1 bg-white/[0.02] border border-white/5 text-zinc-100 placeholder:text-zinc-800 rounded-xl px-5 py-3.5 font-mono text-[10px] focus:outline-none focus:border-sky-500/30 transition-all uppercase tracking-widest"
         />
         <button
@@ -154,14 +154,13 @@ const Dashboard = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <div className="flex items-center gap-2 text-sky-400 text-[9px] font-bold uppercase tracking-[0.3em] mb-2">
-            <Activity size={10} /> Live System Status
+            <Activity size={10} /> Overview
           </div>
           <h1 className="text-3xl font-black text-zinc-100 tracking-tight uppercase flex items-center gap-3">
-            System Dashboard
-            <div className="h-[2px] w-8 bg-sky-500 rounded-full opacity-50" />
+            Dashboard
           </h1>
           <p className="text-zinc-600 text-xs font-medium mt-1">
-            {isSuperAdmin ? 'Global organizational metrics and ticket telemetry.' : 'Assigned event performance and guest data.'}
+            {isSuperAdmin ? 'Global metrics and ticket sales.' : 'Your event performance and guest data.'}
           </p>
         </div>
         <button
@@ -170,14 +169,14 @@ const Dashboard = () => {
           className="flex items-center gap-2 bg-zinc-900/50 hover:bg-zinc-900 border border-white/5 text-zinc-500 hover:text-zinc-200 px-5 py-2 rounded-xl text-[9px] font-bold uppercase tracking-[0.2em] transition-all disabled:opacity-50"
         >
           <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
-          Force Sync
+          Refresh Data
         </button>
       </div>
 
       {loading && !bookingStats ? (
         <div className="h-[50vh] flex flex-col items-center justify-center gap-4">
           <RefreshCw className="text-sky-500/50 animate-spin" size={32} />
-          <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.3em]">Accessing Data Stream</span>
+          <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.3em]">Loading Dashboard...</span>
         </div>
       ) : (
         <>
@@ -217,7 +216,7 @@ const Dashboard = () => {
               <CheckInTool />
               
               <div className="glass-card rounded-[2.5rem] p-8">
-                <h4 className="text-[9px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-6 ml-1">Inventory Breakdown</h4>
+                <h4 className="text-[9px] font-bold text-zinc-600 uppercase tracking-[0.2em] mb-6 ml-1">Event Inventory</h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.04] rounded-2xl">
                     <div className="flex items-center gap-3">
@@ -229,7 +228,7 @@ const Dashboard = () => {
                   <div className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.04] rounded-2xl">
                     <div className="flex items-center gap-3">
                       <div className="w-1 h-1 rounded-full bg-zinc-700" />
-                      <span className="text-[11px] font-bold text-zinc-400">Draft Protocols</span>
+                      <span className="text-[11px] font-bold text-zinc-400">Draft Events</span>
                     </div>
                     <span className="text-xs font-black font-outfit text-zinc-600">{eventStats.draft}</span>
                   </div>
@@ -241,8 +240,8 @@ const Dashboard = () => {
             <div className="lg:col-span-2 glass-card rounded-[2.5rem] overflow-hidden">
               <div className="px-8 py-7 border-b border-white/[0.02] flex items-center justify-between">
                 <div>
-                  <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-[0.1em]">Experience Stream</h3>
-                  <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mt-1">Live Revenue & Admittance</p>
+                  <h3 className="text-xs font-bold text-zinc-100 uppercase tracking-[0.1em]">Recent Sales</h3>
+                  <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest mt-1">Revenue & Admittance</p>
                 </div>
                 <div className="w-9 h-9 rounded-lg bg-zinc-900 border border-white/5 flex items-center justify-center">
                   <Users size={14} className="text-zinc-500" />
@@ -254,7 +253,7 @@ const Dashboard = () => {
                   <table className="w-full text-left">
                     <thead>
                       <tr className="text-[9px] text-zinc-700 font-bold uppercase tracking-[0.2em] border-b border-white/[0.02]">
-                        <th className="px-8 py-5">Assigned Experience</th>
+                        <th className="px-8 py-5">Event Name</th>
                         <th className="px-8 py-5 text-center">Tickets</th>
                         <th className="px-8 py-5 text-center">Admitted</th>
                         <th className="px-8 py-5 text-right">Revenue</th>
@@ -291,9 +290,9 @@ const Dashboard = () => {
                     <TrendingDown size={24} />
                   </div>
                   <div className="max-w-xs">
-                    <p className="text-xs font-bold text-zinc-600 uppercase tracking-tight">No Active Streams Detected</p>
+                    <p className="text-xs font-bold text-zinc-600 uppercase tracking-tight">No Recent Sales</p>
                     <p className="text-[9px] text-zinc-800 font-bold uppercase tracking-widest mt-2 leading-relaxed">
-                      Attendee records and revenue data will populate once valid bookings occur.
+                      Data will populate once bookings occur.
                     </p>
                   </div>
                 </div>

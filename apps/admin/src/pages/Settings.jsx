@@ -130,11 +130,10 @@ const Settings = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <div className="flex items-center gap-2 text-sky-500 text-[10px] font-black uppercase tracking-[0.3em] mb-2">
-            <Shield size={12} /> System Management
+            <Shield size={12} /> Team Management
           </div>
           <h1 className="text-4xl font-black text-white tracking-tighter uppercase flex items-center gap-4">
-            Network Registry
-            <div className="h-1 w-12 bg-sky-600 rounded-full" />
+            Team Settings
           </h1>
           <p className="text-slate-500 text-sm font-medium mt-1">Manage organizational access and assign partner credentials.</p>
         </div>
@@ -149,7 +148,7 @@ const Settings = () => {
       {loading ? (
         <div className="h-96 flex flex-col items-center justify-center gap-4">
           <RefreshCw className="text-sky-600 animate-spin" size={48} />
-          <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Accessing Registry</span>
+          <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Loading Team...</span>
         </div>
       ) : (
         <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
@@ -159,8 +158,8 @@ const Settings = () => {
                 <Users size={18} className="text-sky-500" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-widest">Active Administrators</h3>
-                <p className="text-slate-500 text-[10px] font-medium uppercase tracking-widest mt-0.5">Live permission registry</p>
+                <h3 className="text-sm font-bold text-white uppercase tracking-widest">Team Members</h3>
+                <p className="text-slate-500 text-[10px] font-medium uppercase tracking-widest mt-0.5">Manage platform access</p>
               </div>
             </div>
             <button onClick={() => fetchRegistry(true)} className="text-slate-500 hover:text-white transition-colors">
@@ -172,10 +171,10 @@ const Settings = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-950/30 text-[10px] text-slate-600 font-bold uppercase tracking-[0.2em] border-b border-slate-800">
-                  <th className="px-8 py-5">Identity</th>
+                  <th className="px-8 py-5">Name</th>
                   <th className="px-8 py-5">Role</th>
-                  <th className="px-8 py-5">Registry Date</th>
-                  <th className="px-8 py-5 text-right">System Actions</th>
+                  <th className="px-8 py-5">Date Added</th>
+                  <th className="px-8 py-5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/50">
@@ -226,8 +225,8 @@ const Settings = () => {
                   <UserPlus size={20} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-white uppercase tracking-tighter">Add Provider</h3>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">Initialize Operational Node</p>
+                  <h3 className="text-lg font-black text-white uppercase tracking-tighter">Add Organizer</h3>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">Create a new organizer account</p>
                 </div>
               </div>
               <button type="button" onClick={() => setIsModalOpen(false)} className="p-2 text-slate-500 hover:text-white transition-colors">
@@ -325,7 +324,7 @@ const Settings = () => {
                   className="w-full bg-sky-600 hover:bg-sky-500 text-white font-black text-[10px] uppercase tracking-[0.2em] py-5 rounded-2xl transition-all shadow-xl shadow-sky-900/20 disabled:opacity-50 flex items-center justify-center gap-3"
                 >
                   {submitting ? <RefreshCw size={20} className="animate-spin" /> : <Shield size={20} />}
-                  Commit Registration Protocol
+                  Create Account
                 </button>
                 
                 {form.email && form.password && (
@@ -335,7 +334,7 @@ const Settings = () => {
                     className="w-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold text-[10px] uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2"
                   >
                     {copySuccess ? <CheckCircle size={12} className="text-emerald-500" /> : <Copy size={12} />}
-                    {copySuccess ? 'Copied to Clipboard' : 'Copy Full Access Hash'}
+                    {copySuccess ? 'Copied to Clipboard' : 'Copy Login Credentials'}
                   </button>
                 )}
               </div>

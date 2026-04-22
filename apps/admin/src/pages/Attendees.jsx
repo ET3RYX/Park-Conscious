@@ -157,14 +157,13 @@ const Attendees = () => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <div className="flex items-center gap-2 text-sky-400 text-[9px] font-bold uppercase tracking-[0.3em] mb-2">
-            <Activity size={10} /> Live Entry Telemetry
+            <Activity size={10} /> Attendee Overview
           </div>
           <h1 className="text-3xl font-black text-zinc-100 tracking-tight uppercase flex items-center gap-3">
-            Guest Registry
-            <div className="h-[2px] w-8 bg-sky-500 rounded-full opacity-50" />
+            Attendees
           </h1>
           <p className="text-zinc-600 text-xs font-medium mt-1">
-            {isSuperAdmin ? `Global management of ${attendees.length} ticket holders.` : `Viewing ${attendees.length} guests for your assigned events.`}
+            {isSuperAdmin ? `Managing ${attendees.length} guests.` : `Viewing ${attendees.length} guests for your assigned events.`}
           </p>
         </div>
         
@@ -207,7 +206,7 @@ const Attendees = () => {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-700" size={14} />
           <input 
             type="text"
-            placeholder="Search Identity or Ticket ID..."
+            placeholder="Search Name or Ticket ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-white/[0.02] border border-white/[0.03] text-zinc-200 pl-11 pr-4 py-3 rounded-xl focus:outline-none focus:border-sky-500/20 transition-all font-mono text-[10px] uppercase tracking-widest"
@@ -219,7 +218,7 @@ const Attendees = () => {
           onChange={(e) => setEventFilter(e.target.value)}
           className="bg-white/[0.02] border border-white/[0.03] text-zinc-500 px-4 py-3 rounded-xl focus:outline-none text-[9px] font-bold uppercase tracking-[0.2em] cursor-pointer hover:bg-white/[0.04] transition-all"
         >
-          <option value="all">All Experiences</option>
+          <option value="all">All Events</option>
           {eventOptions.filter(opt => opt !== 'all').map(opt => (
             <option key={opt} value={opt}>{opt}</option>
           ))}
@@ -230,7 +229,7 @@ const Attendees = () => {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="bg-white/[0.02] border border-white/[0.03] text-zinc-500 px-4 py-3 rounded-xl focus:outline-none text-[9px] font-bold uppercase tracking-[0.2em] cursor-pointer hover:bg-white/[0.04] transition-all"
         >
-          <option value="all">Any Protocol</option>
+          <option value="all">All Statuses</option>
           <option value="attended">Verified</option>
           <option value="pending">Pending</option>
         </select>
@@ -245,8 +244,8 @@ const Attendees = () => {
                     <Mail size={18} className="text-emerald-400 animate-pulse" />
                   </div>
                   <div>
-                    <h3 className="text-emerald-400 text-xs font-bold uppercase tracking-widest">Transmitting Tickets</h3>
-                    <p className="text-zinc-600 text-[9px] font-bold uppercase tracking-widest mt-0.5">Transactional stream active</p>
+                    <h3 className="text-emerald-400 text-xs font-bold uppercase tracking-widest">Sending Tickets</h3>
+                    <p className="text-zinc-600 text-[9px] font-bold uppercase tracking-widest mt-0.5">Sending emails to attendees...</p>
                   </div>
               </div>
               <div className="text-right">
@@ -265,17 +264,17 @@ const Attendees = () => {
         {loading ? (
           <div className="h-96 flex flex-col items-center justify-center gap-4">
             <RefreshCw className="text-sky-500/50 animate-spin" size={32} />
-            <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.3em]">Accessing Data Stream</span>
+            <span className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.3em]">Loading Attendees...</span>
           </div>
         ) : filteredData.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
                 <tr className="text-[9px] text-zinc-700 font-bold uppercase tracking-[0.2em] border-b border-white/[0.02]">
-                  <th className="px-8 py-5">Guest Identity</th>
-                  <th className="px-8 py-5">Assigned Experience</th>
-                  <th className="px-8 py-5">Ticket Hash</th>
-                  <th className="px-8 py-5">Verification</th>
+                  <th className="px-8 py-5">Guest Name</th>
+                  <th className="px-8 py-5">Event</th>
+                  <th className="px-8 py-5">Ticket ID</th>
+                  <th className="px-8 py-5">Status</th>
                   <th className="px-8 py-5 text-right w-20"></th>
                 </tr>
               </thead>
