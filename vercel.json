@@ -1,35 +1,107 @@
 {
   "version": 2,
-  "outputDirectory": "public",
   "rewrites": [
+    { "source": "/api/auth/:path*", "destination": "/api/auth.js" },
+    { "source": "/api/events/:path*", "destination": "/api/events.js" },
+    { "source": "/api/pay", "destination": "/api/pay.js" },
+    { "source": "/api/payment-callback", "destination": "/api/pay.js" },
+    { "source": "/api/admin/:path*", "destination": "/api/admin.js" },
+    { "source": "/api/discussions/:path*", "destination": "/api/events.js" },
+    { "source": "/api/owner/check-session", "destination": "/api/auth.js" },
+    { "source": "/api/owner/google", "destination": "/api/auth.js" },
+    { "source": "/api/owner/login", "destination": "/api/auth.js" },
+    { "source": "/api/owner/logout", "destination": "/api/auth.js" },
+    { "source": "/api/owner/:path*", "destination": "/api/admin.js" },
+    { "source": "/api/health", "destination": "/api/events.js" },
+    { "source": "/api/booking/status/:path*", "destination": "/api/pay.js" },
+    { "source": "/api/bookings/:path*", "destination": "/api/pay.js" },
+    { "source": "/api/:path*", "destination": "/api/events.js" },
     {
-      "source": "/api/discussions",
-      "destination": "/api/discussions.js"
+      "source": "/sitemap.xml",
+      "has": [{ "type": "host", "value": "events.parkconscious.in" }],
+      "destination": "/apps/events/build/sitemap.xml"
     },
     {
-      "source": "/api/discussions/details",
-      "destination": "/api/discussion-details.js"
+      "source": "/robots.txt",
+      "has": [{ "type": "host", "value": "events.parkconscious.in" }],
+      "destination": "/apps/events/build/robots.txt"
     },
     {
-      "source": "/api/discussions/comments",
-      "destination": "/api/discussion-comments.js"
+      "source": "/sitemap.xml",
+      "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
+      "destination": "/apps/admin/dist/sitemap.xml"
     },
     {
-      "source": "/api/auth/google",
-      "destination": "/api/google-auth.js"
+      "source": "/robots.txt",
+      "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
+      "destination": "/apps/admin/dist/robots.txt"
     },
     {
-      "source": "/api/debug",
-      "destination": "/api/debug-env.js"
+      "source": "/sitemap.xml",
+      "has": [{ "type": "host", "value": "www.parkconscious.in" }],
+      "destination": "/web/sitemap.xml"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "/api"
+      "source": "/robots.txt",
+      "has": [{ "type": "host", "value": "www.parkconscious.in" }],
+      "destination": "/web/robots.txt"
+    },
+
+    {
+      "source": "/admin/events/:path*",
+      "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
+      "destination": "/apps/admin/dist/:path*"
+    },
+
+    {
+      "source": "/booking-confirmed",
+      "has": [{ "type": "host", "value": "events.parkconscious.in" }],
+      "destination": "/apps/events/build/index.html"
+    },
+    {
+      "source": "/payment-:path*",
+      "has": [{ "type": "host", "value": "events.parkconscious.in" }],
+      "destination": "/apps/events/build/index.html"
+    },
+    {
+      "source": "/payment-:path*",
+      "has": [{ "type": "host", "value": "parkconscious.in" }],
+      "destination": "/apps/events/dist/index.html"
+    },
+
+    {
+      "source": "/((?!api/|sitemap\\.xml|robots\\.txt).*)",
+      "has": [{ "type": "host", "value": "events.parkconscious.in" }],
+      "destination": "/apps/events/build/index.html"
+    },
+    {
+      "source": "/((?!api/|sitemap\\.xml|robots\\.txt).*)",
+      "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
+      "destination": "/apps/admin/dist/index.html"
+    },
+
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "parkconscious.in" }],
+      "destination": "/web/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.parkconscious.in" }],
+      "destination": "/web/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/((?!api/).*)",
+      "headers": [
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" }
+      ]
     }
   ],
   "functions": {
-    "api/**/*.js": {
-      "maxDuration": 10
+    "api/*.js": {
+      "maxDuration": 15
     }
   }
 }

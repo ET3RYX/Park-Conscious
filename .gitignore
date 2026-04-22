@@ -1,11 +1,13 @@
 .vercel
+# AdminPanel built output - not tracked (served from dist/ via vercel rewrite)
+AdminPanel/dist/
+
+
 frontend/scripts/config.js
 
 # Environment variables
-.env
-.env.local
-backend/.env
-backend/.env.local
+.env*
+!.env.example
 
 # Dependencies
 node_modules/
@@ -18,3 +20,4 @@ npm-debug.log*
 
 # OS files
 .DS_Store
+.env*.local

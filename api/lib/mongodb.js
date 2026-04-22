@@ -1,10 +1,8 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
 const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable");
-}
 
 let cached = global.mongoose;
 
@@ -13,7 +11,13 @@ if (!cached) {
 }
 
 async function connectToDatabase() {
-  if (cached.conn) {
+  if (!MONGODB_URI) {
+    const error = new Error("MONGODB_URI_MISSING");
+    error.missingConfig = true;
+    throw error;
+  }
+
+  if (cached.conn && mongoose.connection.readyState === 1) {
     return cached.conn;
   }
 

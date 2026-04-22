@@ -1,0 +1,66 @@
+import React, { useState, useEffect } from 'react';
+import { AuthContext } from './AuthContextObject';
+
+export const AuthProvider = ({ children }) => {
+  const [admin, setAdmin] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.authenticated && data.user) {
+            // Priority: Check if the user has an admin-level role
+            const role = data.user.role;
+            const isAdmin = role === 'admin' || role === 'superadmin' || role === 'organizer' || role === 'owner';
+            
+            if (isAdmin) {
+              setAdmin(data.user);
+              // Sync to localStorage for other components
+              localStorage.setItem('adminUser', JSON.stringify({ user: data.user }));
+            } else {
+              setAdmin(null);
+              localStorage.removeItem('adminUser');
+            }
+          } else {
+            setAdmin(null);
+            localStorage.removeItem('adminUser');
+          }
+        } else {
+          // Fallback to localStorage if server is unreachable but don't clear immediately
+          const saved = localStorage.getItem('adminUser');
+          if (saved) {
+            const data = JSON.parse(saved);
+            setAdmin(data.user || data);
+          }
+        }
+      } catch (e) {
+        console.error("Session sync failed:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkSession();
+  }, []);
+
+  const login = (sessionData) => {
+    setAdmin(sessionData.user);
+    localStorage.setItem('adminUser', JSON.stringify(sessionData));
+  };
+
+  const logout = () => {
+    setAdmin(null);
+    localStorage.removeItem('adminUser');
+  };
+
+  return (
+    <AuthContext.Provider value={{ admin, login, logout, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+

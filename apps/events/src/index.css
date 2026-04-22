@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Inter:wght@300;400;600;800&display=swap');
+
+:root {
+  --onyx: #050507;
+  --dark-slate: #0a0b12;
+  --electric-indigo: #6366f1;
+  --vibrant-blue: #3b82f6;
+  --deep-ocean: #040b17;
+  --accent-yellow: #facc15;
+}
+
+body {
+  background-color: var(--onyx) !important;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Editorial UI System */
+
+.text-gradient-premium {
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-glass {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-glass:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-4px);
+}
+
+.btn-editorial {
+  @apply relative overflow-hidden px-8 py-3 rounded-full font-black uppercase tracking-widest text-[10px] transition-all duration-300;
+  background: white;
+  color: black;
+}
+
+.btn-editorial:hover {
+  background: var(--electric-indigo);
+  color: white;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+}
+
+.pill-active {
+  background: white;
+  color: black;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+.pill-inactive {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #71717a;
+}
+
+.slick-prev, .slick-next {
+  z-index: 10 !important;
+}
+
+.slick-prev:before, .slick-next:before {
+    font-size: 24px !important;
+    opacity: 0.5 !important;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes mesh-move {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(10%, 15%) scale(1.1); }
+  66% { transform: translate(-10%, 20%) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes reveal-up {
+  0% { transform: translateY(40px); opacity: 0; filter: blur(10px); }
+  100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+}
+
+.animate-mesh {
+  animation: mesh-move 20s ease-in-out infinite alternate;
+}
+
+.animate-reveal {
+  animation: reveal-up 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Print Optimization for Ticket Download */
+@media print {
+  /* Hide standard site components using simple selectors */
+  nav, footer, button, .no-print {
+    display: none !important;
+  }
+
+  /* Reset body for a clean print slate */
+  body {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide background glows and absolute decorative elements */
+  [class*="blur-"], [class*="animate-mesh"], [class*="bg-indigo-600/5"] {
+    display: none !important;
+  }
+
+  /* Target the ticket card and ensure it's not hidden */
+  #ticket-card {
+    display: block !important;
+    visibility: visible !important;
+    position: relative !important;
+    margin: 40px auto !important;
+    width: 90% !important;
+    max-width: 600px !important;
+    background: #050507 !important; /* Premium dark background */
+    color: white !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 40px !important;
+    padding: 40px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Ensure content inside looks perfect */
+  #ticket-card * {
+    visibility: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Specific: hide the absolute glow inside the ticket-card during print */
+  #ticket-card .absolute {
+    display: none !important;
+  }
+
+  @page {
+    margin: 1cm;
+    size: auto;
+  }
+}
