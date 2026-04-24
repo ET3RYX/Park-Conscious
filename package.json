@@ -9,7 +9,7 @@
   "scripts": {
     "start": "npm start --workspace=apps/events",
     "dev:admin": "npm run dev --workspace=apps/admin",
-    "build": "mkdir -p public && cp web/*.html web/favicon.ico web/favicon.png web/sitemap.xml web/robots.txt public/ 2>/dev/null || true && cp -r web/assets web/scripts web/styles public/ 2>/dev/null || true && cp -r web/owner public/ 2>/dev/null || true && DISABLE_ESLINT_PLUGIN=true npm run build --workspaces",
+    "build": "mkdir -p public && cp web/*.html web/favicon.ico web/favicon.png web/sitemap.xml web/robots.txt public/ 2>/dev/null || true && cp -r web/assets web/scripts web/styles public/ 2>/dev/null || true && cp -r web/owner public/ 2>/dev/null || true && node -e \"const fs=require('fs'); const fn='public/scripts/config.js'; let c=fs.readFileSync(fn,'utf8'); c=c.replace('__MAPS_API_KEY__', process.env.GOOGLE_MAPS_API_KEY || '').replace('__ROUTING_API_URL__', process.env.ROUTING_API_URL || 'http://localhost:8000'); fs.writeFileSync(fn, c);\" && DISABLE_ESLINT_PLUGIN=true npm run build --workspaces",
     "lint": "npm run lint --workspaces --if-present",
     "dev:backend": "node local-server.js"
   },
