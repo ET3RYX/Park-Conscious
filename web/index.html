@@ -267,8 +267,15 @@
         </div>
 
         <!-- Demo App Side -->
-        <div class="w-full md:w-[380px] shrink-0 bg-white border border-slate-100 rounded-2xl p-6 shadow-md relative">
-            <form id="smart-route-form" class="space-y-4">
+        <div class="w-full md:w-[380px] shrink-0 bg-white border border-slate-100 rounded-2xl p-6 shadow-md relative group">
+            <!-- Decorative Curve Line -->
+            <div class="absolute -z-10 -top-10 -right-10 w-48 h-48 opacity-10 pointer-events-none group-hover:opacity-20 transition-opacity duration-700">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 0,100 C 50,0 150,200 200,100" stroke="#00C39A" stroke-width="4" fill="transparent" />
+                </svg>
+            </div>
+            
+            <form id="smart-route-form" class="space-y-4 relative z-10">
               <div class="relative">
                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Starting Point</label>
                 <input type="text" id="route-src-input" placeholder="e.g. Connaught Place" autocomplete="off" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#00C39A] focus:border-transparent transition-all text-sm placeholder-slate-400 font-medium shadow-sm">
