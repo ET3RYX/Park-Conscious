@@ -245,19 +245,25 @@
 
   <!-- Smart Route Demo Section -->
   <section class="py-12 bg-white relative z-20">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="backdrop-blur-xl bg-slate-50/80 border border-slate-200/60 rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row gap-10 items-center shadow-lg shadow-slate-200/50 relative overflow-hidden" data-aos="fade-up">
-        <!-- Background Ambient Glow -->
+        <!-- Background Decorative Elements -->
         <div class="absolute -top-24 -left-24 w-64 h-64 bg-emerald-400/10 blur-[80px] rounded-full pointer-events-none"></div>
+        <div class="absolute inset-0 w-full h-full opacity-15 pointer-events-none -z-10">
+            <svg width="100%" height="100%" viewBox="0 0 1000 300" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 0,200 C 200,50 400,350 600,150 C 800,0 1000,250 1000,200" stroke="#00C39A" stroke-width="2" fill="transparent" />
+            </svg>
+        </div>
         
         <!-- Context Side -->
-        <div class="flex-1">
+        <div class="flex-1 relative z-10">
             <h2 class="text-3xl md:text-5xl font-black text-slate-900 mb-6 leading-[1.1] tracking-tight">
               Move smarter.<br>
               <span class="text-[#00C39A] drop-shadow-[0_0_20px_rgba(0,195,154,0.3)]">Stress less.</span>
             </h2>
-            <p class="text-slate-600 mb-8 leading-relaxed text-lg">
-              Find the fastest, most cost-effective travel mode factoring in real-time Delhi traffic and peak pricing.
+            <p class="text-slate-600 mb-8 leading-relaxed text-lg max-w-md">
+              Find the fastest, most cost-effective travel mode.<br class="hidden md:block">
+              Optimized for <span class="text-slate-900 font-semibold">real-time traffic</span> and <span class="text-slate-900 font-semibold">peak pricing</span>.
             </p>
             <div class="flex gap-4">
               <div class="flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 bg-white shadow-sm"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Metro</div>
@@ -267,15 +273,9 @@
         </div>
 
         <!-- Demo App Side -->
-        <div class="w-full md:w-[380px] shrink-0 bg-white border border-slate-100 rounded-2xl p-6 shadow-md relative group">
-            <!-- Decorative Curve Line -->
-            <div class="absolute -z-10 -top-10 -right-10 w-48 h-48 opacity-10 pointer-events-none group-hover:opacity-20 transition-opacity duration-700">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M 0,100 C 50,0 150,200 200,100" stroke="#00C39A" stroke-width="4" fill="transparent" />
-                </svg>
-            </div>
-            
-            <form id="smart-route-form" class="space-y-4 relative z-10">
+        <!-- Demo App Side -->
+        <div class="w-full md:w-[380px] shrink-0 bg-white border border-slate-100 rounded-2xl p-6 shadow-md relative">
+            <form id="smart-route-form" class="space-y-4">
               <div class="relative">
                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Starting Point</label>
                 <input type="text" id="route-src-input" placeholder="e.g. Connaught Place" autocomplete="off" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#00C39A] focus:border-transparent transition-all text-sm placeholder-slate-400 font-medium shadow-sm">
@@ -478,29 +478,29 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
         <div>
-          <h2 class="text-4xl md:text-6xl font-black mb-6 md:mb-8">Global Intelligence.</h2>
+          <h2 class="text-4xl md:text-6xl font-black mb-6 md:mb-8">Stress Tested.</h2>
           <p class="text-slate-400 text-lg leading-relaxed mb-12">
-            Deploying robust parking solutions across 40+ major metropolitan areas, reducing urban carbon footprints one space at a time.
+            Rigorously validated using <span class="text-white font-semibold">k6 by Grafana</span>. Our architecture on Vercel Edge and Cloudflare ensures "instant" response times even under massive concurrency.
           </p>
 
         </div>
 
         <div class="grid grid-cols-2 gap-px bg-slate-800 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
           <div class="bg-slate-900 p-6 md:p-12">
-            <div class="text-4xl md:text-5xl font-black mb-2 md:mb-4">98%</div>
-            <div class="text-[#00C39A] text-[10px] font-bold uppercase tracking-widest">Accuracy Rate</div>
+            <div class="text-4xl md:text-5xl font-black mb-2 md:mb-4 text-white">1,023</div>
+            <div class="text-[#00C39A] text-[10px] font-bold uppercase tracking-widest">Requests / Sec</div>
           </div>
           <div class="bg-slate-900 p-6 md:p-12">
-            <div class="text-4xl md:text-5xl font-black mb-2 md:mb-4">2.4M</div>
-            <div class="text-[#00C39A] text-[10px] font-bold uppercase tracking-widest">Vehicles Tracked</div>
+            <div class="text-4xl md:text-5xl font-black mb-2 md:mb-4 text-white">88ms</div>
+            <div class="text-[#00C39A] text-[10px] font-bold uppercase tracking-widest">Median Latency</div>
           </div>
           <div class="bg-slate-900 p-6 md:p-12">
-            <div class="text-4xl md:text-5xl font-black mb-2 md:mb-4">15%</div>
-            <div class="text-[#00C39A] text-[10px] font-bold uppercase tracking-widest">Revenue Lift</div>
+            <div class="text-4xl md:text-5xl font-black mb-2 md:mb-4 text-white">100%</div>
+            <div class="text-[#00C39A] text-[10px] font-bold uppercase tracking-widest">API Success Rate</div>
           </div>
           <div class="bg-slate-900 p-6 md:p-12">
-            <div class="text-4xl md:text-5xl font-black mb-2 md:mb-4">40+</div>
-            <div class="text-[#00C39A] text-[10px] font-bold uppercase tracking-widest">Smart Cities</div>
+            <div class="text-4xl md:text-5xl font-black mb-2 md:mb-4 text-white">10k+</div>
+            <div class="text-[#00C39A] text-[10px] font-bold uppercase tracking-widest">Active Sessions</div>
           </div>
         </div>
       </div>
