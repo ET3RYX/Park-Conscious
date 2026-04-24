@@ -1,3 +1,4 @@
 window.PARK_CONFIG = {
-    MAPS_KEY: "AIzaSyAbGNHEFN2Ta57Gz_5YB4w8ZDbuw6OVgRk"
+    MAPS_KEY: "__MAPS_API_KEY__",
+    ROUTING_API_URL: "__ROUTING_API_URL__"
 };
