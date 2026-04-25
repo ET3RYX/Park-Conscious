@@ -50,7 +50,7 @@ const CustomModal = () => {
           className="fixed inset-0 z-[9999] overflow-y-auto"
           onClose={closeModal}
         >
-          <div className="min-h-screen flex items-center justify-center">
+          <div className="min-h-screen flex items-center justify-center p-4">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -60,7 +60,7 @@ const CustomModal = () => {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Dialog.Overlay className="fixed inset-0 bg-black/25 backdrop-blur-sm" />
+              <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-md" />
             </Transition.Child>
 
             <Transition.Child
@@ -72,68 +72,51 @@ const CustomModal = () => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <div className="relative w-full max-w-md p-8 bg-darkBackground-800 border border-darkBackground-600 rounded-[2rem] shadow-2xl">
+              <div className="relative w-full max-w-md p-10 bg-white/5 border border-white/10 rounded-[3rem] backdrop-blur-2xl shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] isolation-isolate">
+                {/* Decorative Glow */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-50" />
+                
                 <button
                   onClick={closeModal}
-                  className="absolute top-8 right-6 text-gray-400 hover:text-white transition-colors"
+                  className="absolute top-8 right-8 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/5 text-gray-400 hover:text-white hover:bg-white/10 transition-all"
                 >
-                  {/* Close button icon */}
-                  <svg
-                    width="15"
-                    height="15"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    className="fill-current"
-                  >
-                    <path d="M13.125 0l-7.5 7.5 7.5 7.5 1.429-1.428L8.482 7.5l6.072-6.071z"></path>
-                    <path d="M1.429 0l7.5 7.5-7.5 7.5-1.43-1.428L6.072 7.5 0 1.43z"></path>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L11 11M1 11L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                 </button>
 
-                <h2 className="text-3xl font-black text-center mb-10 uppercase tracking-tighter text-white">
-                  Park <span className="text-gradient">Events</span>
-                </h2>
+                <div className="text-center mb-12">
+                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Authentication Portal</p>
+                   <h2 className="text-4xl font-black text-white uppercase tracking-tighter italic leading-none">
+                     BACK<span className="text-indigo-500">STAGE</span>
+                   </h2>
+                </div>
 
-                {/* Continue with Google */}
-                <button
-                  type="button"
-                  onClick={handleGoogleLogin}
-                  className="border border-darkBackground-600 bg-darkBackground-900 hover:bg-darkBackground-700 hover:border-vibrantBlue text-white font-bold tracking-wide py-3 px-4 rounded-full w-full mb-4 flex items-center justify-center transition-all shadow-lg"
-                >
-                  <span className="mr-2">
-                    {/* Google logo SVG */}
+                <div className="space-y-6">
+                  <p className="text-center text-slate-400 text-xs font-medium leading-relaxed max-w-[240px] mx-auto">
+                    Sign in to access your bookings, personalized events, and community threads.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    className="group relative w-full bg-white text-black font-black py-4 rounded-full flex items-center justify-center gap-4 transition-all hover:bg-indigo-600 hover:text-white active:scale-95 shadow-xl"
+                  >
                     <img
                       src="https://in.bmscdn.com/webin/common/icons/googlelogo.svg"
                       alt="Google Logo"
-                      className="w-6 h-6"
+                      className="w-5 h-5"
                     />
-                  </span>
-                  Continue with Google
-                </button>
+                    <span className="text-[11px] uppercase tracking-[0.2em]">Continue with Google</span>
+                  </button>
+                </div>
 
                 {/* Terms & Conditions */}
-                <div className="flex items-center justify-center mt-8">
-                  <label
-                    htmlFor="termsCheckbox"
-                    className="text-center text-gray-400 text-xs font-medium"
-                  >
-                    By continuing, you agree to the{" "}
-                    <a
-                      href="/terms-and-conditions"
-                      target="_blank"
-                      className="text-vibrantBlue hover:text-white transition-colors underline"
-                    >
-                      Terms
-                    </a>{" "}
-                    &amp;{" "}
-                    <a
-                      href="/privacy"
-                      target="_blank"
-                      className="text-vibrantBlue hover:text-white transition-colors underline"
-                    >
-                      Privacy Policy
-                    </a>
-                  </label>
+                <div className="mt-12 pt-8 border-t border-white/5">
+                  <p className="text-center text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-loose">
+                    By continuing, you agree to our <br/>
+                    <a href="/terms" className="text-indigo-400 hover:text-white transition-colors">Terms of Service</a> & <a href="/privacy" className="text-indigo-400 hover:text-white transition-colors">Privacy Policy</a>
+                  </p>
                 </div>
               </div>
             </Transition.Child>
