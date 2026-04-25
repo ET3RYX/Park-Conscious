@@ -75,6 +75,7 @@ export default async function handler(req, res) {
                     screenshotUrl: screenshotUrl || null,
                     status: "Confirmed",
                     phone: phone,
+                    name: name || body.name || null,
                     email: body.email || null,
                     ticketId: ticketId,
                     customData: customData || {}
@@ -120,6 +121,7 @@ export default async function handler(req, res) {
                 screenshotUrl: screenshotUrl || null,
                 status: "Initiated",
                 phone: phone,
+                name: name || body.name || null,
                 email: body.email || null,
                 customData: customData || {}
             });
@@ -206,6 +208,14 @@ export default async function handler(req, res) {
             if (!txnId) return json(res, 400, { message: 'Transaction ID missing' });
             const booking = await Booking.findOne({ transactionId: txnId }).lean();
             if (!booking) return json(res, 404, { message: 'Booking not found' });
+            
+            if (booking.eventId && booking.eventId.length === 24) {
+                const event = await models.Event.findById(booking.eventId).lean();
+                if (event) {
+                    booking.event = normalizeEvent(event);
+                }
+            }
+            
             return json(res, 200, booking);
         }
 
