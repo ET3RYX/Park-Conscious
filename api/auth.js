@@ -64,7 +64,7 @@ export default async function handler(req, res) {
 
         // -- Google Auth --
         if (url.includes('/google') && method === 'POST') {
-            const { email, name, googleId } = body;
+            const { email, name, googleId, picture } = body;
             if (!email) return json(res, 400, { message: 'Email required for Google Auth' });
             
             const search = email.toLowerCase();
@@ -79,7 +79,7 @@ export default async function handler(req, res) {
             }
 
             if (!u) {
-                u = await User.create({ name, email: search, googleId });
+                u = await User.create({ name, email: search, googleId, picture });
                 isOwner = false;
             } else {
                 let changed = false;
@@ -92,6 +92,11 @@ export default async function handler(req, res) {
                     u.name = name;
                     changed = true;
                 }
+                // Sync picture if available
+                if (picture && u.picture !== picture) {
+                    u.picture = picture;
+                    changed = true;
+                }
                 if (changed) await u.save();
             }
 
@@ -100,6 +105,7 @@ export default async function handler(req, res) {
                 uid: String(u._id), 
                 name: u.name, 
                 email: u.email, 
+                picture: u.picture || "",
                 role: isOwner ? (u.role || 'organizer').toLowerCase() : 'user' 
             };
             const token = issueCookie(req, res, payload);

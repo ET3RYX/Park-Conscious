@@ -5,7 +5,7 @@ import { GOOGLE_CLIENT_ID } from "../../config";
 
 const CustomModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
 
   const closeModal = () => {
     setIsOpen(false);
@@ -28,9 +28,12 @@ const CustomModal = () => {
     <>
       <button
         onClick={user ? signOut : openModal}
-        className="bg-premier-700 text-white px-2 py-1 text-sm rounded flex items-center gap-2"
+        disabled={loading}
+        className="bg-premier-700 text-white px-2 py-1 text-sm rounded flex items-center gap-2 min-w-[80px] justify-center disabled:opacity-50"
       >
-        {user ? (
+        {loading ? (
+          <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+        ) : user ? (
           <>
             {user.picture && <img src={user.picture} alt="profile" className="w-5 h-5 rounded-full" />}
             <span className="hidden sm:inline">Hi, {user.name.split(" ")[0]}</span>
