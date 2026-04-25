@@ -81,35 +81,35 @@ function NavLg({ defaultLocation, onRequestOpen }) {
         </Link>
 
         <div className="hidden xl:flex items-center gap-10 pl-16 border-l border-white/5">
-           <Link to="/" className="text-[10px] font-black uppercase tracking-[0.4em] text-white hover:text-indigo-400 transition-all">Home</Link>
-           <Link to="/host" className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 hover:text-white transition-all">Host</Link>
-           <a href="https://www.parkconscious.in" className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 hover:text-white transition-all">Parking</a>
-           {user && (
-             <Link to="/my-bookings" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 hover:text-indigo-300 transition-all">
-                <Shield size={14} className="text-indigo-500/50" /> Wallet
-             </Link>
-           )}
+          <Link to="/" className="text-[10px] font-black uppercase tracking-[0.4em] text-white hover:text-indigo-400 transition-all">Home</Link>
+          <Link to="/host" className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 hover:text-white transition-all">Host</Link>
+          <a href="https://www.parkconscious.in" className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 hover:text-white transition-all">Parking</a>
+          {user && (
+            <Link to="/my-bookings" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 hover:text-indigo-300 transition-all">
+              <Shield size={14} className="text-indigo-500/50" /> Wallet
+            </Link>
+          )}
         </div>
       </div>
 
       <div className="flex items-center gap-10">
-         <div className="hidden lg:flex items-center gap-3 text-slate-700">
-            <Globe size={16} />
-            <span className="text-[9px] font-black uppercase tracking-[0.4em]">{location || defaultLocation || "Delhi NCR"}</span>
-         </div>
-        
-        <button 
+        <div className="hidden lg:flex items-center gap-3 text-slate-700">
+          <Globe size={16} />
+          <span className="text-[9px] font-black uppercase tracking-[0.4em]">{location || defaultLocation || "Delhi NCR"}</span>
+        </div>
+
+        <button
           onClick={onRequestOpen}
           className="flex items-center gap-4 px-8 py-3.5 bg-white text-black rounded-full hover:bg-indigo-600 hover:text-white transition-all shadow-[0_20px_40px_-5px_rgba(255,255,255,0.05)] active:scale-95 group"
         >
           <Plus size={16} strokeWidth={4} className="group-hover:rotate-90 transition-transform" />
-           <span className="text-[10px] font-black uppercase tracking-[0.3em] leading-none mt-0.5">List Event</span>
-         </button>
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] leading-none mt-0.5">List Event</span>
+        </button>
 
-        <a href="mailto:help@parkconscious.in" className="hidden xl:block text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 hover:text-white transition-all">Support</a>
-        
+        <a href="https://parkconscious.in/contact.html" className="hidden xl:block text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 hover:text-white transition-all">Support</a>
+
         <div className="pl-8 border-l border-white/5">
-           <CustomModal />
+          <CustomModal />
         </div>
       </div>
     </div>
@@ -127,16 +127,16 @@ const Navbar = ({ defaultLocation }) => {
             <NavSm defaultLocation={defaultLocation} />
           </div>
           <div className="hidden lg:flex">
-            <NavLg 
-              defaultLocation={defaultLocation} 
+            <NavLg
+              defaultLocation={defaultLocation}
               onRequestOpen={() => setIsRequestModalOpen(true)}
             />
           </div>
         </div>
       </nav>
-      <RequestEventModal 
-        isOpen={isRequestModalOpen} 
-        onClose={() => setIsRequestModalOpen(false)} 
+      <RequestEventModal
+        isOpen={isRequestModalOpen}
+        onClose={() => setIsRequestModalOpen(false)}
       />
     </>
   );

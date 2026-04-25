@@ -136,5 +136,4 @@ const MyBookingsPage = () => {
    );
 };
 
-
 export default DefaultlayoutHoc(MyBookingsPage);
