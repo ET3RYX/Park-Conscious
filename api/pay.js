@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import Razorpay from 'razorpay';
 import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
-import { json, setCors, getBody, normalizeEvent } from './lib/utils.js';
+import { json, setCors, getBody, normalizeEvent, verifyUser } from './lib/utils.js';
 
 const { Booking } = models;
 
