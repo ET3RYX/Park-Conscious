@@ -6,7 +6,7 @@ import DefaultlayoutHoc from "../layout/Default.layout";
 
 const getEventBranding = (booking) => {
   const eventId = booking?.eventId || "";
-  const title   = booking?.event?.title || booking?.location?.name || booking?.event?.name || "Event Ticket";
+  const title = booking?.event?.title || booking?.location?.name || booking?.event?.name || "Event Ticket";
 
   if (eventId.includes("farewell") || title.toLowerCase().includes("afsana")) {
     return {
@@ -16,7 +16,7 @@ const getEventBranding = (booking) => {
       qrColor: "border-indigo-500/30 shadow-indigo-500/20",
     };
   }
-  
+
   if (eventId.includes("tedx") || title.toLowerCase().includes("tedx") || title.toLowerCase().includes("sangam")) {
     return {
       headline: "TEDx SANGAM Confirmed!",
@@ -37,7 +37,7 @@ const getEventBranding = (booking) => {
 
 const SuccessPage = () => {
   const [searchParams] = useSearchParams();
-  const txnId  = searchParams.get("txnId");
+  const txnId = searchParams.get("txnId");
   const amount = searchParams.get("amount") || null;
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -73,7 +73,7 @@ const SuccessPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-[#050507] py-24 px-8 relative">
       {/* Dynamic Background Glow */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none"></div>
-      
+
       <div className="max-w-xl w-full text-center space-y-12 animate-reveal relative z-10">
 
         {/* Animated Checkmark — Editorial Orbit */}
@@ -111,6 +111,10 @@ const SuccessPage = () => {
                   <p className="text-white font-black text-3xl tracking-tighter italic uppercase">{booking.ticketId}</p>
                 </div>
               )}
+              <div>
+                <p className="text-[9px] text-slate-200 font-black uppercase tracking-[0.4em] mb-2">Event</p>
+                <p className="text-white font-bold text-lg uppercase tracking-tight">{booking?.event?.title || booking?.location?.name || booking?.event?.name || "Event Ticket"}</p>
+              </div>
             </div>
 
             {/* QR Code */}
@@ -150,7 +154,7 @@ const SuccessPage = () => {
 
         <div className="flex flex-col md:flex-row items-center justify-center gap-10 pt-8 opacity-40 hover:opacity-100 transition-opacity">
           <Link to="/my-bookings" className="text-white text-[10px] font-black uppercase tracking-[0.3em] transition flex items-center gap-3">
-             View Wallet <ArrowRight size={14} />
+            View Wallet <ArrowRight size={14} />
           </Link>
           <div className="w-1.5 h-1.5 bg-white/20 rounded-full hidden md:block"></div>
           <Link to="/" className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] transition flex items-center gap-3">
