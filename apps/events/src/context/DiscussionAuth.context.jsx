@@ -15,14 +15,17 @@ export const AuthProvider = ({ children }) => {
     }
   });
   
-  // Notice: We don't expose 'token' anymore because that is handled implicitly via cross-domain session cookies.
+  const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(null);
 
   useEffect(() => {
-    // ─── Verify Session Automatically on Load ─────────────────────────
-    // Core Solution: Trust the server as the absolute source of truth.
-    // If the server returns a valid session, we unconditionally overwrite any local data.
     const verifySession = async () => {
+      // If we are currently handling a Google redirect hash, skip verification 
+      // to avoid race conditions clearing the user state prematurely.
+      if (window.location.hash && window.location.hash.includes("access_token=")) {
+        return;
+      }
+
       try {
         const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
           method: "GET",
@@ -36,9 +39,9 @@ export const AuthProvider = ({ children }) => {
                  uid: data.user.id,
                  id: data.user.id,
                  name: data.user.name,
-                 email: data.user.email
+                 email: data.user.email,
+                 picture: data.user.picture || ""
              };
-             // Force update both state and storage to reflect server truth (e.g. "Piyush")
              setUser(userData);
              localStorage.setItem("disc_user", JSON.stringify(userData));
            } else {
@@ -51,16 +54,18 @@ export const AuthProvider = ({ children }) => {
         }
       } catch(err) {
          console.error("Identity synchronization failed:", err);
+      } finally {
+        setLoading(false);
       }
     };
     verifySession();
   }, []);
 
   useEffect(() => {
-    // Handle Google Redirect Hash (OAuth Implicit Flow Returns)
     const handleGoogleRedirect = async () => {
       const hash = window.location.hash;
       if (hash && hash.includes("access_token=")) {
+        setLoading(true);
         const params = new URLSearchParams(hash.substring(1));
         const accessToken = params.get("access_token");
 
@@ -80,6 +85,8 @@ export const AuthProvider = ({ children }) => {
             }
           } catch (err) {
             console.error("Auth redirect error:", err);
+          } finally {
+            setLoading(false);
           }
         }
       }
@@ -90,7 +97,6 @@ export const AuthProvider = ({ children }) => {
 
   const signInWithGoogle = async (accessToken, userInfo) => {
     try {
-      // In case we don't have userInfo already
       let info = userInfo;
       if (!info && accessToken) {
         const r = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
@@ -99,15 +105,15 @@ export const AuthProvider = ({ children }) => {
         info = await r.json();
       }
 
-      // Generate the Session Cookie internally
       const res = await fetch(`${API_BASE_URL}/api/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // VERY IMPORTANT: instructs the browser to parse Set-Cookie dynamically
+        credentials: "include",
         body: JSON.stringify({
           email: info.email,
           name: info.name,
           googleId: info.sub,
+          picture: info.picture,
         }),
       });
 
@@ -118,13 +124,12 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await res.json();
-      // Backend returns { user: { id, name, email } } + Set-Cookie Header
       const userData = {
         uid: data.user.id,
         id: data.user.id,
         name: data.user.name,
         email: data.user.email,
-        picture: info?.picture || "",
+        picture: info?.picture || data.user.picture || "",
       };
       
       localStorage.setItem("disc_user", JSON.stringify(userData));
@@ -138,7 +143,6 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     try {
-      // Call backend to clear the HttpOnly session cookie
       await fetch(`${API_BASE_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
@@ -152,7 +156,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, token, loading, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );
