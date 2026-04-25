@@ -106,7 +106,7 @@ function NavLg({ defaultLocation, onRequestOpen }) {
           <span className="text-[10px] font-black uppercase tracking-[0.3em] leading-none mt-0.5">List Event</span>
         </button>
 
-        <a href="https://parkconscious.in/contact.html" className="hidden xl:block text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 hover:text-white transition-all">Support</a>
+        <Link to="/support" className="hidden xl:block text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 hover:text-white transition-all">Support</Link>
 
         <div className="pl-8 border-l border-white/5">
           <CustomModal />
