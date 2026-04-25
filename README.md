@@ -59,7 +59,12 @@ After updating these settings, trigger a **manual redeploy** to apply the change
     ```
 
 2.  **Environment Setup**:
-    Copy `.env.example` to `.env` and fill in your credentials.
+    You will need to set up environment variables in two places:
+    
+    *   **Root Level**: Copy `.env.example` to `.env` in the root directory and fill in your credentials.
+    *   **Events App Level**: Navigate to `apps/events`, copy `.env.example` to `.env`, and fill in the credentials. 
+        > [!IMPORTANT]
+        > **Local Development**: Ensure that `REACT_APP_API_BASE_URL=http://localhost:3000` is set in your `apps/events/.env` file so the frontend correctly communicates with the local backend server.
 
 3.  **Run Local Backend**:
     ```bash
