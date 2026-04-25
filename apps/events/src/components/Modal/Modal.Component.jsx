@@ -47,7 +47,7 @@ const CustomModal = () => {
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog
           as="div"
-          className="fixed inset-0 z-10 overflow-y-auto"
+          className="fixed inset-0 z-[9999] overflow-y-auto"
           onClose={closeModal}
         >
           <div className="min-h-screen flex items-center justify-center">
