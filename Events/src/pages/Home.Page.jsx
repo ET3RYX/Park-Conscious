@@ -12,38 +12,38 @@ import DiscussionBoard from "../components/Discussion/DiscussionBoard";
 // collegeFarewellImg removed for Afsana 2026 redesign
 
 const adCopies = [
-  "You planned the day. Parking planned chaos.",
-  "Your destination is 200m away. Parking is 2 km away.",
-  "Leaving on time doesn't help if parking doesn't exist.",
-  "You found the place. Now find the parking.",
-  "Maps show the location. Not the parking struggle.",
-  "Your car deserves a spot too.",
-  "The hardest part of your drive shouldn't be the last 5 minutes.",
-  "You reached early. Parking didn’t.",
-  "The meeting starts at 10. Parking search starts at 9:30.",
-  "You saved time on the route. Lost it in parking.",
-  "Driving is easy. Parking is the real challenge.",
-  "The closer you get, the harder it gets.",
-  "Every trip ends the same way: ‘Where do I park?’",
-  "Good plans fail at parking.",
-  "You drove smoothly. Now comes the struggle.",
-  "Circling is not a strategy.",
-  "One destination. Infinite parking loops.",
-  "You’re not stuck in traffic. You’re stuck finding parking.",
-  "Round and round… still no spot.",
-  "If driving was the journey, parking is the boss level.",
-  "Parking shouldn't depend on luck.",
-  "Hope is not a parking strategy.",
-  "Finding parking shouldn’t feel like winning a lottery.",
-  "Less guessing. More parking.",
-  "You have somewhere to be. Parking shouldn't stop you.",
-  "The city is moving. Parking isn’t.",
-  "Urban life moves fast. Parking doesn’t.",
-  "Modern cities deserve smarter parking.",
-  "You bring the destination. We bring the parking.",
-  "Drive in. Park easy.",
-  "Find parking before parking finds you stressed.",
-  "Arrive without the parking anxiety."
+  "You made the plan. Backstage made it work.",
+  "The event starts at 7. You’re already ahead.",
+  "Others are figuring it out. You’re already in.",
+  "Good plans need better execution.",
+  "You showed up. Backstage handled the rest.",
+  "Not everything has to be last minute.",
+  "You’re not late. You’re just early now.",
+  "The plan felt chaotic. Now it doesn’t.",
+  "Less guessing. More doing.",
+  "You knew where to go. We handled how.",
+  "Every plan feels better with Backstage.",
+  "No stress. Just timing.",
+  "You’re exactly where you need to be.",
+  "Plans don’t fail. Execution does.",
+  "This time, everything just clicked.",
+  "You didn’t rush. You just used Backstage.",
+  "From ‘maybe’ to ‘done.’",
+  "You planned it. We made it smooth.",
+  "No chaos. Just control.",
+  "The difference? Backstage.",
+  "You’re not figuring it out anymore.",
+  "Smart plans feel effortless.",
+  "You’re not behind. You’re prepared.",
+  "No friction. Just flow.",
+  "Because plans deserve better.",
+  "You arrived without the stress.",
+  "Everything worked. That’s not luck.",
+  "This is how plans should feel.",
+  "You didn’t improvise. You executed.",
+  "Backstage → where plans actually happen.",
+  "Before things get messy, Backstage steps in.",
+  "You focus on the plan. We handle the rest."
 ];
 
 const categories = ["All Events", "Concerts", "Festivals", "Summits", "Culture"];
@@ -146,8 +146,8 @@ const HomePage = () => {
             key={cat}
             onClick={() => setSelectedCategory(cat)}
             className={`px-8 py-2.5 rounded-full font-bold tracking-wide text-sm transition-all duration-300 ${selectedCategory === cat
-                ? "bg-gradient-to-r from-vibrantBlue to-premier-400 text-white shadow-lg shadow-premier-700/30"
-                : "bg-darkBackground-800 border border-gray-700 text-gray-300 hover:border-gray-500"
+              ? "bg-gradient-to-r from-vibrantBlue to-premier-400 text-white shadow-lg shadow-premier-700/30"
+              : "bg-darkBackground-800 border border-gray-700 text-gray-300 hover:border-gray-500"
               }`}
           >
             {cat}
