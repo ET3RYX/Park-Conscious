@@ -179,48 +179,13 @@ const Navbar = ({ defaultLocation }) => {
     <>
       <style>{`
         .glass-menu {
-          background: rgba(255, 255, 255, 0.31) !important;
-          backdrop-filter: blur(28px) !important;
-          -webkit-backdrop-filter: blur(28px) !important;
-          border-radius: 20px 0 0 20px !important;
-          border: 1px solid rgba(255, 255, 255, 0.3) !important;
-          box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.5),
-            inset 0 -1px 0 rgba(255, 255, 255, 0.1),
-            inset 0 0 40px 20px rgba(255, 255, 255, 1) !important;
+          background: rgba(5, 5, 7, 0.8) !important;
+          backdrop-filter: blur(24px) !important;
+          -webkit-backdrop-filter: blur(24px) !important;
+          border-left: 1px solid rgba(255, 255, 255, 0.05) !important;
+          box-shadow: -20px 0 50px rgba(0, 0, 0, 0.5);
           position: relative;
           overflow: hidden;
-        }
-
-        .glass-menu::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 1px;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.8),
-            transparent
-          ) !important;
-        }
-
-        .glass-menu::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 1px;
-          height: 100%;
-          background: linear-gradient(
-            180deg,
-            rgba(255, 255, 255, 0.8),
-            transparent,
-            rgba(255, 255, 255, 0.3)
-          ) !important;
         }
       `}</style>
       <nav className="bg-[#050507] sticky top-0 z-[100] border-b border-white/5 shadow-[0_10px_50px_rgba(0,0,0,0.5)]">
