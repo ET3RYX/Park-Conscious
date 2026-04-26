@@ -79,4 +79,10 @@ export const userService = {
   delete: (id) => api.delete(`/api/admin/users/${id}`),
 };
 
+export const adminService = {
+  getLogs: () => api.get('/api/admin/logs'),
+  resolveLog: (id, resolved) => api.patch(`/api/admin/logs/${id}`, { resolved }),
+  getStats: () => api.get('/api/admin/stats'),
+};
+
 export default api;

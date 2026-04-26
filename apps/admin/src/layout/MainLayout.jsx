@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   BarChart, Calendar, Users, Settings, 
   LogOut, Menu, Shield, Bell,
-  Search
+  Search, Activity
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
@@ -68,6 +68,7 @@ const MainLayout = () => {
               <div className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.2em] mb-4 ml-1">Management</div>
               <SidebarItem icon={BarChart} label="Dashboard" to="/" />
               <SidebarItem icon={Calendar} label="Events" to="/events" />
+              <SidebarItem icon={Activity} label="Health" to="/health" />
               <SidebarItem icon={Users} label="Attendees" to="/attendees" />
               
               {isSuperAdmin && (

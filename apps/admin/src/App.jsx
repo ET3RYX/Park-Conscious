@@ -11,6 +11,7 @@ import Attendees from './pages/Attendees';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import EditEvent from './pages/EditEvent';
+import SystemHealth from './pages/SystemHealth';
 import { RefreshCw } from 'lucide-react';
 
 const PrivateRoute = ({ children }) => {
@@ -94,6 +95,7 @@ function App() {
               <Route path="events/create" element={<CreateEvent />} />
               <Route path="events/edit/:id" element={<EditEvent />} />
               <Route path="price-updater" element={<PriceUpdater />} />
+              <Route path="health" element={<SystemHealth />} />
               <Route path="attendees" element={<Attendees />} />
               <Route path="settings" element={<Settings />} />
             </Route>
