@@ -287,12 +287,10 @@ const HomePage = () => {
         {/* Static Marquee Banner (Low Weight) */}
         <div className="w-full h-16 bg-white overflow-hidden flex items-center relative z-20">
            <div className="flex animate-marquee whitespace-nowrap items-center h-full">
-              {[...Array(10)].map((_, i) => (
-                <div key={i} className="flex items-center gap-12 px-6">
-                   <p className="text-black font-black text-xs uppercase tracking-widest leading-none mt-1">Limited Parking Reserve Live</p>
-                   <div className="w-2 h-2 bg-indigo-600 rounded-full"></div>
-                   <p className="text-black font-medium text-xs uppercase tracking-widest leading-none mt-1">{adCopies[i % adCopies.length]}</p>
-                   <div className="w-2 h-2 bg-indigo-600 rounded-full"></div>
+              {[...Array(12)].map((_, i) => (
+                <div key={i} className="flex items-center gap-12 px-12">
+                   <p className="text-black font-black text-[10px] uppercase tracking-[0.4em] leading-none mt-1">{adCopies[i % adCopies.length]}</p>
+                   <div className="w-1.5 h-1.5 bg-black/10 rounded-full"></div>
                 </div>
               ))}
            </div>
