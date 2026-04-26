@@ -18,12 +18,14 @@ import FailurePage from "./pages/Failure.Page";
 import MyBookingsPage from "./pages/MyBookings.Page";
 import AdminPage from "./pages/Admin.Page";
 import HostPage from "./pages/Host.Page";
+import SupportPage from "./pages/Support.Page";
 
 function App() {
   return (
     <>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/support" element={<SupportPage />} />
         <Route path="/host" element={<HostPage />} />
         <Route path="/my-bookings" element={<MyBookingsPage />} />
         <Route path="/movie/:id" element={<MoviePage />} />
