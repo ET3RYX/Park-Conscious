@@ -103,7 +103,7 @@ const SuccessPage = () => {
         </div>
 
         {/* The Premium Ticket */}
-        <div className="relative group no-print">
+        <div className="relative group">
           {/* Outer Shadow/Glow */}
           <div className="absolute -inset-4 bg-indigo-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity rounded-[3rem]" />
           
