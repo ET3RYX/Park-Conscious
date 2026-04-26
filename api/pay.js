@@ -25,6 +25,15 @@ export default async function handler(req, res) {
             const { name, amount, phone, eventId, orderId, userId, screenshotUrl, customData } = body;
             const targetEventId = eventId || orderId;
             const targetUserId = userId || name || "Guest";
+
+            // SECURITY: Ensure the event is published before allowing bookings
+            if (targetEventId && targetEventId.length === 24) {
+                const event = await models.Event.findById(targetEventId).lean();
+                if (!event) return json(res, 404, { message: 'Event not found' });
+                if (!['published', 'Published'].includes(event.status)) {
+                    return json(res, 403, { message: 'Bookings are only allowed for published events.' });
+                }
+            }
             
             // PREVENT DUPLICATE BOOKINGS: Ensure the user/email/phone hasn't already booked this event
             const emailFilter = body.email ? { email: body.email } : null;
