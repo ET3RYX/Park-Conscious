@@ -45,18 +45,17 @@ const FeaturedEventsSection = ({ featuredEvents, isLoading }) => {
     
     if (!featuredEvents || featuredEvents.length === 0) return null;
 
-    // Tailwind Safelist Mapping
     const colorStyles = {
-        "red-600":    { border: "group-hover:border-red-600/30",     mesh: "bg-red-600/5",     label: "bg-red-600",     btn: "hover:bg-red-600" },
-        "indigo-500": { border: "group-hover:border-indigo-500/30",  mesh: "bg-indigo-500/5",  label: "bg-indigo-600",  btn: "hover:bg-indigo-600" },
-        "violet-500": { border: "group-hover:border-violet-500/30",  mesh: "bg-violet-500/5",  label: "bg-violet-600",  btn: "hover:bg-violet-600" },
-        "rose-500":   { border: "group-hover:border-rose-500/30",    mesh: "bg-rose-500/5",    label: "bg-rose-600",    btn: "hover:bg-rose-600" },
-        "amber-500":  { border: "group-hover:border-amber-500/30",   mesh: "bg-amber-500/5",   label: "bg-amber-600",   btn: "hover:bg-amber-600" },
-        "emerald-500":{ border: "group-hover:border-emerald-500/30", mesh: "bg-emerald-500/5", label: "bg-emerald-600", btn: "hover:bg-emerald-600" },
-        "sky-500":    { border: "group-hover:border-sky-500/30",     mesh: "bg-sky-500/5",     label: "bg-sky-600",     btn: "hover:bg-sky-600" },
-        "pink-500":   { border: "group-hover:border-pink-500/30",    mesh: "bg-pink-500/5",    label: "bg-pink-600",    btn: "hover:bg-pink-600" },
-        "orange-500": { border: "group-hover:border-orange-500/30",  mesh: "bg-orange-500/5",  label: "bg-orange-600",  btn: "hover:bg-orange-600" },
-        "default":    { border: "group-hover:border-indigo-500/30",  mesh: "bg-indigo-500/5",  label: "bg-indigo-600",  btn: "hover:bg-indigo-600" },
+        "red-600":    { border: "group-hover:border-red-600/30",     mesh: "bg-red-600/10",     label: "bg-red-600",     btn: "hover:bg-red-600" },
+        "indigo-500": { border: "group-hover:border-indigo-500/30",  mesh: "bg-indigo-500/10",  label: "bg-indigo-600",  btn: "hover:bg-indigo-600" },
+        "violet-500": { border: "group-hover:border-violet-500/30",  mesh: "bg-violet-500/10",  label: "bg-violet-600",  btn: "hover:bg-violet-600" },
+        "rose-500":   { border: "group-hover:border-rose-500/30",    mesh: "bg-rose-500/10",    label: "bg-rose-600",    btn: "hover:bg-rose-600" },
+        "amber-500":  { border: "group-hover:border-amber-500/30",   mesh: "bg-amber-500/10",   label: "bg-amber-600",   btn: "hover:bg-amber-600" },
+        "emerald-500":{ border: "group-hover:border-emerald-500/30", mesh: "bg-emerald-500/10", label: "bg-emerald-600", btn: "hover:bg-emerald-600" },
+        "sky-500":    { border: "group-hover:border-sky-500/30",     mesh: "bg-sky-500/10",     label: "bg-sky-600",     btn: "hover:bg-sky-600" },
+        "pink-500":   { border: "group-hover:border-pink-500/30",    mesh: "bg-pink-500/10",    label: "bg-pink-600",    btn: "hover:bg-pink-600" },
+        "orange-500": { border: "group-hover:border-orange-500/30",  mesh: "bg-orange-500/10",  label: "bg-orange-600",  btn: "hover:bg-orange-600" },
+        "default":    { border: "group-hover:border-indigo-500/30",  mesh: "bg-indigo-500/10",  label: "bg-indigo-600",  btn: "hover:bg-indigo-600" },
     };
 
     return (
@@ -68,39 +67,69 @@ const FeaturedEventsSection = ({ featuredEvents, isLoading }) => {
           </>
         ) : featuredEvents.map((event) => {
           const styles = colorStyles[event.accentColor] || colorStyles["default"];
+          const imageUrl = (event.images && event.images[0]) || event.image || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14';
           
           return (
             <div 
               key={event._id}
               onClick={() => navigate(`/event/${event._id}`)}
-              className={`group relative h-[32rem] rounded-[3rem] overflow-hidden cursor-pointer shadow-3xl bg-slate-900 border border-white/5 flex items-end p-10 md:p-14 transition-all duration-700 ${styles.border}`}
+              className={`group relative h-[28rem] md:h-[32rem] rounded-[2.5rem] md:rounded-[3rem] overflow-hidden cursor-pointer shadow-3xl bg-slate-900 border border-white/5 flex items-end p-8 md:p-14 transition-all duration-700 ${styles.border}`}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
+              {/* Background Image with Parallax-like effect on hover */}
+              <div className="absolute inset-0 z-0">
+                <img 
+                  src={imageUrl} 
+                  alt={event.title} 
+                  className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-[2s] ease-out"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-[#050507]/60 to-transparent z-10"></div>
+              </div>
               
               {/* Animated Background Mesh */}
-              <div className={`absolute top-0 right-0 w-full h-full blur-[120px] group-hover:scale-150 transition-transform duration-[2s] ${styles.mesh}`}></div>
+              <div className={`absolute top-0 right-0 w-full h-full blur-[120px] group-hover:scale-150 transition-transform duration-[2s] z-10 ${styles.mesh}`}></div>
               
-              <div className="relative z-20 space-y-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                 <div className="flex items-center gap-3">
-                    <span className={`text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full ${styles.label}`}>
-                      {event.featuredLabel || 'Featured Event'}
-                    </span>
-                    <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest">{event.category || 'Special Experience'}</span>
+              <div className="relative z-20 space-y-6 w-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                 <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                       <span className={`text-white text-[9px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full ${styles.label}`}>
+                         {event.featuredLabel || 'Featured Event'}
+                       </span>
+                       <span className="text-white/60 text-[9px] font-bold uppercase tracking-widest">{event.category || 'Special Experience'}</span>
+                    </div>
+                    <div className="flex items-center gap-4 text-white/40">
+                       <div className="flex items-center gap-1.5">
+                          <Calendar size={12} />
+                          <span className="text-[8px] font-black uppercase tracking-widest">{event.date ? new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBA'}</span>
+                       </div>
+                       <div className="flex items-center gap-1.5">
+                          <MapPin size={12} />
+                          <span className="text-[8px] font-black uppercase tracking-widest truncate max-w-[60px]">{event.location?.name || event.venue || 'NCR'}</span>
+                       </div>
+                    </div>
                  </div>
-                 <div>
-                    <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-[0.8] mb-4">
+                 
+                 <div className="space-y-4">
+                    <h2 className="text-5xl md:text-6xl font-black text-white uppercase tracking-tighter leading-[0.85] group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/50 transition-all">
                       {event.featuredTitle || event.title}
                     </h2>
-                    <p className="text-slate-400 text-sm md:text-base font-medium max-w-sm">
+                    <p className="text-slate-400 text-xs md:text-sm font-medium max-w-sm line-clamp-2 leading-relaxed">
                       {event.featuredSubtitle || event.description}
                     </p>
                  </div>
-                 <button className={`flex items-center gap-4 bg-white text-black pl-8 pr-2 py-2 rounded-full font-black text-[10px] uppercase tracking-widest transition-all group/btn ${styles.btn} hover:text-white`}>
-                    View Details 
-                    <div className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-black transition-colors">
-                       <ArrowRight size={16} />
+
+                 <div className="flex items-center justify-between pt-2">
+                    <button className={`flex items-center gap-4 bg-white text-black pl-8 pr-2 py-2 rounded-full font-black text-[10px] uppercase tracking-widest transition-all group/btn ${styles.btn} hover:text-white`}>
+                       View Details 
+                       <div className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-black transition-colors">
+                          <ArrowRight size={16} />
+                       </div>
+                    </button>
+                    
+                    <div className="text-right">
+                       <p className="text-white/20 text-[8px] font-black uppercase tracking-[0.3em] mb-1">Starts From</p>
+                       <p className="text-white text-xl font-black tracking-tighter italic">₹{event.price || 'FREE'}</p>
                     </div>
-                 </button>
+                 </div>
               </div>
             </div>
           );
