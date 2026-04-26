@@ -11,19 +11,75 @@ const apiKey = process.env.REACT_APP_OPENCAGE_API_KEY;
 
 function NavSm({ defaultLocation }) {
   const { user } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   return (
-    <div className="text-white flex items-center justify-between px-2">
-      <div className="flex flex-col">
-        <h3 className="text-xl font-black uppercase tracking-tighter leading-none italic italic">BACK<span className="text-indigo-500 italic block">STAGE</span></h3>
-        <span className="text-slate-600 text-[8px] font-black uppercase tracking-[0.4em] flex items-center mt-2 cursor-pointer hover:text-white transition-colors">
-          {defaultLocation || "Select Location"} <BiChevronDown className="ml-1" />
-        </span>
+    <div className="text-white">
+      <div className="flex items-center justify-between px-2">
+        <div className="flex flex-col">
+          <Link to="/" className="cursor-pointer">
+            <h3 className="text-xl font-black uppercase tracking-tighter leading-none italic">BACK<span className="text-indigo-500 italic block">STAGE</span></h3>
+          </Link>
+          <span className="text-slate-600 text-[8px] font-black uppercase tracking-[0.4em] flex items-center mt-2 cursor-pointer hover:text-white transition-colors">
+            {defaultLocation || "Select Location"} <BiChevronDown className="ml-1" />
+          </span>
+        </div>
+        <div className="flex items-center gap-6">
+          {user && user.picture ? (
+            <Link to="/my-bookings">
+               <img src={user.picture} alt="profile" className="w-10 h-10 rounded-[1.2rem] border border-white/10 p-1 bg-white/5" />
+            </Link>
+          ) : (
+            <div className="scale-90 origin-right">
+               <CustomModal />
+            </div>
+          )}
+          <button onClick={() => setIsOpen(!isOpen)} className="text-white p-2 bg-white/5 rounded-xl border border-white/10">
+            <BiMenu size={24} />
+          </button>
+        </div>
       </div>
-      <div className="flex items-center gap-6">
-        {user && user.picture && (
-          <img src={user.picture} alt="profile" className="w-10 h-10 rounded-[1.2rem] border border-white/10 p-1 bg-white/5" />
-        )}
-        <BiSearch size={24} className="text-slate-600" />
+
+      {/* Mobile Drawer */}
+      <div className={`fixed inset-0 z-[2000] transition-all duration-500 ${isOpen ? "visible opacity-100" : "invisible opacity-0"}`}>
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsOpen(false)}></div>
+        <div className={`absolute top-0 right-0 h-full w-[85%] glass-menu p-12 transition-transform duration-500 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
+          <div className="flex flex-col h-full">
+             <div className="flex justify-between items-start mb-12">
+                <h2 className="text-2xl font-black uppercase tracking-tighter italic">BACK<span className="text-indigo-500">STAGE</span></h2>
+                <button onClick={() => setIsOpen(false)} className="text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest">Close</button>
+             </div>
+             
+             <div className="flex flex-col gap-0">
+                <Link to="/" onClick={() => setIsOpen(false)} className="text-sm font-black uppercase tracking-[0.4em] text-white py-6 border-b border-white/5">Home</Link>
+                <Link to="/host" onClick={() => setIsOpen(false)} className="text-sm font-black uppercase tracking-[0.4em] text-slate-500 hover:text-white py-6 border-b border-white/5 transition-all">Host Event</Link>
+                <a href="https://www.parkconscious.in" className="text-sm font-black uppercase tracking-[0.4em] text-slate-500 hover:text-white py-6 border-b border-white/5 transition-all">Parking Maps</a>
+                
+                {user && (
+                  <Link to="/my-bookings" onClick={() => setIsOpen(false)} className="text-sm font-black uppercase tracking-[0.4em] text-indigo-400 py-6 border-b border-white/5">My Wallet</Link>
+                )}
+                
+                <Link to="/support" onClick={() => setIsOpen(false)} className="text-sm font-black uppercase tracking-[0.4em] text-slate-500 hover:text-white py-6 transition-all">Support</Link>
+             </div>
+             
+             <div className="mt-auto pt-12">
+                <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-800 leading-relaxed">
+                  © 2026 Backstage Experiences <br/> Part of the Park Conscious Network
+                </p>
+             </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -121,7 +177,18 @@ const Navbar = ({ defaultLocation }) => {
 
   return (
     <>
-      <nav className="bg-[#050507]/90 backdrop-blur-3xl sticky top-0 z-[100] border-b border-white/5 shadow-[0_10px_50px_rgba(0,0,0,0.5)]">
+      <style>{`
+        .glass-menu {
+          background: rgba(5, 5, 7, 0.8) !important;
+          backdrop-filter: blur(24px) !important;
+          -webkit-backdrop-filter: blur(24px) !important;
+          border-left: 1px solid rgba(255, 255, 255, 0.05) !important;
+          box-shadow: -20px 0 50px rgba(0, 0, 0, 0.5);
+          position: relative;
+          overflow: hidden;
+        }
+      `}</style>
+      <nav className="bg-[#050507] sticky top-0 z-[100] border-b border-white/5 shadow-[0_10px_50px_rgba(0,0,0,0.5)]">
         <div className="max-w-[1700px] mx-auto px-6 py-5 md:py-6">
           <div className="lg:hidden">
             <NavSm defaultLocation={defaultLocation} />
