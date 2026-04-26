@@ -4,6 +4,8 @@ import { Helmet } from "react-helmet";
 import DefaultlayoutHoc from "../layout/Default.layout";
 import { Mail, User, MessageSquare, Send, CheckCircle } from 'lucide-react';
 
+import { reportSystemError } from "../utils/monitoring";
+
 const SupportPage = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -31,6 +33,7 @@ const SupportPage = () => {
     } catch (err) {
       console.error("Support form error:", err);
       setStatus({ loading: false, success: false, error: "Failed to connect to server." });
+      reportSystemError("Support Form Submission Failed", "api_failure", { error: err.message });
     }
   };
 
