@@ -10,7 +10,6 @@ const SystemHealth = () => {
     const [expandedLog, setExpandedLog] = useState(null);
 
     const fetchLogs = async () => {
-        setLoading(true);
         try {
             const { data } = await adminService.getLogs();
             setLogs(data);
@@ -29,7 +28,7 @@ const SystemHealth = () => {
         try {
             await adminService.resolveLog(id, !currentStatus);
             setLogs(logs.map(log => log._id === id ? { ...log, resolved: !currentStatus } : log));
-        } catch (err) {
+        } catch (_err) {
             alert('Failed to update log status');
         }
     };
@@ -63,7 +62,7 @@ const SystemHealth = () => {
                 
                 <div className="flex items-center gap-4">
                     <button 
-                        onClick={fetchLogs}
+                        onClick={() => { setLoading(true); fetchLogs(); }}
                         className="p-4 bg-white/5 border border-white/5 rounded-2xl text-slate-400 hover:text-white hover:bg-white/10 transition-all active:scale-95"
                     >
                         <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
