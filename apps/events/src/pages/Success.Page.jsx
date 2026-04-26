@@ -103,7 +103,7 @@ const SuccessPage = () => {
         </div>
 
         {/* The Premium Ticket */}
-        <div className="relative group">
+        <div className="relative group" id="ticket-card">
           {/* Outer Shadow/Glow */}
           <div className="absolute -inset-4 bg-indigo-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity rounded-[3rem]" />
           
@@ -201,6 +201,11 @@ const SuccessPage = () => {
           </div>
         </div>
 
+        {/* Verification Note */}
+        <p className="text-center text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] max-w-xs mx-auto leading-relaxed">
+           A detailed copy of this ticket will be sent to your registered email after verification.
+        </p>
+
         {/* Action Buttons */}
         <div className="flex flex-col md:flex-row items-center gap-4 pt-4 no-print">
            <button 
@@ -242,7 +247,7 @@ const SuccessPage = () => {
           .text-center.space-y-6 { margin-bottom: 0 !important; padding-bottom: 0 !important; }
           
           /* Force Ticket to be White with Clean Borders */
-          .bg-\[\#0A0A0C\] { 
+          #ticket-card > div:last-child { 
             background: white !important; 
             border: 2px solid #000 !important; 
             color: black !important;
@@ -253,20 +258,20 @@ const SuccessPage = () => {
             margin-top: 0 !important;
           }
           
-          /* Text Colors */
-          .text-white, .text-slate-200, .text-indigo-400, .text-slate-500, .text-slate-600 { color: black !important; }
-          .text-2xl, .text-3xl, .text-sm, .text-xs { color: black !important; }
+          /* Text Colors - Target everything within the ticket card */
+          #ticket-card p, #ticket-card h2, #ticket-card h3, #ticket-card span, #ticket-card div {
+            color: black !important;
+          }
           
           /* Icon Colors */
-          .text-indigo-500, .text-slate-400 { color: #000 !important; }
+          #ticket-card svg { color: #000 !important; }
           
           /* Perforated Divider */
           .border-dashed { border-color: #000 !important; border-top-width: 2px !important; }
-          .bg-\[\#050507\] { background: white !important; border: 1px solid #000 !important; }
+          .absolute.left-\[-15px\], .absolute.right-\[-15px\] { background: white !important; border: 1px solid #000 !important; }
           
           /* QR Code Section */
-          .bg-white\/\[0.02\] { background: #fafafa !important; border-top: 1px solid #000 !important; }
-          .bg-white.rounded-\[2rem\] { border: 1px solid #eee !important; }
+          #ticket-card div:last-child > div:last-child { background: #fafafa !important; border-top: 1px solid #000 !important; }
           
           /* Hide non-essential decor */
           .absolute, .bg-indigo-600\/5, .blur-\[150px\], .group-hover\:opacity-100 { display: none !important; }
