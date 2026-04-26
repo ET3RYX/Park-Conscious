@@ -14,16 +14,23 @@ function NavSm({ defaultLocation }) {
   return (
     <div className="text-white flex items-center justify-between px-2">
       <div className="flex flex-col">
-        <h3 className="text-xl font-black uppercase tracking-tighter leading-none italic italic">BACK<span className="text-indigo-500 italic block">STAGE</span></h3>
+        <Link to="/" className="cursor-pointer">
+          <h3 className="text-xl font-black uppercase tracking-tighter leading-none italic italic">BACK<span className="text-indigo-500 italic block">STAGE</span></h3>
+        </Link>
         <span className="text-slate-600 text-[8px] font-black uppercase tracking-[0.4em] flex items-center mt-2 cursor-pointer hover:text-white transition-colors">
           {defaultLocation || "Select Location"} <BiChevronDown className="ml-1" />
         </span>
       </div>
       <div className="flex items-center gap-6">
-        {user && user.picture && (
-          <img src={user.picture} alt="profile" className="w-10 h-10 rounded-[1.2rem] border border-white/10 p-1 bg-white/5" />
+        {user && user.picture ? (
+          <Link to="/my-bookings">
+             <img src={user.picture} alt="profile" className="w-10 h-10 rounded-[1.2rem] border border-white/10 p-1 bg-white/5" />
+          </Link>
+        ) : (
+          <div className="scale-90 origin-right">
+             <CustomModal />
+          </div>
         )}
-        <BiSearch size={24} className="text-slate-600" />
       </div>
     </div>
   );
