@@ -68,12 +68,12 @@ const MainLayout = () => {
               <div className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.2em] mb-4 ml-1">Management</div>
               <SidebarItem icon={BarChart} label="Dashboard" to="/" />
               <SidebarItem icon={Calendar} label="Events" to="/events" />
-              <SidebarItem icon={Activity} label="Health" to="/health" />
               <SidebarItem icon={Users} label="Attendees" to="/attendees" />
               
               {isSuperAdmin && (
                 <>
                   <div className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.2em] mt-8 mb-4 ml-1">Team</div>
+                  <SidebarItem icon={Activity} label="Health" to="/health" />
                   <SidebarItem icon={Settings} label="Settings" to="/settings" />
                 </>
               )}

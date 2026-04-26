@@ -27,6 +27,11 @@ const PrivateRoute = ({ children }) => {
   return admin ? children : <Navigate to="/login" replace />;
 };
 
+const SuperAdminRoute = ({ children }) => {
+  const { admin } = useAuth();
+  return admin?.role === 'superadmin' ? children : <Navigate to="/" replace />;
+};
+
 class AppErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -95,7 +100,7 @@ function App() {
               <Route path="events/create" element={<CreateEvent />} />
               <Route path="events/edit/:id" element={<EditEvent />} />
               <Route path="price-updater" element={<PriceUpdater />} />
-              <Route path="health" element={<SystemHealth />} />
+              <Route path="health" element={<SuperAdminRoute><SystemHealth /></SuperAdminRoute>} />
               <Route path="attendees" element={<Attendees />} />
               <Route path="settings" element={<Settings />} />
             </Route>

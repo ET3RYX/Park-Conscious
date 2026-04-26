@@ -85,10 +85,10 @@ export default async function handler(req, res) {
             });
         }
 
-        // -- System Log Management (Admin Only) --
+        // -- System Log Management (SuperAdmin Only) --
         if (url.includes('logs') && method === 'GET') {
-            if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) {
-                return json(res, 403, { message: 'Access Denied' });
+            if (!user || user.role !== 'superadmin') {
+                return json(res, 403, { message: 'Access Denied: SuperAdmin privileges required' });
             }
             
             const logs = await SystemLog.find({}).sort({ createdAt: -1 }).limit(200).lean();
@@ -96,8 +96,8 @@ export default async function handler(req, res) {
         }
 
         if (url.includes('logs/') && method === 'PATCH') {
-            if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) {
-                return json(res, 403, { message: 'Access Denied' });
+            if (!user || user.role !== 'superadmin') {
+                return json(res, 403, { message: 'Access Denied: SuperAdmin privileges required' });
             }
             
             const logId = url.split('/').pop();
