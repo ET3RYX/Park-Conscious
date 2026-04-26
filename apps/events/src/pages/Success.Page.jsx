@@ -1,170 +1,250 @@
-import React, { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle, ArrowRight, Download, IndianRupee, Loader2 } from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
+import { useSearchParams, Link } from "react-router-dom";
 import { backendAxios } from "../axios";
-import DefaultlayoutHoc from "../layout/Default.layout";
-
-const getEventBranding = (booking) => {
-  const eventId = booking?.eventId || "";
-  const title = booking?.event?.title || booking?.location?.name || booking?.event?.name || "Event Ticket";
-
-  if (eventId.includes("farewell") || title.toLowerCase().includes("afsana")) {
-    return {
-      headline: "AFSANA '26 Confirmed!",
-      subtitle: "Your ticket for Afsana '26 — The Grand Finale is confirmed. See you on May 25th!",
-      accent: "from-vibrantBlue to-indigo-500",
-      qrColor: "border-indigo-500/30 shadow-indigo-500/20",
-    };
-  }
-
-  if (eventId.includes("tedx") || title.toLowerCase().includes("tedx") || title.toLowerCase().includes("sangam")) {
-    return {
-      headline: "TEDx SANGAM Confirmed!",
-      subtitle: "Your registration for TEDx GGSIPU EDC is complete. We look forward to seeing you at SANGAM.",
-      accent: "from-sky-500 to-emerald-500",
-      qrColor: "border-sky-500/20 shadow-sky-500/20",
-    };
-  }
-
-  // Generic Catch-All Branding
-  return {
-    headline: `${title.toUpperCase()} CONFIRMED!`,
-    subtitle: `Your registration for ${title} is complete. Your entry is securely confirmed.`,
-    accent: "from-slate-400 to-white",
-    qrColor: "border-white/20 shadow-white/10",
-  };
-};
+import { QRCodeSVG } from "qrcode.react";
+import { 
+  CheckCircle2, 
+  Download, 
+  MapPin, 
+  Calendar, 
+  User, 
+  Ticket, 
+  ArrowRight, 
+  Loader2,
+  AlertTriangle,
+  Clock,
+  ExternalLink
+} from 'lucide-react';
 
 const SuccessPage = () => {
   const [searchParams] = useSearchParams();
   const txnId = searchParams.get("txnId");
-  const amount = searchParams.get("amount") || null;
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
+  const ticketRef = useRef();
 
   useEffect(() => {
-    const fetchBooking = async () => {
-      if (!txnId) { setLoading(false); return; }
-      try {
-        const res = await backendAxios.get(`/api/booking/status/${txnId}`);
-        if (res.data) setBooking(res.data);
-      } catch (err) {
-        console.error("Error fetching booking details:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBooking();
+    if (txnId) {
+      const fetchBooking = async () => {
+        try {
+          const res = await backendAxios.get(`/api/booking/status/${txnId}`);
+          setBooking(res.data);
+        } catch (err) {
+          console.error("Error fetching booking:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchBooking();
+    } else {
+      setLoading(false);
+    }
   }, [txnId]);
 
-  // QR data: prefer ticketId, fall back to txnId
-  const qrData = booking?.ticketId || txnId;
-  const branding = getEventBranding(booking);
+  const handleDownload = () => {
+    window.print();
+  };
 
   if (loading) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center bg-[#040b17]">
-        <Loader2 className="text-sky-500 animate-spin" size={40} />
+      <div className="min-h-screen bg-[#050507] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-6">
+           <Loader2 className="animate-spin text-indigo-500" size={48} />
+           <p className="text-slate-500 font-black uppercase tracking-[0.3em] text-xs">Authenticating Your Entry...</p>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-[#050507] py-24 px-8 relative">
-      {/* Dynamic Background Glow */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none"></div>
-
-      <div className="max-w-xl w-full text-center space-y-12 animate-reveal relative z-10">
-
-        {/* Animated Checkmark — Editorial Orbit */}
-        <div className="relative mx-auto w-32 h-32 bg-white/5 rounded-[2rem] flex items-center justify-center border border-white/10 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)]">
-          <CheckCircle size={56} className="text-white animate-pulse" />
-          <div className="absolute inset-0 bg-indigo-500/10 rounded-[2rem] blur-2xl -z-10 animate-pulse"></div>
-        </div>
-
-        <div className="space-y-6 text-center items-center flex flex-col">
-          <h1 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter italic leading-[0.8]">{branding.headline}</h1>
-          <p className="text-slate-500 font-bold uppercase tracking-[0.4em] text-[10px] max-w-sm border-t border-white/5 pt-6">{branding.subtitle}</p>
-        </div>
-
-        {/* Ticket Details Card — Verified Passport */}
-        <div id="ticket-card" className="bg-white/5 border border-white/5 rounded-[3.5rem] p-10 md:p-16 text-left space-y-10 backdrop-blur-3xl relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-600/5 blur-[100px] -z-10 rounded-full"></div>
-
-          <div className="flex flex-col md:flex-row gap-12 items-center md:items-start justify-between border-b border-white/5 pb-12">
-            <div className="space-y-8 flex-1">
-              <div>
-                <p className="text-[9px] text-slate-200 font-black uppercase tracking-[0.4em] mb-2">Transaction ID</p>
-                <code className="text-indigo-400 font-mono text-xs break-all bg-indigo-500/5 px-2 py-1 rounded-lg border border-indigo-500/10 uppercase">{txnId || "N/A"}</code>
-              </div>
-              <div>
-                <p className="text-[9px] text-slate-200 font-black uppercase tracking-[0.4em] mb-2">Booking Status</p>
-                <div className="flex">
-                  <span className="text-white text-[10px] font-black uppercase tracking-widest bg-white/5 px-6 py-2 rounded-full border border-white/10 whitespace-nowrap flex items-center gap-2">
-                    Verified & Secure ✓
-                  </span>
-                </div>
-              </div>
-              {booking?.ticketId && (
-                <div>
-                  <p className="text-[9px] text-slate-200 font-black uppercase tracking-[0.4em] mb-2">Ticket Code</p>
-                  <p className="text-white font-black text-3xl tracking-tighter italic uppercase">{booking.ticketId}</p>
-                </div>
-              )}
-              <div>
-                <p className="text-[9px] text-slate-200 font-black uppercase tracking-[0.4em] mb-2">Event</p>
-                <p className="text-white font-bold text-lg uppercase tracking-tight">{booking?.event?.title || booking?.location?.name || booking?.event?.name || "Event Ticket"}</p>
-              </div>
-            </div>
-
-            {/* QR Code */}
-            {qrData && (
-              <div className="bg-white p-4 rounded-[2rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] group hover:scale-105 transition-transform duration-700 flex-shrink-0">
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(qrData)}&ecc=H&margin=0`}
-                  alt={`QR Ticket`}
-                  width={160}
-                  height={160}
-                  className="rounded-xl transition-all duration-700 hover:scale-105"
-                />
-                <p className="text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] mt-4">Scan QR Ticket</p>
-              </div>
-            )}
-          </div>
-
-          {amount && (
-            <div className="flex items-center justify-between bg-[#050507] border border-white/5 rounded-[2rem] px-8 py-6">
-              <p className="text-[9px] text-slate-400 font-black uppercase tracking-[0.4em]">Amount Paid</p>
-              <div className="flex items-center gap-2 text-white font-black text-2xl italic">
-                <IndianRupee size={20} />
-                {amount}
-              </div>
-            </div>
-          )}
-
-          <div className="pt-4">
-            <button
-              onClick={() => window.print()}
-              className="w-full bg-white text-black py-6 rounded-full font-black text-[11px] uppercase tracking-[0.3em] hover:bg-indigo-600 hover:text-white transition-all flex items-center justify-center gap-4 shadow-2xl active:scale-95 group"
-            >
-              <Download size={20} className="group-hover:translate-y-1 transition-transform" /> Download Ticket
-            </button>
-          </div>
-        </div>
-
-        <div className="flex flex-col md:flex-row items-center justify-center gap-10 pt-8 opacity-40 hover:opacity-100 transition-opacity">
-          <Link to="/my-bookings" className="text-white text-[10px] font-black uppercase tracking-[0.3em] transition flex items-center gap-3">
-            View Wallet <ArrowRight size={14} />
-          </Link>
-          <div className="w-1.5 h-1.5 bg-white/20 rounded-full hidden md:block"></div>
-          <Link to="/" className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] transition flex items-center gap-3">
-            Return to Home <ArrowRight size={14} />
-          </Link>
+  if (!booking) {
+    return (
+      <div className="min-h-screen bg-[#050507] flex items-center justify-center p-6 text-center">
+        <div className="max-w-md space-y-8">
+           <div className="w-24 h-24 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto border border-rose-500/20">
+              <AlertTriangle className="text-rose-500" size={40} />
+           </div>
+           <div className="space-y-4">
+              <h1 className="text-3xl font-black text-white uppercase tracking-tighter">Access Denied</h1>
+              <p className="text-slate-400 text-sm leading-relaxed">We couldn't find a valid booking associated with this transaction ID. If you believe this is an error, please contact support.</p>
+           </div>
+           <Link to="/" className="inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-full font-black uppercase tracking-[0.2em] text-[10px] hover:bg-slate-200 transition-colors">
+              Return Home <ArrowRight size={16} />
+           </Link>
         </div>
       </div>
+    );
+  }
+
+  const event = booking.event || {};
+  const userName = booking.name || booking.userId || "Guest Attendee";
+  const venue = event.location?.name || event.venue || "To Be Announced";
+  const dateStr = event.date ? new Date(event.date).toLocaleDateString('en-US', { 
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+  }) : "Check Event Details";
+
+  return (
+    <div className="min-h-screen bg-[#050507] py-12 md:py-24 px-4 relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-indigo-600/5 blur-[150px] rounded-full pointer-events-none" />
+      
+      <div className="max-w-xl mx-auto relative z-10 space-y-12">
+        {/* Top Header */}
+        <div className="text-center space-y-6">
+           <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400">
+              <CheckCircle2 size={16} />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Transaction Verified</span>
+           </div>
+           <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase leading-[0.9]">
+              Entry <br/> Confirmed
+           </h1>
+           <p className="text-slate-500 text-xs md:text-sm uppercase tracking-[0.3em] font-medium max-w-sm mx-auto leading-relaxed">
+              Your pass for <span className="text-white">{event.title || "the event"}</span> has been successfully issued.
+           </p>
+        </div>
+
+        {/* The Premium Ticket */}
+        <div className="relative group no-print">
+          {/* Outer Shadow/Glow */}
+          <div className="absolute -inset-4 bg-indigo-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity rounded-[3rem]" />
+          
+          <div className="bg-[#0A0A0C] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl relative">
+            
+            {/* Top Section: Event Header */}
+            <div className="p-8 md:p-12 space-y-8">
+               <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                     <p className="text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em]">Access Pass</p>
+                     <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight uppercase max-w-[250px] leading-none">
+                        {event.title || "Event Tickets"}
+                     </h2>
+                  </div>
+                  <div className="text-right">
+                     <p className="text-slate-600 text-[9px] font-black uppercase tracking-[0.2em]">Ticket ID</p>
+                     <p className="text-white text-xs font-mono tracking-wider">{booking.ticketId || "TK-PENDING"}</p>
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-2 gap-8 pt-4">
+                  <div className="space-y-3">
+                     <div className="flex items-center gap-2 text-slate-500">
+                        <User size={12} className="text-indigo-500" />
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em]">Guest</span>
+                     </div>
+                     <p className="text-sm font-bold text-white truncate uppercase">{userName}</p>
+                  </div>
+                  <div className="space-y-3">
+                     <div className="flex items-center gap-2 text-slate-500">
+                        <Ticket size={12} className="text-indigo-500" />
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em]">Type</span>
+                     </div>
+                     <p className="text-sm font-bold text-white uppercase">{booking.amount > 0 ? "Standard Pass" : "Early Access"}</p>
+                  </div>
+               </div>
+
+               <div className="space-y-6 pt-2">
+                  <div className="flex items-start gap-4">
+                     <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center shrink-0 border border-white/5">
+                        <Calendar size={18} className="text-slate-400" />
+                     </div>
+                     <div className="space-y-1">
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Event Date</p>
+                        <p className="text-xs md:text-sm text-slate-200 font-bold uppercase">{dateStr}</p>
+                     </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                     <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center shrink-0 border border-white/5">
+                        <MapPin size={18} className="text-slate-400" />
+                     </div>
+                     <div className="space-y-1">
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Location</p>
+                        <p className="text-xs md:text-sm text-slate-200 font-bold uppercase">{venue}</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+            {/* Perforated Divider */}
+            <div className="relative py-4 overflow-hidden">
+               <div className="absolute left-[-15px] top-1/2 -translate-y-1/2 w-8 h-8 bg-[#050507] rounded-full border border-white/5 z-20" />
+               <div className="absolute right-[-15px] top-1/2 -translate-y-1/2 w-8 h-8 bg-[#050507] rounded-full border border-white/5 z-20" />
+               <div className="mx-8 border-t-2 border-dashed border-white/10" />
+            </div>
+
+            {/* Bottom Section: QR Code */}
+            <div className="p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 bg-white/[0.02]">
+               <div className="space-y-4 text-center md:text-left">
+                  <h3 className="text-lg font-black text-white uppercase tracking-tight">Security Code</h3>
+                  <p className="text-slate-500 text-[10px] leading-relaxed uppercase tracking-[0.1em] max-w-[200px]">
+                     Present this QR code at the entrance for scanning. Entry is limited to one person per ticket.
+                  </p>
+                  <div className="flex items-center gap-4 justify-center md:justify-start pt-2">
+                     <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
+                        <Clock size={12} className="text-indigo-400" />
+                        <span className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">Valid Entry</span>
+                     </div>
+                  </div>
+               </div>
+               
+               <div className="relative group/qr">
+                  <div className="absolute -inset-4 bg-white/5 blur-xl rounded-full opacity-0 group-hover/qr:opacity-100 transition-opacity" />
+                  <div className="p-6 bg-white rounded-[2rem] shadow-2xl relative">
+                    <QRCodeSVG 
+                      value={booking.ticketId || txnId} 
+                      size={140} 
+                      level="H"
+                      includeMargin={false}
+                    />
+                  </div>
+               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col md:flex-row items-center gap-4 pt-4">
+           <button 
+             onClick={handleDownload}
+             className="w-full md:flex-1 bg-white text-black py-6 rounded-full font-black uppercase tracking-[0.3em] text-[11px] flex items-center justify-center gap-3 hover:bg-slate-200 transition-all active:scale-95 shadow-xl"
+           >
+              <Download size={18} /> Download Ticket
+           </button>
+           <Link 
+             to="/profile"
+             className="w-full md:w-auto bg-white/5 border border-white/10 text-white px-10 py-6 rounded-full font-black uppercase tracking-[0.3em] text-[11px] flex items-center justify-center gap-3 hover:bg-white/10 transition-all active:scale-95"
+           >
+              My Tickets <ExternalLink size={16} />
+           </Link>
+        </div>
+
+        {/* Footer Note */}
+        <p className="text-center text-slate-600 text-[9px] font-black uppercase tracking-[0.4em] pt-8">
+           Managed by Backstage • All Rights Reserved
+        </p>
+      </div>
+
+      {/* Printable Style Hook */}
+      <style>{`
+        @media print {
+          body { background: white !important; padding: 0 !important; }
+          .no-print { box-shadow: none !important; border: 1px solid #eee !important; }
+          button, a, .bg-indigo-600\/5 { display: none !important; }
+          .min-h-screen { min-height: auto !important; padding: 0 !important; }
+          .max-w-xl { max-width: 100% !important; margin: 0 !important; }
+          .bg-[#0A0A0C] { background: white !important; border: 2px solid #000 !important; color: black !important; border-radius: 0 !important; }
+          .text-white, .text-slate-200 { color: black !important; }
+          .text-slate-500, .text-indigo-400 { color: #666 !important; }
+          .border-white\/5, .border-white\/10 { border-color: #eee !important; }
+          .absolute { position: relative !important; top: 0 !important; left: 0 !important; translate: none !important; }
+          .py-12, .py-24 { padding-top: 0 !important; padding-bottom: 0 !important; }
+          .bg-emerald-500\/10, .bg-white\/[0.02] { background: transparent !important; }
+          .p-8, .md\:p-12 { padding: 40px !important; }
+          .perforated-divider { border-color: #000 !important; }
+          .perforated::before, .perforated::after { display: none; }
+        }
+      `}</style>
     </div>
   );
 };
 
-export default DefaultlayoutHoc(SuccessPage);
-
+export default SuccessPage;

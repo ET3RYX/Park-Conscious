@@ -25,6 +25,15 @@ export default async function handler(req, res) {
             const { name, amount, phone, eventId, orderId, userId, screenshotUrl, customData } = body;
             const targetEventId = eventId || orderId;
             const targetUserId = userId || name || "Guest";
+
+            // SECURITY: Ensure the event is published before allowing bookings
+            if (targetEventId && targetEventId.length === 24) {
+                const event = await models.Event.findById(targetEventId).lean();
+                if (!event) return json(res, 404, { message: 'Event not found' });
+                if (!['published', 'Published'].includes(event.status)) {
+                    return json(res, 403, { message: 'Bookings are only allowed for published events.' });
+                }
+            }
             
             // PREVENT DUPLICATE BOOKINGS: Ensure the user/email/phone hasn't already booked this event
             const emailFilter = body.email ? { email: body.email } : null;
@@ -75,6 +84,7 @@ export default async function handler(req, res) {
                     screenshotUrl: screenshotUrl || null,
                     status: "Confirmed",
                     phone: phone,
+                    name: name || body.name || null,
                     email: body.email || null,
                     ticketId: ticketId,
                     customData: customData || {}
@@ -120,6 +130,7 @@ export default async function handler(req, res) {
                 screenshotUrl: screenshotUrl || null,
                 status: "Initiated",
                 phone: phone,
+                name: name || body.name || null,
                 email: body.email || null,
                 customData: customData || {}
             });
@@ -206,6 +217,14 @@ export default async function handler(req, res) {
             if (!txnId) return json(res, 400, { message: 'Transaction ID missing' });
             const booking = await Booking.findOne({ transactionId: txnId }).lean();
             if (!booking) return json(res, 404, { message: 'Booking not found' });
+            
+            if (booking.eventId && booking.eventId.length === 24) {
+                const event = await models.Event.findById(booking.eventId).lean();
+                if (event) {
+                    booking.event = normalizeEvent(event);
+                }
+            }
+            
             return json(res, 200, booking);
         }
 
