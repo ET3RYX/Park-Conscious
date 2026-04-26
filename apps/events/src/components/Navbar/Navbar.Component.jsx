@@ -42,40 +42,29 @@ function NavSm({ defaultLocation }) {
 
       {/* Mobile Drawer */}
       <div className={`fixed inset-0 z-[1000] transition-all duration-500 ${isOpen ? "visible opacity-100" : "invisible opacity-0"}`}>
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsOpen(false)}></div>
-        <div className={`absolute top-0 right-0 h-full w-[85%] bg-black/95 backdrop-blur-3xl border-l border-white/10 p-10 transition-transform duration-500 ease-out shadow-[-20px_0_50px_rgba(0,0,0,0.5)] ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setIsOpen(false)}></div>
+        <div className={`absolute top-0 right-0 h-full w-[80%] bg-black/40 backdrop-blur-2xl border-l border-white/5 p-12 transition-transform duration-500 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
           <div className="flex flex-col h-full">
-             <div className="flex justify-between items-center mb-16">
+             <div className="flex justify-between items-start mb-12">
                 <h2 className="text-2xl font-black uppercase tracking-tighter italic">BACK<span className="text-indigo-500">STAGE</span></h2>
-                <button 
-                  onClick={() => setIsOpen(false)} 
-                  className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-full border border-white/10 text-white"
-                >
-                  <BiChevronDown className="rotate-90" size={20} />
-                </button>
+                <button onClick={() => setIsOpen(false)} className="text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest">Close</button>
              </div>
              
-             <div className="flex flex-col gap-2">
-                <Link to="/" onClick={() => setIsOpen(false)} className="text-xl font-black uppercase tracking-[0.3em] text-white py-6 border-b border-white/5 active:text-indigo-400">Home</Link>
-                <Link to="/host" onClick={() => setIsOpen(false)} className="text-xl font-black uppercase tracking-[0.3em] text-white py-6 border-b border-white/5 active:text-indigo-400">Host Event</Link>
-                <a href="https://www.parkconscious.in" className="text-xl font-black uppercase tracking-[0.3em] text-white py-6 border-b border-white/5 active:text-indigo-400">Parking Maps</a>
+             <div className="flex flex-col gap-0">
+                <Link to="/" onClick={() => setIsOpen(false)} className="text-sm font-black uppercase tracking-[0.4em] text-white py-6 border-b border-white/5">Home</Link>
+                <Link to="/host" onClick={() => setIsOpen(false)} className="text-sm font-black uppercase tracking-[0.4em] text-slate-500 hover:text-white py-6 border-b border-white/5 transition-all">Host Event</Link>
+                <a href="https://www.parkconscious.in" className="text-sm font-black uppercase tracking-[0.4em] text-slate-500 hover:text-white py-6 border-b border-white/5 transition-all">Parking Maps</a>
                 
                 {user && (
-                  <Link to="/my-bookings" onClick={() => setIsOpen(false)} className="text-xl font-black uppercase tracking-[0.3em] text-indigo-400 py-6 border-b border-white/5">My Wallet</Link>
+                  <Link to="/my-bookings" onClick={() => setIsOpen(false)} className="text-sm font-black uppercase tracking-[0.4em] text-indigo-400 py-6 border-b border-white/5">My Wallet</Link>
                 )}
                 
-                <Link to="/support" onClick={() => setIsOpen(false)} className="text-xl font-black uppercase tracking-[0.3em] text-white py-6 border-b border-white/5 transition-all">Support</Link>
+                <Link to="/support" onClick={() => setIsOpen(false)} className="text-sm font-black uppercase tracking-[0.4em] text-slate-500 hover:text-white py-6 transition-all">Support</Link>
              </div>
              
-             <div className="mt-auto pb-8">
-                <div className="p-6 bg-white/5 rounded-[2rem] border border-white/5">
-                   <p className="text-[9px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-2">Network Status</p>
-                   <p className="text-[10px] font-bold text-slate-400 leading-relaxed uppercase tracking-widest">
-                     Connected to Park Conscious <br/> Delhi NCR Node
-                   </p>
-                </div>
-                <p className="text-[7px] font-black uppercase tracking-[0.5em] text-slate-800 mt-8 text-center">
-                  © 2026 Backstage Experiences
+             <div className="mt-auto pt-12">
+                <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-700 leading-relaxed">
+                  © 2026 Backstage Experiences <br/> Part of the Park Conscious Network
                 </p>
              </div>
           </div>
