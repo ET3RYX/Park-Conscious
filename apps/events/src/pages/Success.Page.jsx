@@ -202,7 +202,7 @@ const SuccessPage = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col md:flex-row items-center gap-4 pt-4">
+        <div className="flex flex-col md:flex-row items-center gap-4 pt-4 no-print">
            <button 
              onClick={handleDownload}
              className="w-full md:flex-1 bg-white text-black py-6 rounded-full font-black uppercase tracking-[0.3em] text-[11px] flex items-center justify-center gap-3 hover:bg-slate-200 transition-all active:scale-95 shadow-xl"
@@ -210,15 +210,15 @@ const SuccessPage = () => {
               <Download size={18} /> Download Ticket
            </button>
            <Link 
-             to="/profile"
+             to="/"
              className="w-full md:w-auto bg-white/5 border border-white/10 text-white px-10 py-6 rounded-full font-black uppercase tracking-[0.3em] text-[11px] flex items-center justify-center gap-3 hover:bg-white/10 transition-all active:scale-95"
            >
-              My Tickets <ExternalLink size={16} />
+              Return Home <ArrowRight size={16} />
            </Link>
         </div>
 
         {/* Footer Note */}
-        <p className="text-center text-slate-600 text-[9px] font-black uppercase tracking-[0.4em] pt-8">
+        <p className="text-center text-slate-600 text-[9px] font-black uppercase tracking-[0.4em] pt-8 no-print">
            Managed by Backstage • All Rights Reserved
         </p>
       </div>
@@ -226,21 +226,34 @@ const SuccessPage = () => {
       {/* Printable Style Hook */}
       <style>{`
         @media print {
-          body { background: white !important; padding: 0 !important; }
-          .no-print { box-shadow: none !important; border: 1px solid #eee !important; }
-          button, a, .bg-indigo-600\/5 { display: none !important; }
-          .min-h-screen { min-height: auto !important; padding: 0 !important; }
-          .max-w-xl { max-width: 100% !important; margin: 0 !important; }
-          .bg-[#0A0A0C] { background: white !important; border: 2px solid #000 !important; color: black !important; border-radius: 0 !important; }
-          .text-white, .text-slate-200 { color: black !important; }
-          .text-slate-500, .text-indigo-400 { color: #666 !important; }
-          .border-white\/5, .border-white\/10 { border-color: #eee !important; }
-          .absolute { position: relative !important; top: 0 !important; left: 0 !important; translate: none !important; }
-          .py-12, .py-24 { padding-top: 0 !important; padding-bottom: 0 !important; }
-          .bg-emerald-500\/10, .bg-white\/[0.02] { background: transparent !important; }
-          .p-8, .md\:p-12 { padding: 40px !important; }
-          .perforated-divider { border-color: #000 !important; }
-          .perforated::before, .perforated::after { display: none; }
+          @page { margin: 0; size: auto; }
+          body { background: white !important; color: black !important; -webkit-print-color-adjust: exact; }
+          .no-print { display: none !important; }
+          
+          .min-h-screen { min-height: auto !important; padding: 40px 20px !important; background: white !important; }
+          .max-w-xl { max-width: 600px !important; margin: 0 auto !important; }
+          
+          /* Force Ticket to be White with Black Borders for Print */
+          .bg-[#0A0A0C] { 
+            background: white !important; 
+            border: 2px solid #000 !important; 
+            border-radius: 20px !important;
+            box-shadow: none !important;
+          }
+          
+          .text-white, .text-slate-200, .text-indigo-400, .text-slate-500 { color: black !important; }
+          .bg-white\/[0.02] { background: #f9f9f9 !important; border-top: 1px solid #eee !important; }
+          .bg-indigo-500\/10, .bg-emerald-500\/10, .bg-white\/5 { background: #f0f0f0 !important; border: 1px solid #ddd !important; }
+          
+          /* Divider */
+          .border-dashed { border-color: #000 !important; }
+          .absolute.left-\[-15px\], .absolute.right-\[-15px\] { background: white !important; border: 1px solid #000 !important; }
+          
+          /* QR Code */
+          .bg-white.rounded-\[2rem\] { padding: 0 !important; box-shadow: none !important; }
+          
+          /* Hide non-essential decor */
+          .bg-indigo-600\/5, .blur-\[150px\] { display: none !important; }
         }
       `}</style>
     </div>
