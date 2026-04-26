@@ -213,7 +213,7 @@ const SuccessPage = () => {
              to="/profile"
              className="w-full md:w-auto bg-white/5 border border-white/10 text-white px-10 py-6 rounded-full font-black uppercase tracking-[0.3em] text-[11px] flex items-center justify-center gap-3 hover:bg-white/10 transition-all active:scale-95"
            >
-              My Tickets <ExternalLink size={16} />
+              My Tickets <ArrowRight size={16} />
            </Link>
         </div>
 
