@@ -6,7 +6,7 @@ import axios from 'axios';
 import { json, setCors, getBody, verifyUser, normalizeEvent } from './lib/utils.js';
 import { Resend } from 'resend';
 
-const { Booking, Event, User, Owner, Parking } = models;
+const { Booking, Event, User, Owner, Parking, SystemLog } = models;
 
 export default async function handler(req, res) {
     setCors(req, res);
@@ -45,6 +45,44 @@ export default async function handler(req, res) {
                 }
             };
             return json(res, 200, stats);
+        }
+        
+        // -- Unified Error Reporting (Public/Semi-Public) --
+        if (url.includes('logs') && method === 'POST') {
+            const { source, type, message, stack, url: errorUrl, metadata } = body;
+            if (!source || !message) return json(res, 400, { message: 'Missing source or message' });
+            
+            const log = await SystemLog.create({
+                source,
+                type: type || 'frontend_crash',
+                message,
+                stack,
+                url: errorUrl,
+                metadata: metadata || {}
+            });
+            
+            console.log(`[SYSTEM LOG] [${source}] ${message}`);
+            return json(res, 201, { success: true, logId: log._id });
+        }
+
+        // -- System Status Audit (Admin Only or Cron) --
+        if (url.includes('system-status') && method === 'GET') {
+            const isCron = req.headers['x-cron-secret'] === process.env.CRON_SECRET;
+            if (!isCron && (!user || (user.role !== 'superadmin' && user.role !== 'admin'))) {
+                return json(res, 403, { message: 'Access Denied' });
+            }
+
+            const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const recentLogs = await SystemLog.find({
+                resolved: false,
+                createdAt: { $gte: twentyFourHoursAgo }
+            }).sort({ createdAt: -1 }).limit(50).lean();
+
+            return json(res, 200, {
+                status: recentLogs.length > 0 ? 'attention_required' : 'healthy',
+                unresolvedCount: recentLogs.length,
+                logs: recentLogs
+            });
         }
 
         // -- User Management (SuperAdmin Only) --

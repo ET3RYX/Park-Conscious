@@ -32,7 +32,23 @@ class AppErrorBoundary extends React.Component {
     this.state = { hasError: false, error: null };
   }
   static getDerivedStateFromError(error) { return { hasError: true, error }; }
-  componentDidCatch(error, errorInfo) { console.error('CRITICAL ADMIN CRASH:', error, errorInfo); }
+  componentDidCatch(error, errorInfo) { 
+    console.error('CRITICAL ADMIN CRASH:', error, errorInfo); 
+    
+    // Automatically report to centralized system log
+    fetch('/api/admin/logs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        source: 'admin',
+        type: 'frontend_crash',
+        message: error.message || 'Unknown Admin Crash',
+        stack: error.stack,
+        url: window.location.href,
+        metadata: { errorInfo }
+      })
+    }).catch(err => console.error('Failed to send error report:', err));
+  }
   render() {
     if (this.state.hasError) {
       return (

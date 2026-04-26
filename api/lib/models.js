@@ -171,6 +171,19 @@ const eventRequestSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+const systemLogSchema = new mongoose.Schema(
+  {
+    source: { type: String, required: true }, // 'admin', 'events', 'web'
+    type: { type: String, default: 'frontend_crash' }, // 'frontend_crash', 'api_failure', 'payment_failure'
+    message: String,
+    stack: String,
+    url: String,
+    resolved: { type: Boolean, default: false },
+    metadata: { type: mongoose.Schema.Types.Mixed, default: {} }
+  },
+  { timestamps: true }
+);
+
 const commentSchema = new mongoose.Schema(
   {
     discussionId: {
@@ -221,3 +234,4 @@ export const Discussion = mongoose.models.Discussion || mongoose.model("Discussi
 export const Parking = mongoose.models.Parking || mongoose.model("Parking", parkingSchema);
 export const Booking = mongoose.models.Booking || mongoose.model("Booking", bookingSchema);
 export const EventRequest = mongoose.models.EventRequest || mongoose.model("EventRequest", eventRequestSchema);
+export const SystemLog = mongoose.models.SystemLog || mongoose.model("SystemLog", systemLogSchema);

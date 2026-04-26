@@ -19,10 +19,11 @@ import MyBookingsPage from "./pages/MyBookings.Page";
 import AdminPage from "./pages/Admin.Page";
 import HostPage from "./pages/Host.Page";
 import SupportPage from "./pages/Support.Page";
+import AppErrorBoundary from "./components/AppErrorBoundary";
 
 function App() {
   return (
-    <>
+    <AppErrorBoundary>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/support" element={<SupportPage />} />
@@ -41,7 +42,7 @@ function App() {
         <Route path="*" element={<ErrorPage />} />
       </Routes>
       <Analytics />
-    </>
+    </AppErrorBoundary>
   );
 }
 
