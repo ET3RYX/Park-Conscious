@@ -22,7 +22,7 @@ export const reportSystemError = (message, type = 'api_failure', metadata = {}) 
         }
       })
     }).catch(err => console.warn('Monitoring: Report failed', err));
-  } catch (e) {
+  } catch (_e) {
     // Fail silently to avoid interfering with app logic
   }
 };
