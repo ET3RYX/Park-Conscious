@@ -226,34 +226,50 @@ const SuccessPage = () => {
       {/* Printable Style Hook */}
       <style>{`
         @media print {
-          @page { margin: 0; size: auto; }
-          body { background: white !important; color: black !important; -webkit-print-color-adjust: exact; }
+          @page { margin: 0.5cm; size: portrait; }
+          
+          /* Reset and Basics */
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          body { background: white !important; color: black !important; margin: 0 !important; padding: 0 !important; }
           .no-print { display: none !important; }
           
-          .min-h-screen { min-height: auto !important; padding: 40px 20px !important; background: white !important; }
-          .max-w-xl { max-width: 600px !important; margin: 0 auto !important; }
+          /* Container Tweaks */
+          .min-h-screen { min-height: auto !important; background: white !important; padding: 0 !important; }
+          .max-w-xl { max-width: 100% !important; width: 100% !important; margin: 0 !important; }
           
-          /* Force Ticket to be White with Black Borders for Print */
-          .bg-[#0A0A0C] { 
+          /* Hide the Header Text for Print to save space */
+          h1, .text-center.space-y-6 > p, .inline-flex.items-center.gap-3 { display: none !important; }
+          .text-center.space-y-6 { margin-bottom: 0 !important; padding-bottom: 0 !important; }
+          
+          /* Force Ticket to be White with Clean Borders */
+          .bg-\[\#0A0A0C\] { 
             background: white !important; 
             border: 2px solid #000 !important; 
-            border-radius: 20px !important;
+            color: black !important;
             box-shadow: none !important;
+            border-radius: 1.5rem !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            margin-top: 0 !important;
           }
           
-          .text-white, .text-slate-200, .text-indigo-400, .text-slate-500 { color: black !important; }
-          .bg-white\/[0.02] { background: #f9f9f9 !important; border-top: 1px solid #eee !important; }
-          .bg-indigo-500\/10, .bg-emerald-500\/10, .bg-white\/5 { background: #f0f0f0 !important; border: 1px solid #ddd !important; }
+          /* Text Colors */
+          .text-white, .text-slate-200, .text-indigo-400, .text-slate-500, .text-slate-600 { color: black !important; }
+          .text-2xl, .text-3xl, .text-sm, .text-xs { color: black !important; }
           
-          /* Divider */
-          .border-dashed { border-color: #000 !important; }
-          .absolute.left-\[-15px\], .absolute.right-\[-15px\] { background: white !important; border: 1px solid #000 !important; }
+          /* Icon Colors */
+          .text-indigo-500, .text-slate-400 { color: #000 !important; }
           
-          /* QR Code */
-          .bg-white.rounded-\[2rem\] { padding: 0 !important; box-shadow: none !important; }
+          /* Perforated Divider */
+          .border-dashed { border-color: #000 !important; border-top-width: 2px !important; }
+          .bg-\[\#050507\] { background: white !important; border: 1px solid #000 !important; }
+          
+          /* QR Code Section */
+          .bg-white\/\[0.02\] { background: #fafafa !important; border-top: 1px solid #000 !important; }
+          .bg-white.rounded-\[2rem\] { border: 1px solid #eee !important; }
           
           /* Hide non-essential decor */
-          .bg-indigo-600\/5, .blur-\[150px\] { display: none !important; }
+          .absolute, .bg-indigo-600\/5, .blur-\[150px\], .group-hover\:opacity-100 { display: none !important; }
         }
       `}</style>
     </div>
