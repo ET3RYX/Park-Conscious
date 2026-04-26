@@ -13,6 +13,17 @@ function NavSm({ defaultLocation }) {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   return (
     <div className="text-white">
       <div className="flex items-center justify-between px-2">
@@ -42,8 +53,8 @@ function NavSm({ defaultLocation }) {
 
       {/* Mobile Drawer */}
       <div className={`fixed inset-0 z-[1000] transition-all duration-500 ${isOpen ? "visible opacity-100" : "invisible opacity-0"}`}>
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setIsOpen(false)}></div>
-        <div className={`absolute top-0 right-0 h-full w-[80%] bg-black/40 backdrop-blur-2xl border-l border-white/5 p-12 transition-transform duration-500 ease-out ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setIsOpen(false)}></div>
+        <div className={`absolute top-0 right-0 h-full w-[80%] bg-[#050507] border-l border-white/5 p-12 transition-transform duration-500 ease-out shadow-[-50px_0_100px_rgba(0,0,0,0.9)] ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
           <div className="flex flex-col h-full">
              <div className="flex justify-between items-start mb-12">
                 <h2 className="text-2xl font-black uppercase tracking-tighter italic">BACK<span className="text-indigo-500">STAGE</span></h2>
@@ -63,7 +74,7 @@ function NavSm({ defaultLocation }) {
              </div>
              
              <div className="mt-auto pt-12">
-                <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-700 leading-relaxed">
+                <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-800 leading-relaxed">
                   © 2026 Backstage Experiences <br/> Part of the Park Conscious Network
                 </p>
              </div>
