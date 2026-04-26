@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   BarChart, Calendar, Users, Settings, 
   LogOut, Menu, Shield, Bell,
-  Search
+  Search, Activity
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
@@ -73,6 +73,7 @@ const MainLayout = () => {
               {isSuperAdmin && (
                 <>
                   <div className="text-[9px] font-bold text-zinc-700 uppercase tracking-[0.2em] mt-8 mb-4 ml-1">Team</div>
+                  <SidebarItem icon={Activity} label="Health" to="/health" />
                   <SidebarItem icon={Settings} label="Settings" to="/settings" />
                 </>
               )}
