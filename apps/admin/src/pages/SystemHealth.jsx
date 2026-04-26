@@ -21,7 +21,22 @@ const SystemHealth = () => {
     };
 
     useEffect(() => {
-        fetchLogs();
+        let isMounted = true;
+        
+        const loadInitialLogs = async () => {
+            try {
+                const { data } = await adminService.getLogs();
+                if (isMounted) {
+                    setLogs(data);
+                    setLoading(false);
+                }
+            } catch (_err) {
+                if (isMounted) setLoading(false);
+            }
+        };
+
+        loadInitialLogs();
+        return () => { isMounted = false; };
     }, []);
 
     const toggleResolve = async (id, currentStatus) => {
