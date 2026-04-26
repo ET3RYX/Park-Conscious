@@ -7,7 +7,7 @@ const DefaultlayoutHoc =
   (Component) =>
   ({ ...props }) => {
     return (
-      <div className="bg-darkBackground-900 min-h-screen">
+      <div className="bg-darkBackground-900 min-h-screen overflow-x-hidden">
         <Helmet>
           <title>BACKSTAGE | Premium Event Experiences</title>
           <meta name="description" content="Official platform for premium event experiences. Book tickets and manage entries seamlessly." />

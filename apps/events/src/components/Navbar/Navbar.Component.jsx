@@ -52,9 +52,9 @@ function NavSm({ defaultLocation }) {
       </div>
 
       {/* Mobile Drawer */}
-      <div className={`fixed inset-0 z-[1000] transition-all duration-500 ${isOpen ? "visible opacity-100" : "invisible opacity-0"}`}>
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setIsOpen(false)}></div>
-        <div className={`absolute top-0 right-0 h-full w-[80%] bg-[#050507] border-l border-white/5 p-12 transition-transform duration-500 ease-out shadow-[-50px_0_100px_rgba(0,0,0,0.9)] ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
+      <div className={`fixed inset-0 z-[2000] transition-all duration-500 ${isOpen ? "visible opacity-100" : "invisible opacity-0"}`}>
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsOpen(false)}></div>
+        <div className={`absolute top-0 right-0 h-full w-[85%] bg-black border-l border-white/10 p-12 transition-transform duration-500 ease-out shadow-[-50px_0_100px_rgba(0,0,0,1)] ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
           <div className="flex flex-col h-full">
              <div className="flex justify-between items-start mb-12">
                 <h2 className="text-2xl font-black uppercase tracking-tighter italic">BACK<span className="text-indigo-500">STAGE</span></h2>
