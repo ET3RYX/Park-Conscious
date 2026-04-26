@@ -3,6 +3,7 @@ import { Shield, Mail, Lock, Activity, ChevronRight, RefreshCw, Star } from 'luc
 import { useAuth } from '../hooks/useAuth';
 import { authService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { reportSystemError } from '../utils/monitoring';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -22,6 +23,7 @@ const Login = () => {
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Authorization failed. Verify system credentials.');
+      reportSystemError("Admin Login Failed", "auth_failure", { username, error: err.response?.data?.message || err.message });
     } finally {
       setLoading(false);
     }

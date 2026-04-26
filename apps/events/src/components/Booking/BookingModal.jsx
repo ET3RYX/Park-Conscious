@@ -4,6 +4,7 @@ import { Fragment } from "react";
 import { backendAxios } from "../../axios";
 import { useAuth } from "../../context/DiscussionAuth.context";
 import { X, CheckCircle2, AlertCircle, Loader2, CreditCard, User, Mail, Phone, ShieldCheck } from 'lucide-react';
+import { reportSystemError } from "../../utils/monitoring";
 
 const BookingModal = ({ isOpen, setIsOpen, event }) => {
   const { user } = useAuth();
@@ -85,6 +86,7 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
         const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
         if (!res) {
             setError("Payment SDK failed to load. Please check connection.");
+            reportSystemError("Razorpay SDK Load Failed", "sdk_failure", { eventId: event.id });
             setLoading(false);
             return;
         }
@@ -103,10 +105,12 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
                         window.location.href = `/payment-success?txnId=${verifyRes.data.txnId}`;
                     } else {
                         setError("Payment verification failed.");
+                        reportSystemError("Payment Verification Failed (Logic)", "payment_failure", { paymentResponse, eventId: event.id });
                         setLoading(false);
                     }
                 } catch (err) {
                     setError("Payment verification failed. Please contact support.");
+                    reportSystemError("Payment Verification Error (Network)", "api_failure", { error: err.message, eventId: event.id });
                     setLoading(false);
                 }
             },
@@ -138,10 +142,12 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
           closeModal();
       } else {
         setError("Failed to initiate booking. Please try again.");
+        reportSystemError("Booking Initiation Failed", "api_failure", { response: response.data, eventId: event.id });
       }
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Server connection error.");
+      reportSystemError("Booking Process Exception", "frontend_crash", { error: err.message, eventId: event.id });
     } finally {
       setLoading(false);
     }
