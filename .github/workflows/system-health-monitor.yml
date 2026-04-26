@@ -1,0 +1,93 @@
+name: Unified System Health Monitor
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  health-audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Audit System Status & Logs
+      id: audit
+      run: |
+        # Configuration
+        API_URL="https://www.parkconscious.in/api/admin/system-status"
+        MAIN_URL="https://www.parkconscious.in"
+        EVENTS_URL="https://events.parkconscious.in"
+        
+        echo "Checking Ecosystem Health..."
+        
+        # 1. Check Main Site
+        MAIN_STATUS=$(curl -sL -w "%{http_code}" $MAIN_URL -o /dev/null)
+        echo "main_status=$MAIN_STATUS" >> $GITHUB_OUTPUT
+        
+        # 2. Check Events Platform
+        EVENTS_STATUS=$(curl -sL -w "%{http_code}" $EVENTS_URL -o /dev/null)
+        echo "events_status=$EVENTS_STATUS" >> $GITHUB_OUTPUT
+        
+        # 3. Fetch Recent Critical Logs
+        LOG_RESPONSE=$(curl -sL -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" $API_URL)
+        SYSTEM_STATE=$(echo $LOG_RESPONSE | jq -r '.status // "unknown"')
+        UNRESOLVED_COUNT=$(echo $LOG_RESPONSE | jq -r '.unresolvedCount // 0')
+        LOG_SUMMARY=$(echo $LOG_RESPONSE | jq -r '.logs // [] | .[0:5] | map("- [\(.source)] \(.message)") | join("\n")')
+        
+        echo "system_state=$SYSTEM_STATE" >> $GITHUB_OUTPUT
+        echo "unresolved_count=$UNRESOLVED_COUNT" >> $GITHUB_OUTPUT
+        
+        # Handle empty log summary for the email body
+        if [ -z "$LOG_SUMMARY" ]; then
+          LOG_SUMMARY="No unresolved logs in the last 24h."
+        fi
+        
+        # Store log summary in a multiline string for GITHUB_OUTPUT (workaround for newlines)
+        {
+          echo "log_summary<<EOF"
+          echo "$LOG_SUMMARY"
+          echo "EOF"
+        } >> $GITHUB_OUTPUT
+
+        # Overall Status Logic
+        if [ "$MAIN_STATUS" -ne 200 ] || [ "$EVENTS_STATUS" -ne 200 ] || [ "$SYSTEM_STATE" == "attention_required" ]; then
+          echo "is_healthy=false" >> $GITHUB_OUTPUT
+          echo "🚨 SYSTEM ALERT: Issues detected"
+        else
+          echo "is_healthy=true" >> $GITHUB_OUTPUT
+          echo "✅ SYSTEM HEALTHY"
+        fi
+
+    - name: Send Status Email
+      if: always()
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 465
+        username: ${{ secrets.MAIL_USERNAME }}
+        password: ${{ secrets.MAIL_PASSWORD }}
+        subject: "Park Conscious Health Report: ${{ steps.audit.outputs.is_healthy == 'true' && '✅ Healthy' || '❌ ATTENTION REQUIRED' }}"
+        to: ${{ secrets.REPORT_EMAIL }}
+        from: Park Conscious Monitor
+        body: |
+          Park Conscious Ecosystem Health Report
+          --------------------------------------
+          Timestamp: ${{ github.event.repository.updated_at }}
+          Overall Status: ${{ steps.audit.outputs.is_healthy == 'true' && 'HEALTHY' || 'ISSUES DETECTED' }}
+          
+          App Connectivity:
+          - Main Website: ${{ steps.audit.outputs.main_status == '200' && '✅ Online (200)' || '❌ Offline (' }}${{ steps.audit.outputs.main_status }}${{ steps.audit.outputs.main_status == '200' && '' || ')' }}
+          - Events Platform: ${{ steps.audit.outputs.events_status == '200' && '✅ Online (200)' || '❌ Offline (' }}${{ steps.audit.outputs.events_status }}${{ steps.audit.outputs.events_status == '200' && '' || ')' }}
+          
+          Internal System Logs (Last 24h):
+          - Status: ${{ steps.audit.outputs.system_state }}
+          - Unresolved Crashes: ${{ steps.audit.outputs.unresolved_count }}
+          
+          Recent Critical Logs:
+          ${{ steps.audit.outputs.log_summary }}
+          
+          Action Required:
+          ${{ steps.audit.outputs.is_healthy == 'true' && 'None. Everything is running smoothly.' || 'Please check the Admin Panel or Server Logs for more details.' }}
+          
+          Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}

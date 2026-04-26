@@ -8,6 +8,21 @@ const FailurePage = () => {
     const error = searchParams.get("error") || "Payment Declined";
     const txnId = searchParams.get("txnId") || "TXN_FAILED";
 
+    React.useEffect(() => {
+        // Automatically report payment failure
+        fetch('https://www.parkconscious.in/api/admin/logs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                source: 'events',
+                type: 'payment_failure',
+                message: `Payment Failure: ${error}`,
+                url: window.location.href,
+                metadata: { txnId, error }
+            })
+        }).catch(err => console.error('Failed to report payment failure:', err));
+    }, [error, txnId]);
+
     return (
     <div className="min-h-screen flex items-center justify-center bg-[#050507] py-24 px-8 relative">
         {/* Dynamic Background Glow */}
