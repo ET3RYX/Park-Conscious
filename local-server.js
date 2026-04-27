@@ -34,7 +34,12 @@ const vercelWrapper = (handler) => async (req, res) => {
 
 // Fix routing so req.url is exactly what the serverless functions expect
 app.use((req, res, next) => {
-    if (req.path.startsWith('/api/events') || req.path.startsWith('/api/discussions') || req.path.startsWith('/api/health')) return vercelWrapper(eventsHandler)(req, res);
+    if (
+        req.path.startsWith('/api/events') || 
+        req.path.startsWith('/api/discussions') || 
+        req.path.startsWith('/api/health') ||
+        req.path.startsWith('/api/contact')
+    ) return vercelWrapper(eventsHandler)(req, res);
     if (req.path.startsWith('/api/pay') || req.path.startsWith('/api/booking')) return vercelWrapper(payHandler)(req, res);
     if (req.path.startsWith('/api/auth')) return vercelWrapper(authHandler)(req, res);
     if (req.path.startsWith('/api/admin')) return vercelWrapper(adminHandler)(req, res);

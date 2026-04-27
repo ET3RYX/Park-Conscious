@@ -6,7 +6,7 @@ import axios from 'axios';
 import { json, setCors, getBody, verifyUser, normalizeEvent } from './lib/utils.js';
 import { Resend } from 'resend';
 
-const { Booking, Event, User, Owner, Parking, SystemLog } = models;
+const { Booking, Event, User, Owner, Parking, SystemLog, Contact, EventRequest } = models;
 
 export default async function handler(req, res) {
     setCors(req, res);
@@ -21,6 +21,40 @@ export default async function handler(req, res) {
     try {
         await connectDB();
         
+        // -- Inquiries Management (SuperAdmin Only) --
+        if (url.includes('inquiries')) {
+            if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) {
+                return json(res, 403, { message: 'Access Denied: Administrative privileges required' });
+            }
+
+            // Fetch all inquiries
+            if (method === 'GET') {
+                const [contacts, requests] = await Promise.all([
+                    Contact.find({}).sort({ createdAt: -1 }).limit(100).lean(),
+                    EventRequest.find({}).sort({ createdAt: -1 }).limit(100).lean()
+                ]);
+                return json(res, 200, { contacts, requests });
+            }
+
+            // Update Event Request status
+            if (url.includes('request/') && method === 'PATCH') {
+                const requestId = url.split('/').pop();
+                const { status } = body;
+                if (!['pending', 'approved', 'rejected'].includes(status)) {
+                    return json(res, 400, { message: 'Invalid status' });
+                }
+                const updated = await EventRequest.findByIdAndUpdate(requestId, { status }, { new: true });
+                return json(res, 200, { success: true, request: updated });
+            }
+
+            // Delete/Archive Contact message
+            if (url.includes('contact/') && method === 'DELETE') {
+                const contactId = url.split('/').pop();
+                await Contact.findByIdAndDelete(contactId);
+                return json(res, 200, { success: true, message: 'Message removed' });
+            }
+        }
+
         // -- System Diagnostics --
         if (url.includes('diagnose') && method === 'GET') {
             if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) {

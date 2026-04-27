@@ -2,7 +2,7 @@ import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
 import { json, setCors, getBody, verifyUser, normalizeEvent } from './lib/utils.js';
 
-const { Event, Discussion, Comment } = models;
+const { Event, Discussion, Comment, Contact } = models;
 
 export default async function handler(req, res) {
     setCors(req, res);
@@ -22,6 +22,21 @@ export default async function handler(req, res) {
         // -- Health Check --
         if (url.includes('/health')) {
             return json(res, 200, { status: 'ONLINE', timestamp: new Date().toISOString() });
+        }
+
+        // -- Contact Submissions --
+        if (url.includes('/contact')) {
+            if (method === 'POST') {
+                const { name, email, message } = body;
+                if (!name || !email || !message) {
+                    return json(res, 400, { message: 'Required fields missing: name, email, message' });
+                }
+                const contact = await Contact.create({ 
+                    name, email, message 
+                });
+                return json(res, 201, { success: true, id: contact._id });
+            }
+            return json(res, 405, { message: 'Method Not Allowed' });
         }
 
         // -- Event Submission / Proposals --

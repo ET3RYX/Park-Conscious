@@ -106,6 +106,8 @@ const FeaturedEventsSection = ({ featuredEvents, isLoading }) => {
                 <img 
                   src={imageUrl} 
                   alt={event.title} 
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-[2s] ease-out"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-[#050507]/60 to-transparent z-10"></div>
