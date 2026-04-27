@@ -67,7 +67,12 @@ const eventSchema = new mongoose.Schema(
     featuredTitle: String,
     featuredSubtitle: String,
     featuredLabel: String,
-    accentColor: String // Tailwind class name like 'red-600' or 'indigo-500'
+    accentColor: String, // Tailwind class name like 'red-600' or 'indigo-500'
+    // Media Gallery: extra photos/videos shown on the event detail page
+    mediaGallery: [{
+      url: { type: String, required: true },
+      type: { type: String, enum: ['image', 'video'], default: 'image' }
+    }]
   },
   { timestamps: true }
 );

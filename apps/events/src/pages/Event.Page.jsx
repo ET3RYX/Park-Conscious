@@ -4,13 +4,14 @@ import { backendAxios } from "../axios";
 import DefaultlayoutHoc from "../layout/Default.layout";
 import EventHero from "../components/EventHero/EventHero.Component";
 import BookingModal from "../components/Booking/BookingModal.jsx";
-import { Info, MapPin, Share2, ShieldCheck, Ticket, CreditCard } from "lucide-react";
+import { Info, MapPin, Share2, ShieldCheck, Ticket, CreditCard, Play, X, ZoomIn } from "lucide-react";
 
 const EventPage = () => {
   const { id } = useParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [lightbox, setLightbox] = useState(null); // { url, type }
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,7 +29,8 @@ const EventPage = () => {
           displayLocation: data.location?.name || data.locationName || data.venue || "TBA",
           displayAddress: data.location?.address || data.locationAddress || "",
           displayDescription: data.description || "",
-          displayCapacity: data.capacity || 0
+          displayCapacity: data.capacity || 0,
+          displayGallery: Array.isArray(data.mediaGallery) ? data.mediaGallery : []
         };
 
         setEvent(normalized);
@@ -66,6 +68,48 @@ const EventPage = () => {
               <p className="text-slate-400 text-xl leading-relaxed font-medium max-w-2xl whitespace-pre-wrap">
                 {event.displayDescription}
               </p>
+            </section>
+          )}
+
+          {/* Media Gallery */}
+          {event.displayGallery.length > 0 && (
+            <section className="space-y-8">
+              <h2 className="text-sm font-black uppercase tracking-[0.4em] text-slate-500 border-b border-white/5 pb-4">Photos &amp; Videos</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {event.displayGallery.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="relative group aspect-square rounded-2xl overflow-hidden border border-white/5 bg-white/5 cursor-pointer hover:border-indigo-500/30 transition-all duration-300"
+                    onClick={() => item.type !== 'video' && setLightbox(item)}
+                  >
+                    {item.type === 'video' ? (
+                      <video
+                        src={item.url}
+                        controls
+                        className="w-full h-full object-cover"
+                        preload="metadata"
+                      />
+                    ) : (
+                      <>
+                        <img
+                          src={item.url}
+                          alt={`Gallery ${idx + 1}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                          <ZoomIn size={24} className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-xl" />
+                        </div>
+                      </>
+                    )}
+                    {item.type === 'video' && (
+                      <span className="absolute top-3 left-3 bg-black/60 text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full flex items-center gap-1 pointer-events-none">
+                        <Play size={8} fill="white" /> Video
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
             </section>
           )}
 
@@ -136,6 +180,27 @@ const EventPage = () => {
         setIsOpen={setIsBookingOpen}
         event={event}
       />
+
+      {/* Lightbox Overlay */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-6"
+          onClick={() => setLightbox(null)}
+        >
+          <button
+            className="absolute top-6 right-6 text-white/60 hover:text-white transition bg-white/10 p-3 rounded-full"
+            onClick={() => setLightbox(null)}
+          >
+            <X size={20} />
+          </button>
+          <img
+            src={lightbox.url}
+            alt="Gallery"
+            className="max-w-full max-h-[90vh] rounded-2xl shadow-2xl object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 };

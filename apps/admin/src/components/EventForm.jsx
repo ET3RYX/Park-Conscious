@@ -5,7 +5,7 @@ import {
   ChevronDown, ChevronUp, AlertCircle, Star,
   Lock, Layout, Monitor, Globe, Trash2, RefreshCw
 } from 'lucide-react';
-import { uploadToCloudinary } from '../utils/cloudinary';
+import { uploadToCloudinary, uploadVideoToCloudinary } from '../utils/cloudinary';
 
 const SessionIdDisplay = () => {
   const [sessionId] = useState(() => Math.random().toString(36).substring(7).toUpperCase());
@@ -41,11 +41,14 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
       email: true,
       phone: true
     },
-    customForms: []
+    customForms: [],
+    mediaGallery: []
   });
 
   const [showAdvancedLocation, setShowAdvancedLocation] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [galleryUploading, setGalleryUploading] = useState(false);
+  const [galleryError, setGalleryError] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -61,6 +64,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
           lat: initialData.location?.coordinates?.lat || '',
           lng: initialData.location?.coordinates?.lng || '',
           customForms: initialData.customForms || [],
+          mediaGallery: initialData.mediaGallery || [],
           category: initialData.category || '',
           isFeatured: initialData.isFeatured || false,
           featuredTitle: initialData.featuredTitle || '',
@@ -131,7 +135,8 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
                 lng: parseFloat(formData.lng) || 0
             }
         },
-        requiredFields: formData.requiredFields
+        requiredFields: formData.requiredFields,
+        mediaGallery: formData.mediaGallery || []
     };
     onSubmit(submissionData);
   };
@@ -536,13 +541,13 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
           </section>
         </div>
 
-        {/* Media Block Full Width */}
+        {/* Poster / Main Image Block */}
         <div className="lg:col-span-12 bg-slate-900 border border-slate-800 rounded-[3rem] p-12 space-y-10 shadow-2xl shadow-slate-950/20">
             <div className="flex items-center justify-between">
                <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
-                <Upload className="text-sky-500" size={24} /> MEDIA REPOSITORY
+                <Upload className="text-sky-500" size={24} /> EVENT POSTER
               </h3>
-              <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest bg-slate-950 px-4 py-2 rounded-full border border-slate-800">Support: JPG, PNG, WEBP (v4.0)</p>
+              <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest bg-slate-950 px-4 py-2 rounded-full border border-slate-800">Support: JPG, PNG, WEBP</p>
             </div>
             
             <div className="flex flex-wrap gap-8">
@@ -567,6 +572,83 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
                 <span className="text-[9px] font-black text-slate-600 group-hover:text-sky-500 uppercase tracking-[0.3em]">{uploading ? 'Transmitting...' : 'Link Asset'}</span>
               </label>
             </div>
+        </div>
+
+        {/* Media Gallery Block */}
+        <div className="lg:col-span-12 bg-slate-900 border border-slate-800 rounded-[3rem] p-12 space-y-10 shadow-2xl shadow-slate-950/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                <Info className="text-violet-500" size={24} /> MEDIA GALLERY
+              </h3>
+              <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mt-2">Extra photos &amp; videos shown on the event page · Max 150 MB per video</p>
+            </div>
+            <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest bg-slate-950 px-4 py-2 rounded-full border border-slate-800">Images + Videos</p>
+          </div>
+
+          {galleryError && (
+            <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest">
+              {galleryError}
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-8">
+            {formData.mediaGallery.map((item, idx) => (
+              <div key={idx} className="relative group w-48 h-48 rounded-[2rem] overflow-hidden border border-slate-800 shadow-xl transition-all hover:scale-105 duration-500 bg-slate-950">
+                {item.type === 'video' ? (
+                  <video src={item.url} className="w-full h-full object-cover opacity-70" muted playsInline />
+                ) : (
+                  <img src={item.url} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="" />
+                )}
+                <div className="absolute inset-0 flex items-end p-3">
+                  <span className="text-[8px] font-black uppercase tracking-widest bg-black/60 text-white px-2 py-1 rounded-full">
+                    {item.type === 'video' ? '▶ Video' : '📷 Photo'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, mediaGallery: prev.mediaGallery.filter((_, i) => i !== idx) }))}
+                  className="absolute top-4 right-4 bg-rose-600 text-white p-2.5 rounded-2xl opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 shadow-2xl"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            ))}
+
+            <label className={`w-48 h-48 flex flex-col items-center justify-center border-4 border-dashed border-slate-800 rounded-[2rem] cursor-pointer hover:border-violet-500/50 transition-all group ${galleryUploading ? 'animate-pulse' : ''}`}>
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*,video/*"
+                disabled={galleryUploading}
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  setGalleryUploading(true);
+                  setGalleryError('');
+                  try {
+                    const isVideo = file.type.startsWith('video/');
+                    const url = isVideo
+                      ? await uploadVideoToCloudinary(file)
+                      : await uploadToCloudinary(file);
+                    setFormData(prev => ({
+                      ...prev,
+                      mediaGallery: [...prev.mediaGallery, { url, type: isVideo ? 'video' : 'image' }]
+                    }));
+                  } catch (err) {
+                    setGalleryError(err.message);
+                  } finally {
+                    setGalleryUploading(false);
+                    e.target.value = '';
+                  }
+                }}
+              />
+              <div className="w-16 h-16 rounded-3xl bg-slate-950 border border-slate-800 flex items-center justify-center mb-4 transition-all group-hover:bg-violet-500/10 group-hover:border-violet-500/50 group-hover:scale-110">
+                {galleryUploading ? <RefreshCw size={24} className="text-violet-500 animate-spin" /> : <PlusCircle size={24} className="text-slate-600 group-hover:text-violet-500" />}
+              </div>
+              <span className="text-[9px] font-black text-slate-600 group-hover:text-violet-500 uppercase tracking-[0.3em]">{galleryUploading ? 'Uploading...' : 'Add Photo/Video'}</span>
+            </label>
+          </div>
         </div>
       </div>
 
