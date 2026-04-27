@@ -24,21 +24,6 @@ export default async function handler(req, res) {
             return json(res, 200, { status: 'ONLINE', timestamp: new Date().toISOString() });
         }
 
-        // -- Contact Submissions --
-        if (url.includes('/contact')) {
-            if (method === 'POST') {
-                const { name, email, message } = body;
-                if (!name || !email || !message) {
-                    return json(res, 400, { message: 'Required fields missing: name, email, message' });
-                }
-                const contact = await Contact.create({ 
-                    name, email, message 
-                });
-                return json(res, 201, { success: true, id: contact._id });
-            }
-            return json(res, 405, { message: 'Method Not Allowed' });
-        }
-
         // -- Event Submission / Proposals --
         if (url.includes('/event-request')) {
             if (method === 'POST') {
