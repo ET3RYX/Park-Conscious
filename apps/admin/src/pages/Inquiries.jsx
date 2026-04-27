@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   MessageSquare, Send, CheckCircle2, Clock, 
   Trash2, ExternalLink, Filter, Search,
@@ -117,7 +117,7 @@ const Inquiries = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
 
-  const fetchInquiries = async () => {
+  const fetchInquiries = useCallback(async () => {
     try {
       const res = await axios.get('/api/admin/inquiries', { withCredentials: true });
       setData(res.data);
@@ -126,11 +126,11 @@ const Inquiries = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchInquiries();
-  }, []);
+  }, [fetchInquiries]);
 
   const handleAction = async (action, id) => {
     try {
