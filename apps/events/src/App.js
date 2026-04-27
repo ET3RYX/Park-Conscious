@@ -19,6 +19,7 @@ import MyBookingsPage from "./pages/MyBookings.Page";
 import AdminPage from "./pages/Admin.Page";
 import HostPage from "./pages/Host.Page";
 import SupportPage from "./pages/Support.Page";
+import LegalPage from "./pages/Legal.Page";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/support" element={<SupportPage />} />
+        <Route path="/legal" element={<LegalPage />} />
         <Route path="/host" element={<HostPage />} />
         <Route path="/my-bookings" element={<MyBookingsPage />} />
         <Route path="/movie/:id" element={<MoviePage />} />
