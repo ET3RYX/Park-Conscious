@@ -110,7 +110,14 @@ export const setCors = (req, res) => {
         'http://localhost:3000'
     ];
     const origin = req.headers.origin;
-    if (origin && allowed.some(a => origin.startsWith(a))) {
+    const isAllowed = origin && (
+        allowed.some(a => origin.startsWith(a)) || 
+        origin.endsWith('.parkconscious.in') || 
+        origin.endsWith('.vercel.app') ||
+        origin.includes('localhost')
+    );
+
+    if (isAllowed) {
         res.setHeader('Access-Control-Allow-Origin', origin);
     } else {
         res.setHeader('Access-Control-Allow-Origin', allowed[0]);

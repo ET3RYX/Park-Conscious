@@ -2,7 +2,7 @@ import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
 import { json, setCors, getBody, verifyUser, normalizeEvent } from './lib/utils.js';
 
-const { Event, Discussion, Comment } = models;
+const { Event, Discussion, Comment, Contact } = models;
 
 export default async function handler(req, res) {
     setCors(req, res);

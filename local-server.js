@@ -11,8 +11,15 @@ import eventsHandler from './api/events.js';
 import payHandler from './api/pay.js';
 import authHandler from './api/auth.js';
 import adminHandler from './api/admin.js';
+import contactHandler from './api/contact.js';
 
 const app = express();
+
+// Request Logger
+app.use((req, res, next) => {
+    console.log(`${new Date().toLocaleTimeString()} | ${req.method} ${req.path}`);
+    next();
+});
 
 app.use(cors({
     origin: ['http://localhost:5173', 'http://localhost:3000'],
@@ -34,7 +41,12 @@ const vercelWrapper = (handler) => async (req, res) => {
 
 // Fix routing so req.url is exactly what the serverless functions expect
 app.use((req, res, next) => {
-    if (req.path.startsWith('/api/events') || req.path.startsWith('/api/discussions') || req.path.startsWith('/api/health')) return vercelWrapper(eventsHandler)(req, res);
+    if (
+        req.path.startsWith('/api/events') || 
+        req.path.startsWith('/api/discussions') || 
+        req.path.startsWith('/api/health')
+    ) return vercelWrapper(eventsHandler)(req, res);
+    if (req.path.startsWith('/api/contact')) return vercelWrapper(contactHandler)(req, res);
     if (req.path.startsWith('/api/pay') || req.path.startsWith('/api/booking')) return vercelWrapper(payHandler)(req, res);
     if (req.path.startsWith('/api/auth')) return vercelWrapper(authHandler)(req, res);
     if (req.path.startsWith('/api/admin')) return vercelWrapper(adminHandler)(req, res);
