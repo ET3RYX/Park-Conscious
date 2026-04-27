@@ -85,6 +85,34 @@ export default async function handler(req, res) {
             });
         }
 
+        // -- System Log Management (SuperAdmin Only) --
+        if (url.includes('logs') && method === 'GET') {
+            if (!user || user.role !== 'superadmin') {
+                return json(res, 403, { message: 'Access Denied: SuperAdmin privileges required' });
+            }
+            
+            const logs = await SystemLog.find({}).sort({ createdAt: -1 }).limit(200).lean();
+            return json(res, 200, logs);
+        }
+
+        if (url.includes('logs/') && method === 'PATCH') {
+            if (!user || user.role !== 'superadmin') {
+                return json(res, 403, { message: 'Access Denied: SuperAdmin privileges required' });
+            }
+            
+            const logId = url.split('/').pop();
+            const { resolved } = body;
+            
+            const updatedLog = await SystemLog.findByIdAndUpdate(
+                logId,
+                { $set: { resolved: resolved ?? true } },
+                { new: true }
+            );
+            
+            if (!updatedLog) return json(res, 404, { message: 'Log not found' });
+            return json(res, 200, { success: true, log: updatedLog });
+        }
+
         // -- User Management (SuperAdmin Only) --
         if (url.includes('users') && method === 'GET') {
             if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) return json(res, 403, { message: 'Access Denied: Administrative privileges required' });
@@ -541,7 +569,8 @@ export default async function handler(req, res) {
                     title: e.displayTitle || e.title,
                     totalTickets: eb.length,
                     attended: eb.filter(b => b.attended).length,
-                    revenue: rev
+                    revenue: rev,
+                    capacity: e.capacity
                 };
             });
 

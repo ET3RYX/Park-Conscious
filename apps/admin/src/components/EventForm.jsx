@@ -123,8 +123,14 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
         ...formData,
         price: parseInt(formData.price) || 0,
         capacity: parseInt(formData.capacity) || 0,
-        lat: parseFloat(formData.lat) || 0,
-        lng: parseFloat(formData.lng) || 0,
+        location: {
+            name: formData.locationName,
+            address: formData.locationAddress,
+            coordinates: {
+                lat: parseFloat(formData.lat) || 0,
+                lng: parseFloat(formData.lng) || 0
+            }
+        },
         requiredFields: formData.requiredFields
     };
     onSubmit(submissionData);

@@ -3,6 +3,12 @@
  * Reports handled/soft errors to the centralized system log.
  */
 export const reportSystemError = (message, type = 'api_failure', metadata = {}) => {
+  // Filter out business logic errors (non-critical)
+  const ignoredMessages = ['already exists', 'not found', 'unauthorized', 'invalid credentials'];
+  if (ignoredMessages.some(msg => message.toLowerCase().includes(msg))) {
+    return;
+  }
+
   const API_URL = '/api/admin/logs';
   
   try {

@@ -11,6 +11,7 @@ import Attendees from './pages/Attendees';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import EditEvent from './pages/EditEvent';
+import SystemHealth from './pages/SystemHealth';
 import { RefreshCw } from 'lucide-react';
 
 const PrivateRoute = ({ children }) => {
@@ -24,6 +25,11 @@ const PrivateRoute = ({ children }) => {
   );
   
   return admin ? children : <Navigate to="/login" replace />;
+};
+
+const SuperAdminRoute = ({ children }) => {
+  const { admin } = useAuth();
+  return admin?.role === 'superadmin' ? children : <Navigate to="/" replace />;
 };
 
 class AppErrorBoundary extends React.Component {
@@ -94,6 +100,7 @@ function App() {
               <Route path="events/create" element={<CreateEvent />} />
               <Route path="events/edit/:id" element={<EditEvent />} />
               <Route path="price-updater" element={<PriceUpdater />} />
+              <Route path="health" element={<SuperAdminRoute><SystemHealth /></SuperAdminRoute>} />
               <Route path="attendees" element={<Attendees />} />
               <Route path="settings" element={<Settings />} />
             </Route>
