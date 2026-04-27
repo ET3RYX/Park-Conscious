@@ -63,7 +63,7 @@ const EventPage = () => {
           {event.displayDescription && (
             <section className="space-y-10">
               <h2 className="text-sm font-black uppercase tracking-[0.4em] text-slate-500 border-b border-white/5 pb-4">Event Details</h2>
-              <p className="text-slate-400 text-xl leading-relaxed font-medium max-w-2xl">
+              <p className="text-slate-400 text-xl leading-relaxed font-medium max-w-2xl whitespace-pre-wrap">
                 {event.displayDescription}
               </p>
             </section>

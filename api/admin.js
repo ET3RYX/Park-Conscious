@@ -569,7 +569,8 @@ export default async function handler(req, res) {
                     title: e.displayTitle || e.title,
                     totalTickets: eb.length,
                     attended: eb.filter(b => b.attended).length,
-                    revenue: rev
+                    revenue: rev,
+                    capacity: e.capacity
                 };
             });
 
