@@ -6,6 +6,20 @@ import EventHero from "../components/EventHero/EventHero.Component";
 import BookingModal from "../components/Booking/BookingModal.jsx";
 import { Info, MapPin, Share2, ShieldCheck, Ticket, CreditCard, Play, X, ZoomIn } from "lucide-react";
 
+/**
+ * Inject Cloudinary transformations into a Cloudinary URL.
+ * For images: q_auto (auto quality) + f_auto (WebP/AVIF where supported)
+ * For videos:  q_auto + f_auto + vc_auto (best codec: VP9/H.265)
+ * Falls back to the original URL for non-Cloudinary assets.
+ */
+const clUrl = (url, type = 'image') => {
+  if (!url || !url.includes('res.cloudinary.com')) return url;
+  const transforms = type === 'video'
+    ? 'q_auto,f_auto,vc_auto'
+    : 'q_auto,f_auto';
+  return url.replace('/upload/', `/upload/${transforms}/`);
+};
+
 const EventPage = () => {
   const { id } = useParams();
   const [event, setEvent] = useState(null);
@@ -84,7 +98,7 @@ const EventPage = () => {
                   >
                     {item.type === 'video' ? (
                       <video
-                        src={item.url}
+                        src={clUrl(item.url, 'video')}
                         controls
                         className="w-full h-full object-cover"
                         preload="metadata"
@@ -92,7 +106,7 @@ const EventPage = () => {
                     ) : (
                       <>
                         <img
-                          src={item.url}
+                          src={clUrl(item.url, 'image')}
                           alt={`Gallery ${idx + 1}`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
@@ -194,7 +208,7 @@ const EventPage = () => {
             <X size={20} />
           </button>
           <img
-            src={lightbox.url}
+            src={clUrl(lightbox.url, 'image')}
             alt="Gallery"
             className="max-w-full max-h-[90vh] rounded-2xl shadow-2xl object-contain"
             onClick={(e) => e.stopPropagation()}
