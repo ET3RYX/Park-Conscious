@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   MessageSquare, Send, CheckCircle2, Clock, 
   Trash2, ExternalLink, Filter, Search,
@@ -116,21 +116,24 @@ const Inquiries = () => {
   const [data, setData] = useState({ contacts: [], requests: [] });
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
-
-  const fetchInquiries = useCallback(async () => {
-    try {
-      const res = await axios.get('/api/admin/inquiries', { withCredentials: true });
-      setData(res.data);
-    } catch (err) {
-      console.error('Failed to fetch inquiries:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
-    fetchInquiries();
-  }, [fetchInquiries]);
+    let isMounted = true;
+    const loadData = async () => {
+      try {
+        const res = await axios.get('/api/admin/inquiries', { withCredentials: true });
+        if (isMounted) setData(res.data);
+      } catch (err) {
+        console.error('Failed to fetch inquiries:', err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    
+    loadData();
+    return () => { isMounted = false; };
+  }, [refreshTrigger]);
 
   const handleAction = async (action, id) => {
     try {
@@ -140,7 +143,7 @@ const Inquiries = () => {
         const status = action === 'approve' ? 'approved' : 'rejected';
         await axios.patch(`/api/admin/inquiries/request/${id}`, { status }, { withCredentials: true });
       }
-      fetchInquiries();
+      setRefreshTrigger(prev => prev + 1);
     } catch (err) {
       alert('Action failed: ' + err.message);
     }
