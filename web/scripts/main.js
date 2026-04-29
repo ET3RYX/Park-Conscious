@@ -14,6 +14,8 @@ function getParkingApiUrl() {
 let map, userMarker, parkingData = [], markers = [], infoWindow;
 let userPosition = { ...DEFAULT_LOCATION }; 
 let dataLoaded = false;
+let isochronePolygon = null;
+let currentDriveTime = 10;
 
 function toRad(deg) { return deg * Math.PI / 180; }
 function haversineDistance(lat1, lon1, lat2, lon2) {
@@ -68,7 +70,7 @@ async function loadParkingData() {
         }
     }
     dataLoaded = true;
-    if (map) renderNearby();
+    if (map) fetchIsochroneAndRender();
 }
 
 
@@ -85,7 +87,17 @@ function initMap() {
     map.addListener('click', () => { infoWindow.close(); });
 
     document.getElementById('locate-btn').addEventListener('click', () => getUserLocation(true));
-    document.getElementById('radius-select').addEventListener('change', () => renderNearby());
+    const slider = document.getElementById('drive-time-slider');
+    const display = document.getElementById('drive-time-display');
+    if (slider) {
+        slider.addEventListener('input', (e) => {
+            if (display) display.innerText = `${e.target.value} min drive`;
+        });
+        slider.addEventListener('change', (e) => {
+            currentDriveTime = Number(e.target.value);
+            fetchIsochroneAndRender();
+        });
+    }
 
     const input = document.getElementById('autocomplete-input');
     if (input) {
@@ -99,7 +111,7 @@ function initMap() {
                 map.setCenter(userPosition);
                 map.setZoom(14);
                 putUserMarker();
-                renderNearby();
+                fetchIsochroneAndRender();
             }
         });
     }
@@ -108,7 +120,7 @@ function initMap() {
     getUserLocation(false);
     
     // If data is already back from API (fast cache), render immediately
-    if (dataLoaded) renderNearby();
+    if (dataLoaded) fetchIsochroneAndRender();
 
     const tabNearby = document.getElementById('tab-nearby');
     const tabBookings = document.getElementById('tab-bookings');
@@ -123,7 +135,7 @@ function initMap() {
             const filters = document.querySelector('.p-4.border-b .flex.justify-between');
             if (filters) filters.style.display = 'flex';
 
-            renderNearby();
+            fetchIsochroneAndRender();
         });
 
         tabBookings.addEventListener('click', () => {
@@ -206,13 +218,34 @@ function renderNearby() {
         if (listEl && !dataLoaded) listEl.innerHTML = '<div class="text-center p-6 text-slate-400 text-sm font-medium italic animate-pulse">Syncing smart data...</div>';
         return;
     }
-    const radiusKm = Number(document.getElementById('radius-select').value);
 
     const enriched = parkingData.map(p => {
         const d = haversineDistance(userPosition.lat, userPosition.lng, p.Latitude, p.Longitude);
         return { ...p, distance_km: d };
     });
-    const filtered = enriched.filter(p => p.distance_km <= radiusKm).sort((a, b) => a.distance_km - b.distance_km);
+    
+    let filtered;
+    if (map.data) {
+        filtered = enriched.filter(p => {
+            const latLng = new google.maps.LatLng(p.Latitude, p.Longitude);
+            let inside = false;
+            map.data.forEach(feature => {
+                if (google.maps.geometry.poly.containsLocation(latLng, new google.maps.Polygon({paths: feature.getGeometry().getAt(0).getArray()}))) {
+                    inside = true;
+                }
+            });
+            // Simplified check: since map.data doesn't have a direct "contains" for GeoJSON features easily, 
+            // we'll rely on the isochronePolygon logic or similar if we kept it.
+            // Actually, we can use the geometry library on the polygon we extracted.
+            // Let's store the current polygon for easy filtering.
+            return inside;
+        });
+    } else {
+        // Fallback
+        filtered = enriched.filter(p => p.distance_km <= (currentDriveTime / 2));
+    }
+    
+    filtered.sort((a, b) => a.distance_km - b.distance_km);
     const results = filtered.slice(0, 30);
 
     const listEl = document.getElementById('results-list');
@@ -554,13 +587,13 @@ function getUserLocation(requirePrompt) {
             map.setCenter(userPosition);
             map.setZoom(14);
             putUserMarker();
-            renderNearby();
+            fetchIsochroneAndRender();
         }, err => {
             console.warn('Geolocation error', err);
             if (requirePrompt) alert('Please enable location access to find spots near you.');
             // Fallback: stay on the previous userPosition (which defaults to New Delhi)
             map.setCenter(userPosition || DEFAULT_LOCATION);
-            renderNearby();
+            fetchIsochroneAndRender();
         }, { enableHighAccuracy: true, timeout: 8000 });
     } else {
         if (requirePrompt) alert('Geolocation not supported.');
@@ -569,3 +602,124 @@ function getUserLocation(requirePrompt) {
 
 boot();
 window.initMap = initMap;
+
+async function fetchIsochroneAndRender() {
+    if (!userPosition || !map) return;
+    
+    // Clear previous GeoJSON data from the map
+    map.data.forEach(feature => map.data.remove(feature));
+
+    const lng = userPosition.lng;
+    const lat = userPosition.lat;
+    const minutes = currentDriveTime;
+    let geojson = null;
+
+    // Try calling DMIE Backend first
+    const apiUrl = window.PARK_CONFIG?.getDmieUrl ? window.PARK_CONFIG.getDmieUrl() : 'https://dmie.parkconscious.in/api/v1';
+    try {
+        const resp = await fetch(`${apiUrl}/isochrone`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lat, lng, minutes })
+        });
+        if (resp.ok) {
+            geojson = await resp.json();
+            console.log("Fetched Isochrone from DMIE Engine");
+        }
+    } catch (e) {
+        console.warn("DMIE Isochrone failed, checking Mapbox...", e);
+    }
+
+    if (!geojson && window.PARK_CONFIG && window.PARK_CONFIG.MAPBOX_KEY) {
+        try {
+            const url = `https://api.mapbox.com/isochrone/v1/mapbox/driving/${lng},${lat}?contours_minutes=${minutes}&polygons=true&access_token=${window.PARK_CONFIG.MAPBOX_KEY}`;
+            const res = await fetch(url);
+            if (res.ok) {
+                geojson = await res.json();
+            }
+        } catch (e) {
+            console.error("Mapbox Isochrone failed", e);
+        }
+    }
+
+    if (!geojson) {
+        geojson = generateMockIsochrone(lat, lng, minutes);
+    }
+
+    if (geojson) {
+        // Add GeoJSON to the map's Data layer
+        map.data.addGeoJson(geojson);
+        
+        // Style the Data layer
+        map.data.setStyle({
+            fillColor: '#00C39A',
+            fillOpacity: 0.3,
+            strokeColor: '#00C39A',
+            strokeWeight: 2,
+            clickable: false
+        });
+
+        // Fit bounds to the polygon
+        const bounds = new google.maps.LatLngBounds();
+        map.data.forEach(feature => {
+            processGeometry(feature.getGeometry(), bounds.extend, bounds);
+        });
+        map.fitBounds(bounds);
+    }
+
+    renderNearby();
+}
+
+function processGeometry(geometry, callback, thisArg) {
+    if (geometry.getType() === 'Point') {
+        callback.call(thisArg, geometry.get());
+    } else if (geometry.getType() === 'Polygon') {
+        geometry.getArray().forEach(path => {
+            path.getArray().forEach(latLng => {
+                callback.call(thisArg, latLng);
+            });
+        });
+    } else if (geometry.getType() === 'MultiPolygon') {
+        geometry.getArray().forEach(polygon => {
+            polygon.getArray().forEach(path => {
+                path.getArray().forEach(latLng => {
+                    callback.call(thisArg, latLng);
+                });
+            });
+        });
+    } else if (geometry.getType() === 'GeometryCollection') {
+        geometry.getArray().forEach(g => {
+            processGeometry(g, callback, thisArg);
+        });
+    }
+}
+
+function generateMockIsochrone(lat, lng, minutes) {
+    const radiusMeters = minutes * 300; 
+    const points = 32;
+    const coords = [];
+    for (let i = 0; i <= points; i++) {
+        const angle = (i * 360) / points;
+        const distortion = 0.6 + (Math.sin(angle * Math.PI / 45) * 0.4) + (Math.cos(angle * Math.PI / 90) * 0.2); 
+        const dist = radiusMeters * distortion;
+        
+        const R = 6378137;
+        const dLat = dist * Math.cos(angle * Math.PI / 180) / R;
+        const dLon = dist * Math.sin(angle * Math.PI / 180) / (R * Math.cos(Math.PI * lat / 180));
+        
+        coords.push([
+            lng + dLon * 180 / Math.PI,
+            lat + dLat * 180 / Math.PI
+        ]);
+    }
+    return {
+        type: "FeatureCollection",
+        features: [{
+            type: "Feature",
+            geometry: {
+                type: "Polygon",
+                coordinates: [coords]
+            }
+        }]
+    };
+}
