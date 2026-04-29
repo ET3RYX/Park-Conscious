@@ -15,7 +15,10 @@ let map, userMarker, parkingData = [], markers = [], infoWindow;
 let userPosition = { ...DEFAULT_LOCATION }; 
 let dataLoaded = false;
 let isochronePolygon = null;
+let isochroneBounds = null; // Pre-calculated bounds for fast filtering
 let currentDriveTime = 10;
+let abortController = null; // For cancelling stale requests
+let debounceTimer = null;
 
 function toRad(deg) { return deg * Math.PI / 180; }
 function haversineDistance(lat1, lon1, lat2, lon2) {
@@ -95,7 +98,11 @@ function initMap() {
         });
         slider.addEventListener('change', (e) => {
             currentDriveTime = Number(e.target.value);
-            fetchIsochroneAndRender();
+            // Debounce the fetch to prevent clogging
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                fetchIsochroneAndRender();
+            }, 250);
         });
     }
 
@@ -175,15 +182,18 @@ function putUserMarker() {
 }
 
 function renderMarkers(list) {
-    markers.forEach(m => m.setMap(null));
+    // 1. Mark old markers for removal
+    const oldMarkers = [...markers];
     markers = [];
 
+    // 2. Create new markers but keep it lightweight
     list.forEach(item => {
         const pos = { lat: item.Latitude, lng: item.Longitude };
         const marker = new google.maps.Marker({
             position: pos,
             map,
-            title: item.Location
+            title: item.Location,
+            optimized: true // Use Google's hardware acceleration
         });
         marker.addListener('click', () => {
             map.panTo(pos);
@@ -192,6 +202,11 @@ function renderMarkers(list) {
         });
         markers.push(marker);
     });
+
+    // 3. Clean up old markers after the new ones are ready
+    setTimeout(() => {
+        oldMarkers.forEach(m => m.setMap(null));
+    }, 10);
 }
 
 function showInfoWindow(item, marker) {
@@ -225,21 +240,17 @@ function renderNearby() {
     });
     
     let filtered;
-    if (map.data) {
+    if (isochronePolygon && isochroneBounds) {
         filtered = enriched.filter(p => {
             const latLng = new google.maps.LatLng(p.Latitude, p.Longitude);
-            let inside = false;
-            map.data.forEach(feature => {
-                if (google.maps.geometry.poly.containsLocation(latLng, new google.maps.Polygon({paths: feature.getGeometry().getAt(0).getArray()}))) {
-                    inside = true;
-                }
-            });
-            // Simplified check: since map.data doesn't have a direct "contains" for GeoJSON features easily, 
-            // we'll rely on the isochronePolygon logic or similar if we kept it.
-            // Actually, we can use the geometry library on the polygon we extracted.
-            // Let's store the current polygon for easy filtering.
-            return inside;
+            // 1. Instant check using pre-calculated bounds
+            if (!isochroneBounds.contains(latLng)) return false;
+            // 2. Heavy math only for candidates
+            return google.maps.geometry.poly.containsLocation(latLng, isochronePolygon);
         });
+    } else {
+        const fallbackRadius = currentDriveTime / 2;
+        filtered = enriched.filter(p => p.distance_km <= fallbackRadius);
     } else {
         // Fallback
         filtered = enriched.filter(p => p.distance_km <= (currentDriveTime / 2));
@@ -606,40 +617,32 @@ window.initMap = initMap;
 async function fetchIsochroneAndRender() {
     if (!userPosition || !map) return;
     
-    // Clear previous GeoJSON data from the map
-    map.data.forEach(feature => map.data.remove(feature));
+    // Cancel any previous pending request
+    if (abortController) abortController.abort();
+    abortController = new AbortController();
+
+    // 1. Instant Optimistic Render
+    renderNearby();
 
     const lng = userPosition.lng;
     const lat = userPosition.lat;
     const minutes = currentDriveTime;
     let geojson = null;
 
-    // Try calling DMIE Backend first
     const apiUrl = window.PARK_CONFIG?.getDmieUrl ? window.PARK_CONFIG.getDmieUrl() : 'https://dmie.parkconscious.in/api/v1';
     try {
         const resp = await fetch(`${apiUrl}/isochrone`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ lat, lng, minutes })
+            body: JSON.stringify({ lat, lng, minutes }),
+            signal: abortController.signal
         });
         if (resp.ok) {
             geojson = await resp.json();
-            console.log("Fetched Isochrone from DMIE Engine");
         }
     } catch (e) {
-        console.warn("DMIE Isochrone failed, checking Mapbox...", e);
-    }
-
-    if (!geojson && window.PARK_CONFIG && window.PARK_CONFIG.MAPBOX_KEY) {
-        try {
-            const url = `https://api.mapbox.com/isochrone/v1/mapbox/driving/${lng},${lat}?contours_minutes=${minutes}&polygons=true&access_token=${window.PARK_CONFIG.MAPBOX_KEY}`;
-            const res = await fetch(url);
-            if (res.ok) {
-                geojson = await res.json();
-            }
-        } catch (e) {
-            console.error("Mapbox Isochrone failed", e);
-        }
+        if (e.name === 'AbortError') return;
+        console.warn("DMIE Isochrone failed", e);
     }
 
     if (!geojson) {
@@ -647,10 +650,8 @@ async function fetchIsochroneAndRender() {
     }
 
     if (geojson) {
-        // Add GeoJSON to the map's Data layer
+        map.data.forEach(feature => map.data.remove(feature));
         map.data.addGeoJson(geojson);
-        
-        // Style the Data layer
         map.data.setStyle({
             fillColor: '#00C39A',
             fillOpacity: 0.3,
@@ -659,15 +660,32 @@ async function fetchIsochroneAndRender() {
             clickable: false
         });
 
-        // Fit bounds to the polygon
-        const bounds = new google.maps.LatLngBounds();
-        map.data.forEach(feature => {
-            processGeometry(feature.getGeometry(), bounds.extend, bounds);
-        });
-        map.fitBounds(bounds);
-    }
+        if (isochronePolygon) isochronePolygon.setMap(null);
+        
+        let coords;
+        if (geojson.features && geojson.features.length > 0) {
+            const geometry = geojson.features[0].geometry;
+            if (geometry.type === 'Polygon') {
+                coords = geometry.coordinates[0];
+            } else if (geometry.type === 'MultiPolygon') {
+                coords = geometry.coordinates[0][0];
+            }
+        }
 
-    renderNearby();
+        if (coords) {
+            const paths = coords.map(c => ({ lat: c[1], lng: c[0] }));
+            isochronePolygon = new google.maps.Polygon({ paths: paths });
+            
+            // PRE-CALCULATE BOUNDS ONCE
+            isochroneBounds = new google.maps.LatLngBounds();
+            paths.forEach(p => isochroneBounds.extend(p));
+            
+            map.fitBounds(isochroneBounds);
+        }
+
+        // 3. Final Precise Render
+        renderNearby();
+    }
 }
 
 function processGeometry(geometry, callback, thisArg) {
