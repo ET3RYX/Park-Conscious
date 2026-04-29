@@ -315,7 +315,7 @@
               </svg>
             </div>
             
-            <div id="route-result" class="hidden mt-4 bg-slate-50 border border-emerald-100 rounded-xl p-4 animate-fade-in-up shadow-inner sticky top-0">
+            <div id="route-result" class="hidden mt-4 bg-white/40 backdrop-blur-xl border border-white/60 rounded-2xl p-5 animate-fade-in-up shadow-[0_8px_32px_rgba(0,0,0,0.04)] sticky top-0">
                 <div class="flex items-center gap-3 mb-1">
                     <h4 class="font-black text-slate-900 capitalize text-xl leading-none" id="res-mode">Metro</h4>
                 </div>
@@ -1062,33 +1062,32 @@
                 
                 const bestOpt = data.options[0];
                 
-                // Set color class based on mode
-                modeEl.className = 'font-black capitalize text-2xl leading-none flex items-center gap-2';
-                let icon = '';
+                // Set minimal glassmorphic class based on mode
+                modeEl.className = 'font-bold uppercase tracking-tighter text-2xl leading-none flex items-center gap-3';
+                let accentColor = 'text-slate-900';
+                let dotColor = 'bg-slate-900';
+
                 if(data.best_mode === 'metro') {
-                    modeEl.classList.add('text-emerald-500');
-                    icon = '🚇';
+                    accentColor = 'text-emerald-500';
+                    dotColor = 'bg-emerald-500';
                 } else if(data.best_mode === 'cab') {
-                    modeEl.classList.add('text-blue-500');
-                    icon = '🚕';
-                } else {
-                    modeEl.classList.add('text-slate-900');
-                    icon = '🚗';
+                    accentColor = 'text-blue-500';
+                    dotColor = 'bg-blue-500';
                 }
                 
-                modeEl.innerHTML = `<span>${icon}</span> ${data.best_mode}`;
-                expEl.innerHTML = `<span class="block mb-2 font-bold text-slate-800">Why this?</span> ${data.explanation}`;
+                modeEl.innerHTML = `<span class="w-3 h-3 rounded-full ${dotColor} shadow-[0_0_12px_rgba(0,0,0,0.1)]"></span> <span class="${accentColor}">${data.best_mode}</span>`;
+                expEl.innerHTML = `<span class="block mb-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Recommendation</span> ${data.explanation}`;
 
-                // Add Cost/Time Badges
+                // Minimal Glassmorphic Stats
                 const statsHtml = `
-                    <div class="flex gap-3 my-4">
-                        <div class="flex-1 bg-white rounded-lg p-2 border border-slate-100 shadow-sm">
-                            <div class="text-[9px] uppercase font-bold text-slate-400 tracking-widest">Time</div>
-                            <div class="text-sm font-black text-slate-900">${Math.round(bestOpt.time)} mins</div>
+                    <div class="grid grid-cols-2 gap-2 my-5">
+                        <div class="bg-white/40 backdrop-blur-md rounded-xl p-3 border border-white/60 shadow-sm">
+                            <div class="text-[9px] uppercase font-black text-slate-400 tracking-widest mb-1">Duration</div>
+                            <div class="text-lg font-bold text-slate-900 tracking-tight">${Math.round(bestOpt.time)}<span class="text-xs ml-1 font-medium text-slate-500">mins</span></div>
                         </div>
-                        <div class="flex-1 bg-white rounded-lg p-2 border border-slate-100 shadow-sm">
-                            <div class="text-[9px] uppercase font-bold text-slate-400 tracking-widest">Cost</div>
-                            <div class="text-sm font-black text-slate-900">₹${Math.round(bestOpt.cost)}</div>
+                        <div class="bg-white/40 backdrop-blur-md rounded-xl p-3 border border-white/60 shadow-sm">
+                            <div class="text-[9px] uppercase font-black text-slate-400 tracking-widest mb-1">Est. Fare</div>
+                            <div class="text-lg font-bold text-slate-900 tracking-tight">₹${Math.round(bestOpt.cost)}</div>
                         </div>
                     </div>
                 `;
@@ -1102,8 +1101,8 @@
                     
                     bestOpt.segments.forEach((seg, idx) => {
                         const step = document.createElement('div');
-                        step.className = 'flex gap-3 items-start animate-fade-in-up mt-3';
-                        step.style.animationDelay = `${(idx + 1) * 100}ms`;
+                        step.className = 'flex gap-4 items-start animate-fade-in-up mt-4';
+                        step.style.animationDelay = `${(idx + 1) * 80}ms`;
                         
                         let colorClass = 'bg-slate-900';
                         if (seg.mode === 'metro' && seg.color) {
@@ -1116,25 +1115,25 @@
                         
                         let extraInfo = '';
                         if (seg.mode === 'metro' && seg.line) {
-                            extraInfo = `<span class="ml-2 px-1.5 py-0.5 rounded text-[9px] text-white ${colorClass}">${seg.line}</span>`;
+                            extraInfo = `<span class="ml-2 px-1.5 py-0.5 rounded-md text-[8px] font-black text-white ${colorClass}">${seg.line.toUpperCase()}</span>`;
                         }
 
                         step.innerHTML = `
                             <div class="flex flex-col items-center shrink-0">
-                                <div class="w-2.5 h-2.5 rounded-full ${colorClass} mt-1.5 shadow-sm"></div>
-                                ${idx < bestOpt.segments.length - 1 ? '<div class="w-px h-10 bg-slate-200 my-1"></div>' : ''}
+                                <div class="w-1.5 h-1.5 rounded-full ${colorClass} mt-1.5"></div>
+                                ${idx < bestOpt.segments.length - 1 ? '<div class="w-px h-12 bg-slate-200/60 my-1"></div>' : ''}
                             </div>
-                            <div class="flex-1 pb-3">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none flex items-center">
+                            <div class="flex-1 pb-2">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none flex items-center">
                                     ${seg.mode} • ${Math.round(seg.duration_min)}m ${extraInfo}
                                 </p>
-                                <p class="text-xs text-slate-700 font-semibold mt-1">${seg.from_loc} <span class="text-slate-300 mx-1">→</span> ${seg.to_loc}</p>
+                                <p class="text-[13px] text-slate-800 font-bold mt-1.5 tracking-tight">${seg.from_loc} <span class="text-slate-300 mx-1 font-light">→</span> ${seg.to_loc}</p>
                             </div>
                         `;
                         segmentsBox.appendChild(step);
                     });
                 } else {
-                    segmentsBox.classList.remove('hidden'); // Still show stats
+                    segmentsBox.classList.remove('hidden');
                 }
                 
                 result.classList.remove('hidden');
