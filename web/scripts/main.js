@@ -34,13 +34,25 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
 
 function saveBooking(booking) {
     const bookings = loadBookings();
+    // Add a unique local ID if missing
+    if (!booking.id && !booking._id) {
+        booking.id = 'LOCAL-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+    }
+    booking.createdAt = new Date().toISOString();
     bookings.push(booking);
-    localStorage.setItem('parkings_bookings', JSON.stringify(bookings));
+    localStorage.setItem('park_conscious_parking_data', JSON.stringify(bookings));
 }
 
 function loadBookings() {
-    const s = localStorage.getItem('parkings_bookings');
-    return s ? JSON.parse(s) : [];
+    const s = localStorage.getItem('park_conscious_parking_data');
+    if (!s) return [];
+    try {
+        const parsed = JSON.parse(s);
+        // Filter out any invalid/corrupted data that isn't a parking booking
+        return parsed.filter(b => b.locationName || b.parkingId);
+    } catch (e) {
+        return [];
+    }
 }
 
 async function loadParkingData() {
@@ -303,8 +315,18 @@ async function renderBookingsList() {
     try {
         const user = JSON.parse(userStr);
         const resp = await fetch(`/api/bookings/${user.id}`);
-        if (resp.ok) bookings = await resp.json();
-        else bookings = loadBookings();
+        if (resp.ok) {
+            let apiBookings = await resp.json();
+            // STRICT FILTER: Only keep bookings that have a parkingId
+            apiBookings = apiBookings.filter(b => b.parkingId || b.locationName);
+            
+            const localBookings = loadBookings();
+            // Merge but prioritize API data (simple de-dupe by id)
+            const seen = new Set(apiBookings.map(b => b._id || b.id));
+            bookings = [...apiBookings, ...localBookings.filter(b => !seen.has(b.id))];
+        } else {
+            bookings = loadBookings();
+        }
     } catch (err) {
         bookings = loadBookings();
     }
@@ -315,21 +337,26 @@ async function renderBookingsList() {
         bookings.sort((a,b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date)).forEach(b => {
             const el = document.createElement('div');
             el.className = 'glass-card rounded-xl p-4 mb-3 border-l-4 border-l-[#00C39A]';
-            const bookingId = b._id || b.id;
+            const bookingId = b._id || b.id || 'N/A';
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${bookingId}`;
+            const locName = b.locationName || 'Unknown Spot';
+            
             el.innerHTML = `
                 <div class="flex justify-between items-start mb-2">
                     <div>
-                        <h4 class="font-bold text-slate-900 text-base">${escapeHtml(b.locationName)}</h4>
+                        <h4 class="font-bold text-slate-900 text-base">${escapeHtml(locName)}</h4>
                         <div class="text-[10px] text-slate-400 font-mono tracking-tighter uppercase">Ref: ${bookingId}</div>
                     </div>
                     <div class="text-right">
-                         <div class="text-[#00C39A] font-bold text-sm">${b.amount}</div>
+                         <div class="text-[#00C39A] font-bold text-sm">₹${b.amount}</div>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 mt-2">
-                    <img src="${qrUrl}" alt="QR" class="w-16 h-16 rounded border border-slate-100">
-                    <div class="text-[10px] text-slate-400 font-bold uppercase">${b.startTime} - ${b.endTime}</div>
+                <div class="flex items-center gap-3 mt-2">
+                    <img src="${qrUrl}" alt="QR" class="w-16 h-16 rounded border border-slate-100 shadow-sm">
+                    <div class="space-y-1">
+                        <div class="text-[10px] text-slate-900 font-black uppercase tracking-widest">${b.startTime} - ${b.endTime}</div>
+                        <div class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Plate: ${escapeHtml(b.license || 'N/A')}</div>
+                    </div>
                 </div>`;
             listEl.appendChild(el);
         });
@@ -381,8 +408,13 @@ function openBookingModal(item) {
         if (!vNum) { alert('Vehicle number required'); return; }
         btn.innerText = 'Booking...'; btn.disabled = true;
         const bData = {
-            parkingId: item.ID, userId: user.id, license: vNum, amount: document.getElementById('total-fare').innerText.replace('₹', ''),
-            startTime: document.getElementById('start-time').value, endTime: document.getElementById('end-time').value
+            parkingId: item.ID, 
+            locationName: item.Location, // Fixed: Save the name for local display
+            userId: user.id, 
+            license: vNum, 
+            amount: document.getElementById('total-fare').innerText.replace('₹', ''),
+            startTime: document.getElementById('start-time').value, 
+            endTime: document.getElementById('end-time').value
         };
         try {
             const resp = await fetch('/api/engine/allocator', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bData) });
