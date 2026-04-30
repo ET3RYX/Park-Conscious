@@ -315,7 +315,7 @@
               </svg>
             </div>
             
-            <div id="route-result" class="hidden mt-4 bg-slate-50 border border-emerald-100 rounded-xl p-4 animate-fade-in-up shadow-inner sticky top-0">
+            <div id="route-result" class="hidden mt-4 bg-white/40 backdrop-blur-xl border border-white/60 rounded-2xl p-5 animate-fade-in-up shadow-[0_8px_32px_rgba(0,0,0,0.04)] sticky top-0">
                 <div class="flex items-center gap-3 mb-1">
                     <h4 class="font-black text-slate-900 capitalize text-xl leading-none" id="res-mode">Metro</h4>
                 </div>
@@ -1041,11 +1041,10 @@
         loading.classList.remove('hidden');
 
         try {
-            // Decoupled URL: Now loads from PARK_CONFIG
-            const apiUrl = (window.PARK_CONFIG && window.PARK_CONFIG.ROUTING_API_URL) 
-                || 'http://localhost:8000';
+            // Dynamic URL helper from PARK_CONFIG
+            const dmieUrl = window.PARK_CONFIG?.getDmieUrl ? window.PARK_CONFIG.getDmieUrl() : 'https://dmie.parkconscious.in/api/v1';
             
-            const res = await fetch(`${apiUrl}/api/v1/recommend`, {
+            const res = await fetch(`${dmieUrl.replace('/api/v1', '')}/api/v1/recommend`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1061,80 +1060,80 @@
             setTimeout(() => {
                 loading.classList.add('hidden');
                 
-                const bestOpt = data.options[0]; // First choice is always the best
+                const bestOpt = data.options[0];
                 
-                // Set color class based on mode
-                modeEl.className = 'font-black capitalize text-xl leading-none';
-                if(data.best_mode === 'metro') modeEl.classList.add('text-emerald-500');
-                else if(data.best_mode === 'cab') modeEl.classList.add('text-blue-500');
-                else if(data.best_mode === 'auto') modeEl.classList.add('text-slate-900');
-                else modeEl.classList.add('text-slate-900');
+                // Set minimal glassmorphic class based on mode
+                modeEl.className = 'font-bold uppercase tracking-tighter text-2xl leading-none flex items-center gap-3';
+                let accentColor = 'text-slate-900';
+                let dotColor = 'bg-slate-900';
+
+                if(data.best_mode === 'metro') {
+                    accentColor = 'text-emerald-500';
+                    dotColor = 'bg-emerald-500';
+                } else if(data.best_mode === 'cab') {
+                    accentColor = 'text-blue-500';
+                    dotColor = 'bg-blue-500';
+                }
                 
-                modeEl.textContent = data.best_mode;
-                expEl.textContent = data.explanation;
+                modeEl.innerHTML = `<span class="w-3 h-3 rounded-full ${dotColor} shadow-[0_0_12px_rgba(0,0,0,0.1)]"></span> <span class="${accentColor}">${data.best_mode}</span>`;
+                expEl.innerHTML = `<span class="block mb-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Recommendation</span> ${data.explanation}`;
+
+                // Minimal Glassmorphic Stats
+                const statsHtml = `
+                    <div class="grid grid-cols-2 gap-2 my-5">
+                        <div class="bg-white/40 backdrop-blur-md rounded-xl p-3 border border-white/60 shadow-sm">
+                            <div class="text-[9px] uppercase font-black text-slate-400 tracking-widest mb-1">Duration</div>
+                            <div class="text-lg font-bold text-slate-900 tracking-tight">${Math.round(bestOpt.time)}<span class="text-xs ml-1 font-medium text-slate-500">mins</span></div>
+                        </div>
+                        <div class="bg-white/40 backdrop-blur-md rounded-xl p-3 border border-white/60 shadow-sm">
+                            <div class="text-[9px] uppercase font-black text-slate-400 tracking-widest mb-1">Est. Fare</div>
+                            <div class="text-lg font-bold text-slate-900 tracking-tight">₹${Math.round(bestOpt.cost)}</div>
+                        </div>
+                    </div>
+                `;
 
                 // Handle Multimodal Segments
                 const segmentsBox = document.getElementById('res-segments');
-                segmentsBox.innerHTML = '';
+                segmentsBox.innerHTML = statsHtml;
 
-                if (bestOpt.is_multimodal && bestOpt.segments.length > 0) {
+                if (bestOpt.segments && bestOpt.segments.length > 0) {
                     segmentsBox.classList.remove('hidden');
                     
                     bestOpt.segments.forEach((seg, idx) => {
                         const step = document.createElement('div');
-                        step.className = 'flex gap-3 items-start animate-fade-in-up';
-                        step.style.animationDelay = `${(idx + 1) * 100}ms`;
+                        step.className = 'flex gap-4 items-start animate-fade-in-up mt-4';
+                        step.style.animationDelay = `${(idx + 1) * 80}ms`;
                         
-                        // 1. Metro Line Indicator Logic
-                        let colorClass = 'bg-slate-900'; // Default
+                        let colorClass = 'bg-slate-900';
                         if (seg.mode === 'metro' && seg.color) {
-                            colorClass = seg.color; // Use the specific line color from the backend!
+                            colorClass = seg.color.startsWith('bg-') ? seg.color : `bg-[${seg.color}]`;
                         } else if (seg.mode === 'metro') {
-                            colorClass = 'bg-emerald-500'; // Fallback
+                            colorClass = 'bg-emerald-500';
                         } else if (seg.mode === 'cab') {
                             colorClass = 'bg-blue-500';
                         }
                         
                         let extraInfo = '';
                         if (seg.mode === 'metro' && seg.line) {
-                            extraInfo = `<span class="ml-2 px-1.5 py-0.5 rounded text-[9px] text-white ${colorClass}">${seg.line}</span>`;
+                            extraInfo = `<span class="ml-2 px-1.5 py-0.5 rounded-md text-[8px] font-black text-white ${colorClass}">${seg.line.toUpperCase()}</span>`;
                         }
 
                         step.innerHTML = `
                             <div class="flex flex-col items-center shrink-0">
-                                <div class="w-2.5 h-2.5 rounded-full ${colorClass} mt-1.5 shadow-[0_0_8px_rgba(0,0,0,0.1)]"></div>
-                                ${idx < bestOpt.segments.length - 1 ? '<div class="w-px h-10 bg-slate-200 my-1"></div>' : ''}
+                                <div class="w-1.5 h-1.5 rounded-full ${colorClass} mt-1.5"></div>
+                                ${idx < bestOpt.segments.length - 1 ? '<div class="w-px h-12 bg-slate-200/60 my-1"></div>' : ''}
                             </div>
-                            <div class="flex-1 pb-3">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none flex items-center">
+                            <div class="flex-1 pb-2">
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none flex items-center">
                                     ${seg.mode} • ${Math.round(seg.duration_min)}m ${extraInfo}
                                 </p>
-                                <p class="text-xs text-slate-700 font-semibold mt-1">${seg.from_loc} <span class="text-slate-300 mx-1">→</span> ${seg.to_loc}</p>
+                                <p class="text-[13px] text-slate-800 font-bold mt-1.5 tracking-tight">${seg.from_loc} <span class="text-slate-300 mx-1 font-light">→</span> ${seg.to_loc}</p>
                             </div>
                         `;
                         segmentsBox.appendChild(step);
-                        
-                        // 2. Interchange Highlighting Logic
-                        // Check if the next segment is ALSO a metro, but a different line!
-                        if (idx < bestOpt.segments.length - 1) {
-                            const nextSeg = bestOpt.segments[idx + 1];
-                            if (seg.mode === 'metro' && nextSeg.mode === 'metro' && seg.line !== nextSeg.line) {
-                                const interchangeNode = document.createElement('div');
-                                interchangeNode.className = 'flex gap-3 items-center ml-2 my-1 animate-fade-in-up';
-                                interchangeNode.style.animationDelay = `${(idx + 1.5) * 100}ms`;
-                                interchangeNode.innerHTML = `
-                                    <div class="w-px h-4 bg-slate-200"></div>
-                                    <div class="bg-orange-100 text-orange-600 text-[10px] font-bold px-2 py-1 rounded-md border border-orange-200 shadow-sm flex items-center gap-1">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                                        Interchange at ${seg.to_loc}
-                                    </div>
-                                `;
-                                segmentsBox.appendChild(interchangeNode);
-                            }
-                        }
                     });
                 } else {
-                    segmentsBox.classList.add('hidden');
+                    segmentsBox.classList.remove('hidden');
                 }
                 
                 result.classList.remove('hidden');
@@ -1144,9 +1143,9 @@
             console.error('Routing Error:', error);
             setTimeout(() => {
                 loading.classList.add('hidden');
-                modeEl.textContent = 'Error';
-                modeEl.classList.add('text-red-500');
-                expEl.textContent = 'Could not communicate with the smart-route-india backend. Is it running?';
+                modeEl.textContent = 'Service Offline';
+                modeEl.className = 'font-black capitalize text-xl text-red-500';
+                expEl.textContent = 'The Smart Route engine is currently undergoing maintenance. Please try again in a few minutes.';
                 result.classList.remove('hidden');
             }, 600);
         }

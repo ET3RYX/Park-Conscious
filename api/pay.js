@@ -18,9 +18,11 @@ export default async function handler(req, res) {
     const body = await getBody(req);
 
     try {
-        await connectDB();
+        // Default to backstage_events for general payment logic
+        await connectDB('backstage_events');
         
-        // -- Razorpay Payment Initiation --
+        // Check if this is a request for the user's personal history
+        const isHistoryRequest = url.includes('/bookings/') && !url.includes('/status') && !url.includes('/check-in');
         if (url.includes('/pay') && !url.includes('/payment-callback') && method === 'POST') {
             const { name, amount, phone, eventId, orderId, userId, screenshotUrl, customData } = body;
             const targetEventId = eventId || orderId;
@@ -201,11 +203,24 @@ export default async function handler(req, res) {
             if (!ticketId) return json(res, 400, { message: 'Ticket ID required' });
 
             const isUncheck = url.includes('un-check-in');
-            const booking = await Booking.findOneAndUpdate(
+            
+            // Try Events DB first
+            await connectDB('backstage_events');
+            let booking = await Booking.findOneAndUpdate(
                 { ticketId: ticketId },
                 { $set: { attended: !isUncheck } },
                 { new: true }
             );
+
+            if (!booking) {
+                // Try Parking DB
+                await connectDB('park_conscious');
+                booking = await Booking.findOneAndUpdate(
+                    { ticketId: ticketId },
+                    { $set: { attended: !isUncheck } },
+                    { new: true }
+                );
+            }
 
             if (!booking) return json(res, 404, { message: 'Booking code not found' });
             return json(res, 200, { success: true, attended: booking.attended });
@@ -215,14 +230,27 @@ export default async function handler(req, res) {
         if (url.includes('/booking/status/') && method === 'GET') {
             const txnId = url.split('/').pop();
             if (!txnId) return json(res, 400, { message: 'Transaction ID missing' });
-            const booking = await Booking.findOne({ transactionId: txnId }).lean();
+            
+            // Try Events DB first
+            await connectDB('backstage_events');
+            let booking = await Booking.findOne({ transactionId: txnId }).lean();
+            
+            if (!booking) {
+                // Try Parking DB
+                await connectDB('park_conscious');
+                booking = await Booking.findOne({ transactionId: txnId }).lean();
+            }
+
             if (!booking) return json(res, 404, { message: 'Booking not found' });
             
             if (booking.eventId && booking.eventId.length === 24) {
+                await connectDB('backstage_events');
                 const event = await models.Event.findById(booking.eventId).lean();
-                if (event) {
-                    booking.event = normalizeEvent(event);
-                }
+                if (event) booking.event = normalizeEvent(event);
+            } else if (booking.parkingId) {
+                await connectDB('park_conscious');
+                const pk = await models.Parking.findOne({ $or: [{ _id: booking.parkingId }, { ID: booking.parkingId }] }).lean();
+                if (pk) booking.event = { title: pk.Location, location: pk.Location, date: booking.createdAt };
             }
             
             return json(res, 200, booking);
@@ -271,14 +299,41 @@ export default async function handler(req, res) {
 
             const bookings = await Booking.find(query).sort({ createdAt: -1 }).lean();
 
+            // BRIDGE: Fetch from Park Conscious database as well
+            try {
+                await connectDB('park_conscious');
+                const parkingBookings = await Booking.find(query).sort({ createdAt: -1 }).lean();
+                if (parkingBookings && parkingBookings.length > 0) {
+                    bookings.push(...parkingBookings);
+                    bookings.sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
+                }
+                // Switch back to events for potential metadata lookups
+                await connectDB('backstage_events');
+            } catch (err) {
+                console.error('[DATABASE_MERGE_ERROR]:', err);
+            }
+
             for (let b of bookings) {
-                const eid = String(b.eventId || '');
-                if (eid && eid.length === 24) {
+                const eid = String(b.eventId || b.parkingId || '');
+                if (eid && (eid.length === 24 || eid.startsWith('PRK_'))) {
+                    // Try to find in Event collection first
                     const evt = await models.Event.findById(eid).lean();
-                    b.event = evt ? normalizeEvent(evt) : { title: "Archived Event", date: b.createdAt, location: "TBA" };
+                    if (evt) {
+                        b.event = normalizeEvent(evt);
+                    } else {
+                        // Try to find in Parking collection
+                        await connectDB('park_conscious');
+                        const pk = await models.Parking.findOne({ $or: [{ _id: eid }, { ID: eid }] }).lean();
+                        if (pk) {
+                            b.event = { title: pk.Location, location: pk.Location, date: b.createdAt };
+                        } else {
+                            b.event = { title: "Activity Pass", date: b.createdAt, location: "TBA" };
+                        }
+                        await connectDB('backstage_events'); 
+                    }
                 } else {
                     const formatTitle = (str) => {
-                       if (!str) return "Archived Event";
+                       if (!str) return "Experience Pass";
                        return str.toString().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                     };
                     b.event = { title: formatTitle(eid), date: b.createdAt, location: "TBA" };
