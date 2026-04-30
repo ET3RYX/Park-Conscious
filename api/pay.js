@@ -205,7 +205,6 @@ export default async function handler(req, res) {
             const isUncheck = url.includes('un-check-in');
             
             // Try Events DB first
-            await connectDB('backstage_events');
             let booking = await Booking.findOneAndUpdate(
                 { ticketId: ticketId },
                 { $set: { attended: !isUncheck } },
@@ -214,8 +213,8 @@ export default async function handler(req, res) {
 
             if (!booking) {
                 // Try Parking DB
-                await connectDB('park_conscious');
-                booking = await Booking.findOneAndUpdate(
+                const SecBooking = models.getSecondaryModel('Booking');
+                booking = await SecBooking.findOneAndUpdate(
                     { ticketId: ticketId },
                     { $set: { attended: !isUncheck } },
                     { new: true }
@@ -232,24 +231,22 @@ export default async function handler(req, res) {
             if (!txnId) return json(res, 400, { message: 'Transaction ID missing' });
             
             // Try Events DB first
-            await connectDB('backstage_events');
             let booking = await Booking.findOne({ transactionId: txnId }).lean();
             
             if (!booking) {
                 // Try Parking DB
-                await connectDB('park_conscious');
-                booking = await Booking.findOne({ transactionId: txnId }).lean();
+                const SecBooking = models.getSecondaryModel('Booking');
+                booking = await SecBooking.findOne({ transactionId: txnId }).lean();
             }
 
             if (!booking) return json(res, 404, { message: 'Booking not found' });
             
             if (booking.eventId && booking.eventId.length === 24) {
-                await connectDB('backstage_events');
                 const event = await models.Event.findById(booking.eventId).lean();
                 if (event) booking.event = normalizeEvent(event);
             } else if (booking.parkingId) {
-                await connectDB('park_conscious');
-                const pk = await models.Parking.findOne({ $or: [{ _id: booking.parkingId }, { ID: booking.parkingId }] }).lean();
+                const SecParking = models.getSecondaryModel('Parking');
+                const pk = await SecParking.findOne({ $or: [{ _id: booking.parkingId }, { ID: booking.parkingId }] }).lean();
                 if (pk) booking.event = { title: pk.Location, location: pk.Location, date: booking.createdAt };
             }
             
@@ -301,14 +298,12 @@ export default async function handler(req, res) {
 
             // BRIDGE: Fetch from Park Conscious database as well
             try {
-                await connectDB('park_conscious');
-                const parkingBookings = await Booking.find(query).sort({ createdAt: -1 }).lean();
+                const SecBooking = models.getSecondaryModel('Booking');
+                const parkingBookings = await SecBooking.find(query).sort({ createdAt: -1 }).lean();
                 if (parkingBookings && parkingBookings.length > 0) {
                     bookings.push(...parkingBookings);
                     bookings.sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
                 }
-                // Switch back to events for potential metadata lookups
-                await connectDB('backstage_events');
             } catch (err) {
                 console.error('[DATABASE_MERGE_ERROR]:', err);
             }
@@ -322,14 +317,13 @@ export default async function handler(req, res) {
                         b.event = normalizeEvent(evt);
                     } else {
                         // Try to find in Parking collection
-                        await connectDB('park_conscious');
-                        const pk = await models.Parking.findOne({ $or: [{ _id: eid }, { ID: eid }] }).lean();
+                        const SecParking = models.getSecondaryModel('Parking');
+                        const pk = await SecParking.findOne({ $or: [{ _id: eid }, { ID: eid }] }).lean();
                         if (pk) {
                             b.event = { title: pk.Location, location: pk.Location, date: b.createdAt };
                         } else {
                             b.event = { title: "Activity Pass", date: b.createdAt, location: "TBA" };
                         }
-                        await connectDB('backstage_events'); 
                     }
                 } else {
                     const formatTitle = (str) => {

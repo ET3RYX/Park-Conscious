@@ -240,3 +240,24 @@ export const Parking = mongoose.models.Parking || mongoose.model("Parking", park
 export const Booking = mongoose.models.Booking || mongoose.model("Booking", bookingSchema);
 export const EventRequest = mongoose.models.EventRequest || mongoose.model("EventRequest", eventRequestSchema);
 export const SystemLog = mongoose.models.SystemLog || mongoose.model("SystemLog", systemLogSchema);
+
+export const getSecondaryModel = (modelName) => {
+    // This safely creates or retrieves a secondary connection to park_conscious
+    // without hijacking the global connection.
+    const db = mongoose.connection.useDb('park_conscious', { useCache: true });
+    if (db.models[modelName]) return db.models[modelName];
+
+    // Map model names to schemas
+    const schemas = {
+        'User': userSchema,
+        'Owner': ownerSchema,
+        'Parking': parkingSchema,
+        'Booking': bookingSchema
+    };
+
+    if (!schemas[modelName]) {
+        throw new Error(`Schema for ${modelName} not defined in secondary models map.`);
+    }
+
+    return db.model(modelName, schemas[modelName]);
+};
