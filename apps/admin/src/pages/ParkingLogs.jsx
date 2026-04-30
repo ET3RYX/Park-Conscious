@@ -15,7 +15,7 @@ const ParkingLogs = () => {
   const fetchData = useCallback(async (force = false) => {
     if (force) setLoading(true);
     try {
-      const { data } = await bookingService.getAllAttendees();
+      const { data } = await bookingService.getAllParkingBookings();
       // Filter for parking bookings only
       const parkingBookings = (data || []).filter(b => b.parkingId || b.locationName);
       setBookings(parkingBookings);

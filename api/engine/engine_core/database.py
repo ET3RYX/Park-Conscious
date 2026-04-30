@@ -18,7 +18,6 @@ def get_db():
             return None
         _client = MongoClient(MONGODB_URI)
     
-    # We want to connect to the default DB from the URI or "test" if not specified
-    # Mongoose by default connects to the DB name in the path
-    db_name = MONGODB_URI.split("/")[-1].split("?")[0] or "test"
+    # Force isolation: Park Conscious logic always uses its own dedicated DB
+    db_name = "park_conscious"
     return _client[db_name]

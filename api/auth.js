@@ -3,6 +3,7 @@ import * as models from './lib/models.js';
 import bcrypt from 'bcryptjs';
 import { serialize } from 'cookie';
 import { json, setCors, getBody, verifyUser, issueCookie } from './lib/utils.js';
+import { syncIdentity } from './lib/sync.js';
 
 const { User, Owner } = models;
 
@@ -99,6 +100,9 @@ export default async function handler(req, res) {
                 }
                 if (changed) await u.save();
             }
+
+            // Sync identity to Park Conscious database in the background
+            await syncIdentity(u, isOwner);
 
             const payload = { 
                 id: String(u._id), 

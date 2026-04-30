@@ -17,7 +17,9 @@ export default async function handler(req, res) {
     const user = verifyUser(req);
 
     try {
-        await connectDB();
+        const isParkingRequest = url.includes('/parking');
+        const targetDb = isParkingRequest ? 'park_conscious' : 'backstage_events';
+        await connectDB(targetDb);
 
         // -- Health Check --
         if (url.includes('/health')) {

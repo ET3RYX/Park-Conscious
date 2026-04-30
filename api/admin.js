@@ -4,6 +4,7 @@ import * as models from './lib/models.js';
 import crypto from 'crypto';
 import axios from 'axios';
 import { json, setCors, getBody, verifyUser, normalizeEvent } from './lib/utils.js';
+import { syncIdentity } from './lib/sync.js';
 import { Resend } from 'resend';
 
 const { Booking, Event, User, Owner, Parking, SystemLog, Contact, EventRequest } = models;
@@ -19,7 +20,10 @@ export default async function handler(req, res) {
     const user = verifyUser(req);
 
     try {
-        await connectDB();
+        // Automatically determine the database context based on the request URL or query params
+        const isParkingRequest = url.includes('parking') || url.includes('/owner/') || fullUrl.includes('context=parking');
+        const targetDb = isParkingRequest ? 'park_conscious' : 'backstage_events';
+        await connectDB(targetDb);
         
         // -- Inquiries Management (SuperAdmin Only) --
         if (url.includes('inquiries')) {
@@ -179,6 +183,9 @@ export default async function handler(req, res) {
                );
                console.log(`[USER MGMT] Assigned ${assignedEventIds.length} events to new user ${newUser._id}`);
             }
+
+            // Mirror new admin/organizer to Park Conscious database
+            await syncIdentity(newUser, true);
 
             return json(res, 201, { 
                 success: true, 
@@ -556,71 +563,67 @@ export default async function handler(req, res) {
 
         // -- Organizer Dashboard Stats (Global/Scoped) --
         if (url.includes('organizer/stats/global') && method === 'GET') {
-            if (!user) {
-                console.warn(`[ADMIN STATS] Auth fail: No user from host ${req.headers.host}`);
-                return json(res, 401, { message: 'Auth required' });
-            }
-            
-            console.log(`[ADMIN STATS] User Auth: ID=${user.id}, Role=${user.role}, Email=${user.email}`);
+            if (!user) return json(res, 401, { message: 'Auth required' });
             
             const role = (user.role || '').toLowerCase();
-            let eventQuery = {};
-            
-            // Superadmin and admin see everything. Organizers/owners see only their events.
-            if (role !== 'superadmin' && role !== 'admin') {
-                eventQuery.organizerId = user.id;
-                console.log(`[ADMIN STATS] Restricting to organizerId: ${user.id} for role: ${role}`);
-            } else {
-                console.log(`[ADMIN STATS] Global access granted for role: ${role}`);
-            }
+            const isAdmin = role === 'superadmin' || role === 'admin';
 
-            // Perform check before fetching
-            const dbCheck = await Event.countDocuments(eventQuery);
-            console.log(`[ADMIN STATS] Pre-fetch count for query ${JSON.stringify(eventQuery)}: ${dbCheck}`);
+            // 1. Fetch Event Stats (from backstage_events)
+            await connectDB('backstage_events');
+            let eventQuery = {};
+            if (!isAdmin) eventQuery.organizerId = user.id;
 
             const events = await Event.find(eventQuery).lean();
             const eventIds = events.map(e => String(e._id));
-            
-            console.log(`[ADMIN STATS] Fetched ${events.length} events. IDs: ${eventIds.join(', ')}`);
-
-            // Gather all confirmed bookings
-            const bookings = await Booking.find({ 
+            const eventBookings = await Booking.find({ 
                 eventId: { $in: eventIds },
                 status: { $in: ["Confirmed", "confirmed"] }
             }).lean();
-            
-            console.log(`[ADMIN STATS] Found ${bookings.length} confirmed bookings for these events`);
 
-            // Aggregation
-            let totalRevenue = 0;
-            let totalSales = bookings.length;
-            let totalAttended = bookings.filter(b => b.attended).length;
-            
+            let totalRevenue = eventBookings.reduce((acc, b) => acc + (parseFloat(b.amount) || 0), 0);
+            let totalSales = eventBookings.length;
+            let totalAttended = eventBookings.filter(b => b.attended).length;
+
             const eventStats = events.map(e => {
-                const eb = bookings.filter(b => String(b.eventId) === String(e._id));
-                const rev = eb.reduce((acc, b) => acc + (parseFloat(b.amount) || 0), 0);
-                totalRevenue += rev;
-                
+                const eb = eventBookings.filter(b => String(b.eventId) === String(e._id));
                 return {
                     eventId: e._id,
                     title: e.displayTitle || e.title,
                     totalTickets: eb.length,
                     attended: eb.filter(b => b.attended).length,
-                    revenue: rev,
+                    revenue: eb.reduce((acc, b) => acc + (parseFloat(b.amount) || 0), 0),
                     capacity: e.capacity
                 };
             });
 
-            console.log(`[ADMIN STATS] Final Aggregation: Revenue=${totalRevenue}, Sales=${totalSales}`);
+            // 2. Fetch Parking Stats (from park_conscious)
+            await connectDB('park_conscious');
+            let parkingQuery = {};
+            if (!isAdmin) parkingQuery.owner = user.id;
+
+            const parkings = await Parking.find(parkingQuery).lean();
+            const parkingIds = parkings.map(p => p.ID || String(p._id));
+            const parkingBookings = await Booking.find({
+                parkingId: { $in: parkingIds },
+                status: { $in: ["Confirmed", "confirmed"] }
+            }).lean();
+
+            const parkingRevenue = parkingBookings.reduce((acc, b) => acc + (parseFloat(b.amount) || 0), 0);
+            totalRevenue += parkingRevenue;
+            totalSales += parkingBookings.length;
+            
+            // Note: We don't track 'attended' for parking in the same way, but we could.
 
             return json(res, 200, {
                 totalEvents: events.length,
-                published: events.filter(e => e.status === 'published').length,
+                totalParkings: parkings.length,
+                published: events.filter(e => e.status === 'published' || e.status === 'Published').length,
                 draft: events.filter(e => e.status === 'draft').length,
                 totalRevenue,
                 totalSales,
                 totalAttended,
-                events: eventStats.sort((a, b) => b.revenue - a.revenue)
+                events: eventStats.sort((a, b) => b.revenue - a.revenue),
+                parkingRevenue // Extra detail if needed
             });
         }
 
