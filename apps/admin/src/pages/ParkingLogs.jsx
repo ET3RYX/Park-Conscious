@@ -10,6 +10,7 @@ const ParkingLogs = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('active');
   const [searchQuery, setSearchQuery] = useState('');
+  const [historyThreshold, setHistoryThreshold] = useState(0);
 
   const fetchData = useCallback(async (force = false) => {
     if (force) setLoading(true);
@@ -18,6 +19,8 @@ const ParkingLogs = () => {
       // Filter for parking bookings only
       const parkingBookings = (data || []).filter(b => b.parkingId || b.locationName);
       setBookings(parkingBookings);
+      // Set the threshold for "history" (older than 24h)
+      setHistoryThreshold(Date.now() - 24 * 60 * 60 * 1000);
     } catch (err) {
       console.error('Failed to fetch parking logs:', err);
     } finally {
@@ -31,9 +34,6 @@ const ParkingLogs = () => {
   }, [fetchData]);
 
   const filteredData = useMemo(() => {
-    // Calculate threshold once per memoization to satisfy purity rules
-    const threshold = Date.now() - 24 * 60 * 60 * 1000;
-    
     return bookings.filter(b => {
       const matchesSearch = 
         (b.locationName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -41,12 +41,12 @@ const ParkingLogs = () => {
         (b.ticketId || '').toLowerCase().includes(searchQuery.toLowerCase());
 
       const bookingDate = new Date(b.createdAt || b.date).getTime();
-      const isPast = bookingDate < threshold;
+      const isPast = bookingDate < historyThreshold;
       
       if (activeTab === 'active') return matchesSearch && !isPast;
       return matchesSearch && isPast;
     });
-  }, [bookings, searchQuery, activeTab]);
+  }, [bookings, searchQuery, activeTab, historyThreshold]);
 
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
