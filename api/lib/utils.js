@@ -39,6 +39,10 @@ export function normalizeEvent(evt) {
     
     e.badge = e.badge || (e.status === 'published' ? 'LIVE' : '');
     
+    // Ensure nested arrays exist
+    e.hosts = e.hosts || [];
+    e.ticketTiers = e.ticketTiers || [];
+    
     return e;
 }
 
