@@ -4,6 +4,7 @@ import * as models from './lib/models.js';
 import crypto from 'crypto';
 import axios from 'axios';
 import { json, setCors, getBody, verifyUser, normalizeEvent } from './lib/utils.js';
+import { syncIdentity } from './lib/sync.js';
 import { Resend } from 'resend';
 
 const { Booking, Event, User, Owner, Parking, SystemLog, Contact, EventRequest } = models;
@@ -182,6 +183,9 @@ export default async function handler(req, res) {
                );
                console.log(`[USER MGMT] Assigned ${assignedEventIds.length} events to new user ${newUser._id}`);
             }
+
+            // Mirror new admin/organizer to Park Conscious database
+            await syncIdentity(newUser, true);
 
             return json(res, 201, { 
                 success: true, 

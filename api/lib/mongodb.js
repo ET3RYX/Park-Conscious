@@ -28,7 +28,8 @@ async function connectToDatabase(targetDb = 'backstage_events') {
 
   const cache = global.mongooseCache[targetDb];
 
-  if (cache.conn && mongoose.connection.readyState === 1) {
+  // Robust check: Ensure the default connection is actually pointing to our target
+  if (cache.conn && mongoose.connection.readyState === 1 && mongoose.connection.name === targetDb) {
     return cache.conn;
   }
 
