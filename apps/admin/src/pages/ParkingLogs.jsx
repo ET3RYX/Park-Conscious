@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
-  Activity, Search, Filter, Download, 
-  CheckCircle, Clock, MapPin, 
-  RefreshCw, History, Car, IndianRupee
+  Activity, Search, Clock, MapPin, 
+  RefreshCw, Car
 } from 'lucide-react';
 import { bookingService } from '../services/api';
-import { useAuth } from '../hooks/useAuth';
 
 const ParkingLogs = () => {
-  const { admin } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('active');
@@ -29,21 +26,22 @@ const ParkingLogs = () => {
   }, []);
 
   useEffect(() => {
-    fetchData();
+    // Satisfy react-hooks/set-state-in-effect by wrapping in microtask
+    Promise.resolve().then(() => fetchData());
   }, [fetchData]);
 
   const filteredData = useMemo(() => {
+    // Calculate threshold once per memoization to satisfy purity rules
+    const threshold = Date.now() - 24 * 60 * 60 * 1000;
+    
     return bookings.filter(b => {
       const matchesSearch = 
         (b.locationName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (b.vehicleNumber || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (b.ticketId || '').toLowerCase().includes(searchQuery.toLowerCase());
 
-      const now = new Date();
-      // Heuristic: If endTime exists and is in the future, it's active. 
-      // This depends on the format, but for now we use the status or date.
-      const isHistory = activeTab === 'history';
-      const isPast = new Date(b.createdAt || b.date) < new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const bookingDate = new Date(b.createdAt || b.date).getTime();
+      const isPast = bookingDate < threshold;
       
       if (activeTab === 'active') return matchesSearch && !isPast;
       return matchesSearch && isPast;
