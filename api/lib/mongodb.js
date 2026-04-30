@@ -10,49 +10,38 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-async function connectToDatabase(targetDb = 'backstage_events') {
+async function connectToDatabase() {
   if (!MONGODB_URI) {
     const error = new Error("MONGODB_URI_MISSING");
     error.missingConfig = true;
     throw error;
   }
 
-  // Use a separate cache entry for each database to prevent data mixing
-  if (!global.mongooseCache) {
-    global.mongooseCache = {};
-  }
-  
-  if (!global.mongooseCache[targetDb]) {
-    global.mongooseCache[targetDb] = { conn: null, promise: null };
+  if (cached.conn) {
+    return cached.conn;
   }
 
-  const cache = global.mongooseCache[targetDb];
-
-  // Robust check: Ensure the default connection is actually pointing to our target
-  if (cache.conn && mongoose.connection.readyState === 1 && mongoose.connection.name === targetDb) {
-    return cache.conn;
-  }
-
-  if (!cache.promise) {
+  if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      dbName: targetDb, // Force the specific database name
+      dbName: 'backstage_events', // Always use the primary database globally
     };
 
-    console.log(`[MONGODB] Connecting to database: ${targetDb}`);
-    cache.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+    console.log(`[MONGODB] Connecting to primary database: backstage_events`);
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       return mongoose;
     });
   }
 
   try {
-    cache.conn = await cache.promise;
+    cached.conn = await cached.promise;
   } catch (e) {
-    cache.promise = null;
+    cached.promise = null;
     throw e;
   }
 
-  return cache.conn;
+  return cached.conn;
 }
 
 export default connectToDatabase;
+

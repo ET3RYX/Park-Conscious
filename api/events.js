@@ -17,9 +17,7 @@ export default async function handler(req, res) {
     const user = verifyUser(req);
 
     try {
-        const isParkingRequest = url.includes('/parking');
-        const targetDb = isParkingRequest ? 'park_conscious' : 'backstage_events';
-        await connectDB(targetDb);
+        await connectDB();
 
         // -- Health Check --
         if (url.includes('/health')) {
@@ -143,7 +141,8 @@ export default async function handler(req, res) {
         }
         // -- Parkings (Public) --
         if (url.includes('/parking') && method === 'GET') {
-            const parkings = await models.Parking.find({ 
+            const SecParking = models.getSecondaryModel('Parking');
+            const parkings = await SecParking.find({ 
                 Status: { $in: ["Active", "Recommended", "active"] } 
             }).lean();
             return json(res, 200, parkings);
