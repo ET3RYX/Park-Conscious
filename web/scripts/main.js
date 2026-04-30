@@ -408,8 +408,9 @@ function openBookingModal(item) {
         if (!vNum) { alert('Vehicle number required'); return; }
         btn.innerText = 'Booking...'; btn.disabled = true;
         const bData = {
+            action: "park", // Fixed: Added action for Python Engine
             parkingId: item.ID, 
-            locationName: item.Location, // Fixed: Save the name for local display
+            locationName: item.Location, 
             userId: user.id, 
             license: vNum, 
             amount: document.getElementById('total-fare').innerText.replace('₹', ''),
