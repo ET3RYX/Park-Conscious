@@ -219,7 +219,8 @@ export default async function handler(req, res) {
             const userOwnerIds = new Set();
             for (let b of bookings) {
                 const eid = String(b.eventId || b.parkingId || '');
-                if (eid && (eid.length === 24 || eid.length < 10) && /^[a-f0-9]+$/i.test(eid)) eventIds.add(eid);
+                // Allow MongoDB ObjectIDs (24 chars) or Parking IDs (starting with PRK_) or short numeric IDs
+                if (eid && (eid.length === 24 || eid.startsWith('PRK_') || eid.length < 12)) eventIds.add(eid);
                 const uid = String(b.userId || '');
                 if (uid && uid.length === 24 && /^[a-f0-9]+$/i.test(uid)) userOwnerIds.add(uid);
             }
@@ -243,7 +244,7 @@ export default async function handler(req, res) {
             
             // Assemble final response
             for (let b of bookings) {
-                const eid = String(b.eventId || '');
+                const eid = String(b.eventId || b.parkingId || '');
                 
                 // Handle special string event IDs used by custom booking pages
                 if (eid === 'tedx_ggsipu_2026') {
