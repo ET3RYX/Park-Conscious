@@ -19,7 +19,10 @@ export default async function handler(req, res) {
     const user = verifyUser(req);
 
     try {
-        await connectDB();
+        // Automatically determine the database context based on the request URL or query params
+        const isParkingRequest = url.includes('parking') || url.includes('/owner/') || fullUrl.includes('context=parking');
+        const targetDb = isParkingRequest ? 'park_conscious' : 'backstage_events';
+        await connectDB(targetDb);
         
         // -- Inquiries Management (SuperAdmin Only) --
         if (url.includes('inquiries')) {
