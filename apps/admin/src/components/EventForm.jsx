@@ -3,7 +3,7 @@ import {
   Upload, X, MapPin, Calendar, Tag, Shield, 
   Info, IndianRupee, Users, PlusCircle, 
   ChevronDown, ChevronUp, AlertCircle, Star,
-  Lock, Layout, Monitor, Globe, Trash2, RefreshCw
+  Lock, Layout, Monitor, Globe, Trash2, RefreshCw, Ticket
 } from 'lucide-react';
 import { uploadToCloudinary, uploadVideoToCloudinary } from '../utils/cloudinary';
 
@@ -21,6 +21,8 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
     title: '',
     description: '',
     date: '',
+    startTime: '',
+    endTime: '',
     endDate: '',
     locationName: '',
     locationAddress: '',
@@ -42,7 +44,9 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
       phone: true
     },
     customForms: [],
-    mediaGallery: []
+    mediaGallery: [],
+    hosts: [],
+    ticketTiers: []
   });
 
   const [showAdvancedLocation, setShowAdvancedLocation] = useState(false);
@@ -77,7 +81,9 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
             name:  initialData.requiredFields?.name  ?? true,
             email: initialData.requiredFields?.email ?? true,
             phone: initialData.requiredFields?.phone ?? true,
-          }
+          },
+          hosts: initialData.hosts || [],
+          ticketTiers: initialData.ticketTiers || []
         }));
         if (initialData.location?.coordinates?.lat || initialData.location?.coordinates?.lng) {
           setShowAdvancedLocation(true);
@@ -136,7 +142,9 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
             }
         },
         requiredFields: formData.requiredFields,
-        mediaGallery: formData.mediaGallery || []
+        mediaGallery: formData.mediaGallery || [],
+        hosts: formData.hosts || [],
+        ticketTiers: formData.ticketTiers || []
     };
     onSubmit(submissionData);
   };
@@ -195,6 +203,119 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
               </div>
             </div>
           </section>
+          
+          {/* Hosts Section */}
+          <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 space-y-8 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                <Users className="text-[#6366f1]" size={20} /> EVENT HOSTS
+              </h3>
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({
+                  ...prev,
+                  hosts: [...(prev.hosts || []), { name: '', role: 'Host', image: '', socialLink: '' }]
+                }))}
+                className="flex items-center gap-2 bg-[#6366f1]/10 hover:bg-[#6366f1]/20 text-[#6366f1] px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] transition-all border border-[#6366f1]/20"
+              >
+                <PlusCircle size={14} /> Add Host
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {formData.hosts.map((host, idx) => (
+                <div key={idx} className="p-6 bg-slate-950 border border-slate-800 rounded-3xl space-y-6 relative group">
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({
+                      ...prev,
+                      hosts: prev.hosts.filter((_, i) => i !== idx)
+                    }))}
+                    className="absolute top-4 right-4 text-slate-600 hover:text-rose-500 transition-colors"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    <div className="md:col-span-3">
+                      <label className="block text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3">Photo</label>
+                      <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 flex items-center justify-center group/img">
+                        {host.image ? (
+                          <img src={host.image} className="w-full h-full object-cover" alt="" />
+                        ) : (
+                          <Users size={24} className="text-slate-800" />
+                        )}
+                        <label className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
+                          <input
+                            type="file" className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (!file) return;
+                              try {
+                                const url = await uploadToCloudinary(file);
+                                const newHosts = [...formData.hosts];
+                                newHosts[idx].image = url;
+                                setFormData(prev => ({ ...prev, hosts: newHosts }));
+                              } catch (err) { console.error(err); }
+                            }}
+                          />
+                          <Upload size={18} className="text-white" />
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="block text-[9px] font-black text-slate-500 uppercase tracking-widest">Name</label>
+                        <input
+                          type="text" value={host.name}
+                          onChange={(e) => {
+                            const newHosts = [...formData.hosts];
+                            newHosts[idx].name = e.target.value;
+                            setFormData(prev => ({ ...prev, hosts: newHosts }));
+                          }}
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#6366f1]/50"
+                          placeholder="Host Name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="block text-[9px] font-black text-slate-500 uppercase tracking-widest">Role</label>
+                        <input
+                          type="text" value={host.role}
+                          onChange={(e) => {
+                            const newHosts = [...formData.hosts];
+                            newHosts[idx].role = e.target.value;
+                            setFormData(prev => ({ ...prev, hosts: newHosts }));
+                          }}
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#6366f1]/50"
+                          placeholder="e.g. Moderator, Organizer"
+                        />
+                      </div>
+                      <div className="sm:col-span-2 space-y-2">
+                        <label className="block text-[9px] font-black text-slate-500 uppercase tracking-widest">Social / Profile Link</label>
+                        <input
+                          type="text" value={host.socialLink}
+                          onChange={(e) => {
+                            const newHosts = [...formData.hosts];
+                            newHosts[idx].socialLink = e.target.value;
+                            setFormData(prev => ({ ...prev, hosts: newHosts }));
+                          }}
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#6366f1]/50"
+                          placeholder="https://instagram.com/..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {formData.hosts.length === 0 && (
+                <div className="text-center p-12 border border-dashed border-slate-800 rounded-3xl bg-slate-950/30">
+                  <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">No hosts defined. The organizer will be the default host.</p>
+                </div>
+              )}
+            </div>
+          </section>
+
 
           {/* Venue Section */}
           <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 space-y-8 shadow-sm">
@@ -460,6 +581,155 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
               )}
             </div>
           </section>
+
+          {/* Ticket Tiers Section */}
+          <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 space-y-8 shadow-sm">
+             <div className="flex items-center justify-between">
+              <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                <Ticket className="text-[#6366f1]" size={20} /> TICKET TIERS
+              </h3>
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({
+                  ...prev,
+                  ticketTiers: [...(prev.ticketTiers || []), { name: '', price: 0, capacity: 0, requireApproval: false, description: '' }]
+                }))}
+                className="flex items-center gap-2 bg-[#6366f1] hover:bg-[#4f46e5] text-white px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-[#6366f1]/20 active:scale-[0.98]"
+              >
+                <PlusCircle size={16} /> Add Ticket Tier
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {formData.ticketTiers.map((tier, idx) => (
+                <div key={idx} className="p-10 bg-slate-950 border border-slate-800 rounded-[2.5rem] space-y-10 relative group shadow-2xl">
+                  {/* Delete Button - Top Right */}
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({
+                      ...prev,
+                      ticketTiers: prev.ticketTiers.filter((_, i) => i !== idx)
+                    }))}
+                    className="absolute top-8 right-8 p-3 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white rounded-2xl transition-all shadow-lg"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+
+                  <div className="space-y-8 max-w-2xl">
+                    <div className="space-y-3">
+                      <label className="block text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Tier Name</label>
+                      <input
+                        type="text" value={tier.name}
+                        onChange={(e) => {
+                          const newTiers = [...formData.ticketTiers];
+                          newTiers[idx].name = e.target.value;
+                          setFormData(prev => ({ ...prev, ticketTiers: newTiers }));
+                        }}
+                        className="w-full bg-slate-900 border border-slate-800 rounded-3xl px-8 py-5 text-white text-lg focus:outline-none focus:border-[#6366f1]/50 transition-all font-medium placeholder:text-slate-800"
+                        placeholder="e.g. Early Bird, VIP Experience"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                      <div className="space-y-3">
+                        <label className="block text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Price (₹)</label>
+                        <div className="relative">
+                          <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 font-bold">₹</span>
+                          <input
+                            type="number" value={tier.price}
+                            onChange={(e) => {
+                              const newTiers = [...formData.ticketTiers];
+                              newTiers[idx].price = parseInt(e.target.value) || 0;
+                              setFormData(prev => ({ ...prev, ticketTiers: newTiers }));
+                            }}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-3xl pl-12 pr-8 py-5 text-white text-lg focus:outline-none focus:border-[#6366f1]/50 transition-all font-mono"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <label className="block text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Capacity / Slots</label>
+                        <input
+                          type="number" value={tier.capacity}
+                          onChange={(e) => {
+                            const newTiers = [...formData.ticketTiers];
+                            newTiers[idx].capacity = parseInt(e.target.value) || 0;
+                            setFormData(prev => ({ ...prev, ticketTiers: newTiers }));
+                          }}
+                          className="w-full bg-slate-900 border border-slate-800 rounded-3xl px-8 py-5 text-white text-lg focus:outline-none focus:border-[#6366f1]/50 transition-all font-mono"
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <label className="inline-flex items-center gap-4 cursor-pointer group/verify bg-slate-900 border border-slate-800 rounded-2xl px-6 py-4 hover:border-[#6366f1]/30 transition-all">
+                        <div className="relative">
+                          <input
+                            type="checkbox" checked={tier.requireApproval}
+                            onChange={(e) => {
+                              const newTiers = [...formData.ticketTiers];
+                              newTiers[idx].requireApproval = e.target.checked;
+                              setFormData(prev => ({ ...prev, ticketTiers: newTiers }));
+                            }}
+                            className="sr-only peer"
+                          />
+                          <div className="w-6 h-6 border-2 border-slate-800 rounded-lg peer-checked:bg-[#6366f1] peer-checked:border-[#6366f1] transition-all flex items-center justify-center">
+                            <svg className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black text-white uppercase tracking-widest">Require Approval</span>
+                          <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest mt-0.5">Verify attendees before confirming</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {formData.ticketTiers.length === 0 && (
+                <div className="text-center p-8 border border-dashed border-slate-800 rounded-3xl bg-slate-950/30">
+                  <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">Legacy Pricing: Using Global Params</p>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Timeline */}
+          <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 space-y-8 shadow-sm">
+            <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+              <Calendar className="text-sky-500" size={20} /> TEMPORAL VECTOR
+            </h3>
+            <div className="space-y-8 max-w-xl">
+              <div className="space-y-3">
+                  <label className="block text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Event Date</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600" size={20} />
+                    <input 
+                      type="date" name="date" required value={formData.date} onChange={handleChange}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-3xl pl-16 pr-8 py-5 text-white text-lg focus:outline-none focus:border-sky-500/50 transition-all font-mono uppercase tracking-widest"
+                    />
+                  </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                    <label className="block text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Start Time</label>
+                    <input 
+                      type="time" name="startTime" value={formData.startTime} onChange={handleChange}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-3xl px-8 py-5 text-white text-lg focus:outline-none focus:border-sky-500/50 transition-all font-mono"
+                    />
+                </div>
+                <div className="space-y-3">
+                    <label className="block text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">End Time</label>
+                    <input 
+                      type="time" name="endTime" value={formData.endTime} onChange={handleChange}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-3xl px-8 py-5 text-white text-lg focus:outline-none focus:border-sky-500/50 transition-all font-mono"
+                    />
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
 
         {/* Sidebar Controls */}
@@ -496,50 +766,8 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
               ))}
             </div>
           </section>
-
-          {/* Pricing */}
-          <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 space-y-8 shadow-sm">
-             <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
-              <IndianRupee className="text-sky-500" size={20} /> ECONOMIC PARAMS
-            </h3>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Ticket Multiplier</label>
-                <div className="relative group">
-                  <IndianRupee className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-sky-500 transition-colors" size={18} />
-                  <input 
-                    type="number" name="price" value={formData.price} onChange={handleChange}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-16 pr-6 py-5 text-2xl font-black text-white focus:outline-none focus:border-sky-500/50 transition-all"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Density Threshold</label>
-                <div className="relative group">
-                  <Users className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-sky-500 transition-colors" size={18} />
-                  <input 
-                    type="number" name="capacity" value={formData.capacity} onChange={handleChange}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-16 pr-6 py-5 text-2xl font-black text-white focus:outline-none focus:border-sky-500/50 transition-all font-mono"
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Timeline */}
-          <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 space-y-8 shadow-sm">
-            <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
-              <Calendar className="text-sky-500" size={20} /> TEMPORAL VECTOR
-            </h3>
-            <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Activation Date</label>
-                <input 
-                  type="date" name="date" required value={formData.date} onChange={handleChange}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-5 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-all font-mono uppercase tracking-widest"
-                />
-            </div>
-          </section>
         </div>
+
 
         {/* Poster / Main Image Block */}
         <div className="lg:col-span-12 bg-slate-900 border border-slate-800 rounded-[3rem] p-12 space-y-10 shadow-2xl shadow-slate-950/20">
@@ -664,7 +892,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
            </div>
            <button 
             type="submit" disabled={loading || uploading}
-            className="bg-sky-600 hover:bg-sky-500 text-white px-16 py-6 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-sky-900/30 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center gap-3"
+            className="bg-[#6366f1] hover:bg-[#4f46e5] text-white px-16 py-6 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-[#6366f1]/30 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center gap-3"
           >
             {loading ? <Lock className="animate-pulse" size={18} /> : (initialData ? 'Synchronize Updates' : (formData.status === 'published' ? 'Execute Deployment' : 'Preserve Protocol'))}
           </button>

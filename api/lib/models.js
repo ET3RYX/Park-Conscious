@@ -28,6 +28,8 @@ const eventSchema = new mongoose.Schema(
     title: { type: String, required: true },
     description: String,
     date: { type: String, required: true },
+    startTime: String,
+    endTime: String,
     endDate: String,
     location: {
       name: String,
@@ -72,9 +74,23 @@ const eventSchema = new mongoose.Schema(
     mediaGallery: [{
       url: { type: String, required: true },
       type: { type: String, enum: ['image', 'video'], default: 'image' }
+    }],
+    // New Luma-inspired fields
+    hosts: [{
+      name: String,
+      image: String,
+      socialLink: String,
+      role: { type: String, default: 'Host' }
+    }],
+    ticketTiers: [{
+      name: { type: String, required: true },
+      price: { type: Number, default: 0 },
+      capacity: { type: Number, default: 0 },
+      requireApproval: { type: Boolean, default: false },
+      description: String
     }]
   },
-  { timestamps: true }
+  { timestamps: true, strict: false }
 );
 
 const accessLogSchema = new mongoose.Schema(
