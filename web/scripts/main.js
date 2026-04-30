@@ -316,7 +316,10 @@ async function renderBookingsList() {
         const user = JSON.parse(userStr);
         const resp = await fetch(`/api/bookings/${user.id}`);
         if (resp.ok) {
-            const apiBookings = await resp.json();
+            let apiBookings = await resp.json();
+            // STRICT FILTER: Only keep bookings that have a parkingId
+            apiBookings = apiBookings.filter(b => b.parkingId || b.locationName);
+            
             const localBookings = loadBookings();
             // Merge but prioritize API data (simple de-dupe by id)
             const seen = new Set(apiBookings.map(b => b._id || b.id));
