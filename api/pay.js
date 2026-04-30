@@ -203,11 +203,24 @@ export default async function handler(req, res) {
             if (!ticketId) return json(res, 400, { message: 'Ticket ID required' });
 
             const isUncheck = url.includes('un-check-in');
-            const booking = await Booking.findOneAndUpdate(
+            
+            // Try Events DB first
+            await connectDB('backstage_events');
+            let booking = await Booking.findOneAndUpdate(
                 { ticketId: ticketId },
                 { $set: { attended: !isUncheck } },
                 { new: true }
             );
+
+            if (!booking) {
+                // Try Parking DB
+                await connectDB('park_conscious');
+                booking = await Booking.findOneAndUpdate(
+                    { ticketId: ticketId },
+                    { $set: { attended: !isUncheck } },
+                    { new: true }
+                );
+            }
 
             if (!booking) return json(res, 404, { message: 'Booking code not found' });
             return json(res, 200, { success: true, attended: booking.attended });
@@ -217,14 +230,27 @@ export default async function handler(req, res) {
         if (url.includes('/booking/status/') && method === 'GET') {
             const txnId = url.split('/').pop();
             if (!txnId) return json(res, 400, { message: 'Transaction ID missing' });
-            const booking = await Booking.findOne({ transactionId: txnId }).lean();
+            
+            // Try Events DB first
+            await connectDB('backstage_events');
+            let booking = await Booking.findOne({ transactionId: txnId }).lean();
+            
+            if (!booking) {
+                // Try Parking DB
+                await connectDB('park_conscious');
+                booking = await Booking.findOne({ transactionId: txnId }).lean();
+            }
+
             if (!booking) return json(res, 404, { message: 'Booking not found' });
             
             if (booking.eventId && booking.eventId.length === 24) {
+                await connectDB('backstage_events');
                 const event = await models.Event.findById(booking.eventId).lean();
-                if (event) {
-                    booking.event = normalizeEvent(event);
-                }
+                if (event) booking.event = normalizeEvent(event);
+            } else if (booking.parkingId) {
+                await connectDB('park_conscious');
+                const pk = await models.Parking.findOne({ $or: [{ _id: booking.parkingId }, { ID: booking.parkingId }] }).lean();
+                if (pk) booking.event = { title: pk.Location, location: pk.Location, date: booking.createdAt };
             }
             
             return json(res, 200, booking);
