@@ -422,8 +422,50 @@ function openBookingModal(item) {
             const data = await resp.json();
             if (resp.ok && data.success) {
                 const bId = data.booking_id;
-                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${bId}`;
-                modalRoot.innerHTML = `<div class="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50"><div class="bg-white p-8 rounded-3xl text-center max-w-sm"><h3 class="text-2xl font-black mb-4">Confirmed!</h3><img src="${qrUrl}" class="mx-auto mb-4 w-32 h-32"><button onclick="location.reload()" class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold">Close</button></div></div>`;
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${bId}`;
+                
+                modalRoot.innerHTML = `
+                <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+                    <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl animate-fade-in-up">
+                        <div class="bg-[#00C39A] p-6 text-center">
+                            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                            </div>
+                            <h3 class="text-white font-black text-xl tracking-tight uppercase">Booking Confirmed</h3>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div class="text-center">
+                                <img src="${qrUrl}" class="mx-auto w-40 h-40 rounded-xl border-4 border-slate-50 shadow-sm mb-2">
+                                <div class="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-widest">REF: ${bId}</div>
+                            </div>
+                            
+                            <div class="border-t border-dashed border-slate-200 pt-6">
+                                <div class="flex justify-between mb-4">
+                                    <div>
+                                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Location</div>
+                                        <div class="text-sm font-bold text-slate-900">${escapeHtml(item.Location)}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Amount</div>
+                                        <div class="text-sm font-black text-[#00C39A]">₹${bData.amount}</div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between">
+                                    <div>
+                                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Vehicle</div>
+                                        <div class="text-sm font-bold text-slate-900 uppercase">${escapeHtml(bData.license)}</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Time Slot</div>
+                                        <div class="text-sm font-bold text-slate-900">${bData.startTime} - ${bData.endTime}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button onclick="location.reload()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm tracking-widest uppercase hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20 mt-2">Done</button>
+                        </div>
+                    </div>
+                </div>`;
             } else { alert('Failed: ' + data.message); btn.innerText = 'Confirm'; btn.disabled = false; }
         } catch (e) { alert('Server error. Saved locally.'); saveBooking(bData); location.reload(); }
     });
