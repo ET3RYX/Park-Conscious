@@ -1,11 +1,20 @@
+import os
+import sys
 import json
 import time
 from http.server import BaseHTTPRequestHandler
 from bson import ObjectId
 
-# Import core modules
-from engine_core.models import Vehicle, ParkingLot
-from engine_core.database import get_db
+# Ensure the current directory is in path for Vercel
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.append(current_dir)
+
+try:
+    from engine_core.models import Vehicle, ParkingLot
+    from engine_core.database import get_db
+except ImportError as e:
+    print(f"[Critical] Import failed: {str(e)}")
 
 class handler(BaseHTTPRequestHandler):
     def end_with_json(self, status, payload):
@@ -47,6 +56,7 @@ class handler(BaseHTTPRequestHandler):
             content_length = int(self.headers.get('Content-Length', 0))
             post_data = self.rfile.read(content_length)
             data = json.loads(post_data.decode('utf-8')) if content_length > 0 else {}
+            print(f"Engine Inbound Data: {data}")
             
             db = get_db()
             if db is None:
