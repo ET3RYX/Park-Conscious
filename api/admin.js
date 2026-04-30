@@ -218,22 +218,24 @@ export default async function handler(req, res) {
             const eventIds = new Set();
             const userOwnerIds = new Set();
             for (let b of bookings) {
-                const eid = String(b.eventId || '');
-                if (eid && eid.length === 24 && /^[a-f0-9]+$/i.test(eid)) eventIds.add(eid);
+                const eid = String(b.eventId || b.parkingId || '');
+                if (eid && (eid.length === 24 || eid.length < 10) && /^[a-f0-9]+$/i.test(eid)) eventIds.add(eid);
                 const uid = String(b.userId || '');
                 if (uid && uid.length === 24 && /^[a-f0-9]+$/i.test(uid)) userOwnerIds.add(uid);
             }
             
             // Fetch everything in parallel
-            const [eventsList, usersList, ownersList] = await Promise.all([
+            const [eventsList, usersList, ownersList, parkingsList] = await Promise.all([
                Event.find({ _id: { $in: Array.from(eventIds) } }).lean(),
                User.find({ _id: { $in: Array.from(userOwnerIds) } }).lean(),
-               Owner.find({ _id: { $in: Array.from(userOwnerIds) } }).lean()
+               Owner.find({ _id: { $in: Array.from(userOwnerIds) } }).lean(),
+               Parking.find({ $or: [{ _id: { $in: Array.from(eventIds) } }, { ID: { $in: Array.from(eventIds) } }] }).lean()
             ]);
             
             // Build fast lookup maps
             const eventMap = {};
             eventsList.forEach(e => eventMap[String(e._id)] = normalizeEvent(e));
+            parkingsList.forEach(p => eventMap[String(p._id || p.ID)] = { title: p.Location, location: p.Location });
             
             const userMap = {};
             usersList.forEach(u => userMap[String(u._id)] = { name: u.name, email: u.email });
