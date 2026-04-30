@@ -18,20 +18,35 @@ export default async function handler(req, res) {
     const body = await getBody(req);
 
     try {
-        await connectDB();
+        const isParkingLogin = url.includes('/owner/') || fullUrl.includes('context=parking');
+        const primaryDb = isParkingLogin ? 'park_conscious' : 'backstage_events';
+        const secondaryDb = isParkingLogin ? 'backstage_events' : 'park_conscious';
+
+        await connectDB(primaryDb);
         
         // -- Login --
         if ((url.includes('/login') || url.endsWith('/auth/login')) && method === 'POST') {
             const { email, password } = body;
             const search = (email || '').toLowerCase().trim();
             
-            // PRIORITY: Check Owner first to ensure Admin role takes precedence
+            // Step 1: Try Primary Database
             let u = await Owner.findOne({ email: search });
             let isOwner = !!u;
             
             if (!u) {
                 u = await User.findOne({ email: search });
                 isOwner = false;
+            }
+
+            // Step 2: Fail-over to Secondary Database if not found
+            if (!u) {
+                await connectDB(secondaryDb);
+                u = await Owner.findOne({ email: search });
+                isOwner = !!u;
+                if (!u) {
+                    u = await User.findOne({ email: search });
+                    isOwner = false;
+                }
             }
 
             if (!u) return json(res, 401, { message: 'Invalid credentials' });
@@ -70,7 +85,7 @@ export default async function handler(req, res) {
             
             const search = email.toLowerCase();
             
-            // PRIORITY: Check Owner first
+            // Step 1: Try Primary
             let u = await Owner.findOne({ email: search });
             let isOwner = !!u;
             
@@ -79,7 +94,20 @@ export default async function handler(req, res) {
                 isOwner = false;
             }
 
+            // Step 2: Try Secondary
             if (!u) {
+                await connectDB(secondaryDb);
+                u = await Owner.findOne({ email: search });
+                isOwner = !!u;
+                if (!u) {
+                    u = await User.findOne({ email: search });
+                    isOwner = false;
+                }
+            }
+
+            if (!u) {
+                // If brand new, create in the primary database
+                await connectDB(primaryDb);
                 u = await User.create({ name, email: search, googleId, picture });
                 isOwner = false;
             } else {
