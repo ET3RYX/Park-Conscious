@@ -13,7 +13,7 @@ import {
  */
 const clUrl = (url, type = 'image') => {
   if (!url || !url.includes('res.cloudinary.com')) return url;
-  const transforms = type === 'video' ? 'q_auto,f_auto,vc_auto' : 'q_auto,f_auto';
+  const transforms = type === 'video' ? 'q_auto,vc_auto' : 'q_auto,f_auto';
   return url.replace('/upload/', `/upload/${transforms}/`);
 };
 
@@ -260,6 +260,8 @@ const EventPage = () => {
                             src={clUrl(item.url, 'video')} 
                             className="w-full h-full object-cover"
                             controls
+                            playsInline
+                            preload="metadata"
                           />
                         ) : (
                           <img 
