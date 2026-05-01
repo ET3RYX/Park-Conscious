@@ -89,20 +89,29 @@ export default async function handler(req, res) {
                     name: name || body.name || null,
                     email: body.email || null,
                     ticketId: ticketId,
+                    tierName: body.tierName || null,
                     customData: customData || {}
                 });
 
                 if (targetEventId && targetEventId.length === 24) {
-                    const eventBefore = await models.Event.findById(targetEventId).lean();
-                    const updateResult = await models.Event.findByIdAndUpdate(targetEventId, { $inc: { capacity: -1 } }, { new: true }).lean();
+                    const tierName = body.tierName;
+                    const filter = { _id: targetEventId };
+                    const updateQuery = { $inc: { capacity: -1 } };
                     
-                    console.log(`[BOOKING_DEBUG_FREE] CID: ${targetEventId}`);
-                    console.log(`[BOOKING_DEBUG_FREE] BEFORE: Cap=${eventBefore?.capacity}, Price=${eventBefore?.price}`);
-                    console.log(`[BOOKING_DEBUG_FREE] AFTER:  Cap=${updateResult?.capacity}, Price=${updateResult?.price}`);
-                    
-                    if (eventBefore && updateResult && eventBefore.price !== updateResult.price) {
-                        console.error(`[CRITICAL_BUG_DETECTED]: Price changed from ${eventBefore.price} to ${updateResult.price} during capacity decrement!`);
+                    if (tierName) {
+                        const event = await models.Event.findById(targetEventId).lean();
+                        if (event && event.ticketTiers?.some(t => t.name === tierName)) {
+                            filter["ticketTiers.name"] = tierName;
+                            updateQuery.$inc["ticketTiers.$.capacity"] = -1;
+                        }
                     }
+
+                    const eventBefore = await models.Event.findById(targetEventId).lean();
+                    const updateResult = await models.Event.findOneAndUpdate(filter, updateQuery, { new: true }).lean();
+                    
+                    console.log(`[BOOKING_DEBUG_FREE] CID: ${targetEventId} Tier: ${tierName}`);
+                    console.log(`[BOOKING_DEBUG_FREE] BEFORE: Cap=${eventBefore?.capacity}`);
+                    console.log(`[BOOKING_DEBUG_FREE] AFTER:  Cap=${updateResult?.capacity}`);
                 } else {
                     console.warn(`[BOOKING_DEBUG_FREE] Skipping capacity decrement for non-ObjectId: ${targetEventId}`);
                 }
@@ -134,6 +143,7 @@ export default async function handler(req, res) {
                 phone: phone,
                 name: name || body.name || null,
                 email: body.email || null,
+                tierName: body.tierName || null,
                 customData: customData || {}
             });
 
@@ -175,16 +185,24 @@ export default async function handler(req, res) {
                 );
 
                 if (updatedBooking && updatedBooking.eventId && updatedBooking.eventId.length === 24) {
-                    const eventBefore = await models.Event.findById(updatedBooking.eventId).lean();
-                    const updateResult = await models.Event.findByIdAndUpdate(updatedBooking.eventId, { $inc: { capacity: -1 } }, { new: true }).lean();
+                    const tierName = updatedBooking.tierName;
+                    const filter = { _id: updatedBooking.eventId };
+                    const updateQuery = { $inc: { capacity: -1 } };
                     
-                    console.log(`[BOOKING_DEBUG] CID: ${updatedBooking.eventId}`);
-                    console.log(`[BOOKING_DEBUG] BEFORE: Cap=${eventBefore?.capacity}, Price=${eventBefore?.price}`);
-                    console.log(`[BOOKING_DEBUG] AFTER:  Cap=${updateResult?.capacity}, Price=${updateResult?.price}`);
-
-                    if (eventBefore && updateResult && eventBefore.price !== updateResult.price) {
-                        console.error(`[CRITICAL_BUG_DETECTED]: Price changed from ${eventBefore.price} to ${updateResult.price} during capacity decrement!`);
+                    if (tierName) {
+                        const event = await models.Event.findById(updatedBooking.eventId).lean();
+                        if (event && event.ticketTiers?.some(t => t.name === tierName)) {
+                            filter["ticketTiers.name"] = tierName;
+                            updateQuery.$inc["ticketTiers.$.capacity"] = -1;
+                        }
                     }
+
+                    const eventBefore = await models.Event.findById(updatedBooking.eventId).lean();
+                    const updateResult = await models.Event.findOneAndUpdate(filter, updateQuery, { new: true }).lean();
+                    
+                    console.log(`[BOOKING_DEBUG] CID: ${updatedBooking.eventId} Tier: ${tierName}`);
+                    console.log(`[BOOKING_DEBUG] BEFORE: Cap=${eventBefore?.capacity}`);
+                    console.log(`[BOOKING_DEBUG] AFTER:  Cap=${updateResult?.capacity}`);
                 } else {
                     console.warn(`[BOOKING_DEBUG] Skipping capacity decrement for non-ObjectId: ${updatedBooking?.eventId}`);
                 }

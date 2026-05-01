@@ -170,6 +170,7 @@ const bookingSchema = new mongoose.Schema(
     emailSent: { type: Boolean, default: false },
     screenshotUrl: { type: String, default: null },
     status: { type: String, default: "Confirmed" },
+    tierName: { type: String, default: null },
     customData: { type: mongoose.Schema.Types.Mixed, default: {} },
     date: { type: Date, default: Date.now },
   },
