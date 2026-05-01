@@ -102,11 +102,41 @@ const EventPage = () => {
                 </div>
 
                 <div className="space-y-4 px-2">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Ticket Availability</p>
-                  <div className="flex items-baseline justify-between border-b border-white/5 pb-6">
-                    <span className="text-5xl font-bold font-['Outfit'] leading-none text-white">{event.capacity || 0}</span>
-                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Global Capacity</span>
-                  </div>
+                  {event.ticketTiers && event.ticketTiers.length > 0 ? (
+                    <div className="space-y-4">
+                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Select Ticket Tier</p>
+                      <div className="space-y-3">
+                        {event.ticketTiers.map((tier, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setSelectedTier(tier)}
+                            className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                              selectedTier?.name === tier.name 
+                                ? 'bg-[#6366f1]/10 border-[#6366f1] shadow-[0_0_20px_-5px_rgba(99,102,241,0.3)]' 
+                                : 'bg-white/5 border-white/5 hover:border-white/20'
+                            }`}
+                          >
+                            <div className="text-left">
+                              <p className="text-sm font-bold text-white">{tier.name}</p>
+                              {tier.description && <p className="text-[10px] text-slate-500 mt-1">{tier.description}</p>}
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-['Outfit'] font-bold text-white">₹{tier.price}</p>
+                              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">{tier.capacity} Slots</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Ticket Availability</p>
+                      <div className="flex items-baseline justify-between border-b border-white/5 pb-6">
+                        <span className="text-5xl font-bold font-['Outfit'] leading-none text-white">{event.capacity || 0}</span>
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Global Capacity</span>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="space-y-4 pt-2">
