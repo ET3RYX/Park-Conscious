@@ -68,9 +68,10 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        amount: event.displayPrice || 0,
+        amount: event.selectedTier ? event.selectedTier.price : (event.displayPrice || 0),
         userId: user ? (user.uid || user.id) : (formData.name || "Guest"),
         eventId: event.id || event._id,
+        tierName: event.selectedTier?.name || "Standard",
         customData: customData
       });
 
@@ -96,7 +97,7 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
             amount: response.data.amount,
             currency: "INR",
             name: "BACKSTAGE",
-            description: event.displayTitle || event.title || "Event Tickets",
+            description: event.selectedTier ? `${event.displayTitle || "Event"} - ${event.selectedTier.name}` : (event.displayTitle || event.title || "Event Tickets"),
             order_id: response.data.orderId,
             handler: async function (paymentResponse) {
                 try {
@@ -286,7 +287,7 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
                       ) : (
                         <>
                           <CreditCard className="shrink-0" size={20} />
-                          <span className="flex-1 text-center">{event.displayPrice > 0 ? `Pay • ₹${event.displayPrice}` : "Confirm Ticket Booking"}</span>
+                          <span className="flex-1 text-center">{(event.selectedTier?.price || event.displayPrice || 0) > 0 ? `Pay • ₹${event.selectedTier?.price || event.displayPrice}` : "Confirm Ticket Booking"}</span>
                           <div className="w-5 shrink-0" />
                         </>
                       )}

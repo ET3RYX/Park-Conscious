@@ -20,10 +20,7 @@ export default async function handler(req, res) {
     const user = verifyUser(req);
 
     try {
-        // Automatically determine the database context based on the request URL or query params
-        const isParkingRequest = url.includes('parking') || url.includes('/owner/') || fullUrl.includes('context=parking');
-        const targetDb = isParkingRequest ? 'park_conscious' : 'backstage_events';
-        await connectDB(targetDb);
+        await connectDB();
         
         // -- Inquiries Management (SuperAdmin Only) --
         if (url.includes('inquiries')) {
@@ -597,13 +594,15 @@ export default async function handler(req, res) {
             });
 
             // 2. Fetch Parking Stats (from park_conscious)
-            await connectDB('park_conscious');
+            const SecParking = models.getSecondaryModel('Parking');
+            const SecBooking = models.getSecondaryModel('Booking');
+
             let parkingQuery = {};
             if (!isAdmin) parkingQuery.owner = user.id;
 
-            const parkings = await Parking.find(parkingQuery).lean();
+            const parkings = await SecParking.find(parkingQuery).lean();
             const parkingIds = parkings.map(p => p.ID || String(p._id));
-            const parkingBookings = await Booking.find({
+            const parkingBookings = await SecBooking.find({
                 parkingId: { $in: parkingIds },
                 status: { $in: ["Confirmed", "confirmed"] }
             }).lean();

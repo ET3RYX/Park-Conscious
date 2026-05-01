@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = ""; // Enable relative routing for production stability
+const API_URL = import.meta.env.VITE_API_URL || ""; // Use env variable for local dev
 console.log('%c[ADMIN_NEXUS] Primary Logic Link:', 'color: #0ea5e9; font-weight: bold;', API_URL);
 console.log('%c[BUILD_VERSION] v2.0.9-DIAGNOSTIC-FIX', 'color: #10b981; font-weight: bold;');
 
