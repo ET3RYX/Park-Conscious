@@ -5,7 +5,7 @@ import DefaultlayoutHoc from "../layout/Default.layout";
 import BookingModal from "../components/Booking/BookingModal.jsx";
 import { 
   MapPin, Ticket, X, 
-  Calendar, Clock, Users, ArrowUpRight, Share2
+  Calendar, Clock, Users, ArrowUpRight, Share2, Instagram
 } from "lucide-react";
 
 /**
@@ -173,18 +173,30 @@ const EventPage = () => {
                 <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500">Presented By</h3>
                 <div className="space-y-5">
                   {hostsList.length > 0 ? hostsList.map((host, idx) => (
-                    <div key={idx} className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full border border-white/10 bg-white/5 overflow-hidden flex-shrink-0">
-                        {host.image ? (
-                          <img src={clUrl(host.image)} className="w-full h-full object-cover" alt={host.name} />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[10px] font-medium bg-white/5 text-white">{host.name?.[0]}</div>
-                        )}
+                    <div key={idx} className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full border border-white/10 bg-white/5 overflow-hidden flex-shrink-0">
+                          {host.image ? (
+                            <img src={clUrl(host.image)} className="w-full h-full object-cover" alt={host.name} />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[10px] font-medium bg-white/5 text-white">{host.name?.[0]}</div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-white">{host.name}</p>
+                          <p className="text-[10px] text-slate-500">{host.role}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-white">{host.name}</p>
-                        <p className="text-[10px] text-slate-500">{host.role}</p>
-                      </div>
+                      
+                      {(host.instagram || host.socials?.instagram) && (
+                        <a 
+                          href={host.instagram || host.socials?.instagram} 
+                          target="_blank" rel="noreferrer"
+                          className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-pink-500 hover:border-pink-500/30 transition-all"
+                        >
+                          <Instagram size={14} />
+                        </a>
+                      )}
                     </div>
                   )) : (
                     <div className="flex items-center gap-4 opacity-50">
@@ -261,11 +273,12 @@ const EventPage = () => {
                             className="w-full h-full object-cover"
                             controls
                             playsInline
-                            preload="auto"
+                            preload="metadata"
                             key={idx}
                           >
                             <source src={clUrl(item.url, 'video')} type="video/mp4" />
                             <source src={item.url} />
+                            Your browser does not support the video tag.
                           </video>
                         ) : (
                           <img 
@@ -274,7 +287,7 @@ const EventPage = () => {
                             alt={`Gallery item ${idx + 1}`} 
                           />
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6 pointer-events-none">
                            <span className="text-[10px] font-black uppercase tracking-widest text-white/80">View Full {item.type === 'video' ? 'Video' : 'Image'}</span>
                         </div>
                       </div>
