@@ -13,7 +13,6 @@ import Login from './pages/Login';
 import EditEvent from './pages/EditEvent';
 import SystemHealth from './pages/SystemHealth';
 import Inquiries from './pages/Inquiries';
-import ParkingLogs from './pages/ParkingLogs';
 import { RefreshCw } from 'lucide-react';
 
 const PrivateRoute = ({ children }) => {
@@ -98,7 +97,6 @@ function App() {
               </PrivateRoute>
             }>
               <Route index element={<Dashboard />} />
-              <Route path="parking" element={<ParkingLogs />} />
               <Route path="events" element={<Events />} />
               <Route path="events/create" element={<CreateEvent />} />
               <Route path="events/edit/:id" element={<EditEvent />} />

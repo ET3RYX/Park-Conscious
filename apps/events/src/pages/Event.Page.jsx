@@ -13,7 +13,8 @@ import {
  */
 const clUrl = (url, type = 'image') => {
   if (!url || !url.includes('res.cloudinary.com')) return url;
-  const transforms = type === 'video' ? 'q_auto,f_auto,vc_auto' : 'q_auto,f_auto';
+  // Use f_mp4 for videos to ensure maximum compatibility across browsers
+  const transforms = type === 'video' ? 'f_mp4,q_auto,vc_auto' : 'q_auto,f_auto';
   return url.replace('/upload/', `/upload/${transforms}/`);
 };
 
@@ -39,7 +40,8 @@ const EventPage = () => {
           displayAddress: data.location?.address || data.locationAddress || "",
           displayDescription: data.description || "",
           hosts: Array.isArray(data.hosts) ? data.hosts : [],
-          ticketTiers: Array.isArray(data.ticketTiers) ? data.ticketTiers : []
+          ticketTiers: Array.isArray(data.ticketTiers) ? data.ticketTiers : [],
+          mediaGallery: Array.isArray(data.mediaGallery) ? data.mediaGallery : []
         };
 
         setEvent(normalized);
@@ -102,11 +104,41 @@ const EventPage = () => {
                 </div>
 
                 <div className="space-y-4 px-2">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Ticket Availability</p>
-                  <div className="flex items-baseline justify-between border-b border-white/5 pb-6">
-                    <span className="text-5xl font-bold font-['Outfit'] leading-none text-white">{event.capacity || 0}</span>
-                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Global Capacity</span>
-                  </div>
+                  {event.ticketTiers && event.ticketTiers.length > 0 ? (
+                    <div className="space-y-4">
+                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Select Ticket Tier</p>
+                      <div className="space-y-3">
+                        {event.ticketTiers.map((tier, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setSelectedTier(tier)}
+                            className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                              selectedTier?.name === tier.name 
+                                ? 'bg-[#6366f1]/10 border-[#6366f1] shadow-[0_0_20px_-5px_rgba(99,102,241,0.3)]' 
+                                : 'bg-white/5 border-white/5 hover:border-white/20'
+                            }`}
+                          >
+                            <div className="text-left">
+                              <p className="text-sm font-bold text-white">{tier.name}</p>
+                              {tier.description && <p className="text-[10px] text-slate-500 mt-1">{tier.description}</p>}
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-['Outfit'] font-bold text-white">₹{tier.price}</p>
+                              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">{tier.capacity} Slots</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Ticket Availability</p>
+                      <div className="flex items-baseline justify-between border-b border-white/5 pb-6">
+                        <span className="text-5xl font-bold font-['Outfit'] leading-none text-white">{event.capacity || 0}</span>
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Global Capacity</span>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="space-y-4 pt-2">
@@ -216,6 +248,40 @@ const EventPage = () => {
                   {event.displayDescription || "No detailed description provided."}
                 </p>
               </div>
+
+              {/* Media Gallery Section */}
+              {event.mediaGallery && event.mediaGallery.length > 0 && (
+                <div className="space-y-6 pt-12 border-t border-white/5">
+                  <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500">Experience Gallery</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {event.mediaGallery.map((item, idx) => (
+                      <div key={idx} className="relative rounded-3xl overflow-hidden border border-white/5 bg-white/5 aspect-video group shadow-2xl">
+                        {item.type === 'video' ? (
+                          <video 
+                            className="w-full h-full object-cover"
+                            controls
+                            playsInline
+                            preload="auto"
+                            key={idx}
+                          >
+                            <source src={clUrl(item.url, 'video')} type="video/mp4" />
+                            <source src={item.url} />
+                          </video>
+                        ) : (
+                          <img 
+                            src={clUrl(item.url)} 
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                            alt={`Gallery item ${idx + 1}`} 
+                          />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                           <span className="text-[10px] font-black uppercase tracking-widest text-white/80">View Full {item.type === 'video' ? 'Video' : 'Image'}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
