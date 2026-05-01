@@ -72,12 +72,22 @@
     },
 
     {
-      "source": "/((?!api/|sitemap\\.xml|robots\\.txt).*)",
+      "source": "/static/:path*",
+      "has": [{ "type": "host", "value": "events.parkconscious.in" }],
+      "destination": "/apps/events/build/static/:path*"
+    },
+    {
+      "source": "/((?!api/|static/|sitemap\\.xml|robots\\.txt).*)",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
       "destination": "/apps/events/build/index.html"
     },
     {
-      "source": "/((?!api/|sitemap\\.xml|robots\\.txt).*)",
+      "source": "/assets/:path*",
+      "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
+      "destination": "/apps/admin/dist/assets/:path*"
+    },
+    {
+      "source": "/((?!api/|assets/|sitemap\\.xml|robots\\.txt).*)",
       "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
       "destination": "/apps/admin/dist/index.html"
     },
