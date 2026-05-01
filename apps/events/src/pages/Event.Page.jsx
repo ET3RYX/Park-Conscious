@@ -39,7 +39,8 @@ const EventPage = () => {
           displayAddress: data.location?.address || data.locationAddress || "",
           displayDescription: data.description || "",
           hosts: Array.isArray(data.hosts) ? data.hosts : [],
-          ticketTiers: Array.isArray(data.ticketTiers) ? data.ticketTiers : []
+          ticketTiers: Array.isArray(data.ticketTiers) ? data.ticketTiers : [],
+          mediaGallery: Array.isArray(data.mediaGallery) ? data.mediaGallery : []
         };
 
         setEvent(normalized);
@@ -246,6 +247,35 @@ const EventPage = () => {
                   {event.displayDescription || "No detailed description provided."}
                 </p>
               </div>
+
+              {/* Media Gallery Section */}
+              {event.mediaGallery && event.mediaGallery.length > 0 && (
+                <div className="space-y-6 pt-12 border-t border-white/5">
+                  <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500">Experience Gallery</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {event.mediaGallery.map((item, idx) => (
+                      <div key={idx} className="relative rounded-3xl overflow-hidden border border-white/5 bg-white/5 aspect-video group shadow-2xl">
+                        {item.type === 'video' ? (
+                          <video 
+                            src={clUrl(item.url, 'video')} 
+                            className="w-full h-full object-cover"
+                            controls
+                          />
+                        ) : (
+                          <img 
+                            src={clUrl(item.url)} 
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                            alt={`Gallery item ${idx + 1}`} 
+                          />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                           <span className="text-[10px] font-black uppercase tracking-widest text-white/80">View Full {item.type === 'video' ? 'Video' : 'Image'}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
