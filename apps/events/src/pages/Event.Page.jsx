@@ -13,7 +13,8 @@ import {
  */
 const clUrl = (url, type = 'image') => {
   if (!url || !url.includes('res.cloudinary.com')) return url;
-  const transforms = type === 'video' ? 'q_auto,vc_auto' : 'q_auto,f_auto';
+  // Use f_mp4 for videos to ensure maximum compatibility across browsers
+  const transforms = type === 'video' ? 'f_mp4,q_auto,vc_auto' : 'q_auto,f_auto';
   return url.replace('/upload/', `/upload/${transforms}/`);
 };
 
@@ -257,12 +258,15 @@ const EventPage = () => {
                       <div key={idx} className="relative rounded-3xl overflow-hidden border border-white/5 bg-white/5 aspect-video group shadow-2xl">
                         {item.type === 'video' ? (
                           <video 
-                            src={clUrl(item.url, 'video')} 
                             className="w-full h-full object-cover"
                             controls
                             playsInline
-                            preload="metadata"
-                          />
+                            preload="auto"
+                            key={idx}
+                          >
+                            <source src={clUrl(item.url, 'video')} type="video/mp4" />
+                            <source src={item.url} />
+                          </video>
                         ) : (
                           <img 
                             src={clUrl(item.url)} 
