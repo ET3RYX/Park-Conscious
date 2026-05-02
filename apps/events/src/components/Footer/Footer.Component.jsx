@@ -28,9 +28,9 @@ const Footer = () => {
             The biggest concerts and festivals in Delhi NCR are here. Pre-book your parking spot and walk straight to the front row.
           </p>
           <div className="flex flex-wrap gap-4 mt-8">
-            <a href="https://www.instagram.com/parkconscious.in/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-darkBackground-800 flex items-center justify-center text-white hover:bg-vibrantBlue hover:-translate-y-1 transition-all shadow-lg"><FaInstagram size={20} /></a>
-            <a href="https://www.linkedin.com/company/park-conscious/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-darkBackground-800 flex items-center justify-center text-white hover:bg-vibrantBlue hover:-translate-y-1 transition-all shadow-lg"><FaLinkedin size={20} /></a>
-            <a href="https://x.com/PConscious77050" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-darkBackground-800 flex items-center justify-center text-white hover:bg-vibrantBlue hover:-translate-y-1 transition-all shadow-lg"><FaTwitter size={20} /></a>
+            <a href="https://www.instagram.com/back_stage.in/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-darkBackground-800 flex items-center justify-center text-white hover:bg-vibrantBlue hover:-translate-y-1 transition-all shadow-lg"><FaInstagram size={20} /></a>
+            <a href="https://www.linkedin.com/company/backstage-park-conscious/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-darkBackground-800 flex items-center justify-center text-white hover:bg-vibrantBlue hover:-translate-y-1 transition-all shadow-lg"><FaLinkedin size={20} /></a>
+            <a href="https://x.com/Back_Stage_in" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-darkBackground-800 flex items-center justify-center text-white hover:bg-vibrantBlue hover:-translate-y-1 transition-all shadow-lg"><FaTwitter size={20} /></a>
             <a href="mailto:help@parkconscious.in" className="w-10 h-10 rounded-full bg-darkBackground-800 flex items-center justify-center text-white hover:bg-vibrantBlue hover:-translate-y-1 transition-all shadow-lg"><AiOutlineMail size={20} /></a>
           </div>
         </div>
