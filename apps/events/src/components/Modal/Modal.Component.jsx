@@ -115,7 +115,7 @@ const CustomModal = () => {
                 <div className="mt-12 pt-8 border-t border-white/5">
                   <p className="text-center text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-loose">
                     By continuing, you agree to our <br/>
-                    <a href="/terms" className="text-indigo-400 hover:text-white transition-colors">Terms of Service</a> & <a href="/privacy" className="text-indigo-400 hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="/legal?tab=terms" className="text-indigo-400 hover:text-white transition-colors">Terms of Service</a> & <a href="/legal?tab=privacy" className="text-indigo-400 hover:text-white transition-colors">Privacy Policy</a>
                   </p>
                 </div>
               </div>
