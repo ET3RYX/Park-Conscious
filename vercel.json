@@ -1,6 +1,16 @@
 {
   "version": 2,
   "rewrites": [
+    {
+      "source": "/static/:path*",
+      "has": [{ "type": "host", "value": "events.parkconscious.in" }],
+      "destination": "/apps/events/build/static/:path*"
+    },
+    {
+      "source": "/assets/:path*",
+      "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
+      "destination": "/apps/admin/dist/assets/:path*"
+    },
     { "source": "/api/auth/:path*", "destination": "/api/auth.js" },
     { "source": "/api/events/:path*", "destination": "/api/events.js" },
     { "source": "/api/contact", "destination": "/api/contact.js" },
@@ -72,19 +82,9 @@
     },
 
     {
-      "source": "/static/:path*",
-      "has": [{ "type": "host", "value": "events.parkconscious.in" }],
-      "destination": "/apps/events/build/static/:path*"
-    },
-    {
       "source": "/((?!api/|static/|sitemap\\.xml|robots\\.txt).*)",
       "has": [{ "type": "host", "value": "events.parkconscious.in" }],
       "destination": "/apps/events/build/index.html"
-    },
-    {
-      "source": "/assets/:path*",
-      "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
-      "destination": "/apps/admin/dist/assets/:path*"
     },
     {
       "source": "/((?!api/|assets/|sitemap\\.xml|robots\\.txt).*)",
