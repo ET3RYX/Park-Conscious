@@ -157,20 +157,81 @@ export default async function handler(req, res) {
 
         // -- Discussions & Comments --
         if (url.includes('/discussions')) {
+            const params = new URLSearchParams(queryPart || '');
+            const id = params.get('id'); // Discussion ID from query string
+            
             if (method === 'GET') {
-                const params = new URLSearchParams(queryPart || '');
-                const id = params.get('id');
                 if (id) {
                     const disc = await Discussion.findById(id).lean();
+                    if (!disc) return json(res, 404, { message: 'Discussion not found' });
                     const comms = await Comment.find({ discussionId: id }).sort({ createdAt: -1 }).lean();
                     return json(res, 200, { ...disc, comments: comms });
                 }
                 return json(res, 200, await Discussion.find().sort({ createdAt: -1 }).lean());
             }
+
             if (method === 'POST') {
                 if (!user) return json(res, 401, { message: 'Auth required' });
-                const disc = await Discussion.create({ ...body, authorUid: user.id, authorName: user.name });
+                
+                // POST /api/discussions/comments?id=... (Create Comment)
+                if (url.includes('/comments') && id) {
+                    const comment = await Comment.create({
+                        discussionId: id,
+                        parentId: body.parentId || null,
+                        text: body.text,
+                        authorName: user.name,
+                        authorUid: user.id,
+                        authorPhoto: user.picture || ""
+                    });
+                    // Update discussion comment count
+                    await Discussion.findByIdAndUpdate(id, { $inc: { commentCount: 1 } });
+                    return json(res, 201, comment.toObject());
+                }
+                
+                // POST /api/discussions (Create Discussion)
+                const disc = await Discussion.create({ 
+                    ...body, 
+                    authorUid: user.id, 
+                    authorName: user.name,
+                    authorPhoto: user.picture || ""
+                });
                 return json(res, 201, disc.toObject());
+            }
+
+            if (method === 'PATCH') {
+                if (!user) return json(res, 401, { message: 'Auth required' });
+                
+                // PATCH /api/discussions/details?id=... (Vote Discussion)
+                if (url.includes('/details') && id) {
+                    const { action } = body; // 'upvote' or 'downvote'
+                    const disc = await Discussion.findById(id);
+                    if (!disc) return json(res, 404, { message: 'Not found' });
+                    
+                    disc.upvotes = disc.upvotes.filter(uid => uid !== user.id);
+                    disc.downvotes = disc.downvotes.filter(uid => uid !== user.id);
+                    
+                    if (action === 'upvote') disc.upvotes.push(user.id);
+                    else if (action === 'downvote') disc.downvotes.push(user.id);
+                    
+                    await disc.save();
+                    return json(res, 200, { upvotes: disc.upvotes, downvotes: disc.downvotes });
+                }
+                
+                // PATCH /api/discussions/comments?id=... (Vote Comment)
+                if (url.includes('/comments') && id) {
+                    const { commentId, action } = body;
+                    const comment = await Comment.findById(commentId);
+                    if (!comment) return json(res, 404, { message: 'Not found' });
+                    
+                    comment.upvotes = comment.upvotes.filter(uid => uid !== user.id);
+                    comment.downvotes = comment.downvotes.filter(uid => uid !== user.id);
+                    
+                    if (action === 'upvote') comment.upvotes.push(user.id);
+                    else if (action === 'downvote') comment.downvotes.push(user.id);
+                    
+                    await comment.save();
+                    return json(res, 200, { upvotes: comment.upvotes, downvotes: comment.downvotes });
+                }
             }
         }
 

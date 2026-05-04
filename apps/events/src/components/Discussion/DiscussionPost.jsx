@@ -47,10 +47,10 @@ const DiscussionPost = ({ post, onVote }) => {
         </div>
 
         {/* Poster thumbnail */}
-        {post.moviePosterPath && (
+        {post.eventImage && (
           <img
-            src={`https://image.tmdb.org/t/p/w92${post.moviePosterPath}`}
-            alt={post.movieTitle}
+            src={post.eventImage}
+            alt={post.eventTitle}
             className="w-12 h-16 rounded object-cover hidden sm:block flex-shrink-0"
           />
         )}
@@ -59,7 +59,7 @@ const DiscussionPost = ({ post, onVote }) => {
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <span className="text-xs font-semibold text-premier-700 bg-premier-900/30 px-2 py-0.5 rounded-full">
-              {post.movieTitle}
+              {post.eventTitle}
             </span>
             <StarRating rating={post.rating} />
           </div>
