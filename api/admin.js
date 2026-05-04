@@ -1,3 +1,12 @@
+/**
+ * api/admin.js
+ * 
+ * Purpose: Multi-purpose Administrative API handler. 
+ * Manages inquiries, system diagnostics, error logging, user/admin accounts, 
+ * booking listings, dashboard stats, bulk emailing (tickets/QR codes), 
+ * booking deletions, and payment reconciliation with PhonePe.
+ * Implements role-based access control for SuperAdmins, Admins, and Organizers.
+ */
 import bcrypt from 'bcryptjs';
 import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';

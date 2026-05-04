@@ -1,3 +1,10 @@
+/**
+ * api/events.js
+ * 
+ * Purpose: Public and protected API for event-related operations.
+ * Handles event discovery, featured events, event submission proposals, 
+ * community discussions/comments, and administrative CRUD operations for events.
+ */
 import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
 import { json, setCors, getBody, verifyUser, normalizeEvent } from './lib/utils.js';

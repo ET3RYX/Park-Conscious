@@ -1,3 +1,9 @@
+/**
+ * test_wallet_query.js
+ * 
+ * Purpose: Tests the logic for querying bookings based on a user's email 
+ * and ID, simulating how the "wallet" or booking history is fetched.
+ */
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config({ path: '/Users/piyush/Desktop/Park Conscious/apps/events/.env.local' });

@@ -1,3 +1,11 @@
+/**
+ * api/lib/utils.js
+ * 
+ * Purpose: General utility functions for the API.
+ * Includes data normalization (events), standard JSON response helpers, 
+ * JWT verification, cookie issuance for cross-subdomain sessions, 
+ * CORS configuration, and request body parsing.
+ */
 import jwt from 'jsonwebtoken';
 import { parse, serialize } from 'cookie';
 import mongoose from 'mongoose';

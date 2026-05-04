@@ -1,6 +1,10 @@
 /**
- * Unified Monitoring Utility for Admin Panel
- * Reports handled/soft errors to the centralized system log.
+ * apps/admin/src/utils/monitoring.js
+ *
+ * Purpose: Error monitoring utility for the Admin Panel.
+ * Sends handled/soft errors to the centralized system log endpoint.
+ * Ignores routine business logic errors (e.g., "not found", "already exists")
+ * to reduce noise in the system log dashboard.
  */
 export const reportSystemError = (message, type = 'api_failure', metadata = {}) => {
   // Filter out business logic errors (non-critical)

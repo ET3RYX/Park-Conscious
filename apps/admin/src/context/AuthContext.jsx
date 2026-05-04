@@ -1,3 +1,10 @@
+/**
+ * apps/admin/src/context/AuthContext.jsx
+ *
+ * Purpose: Authentication state provider for the Admin Panel.
+ * Validates sessions via the /api/auth/me endpoint on mount,
+ * enforces role-based access, and syncs admin identity with localStorage.
+ */
 import React, { useState, useEffect } from 'react';
 import { AuthContext } from './AuthContextObject';
 

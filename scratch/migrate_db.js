@@ -1,3 +1,9 @@
+/**
+ * migrate_db.js
+ * 
+ * Purpose: A database migration utility that splits data from a source 
+ * MongoDB cluster into two target databases: 'backstage_events' and 'park_conscious'.
+ */
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config();

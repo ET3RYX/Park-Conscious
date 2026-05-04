@@ -1,3 +1,9 @@
+/**
+ * api/contact.js
+ * 
+ * Purpose: API handler for the public contact form.
+ * Receives name, email, and message, and saves them to the 'Contact' collection.
+ */
 import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
 import { json, setCors, getBody } from './lib/utils.js';

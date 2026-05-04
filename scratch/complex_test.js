@@ -1,3 +1,9 @@
+/**
+ * complex_test.js
+ * 
+ * Purpose: A k6 performance test script that simulates user traffic by 
+ * visiting the homepage, calling the events API, and viewing a random event page.
+ */
 import http from 'k6/http';
 import { sleep, check } from 'k6';
 

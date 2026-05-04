@@ -1,3 +1,10 @@
+/**
+ * apps/admin/src/layout/MainLayout.jsx
+ *
+ * Purpose: Persistent shell layout for all authenticated admin pages.
+ * Renders the sidebar navigation, top header bar, and an <Outlet> for
+ * child routes. Navigation items are conditionally shown based on user role.
+ */
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 

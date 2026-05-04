@@ -1,3 +1,11 @@
+/**
+ * apps/admin/src/pages/Attendees.jsx
+ *
+ * Purpose: Attendee management page for the Admin Panel.
+ * Lists all confirmed bookings with filtering by event/status.
+ * Supports check-in toggling, ticket email broadcasting, payment sync,
+ * and booking deletion.
+ */
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Users, Search, Filter, Download, 

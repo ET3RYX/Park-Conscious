@@ -1,3 +1,9 @@
+/**
+ * check_bookings.js
+ * 
+ * Purpose: Connects to MongoDB and checks the total number of bookings 
+ * for the most recently created event.
+ */
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config({ path: '/Users/piyush/Desktop/Park Conscious/apps/events/.env.local' });

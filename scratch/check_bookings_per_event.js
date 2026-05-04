@@ -1,3 +1,9 @@
+/**
+ * check_bookings_per_event.js
+ * 
+ * Purpose: Lists the capacity and booking count for the last 3 events, 
+ * including the status of each booking.
+ */
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config({ path: '/Users/piyush/Desktop/Park Conscious/apps/events/.env.local' });

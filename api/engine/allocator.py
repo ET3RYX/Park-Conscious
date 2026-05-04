@@ -1,3 +1,10 @@
+"""
+api/engine/allocator.py
+
+Purpose: Python-based AI allocation engine for parking spots.
+Handles status checks (free/total spots) and spot allocation for 
+vehicles based on their size/type. Connects directly to MongoDB.
+"""
 import os
 import sys
 import json

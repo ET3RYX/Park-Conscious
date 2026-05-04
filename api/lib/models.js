@@ -1,3 +1,10 @@
+/**
+ * api/lib/models.js
+ * 
+ * Purpose: Central definition of all Mongoose schemas and models.
+ * Includes logic for interacting with both primary (backstage_events) 
+ * and secondary (park_conscious) MongoDB databases.
+ */
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(

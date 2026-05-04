@@ -1,3 +1,9 @@
+/**
+ * apps/admin/src/main.jsx
+ *
+ * Purpose: Application entry point for the Admin Panel.
+ * Mounts the React app into the DOM root element.
+ */
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
