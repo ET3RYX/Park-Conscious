@@ -7,6 +7,16 @@
       "destination": "/apps/events/build/static/:path*"
     },
     {
+      "source": "/static/:path*",
+      "has": [{ "type": "host", "value": "parkconscious.in" }],
+      "destination": "/apps/events/build/static/:path*"
+    },
+    {
+      "source": "/static/:path*",
+      "has": [{ "type": "host", "value": "www.parkconscious.in" }],
+      "destination": "/apps/events/build/static/:path*"
+    },
+    {
       "source": "/assets/:path*",
       "has": [{ "type": "host", "value": "admin.events.parkconscious.in" }],
       "destination": "/apps/admin/dist/assets/:path*"
@@ -78,7 +88,12 @@
     {
       "source": "/payment-:path*",
       "has": [{ "type": "host", "value": "parkconscious.in" }],
-      "destination": "/apps/events/dist/index.html"
+      "destination": "/apps/events/build/index.html"
+    },
+    {
+      "source": "/payment-:path*",
+      "has": [{ "type": "host", "value": "www.parkconscious.in" }],
+      "destination": "/apps/events/build/index.html"
     },
 
     {
