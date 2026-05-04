@@ -1,3 +1,10 @@
+/**
+ * api/lib/mongodb.js
+ * 
+ * Purpose: MongoDB connection management using Mongoose.
+ * Implements connection caching for serverless environments and 
+ * ensures connection to the primary 'backstage_events' database.
+ */
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();

@@ -1,3 +1,9 @@
+/**
+ * test_capacity_api.js
+ * 
+ * Purpose: Validates the event capacity API by creating a test event, 
+ * fetching it via HTTP, and cleaning up afterward.
+ */
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import axios from 'axios';

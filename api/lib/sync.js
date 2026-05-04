@@ -1,3 +1,10 @@
+/**
+ * api/lib/sync.js
+ * 
+ * Purpose: Utility for cross-database identity synchronization.
+ * Mirrored user and owner profiles from 'backstage_events' to 'park_conscious' 
+ * to ensure consistent session data across both platforms.
+ */
 import mongoose from 'mongoose';
 import { getSecondaryModel } from './models.js';
 

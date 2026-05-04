@@ -1,3 +1,11 @@
+/**
+ * api/auth.js
+ * 
+ * Purpose: Handles authentication operations including traditional login 
+ * (with fail-over to secondary databases), logout (global cookie clearing), 
+ * Google OAuth integration, and session verification (/me).
+ * Includes security logic to prevent public users from accessing admin portals.
+ */
 import connectDB from './lib/mongodb.js';
 import * as models from './lib/models.js';
 import bcrypt from 'bcryptjs';

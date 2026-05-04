@@ -1,3 +1,9 @@
+/**
+ * check_event.js
+ * 
+ * Purpose: Fetches and logs the complete details (JSON) of the most 
+ * recently created event.
+ */
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config({ path: '/Users/piyush/Desktop/Park Conscious/apps/events/.env.local' });

@@ -1,3 +1,9 @@
+/**
+ * api/lib/auth.js
+ * 
+ * Purpose: Authentication middleware for API routes.
+ * Extracts and verifies JWT tokens from the 'Authorization: Bearer' header.
+ */
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET;

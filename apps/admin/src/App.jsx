@@ -1,3 +1,10 @@
+/**
+ * apps/admin/src/App.jsx
+ *
+ * Purpose: Root component for the Admin Panel.
+ * Sets up React Router, wraps the app in an AuthProvider and an Error Boundary,
+ * and defines all protected/public routes including role-based SuperAdmin routes.
+ */
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';

@@ -1,3 +1,9 @@
+/**
+ * check_bookings_detailed.js
+ * 
+ * Purpose: Similar to check_bookings.js but outputs the full booking 
+ * objects for the latest event.
+ */
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config({ path: '/Users/piyush/Desktop/Park Conscious/apps/events/.env.local' });

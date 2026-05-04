@@ -1,3 +1,10 @@
+"""
+api/engine/engine_core/models.py
+
+Purpose: Object-oriented model for the parking management system.
+Defines Vehicle, ParkingSpot, Level, and ParkingLot classes.
+Includes factory logic to virtualize physical lot capacity from DB records.
+"""
 import time
 
 class SpotType:

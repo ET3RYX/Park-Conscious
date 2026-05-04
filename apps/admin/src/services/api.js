@@ -1,3 +1,11 @@
+/**
+ * apps/admin/src/services/api.js
+ *
+ * Purpose: Centralised Axios instance and service layer for the Admin Panel.
+ * Attaches JWT tokens to outgoing requests and redirects to /login on 401.
+ * Exports grouped service objects: authService, eventService, bookingService,
+ * userService, and adminService.
+ */
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || ""; // Use env variable for local dev

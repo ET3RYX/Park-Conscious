@@ -1,3 +1,11 @@
+/**
+ * api/pay.js
+ * 
+ * Purpose: Payment lifecycle management via Razorpay.
+ * Handles payment order creation, callback verification (signatures), 
+ * free ticket processing, check-ins, individual booking status checks, 
+ * and fetching a user's full booking history across multiple databases.
+ */
 import axios from 'axios';
 import crypto from 'crypto';
 import Razorpay from 'razorpay';

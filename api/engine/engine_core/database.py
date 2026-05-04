@@ -1,3 +1,9 @@
+"""
+api/engine/engine_core/database.py
+
+Purpose: MongoDB connectivity helper for the Python engine using pymongo.
+Ensures isolated connection to the 'park_conscious' database.
+"""
 import os
 from pymongo import MongoClient
 from dotenv import load_dotenv

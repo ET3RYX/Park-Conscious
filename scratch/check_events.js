@@ -1,3 +1,9 @@
+/**
+ * check_events.js
+ * 
+ * Purpose: Displays a summary (title, capacity, creation date) of the 
+ * 3 most recent events.
+ */
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config({ path: '/Users/piyush/Desktop/Park Conscious/apps/events/.env.local' });
