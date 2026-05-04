@@ -167,7 +167,23 @@ export default async function handler(req, res) {
                     const comms = await Comment.find({ discussionId: id }).sort({ createdAt: -1 }).lean();
                     return json(res, 200, { ...disc, comments: comms });
                 }
-                return json(res, 200, await Discussion.find().sort({ createdAt: -1 }).lean());
+                
+                const page = parseInt(params.get('page')) || 1;
+                const limit = parseInt(params.get('limit')) || 6;
+                const skip = (page - 1) * limit;
+
+                const total = await Discussion.countDocuments();
+                const discussions = await Discussion.find()
+                    .sort({ createdAt: -1 })
+                    .skip(skip)
+                    .limit(limit)
+                    .lean();
+
+                return json(res, 200, { 
+                    discussions, 
+                    totalPages: Math.ceil(total / limit) || 1,
+                    currentPage: page
+                });
             }
 
             if (method === 'POST') {
