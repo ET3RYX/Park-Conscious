@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/components/Modal/RequestEventModal.jsx
+ *
+ * Purpose: Modal for prospective event organizers to submit proposals.
+ * Captures event concepts, contact details, and logs the request to the
+ * backend for administrative review.
+ */
 import React, { useState } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from "../../config";

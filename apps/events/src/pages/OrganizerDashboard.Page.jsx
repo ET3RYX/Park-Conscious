@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/pages/OrganizerDashboard.Page.jsx
+ *
+ * Purpose: Dedicated dashboard for event organizers to track real-time
+ * analytics, ticket sales, and revenue. Includes a built-in QR Check-In
+ * Tool for managing event entry.
+ */
 import React, { useEffect, useState } from "react";
 import { backendAxios } from "../axios";
 import {

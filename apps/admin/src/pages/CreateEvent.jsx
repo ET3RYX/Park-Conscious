@@ -1,3 +1,10 @@
+/**
+ * apps/admin/src/pages/CreateEvent.jsx
+ *
+ * Purpose: Page component for creating a new event in the Admin Panel.
+ * Wraps the EventForm component and handles the submission API call
+ * to create a new event record in the primary database.
+ */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EventForm from '../components/EventForm';

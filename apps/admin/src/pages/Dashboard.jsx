@@ -1,3 +1,11 @@
+/**
+ * apps/admin/src/pages/Dashboard.jsx
+ *
+ * Purpose: Main landing dashboard for the Admin Panel.
+ * Displays high-level metrics (events, revenue, attendance rate),
+ * an inline ticket scanning/check-in tool, and a tabular breakdown
+ * of recent sales performance across events.
+ */
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   BarChart, Calendar, Users, TrendingUp, Activity,

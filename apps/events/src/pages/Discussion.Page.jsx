@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/pages/Discussion.Page.jsx
+ *
+ * Purpose: Dedicated page for event-specific discussion boards.
+ * Allows authenticated users to post comments, reply to threads, and vote
+ * on both the main event discussion and individual comments.
+ */
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { BiUpvote, BiDownvote, BiArrowBack } from "react-icons/bi";

@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/components/Booking/BookingModal.jsx
+ *
+ * Purpose: Interactive modal for processing ticket purchases.
+ * Captures attendee details, integrates with Razorpay for payment
+ * processing, and handles successful checkouts and failures.
+ */
 import React, { useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";

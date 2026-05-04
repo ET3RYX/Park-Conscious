@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/components/FeaturedEvents/FeaturedEventsSection.jsx
+ *
+ * Purpose: UI component for displaying premium featured events.
+ * Renders large, visually engaging cards with dynamic accent colors,
+ * hover animations, and direct booking call-to-actions.
+ */
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Calendar, MapPin } from 'lucide-react';

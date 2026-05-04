@@ -1,3 +1,10 @@
+/**
+ * apps/admin/src/pages/PriceUpdater.jsx
+ *
+ * Purpose: Dedicated tool for rapid event price modifications.
+ * Allows quick searching of events and immediate tariff adjustments.
+ * Syncs changes instantly with the backend database.
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Search, IndianRupee, Save, 

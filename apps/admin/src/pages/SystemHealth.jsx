@@ -1,3 +1,11 @@
+/**
+ * apps/admin/src/pages/SystemHealth.jsx
+ *
+ * Purpose: Centralized diagnostic and error monitoring dashboard.
+ * Displays system logs, crashes, and API failures collected from both
+ * the Admin Panel and public Events application.
+ * Allows resolving issues and viewing detailed stack traces.
+ */
 import React, { useState, useEffect } from 'react';
 import { Activity, ShieldAlert, CheckCircle2, AlertTriangle, Clock, Globe, Terminal, RefreshCw, Search, ChevronRight, Check, X, Shield, BarChart, Server } from 'lucide-react';
 import { adminService } from '../services/api';

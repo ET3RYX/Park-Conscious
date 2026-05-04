@@ -1,3 +1,10 @@
+/**
+ * apps/admin/src/pages/Events.jsx
+ *
+ * Purpose: Event repository and management page for the Admin Panel.
+ * Lists all events (both draft and published) with search and filter capabilities.
+ * Allows creating, editing, and archiving events.
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Plus, Search, Filter, Edit2, Trash2, Calendar, 

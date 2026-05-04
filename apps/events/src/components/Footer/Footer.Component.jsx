@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/components/Footer/Footer.Component.jsx
+ *
+ * Purpose: Global footer component for the Events application.
+ * Displays site branding, contact information, social links, and
+ * integrates the LegalModal for accessing platform policies.
+ */
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import LegalModal from "../Modal/LegalModal";

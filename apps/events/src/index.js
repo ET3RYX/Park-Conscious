@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/index.js
+ *
+ * Purpose: Application entry point for the Events platform.
+ * Initializes the React DOM and mounts the global context providers
+ * including Authentication, Routing, and Error Tracking.
+ */
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";

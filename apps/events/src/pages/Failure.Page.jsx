@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/pages/Failure.Page.jsx
+ *
+ * Purpose: Error handling page for failed payment transactions.
+ * Displays error details, transaction IDs, and automatically logs payment
+ * failures to the admin monitoring service.
+ */
 import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { XCircle, RefreshCw, AlertTriangle } from "lucide-react";

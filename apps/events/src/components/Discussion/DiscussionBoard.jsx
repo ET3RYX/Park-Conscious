@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/components/Discussion/DiscussionBoard.jsx
+ *
+ * Purpose: Central component for the community discussion feature.
+ * Renders movie prompt cards and discussion posts, handling data fetching
+ * and state management for user engagement on the platform.
+ */
 import React, { useState, useEffect, useCallback } from "react";
 import { BiPencil, BiChevronDown, BiPlay } from "react-icons/bi";
 import { FiMessageSquare } from "react-icons/fi";

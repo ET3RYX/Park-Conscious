@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/pages/Success.Page.jsx
+ *
+ * Purpose: Post-checkout confirmation page for users.
+ * Verifies the transaction ID, displays the digital ticket with QR code,
+ * and provides options for downloading/printing the access pass.
+ */
 import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { backendAxios } from "../axios";

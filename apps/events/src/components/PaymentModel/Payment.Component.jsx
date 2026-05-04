@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/components/PaymentModel/Payment.Component.jsx
+ *
+ * Purpose: Legacy/Alternate payment modal component.
+ * Evaluates payment options directly through Razorpay API logic.
+ * Primarily maintained for backwards compatibility or specific simple checkouts.
+ */
 import React from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";

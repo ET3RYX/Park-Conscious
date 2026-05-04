@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/pages/Category.Page.jsx
+ *
+ * Purpose: Dynamic category listing page for events.
+ * Displays events filtered by a specific category slug and renders
+ * categorized PosterSlider components for discovery.
+ */
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import DefaultlayoutHoc from "../layout/Default.layout";
