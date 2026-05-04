@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { BiX } from "react-icons/bi";
-import tmdbAxios from "../../axios";
 import { useAuth } from "../../context/DiscussionAuth.context";
 import { API_BASE_URL } from "../../config";
 
@@ -19,25 +18,29 @@ const StarPicker = ({ value, onChange }) => (
   </div>
 );
 
-const NewPostForm = ({ onClose, onSuccess, preselectedMovie = null }) => {
+const NewPostForm = ({ onClose, onSuccess, preselectedEvent = null }) => {
   const { token } = useAuth();
-  const [movies, setMovies] = useState([]);
-  const [selectedMovie, setSelectedMovie] = useState(preselectedMovie);
+  const [events, setEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(preselectedEvent);
   const [review, setReview] = useState("");
   const [rating, setRating] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    tmdbAxios
-      .get("/movie/upcoming", { params: { region: "IN" } })
-      .then((r) => setMovies(r.data.results.slice(0, 20)))
+    fetch(`${API_BASE_URL}/api/events`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setEvents(data.slice(0, 20));
+        }
+      })
       .catch(() => {});
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedMovie) return setError("Please select a movie.");
+    if (!selectedEvent) return setError("Please select an event.");
     if (!rating) return setError("Please give a star rating.");
     if (review.trim().length < 20) return setError("Review must be at least 20 characters.");
 
@@ -45,16 +48,16 @@ const NewPostForm = ({ onClose, onSuccess, preselectedMovie = null }) => {
     setError("");
 
     try {
-      const res = await fetch(`/api/discussions`, {
+      const res = await fetch(`${API_BASE_URL}/api/discussions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
         body: JSON.stringify({
-          movieTitle: selectedMovie.title || selectedMovie.original_title,
-          movieId: selectedMovie.id,
-          moviePosterPath: selectedMovie.poster_path,
+          eventTitle: selectedEvent.title || selectedEvent.name,
+          eventId: selectedEvent._id || selectedEvent.id,
+          eventImage: selectedEvent.image || (selectedEvent.images && selectedEvent.images[0]) || "",
           review: review.trim(),
           rating,
         }),
@@ -81,24 +84,24 @@ const NewPostForm = ({ onClose, onSuccess, preselectedMovie = null }) => {
           <BiX className="w-6 h-6" />
         </button>
 
-        <h2 className="text-xl font-bold text-white mb-5">Post a Movie Review</h2>
+        <h2 className="text-xl font-bold text-white mb-5">Post an Event Review</h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* Movie picker */}
+          {/* Event picker */}
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Select Movie</label>
+            <label className="block text-sm text-gray-400 mb-1">Select Event</label>
             <select
               className="w-full bg-darkBackground-900 border border-darkBackground-600 text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:border-premier-700 text-sm"
-              value={selectedMovie?.id || ""}
+              value={selectedEvent?._id || selectedEvent?.id || ""}
               onChange={(e) => {
-                const m = movies.find((m) => String(m.id) === e.target.value);
-                setSelectedMovie(m || null);
+                const ev = events.find((m) => String(m._id || m.id) === e.target.value);
+                setSelectedEvent(ev || null);
               }}
             >
-              <option value="">-- Choose an upcoming movie --</option>
-              {movies.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.title || m.original_title}
+              <option value="">-- Choose an event --</option>
+              {events.map((m) => (
+                <option key={m._id || m.id} value={m._id || m.id}>
+                  {m.title || m.name}
                 </option>
               ))}
             </select>
@@ -120,7 +123,7 @@ const NewPostForm = ({ onClose, onSuccess, preselectedMovie = null }) => {
               className="w-full bg-darkBackground-900 border border-darkBackground-600 text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:border-premier-700 text-sm resize-none"
               rows={5}
               maxLength={5000}
-              placeholder="Share your thoughts on this movie..."
+              placeholder="Share your thoughts on this event..."
               value={review}
               onChange={(e) => setReview(e.target.value)}
             />

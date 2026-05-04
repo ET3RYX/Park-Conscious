@@ -13,28 +13,25 @@ import { Link } from "react-router-dom";
 import DiscussionPost from "./DiscussionPost";
 import NewPostForm from "./NewPostForm";
 import { useAuth } from "../../context/DiscussionAuth.context";
-import tmdbAxios from "../../axios";
 import { API_BASE_URL } from "../../config";
 
 // Rotating hook lines to entice user to click/discuss
 const HOOK_LINES = [
-  "Is this the film of the year? You decide.",
+  "Is this the event of the year? You decide.",
   "Everyone has a take. What's yours?",
-  "Worth watching or skip it? Share your verdict.",
+  "Worth attending or skip it? Share your verdict.",
   "The internet is split on this one — where do you stand?",
   "Hidden gem or overhyped? Drop your review.",
-  "Critics loved it. Did you? Tell us.",
-  "This movie broke box office records. Did it earn it?",
+  "Attendees loved it. Did you? Tell us.",
+  "This event broke records. Did it earn it?",
   "First look reactions are in. Time to form your own opinion.",
-  "The buzz is real — but is the movie?",
+  "The buzz is real — but is the event?",
   "Would you recommend this to a friend?",
 ];
 
-// A movie discussion "teaser" card shown before any user posts
-const MoviePromptCard = ({ movie, hookLine, onClick }) => {
-  const poster = movie.poster_path
-    ? `https://image.tmdb.org/t/p/w342${movie.poster_path}`
-    : null;
+// An event discussion "teaser" card shown before any user posts
+const EventPromptCard = ({ event, hookLine, onClick }) => {
+  const poster = event.image || (event.images && event.images[0]) || null;
 
   return (
     <button
@@ -44,7 +41,7 @@ const MoviePromptCard = ({ movie, hookLine, onClick }) => {
       {/* Poster */}
       {poster ? (
         <div className="relative flex-shrink-0 w-14 h-20 rounded-lg overflow-hidden">
-          <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
+          <img src={poster} alt={event.title || event.name} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
             <BiPlay className="w-6 h-6 text-white" />
           </div>
@@ -59,11 +56,11 @@ const MoviePromptCard = ({ movie, hookLine, onClick }) => {
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <span className="text-premier-700 font-semibold text-sm truncate">
-            {movie.title || movie.original_title}
+            {event.title || event.name}
           </span>
-          {movie.release_date && (
+          {event.date && (
             <span className="text-xs text-gray-600 flex-shrink-0">
-              {new Date(movie.release_date).toLocaleDateString("en-IN", {
+              {new Date(event.date).toLocaleDateString("en-IN", {
                 day: "numeric",
                 month: "short",
               })}
@@ -90,13 +87,13 @@ const DiscussionBoard = () => {
   const [showForm, setShowForm] = useState(false);
   const [preselectedMovie, setPreselectedMovie] = useState(null);
 
-  // Fetch upcoming / now-playing movies for the prompt cards
+  // Fetch upcoming / now-playing events for the prompt cards
   useEffect(() => {
-    tmdbAxios
-      .get("/movie/upcoming", { params: { region: "IN" } })
-      .then((r) => {
-        if (r.data && r.data.results) {
-          setNewReleases(r.data.results.slice(0, 6));
+    fetch(`${API_BASE_URL}/api/events`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setNewReleases(data.slice(0, 6));
         }
       })
       .catch(() => {});
@@ -105,7 +102,7 @@ const DiscussionBoard = () => {
   const fetchDiscussions = useCallback(async (p = 1) => {
     setLoadingDiscussions(true);
     try {
-      const res = await fetch(`/api/discussions?page=${p}&limit=6`);
+      const res = await fetch(`${API_BASE_URL}/api/discussions?page=${p}&limit=6`);
       const data = await res.json();
       if (p === 1) setDiscussions(data.discussions || []);
       else setDiscussions((prev) => [...prev, ...(data.discussions || [])]);
@@ -134,21 +131,22 @@ const DiscussionBoard = () => {
     flow: "implicit",
   });
 
-  const handlePromptCardClick = (movie) => {
+  const handlePromptCardClick = (event) => {
     if (!user) return googleLogin();
-    setPreselectedMovie(movie);
+    setPreselectedMovie(event);
     setShowForm(true);
   };
 
   const handleVote = async (postId, action) => {
     if (!user) return googleLogin();
     try {
-      const res = await fetch(`/api/discussions/${postId}/upvote`, {
-        method: "PUT",
+      const res = await fetch(`${API_BASE_URL}/api/discussions/details?id=${postId}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include"
+        credentials: "include",
+        body: JSON.stringify({ action })
       });
       const data = await res.json();
       if (res.ok) {
@@ -181,9 +179,9 @@ const DiscussionBoard = () => {
       {/* ── Section Header ── */}
       <div className="flex items-start justify-between mb-8 gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">Movie Discussions</h2>
+          <h2 className="text-2xl font-bold text-white">Event Discussions</h2>
           <p className="text-gray-400 text-sm mt-1">
-            The community's verdict on what's hitting screens near you
+            The community's verdict on what's happening near you
           </p>
         </div>
 
@@ -224,22 +222,22 @@ const DiscussionBoard = () => {
         )}
       </div>
 
-      {/* ── New Releases — Movie Prompt Cards ── */}
+      {/* ── New Releases — Event Prompt Cards ── */}
       {newReleases.length > 0 && (
         <div className="mb-10">
           <div className="flex items-center gap-2 mb-4">
             <span className="w-1 h-5 rounded-full bg-premier-700" />
             <h3 className="text-white font-semibold">
-              New Releases — What do you think?
+              New Events — What do you think?
             </h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {newReleases.map((movie, i) => (
-              <MoviePromptCard
-                key={movie.id}
-                movie={movie}
+            {newReleases.map((event, i) => (
+              <EventPromptCard
+                key={event._id || event.id}
+                event={event}
                 hookLine={HOOK_LINES[i % HOOK_LINES.length]}
-                onClick={() => handlePromptCardClick(movie)}
+                onClick={() => handlePromptCardClick(event)}
               />
             ))}
           </div>
@@ -250,7 +248,7 @@ const DiscussionBoard = () => {
               <FiMessageSquare className="w-5 h-5 text-premier-700 flex-shrink-0" />
               <div className="flex-1">
                 <span className="text-gray-200 text-sm">
-                  <strong className="text-white">Join the conversation.</strong> Sign in with Google to share your take on these films.
+                  <strong className="text-white">Join the conversation.</strong> Sign in with Google to share your take on these events.
                 </span>
               </div>
               <button
@@ -283,7 +281,7 @@ const DiscussionBoard = () => {
           <FiMessageSquare className="w-8 h-8 text-gray-600 mx-auto mb-3" />
           <p className="text-gray-400 font-medium">No reviews yet</p>
           <p className="text-gray-600 text-sm mt-1">
-            Click any movie above to kick off the discussion!
+            Click any event above to kick off the discussion!
           </p>
         </div>
       ) : (

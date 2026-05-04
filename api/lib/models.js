@@ -237,9 +237,9 @@ const commentSchema = new mongoose.Schema(
 
 const discussionSchema = new mongoose.Schema(
   {
-    movieTitle: { type: String, required: true },
-    movieId: { type: Number },
-    moviePosterPath: { type: String, default: "" },
+    eventTitle: { type: String, required: true },
+    eventId: { type: String },
+    eventImage: { type: String, default: "" },
     review: { type: String, required: true, maxlength: 5000 },
     rating: { type: Number, min: 1, max: 5, required: true },
     authorName: { type: String, required: true },

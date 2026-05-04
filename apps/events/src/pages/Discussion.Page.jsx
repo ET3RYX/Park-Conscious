@@ -141,8 +141,8 @@ const DiscussionPage = () => {
   const fetchData = useCallback(async () => {
     try {
       const [disRes, comRes] = await Promise.all([
-        fetch(`/api/discussions/details?id=${id}`),
-        fetch(`/api/discussions/comments?id=${id}`),
+        fetch(`${API_BASE_URL}/api/discussions/details?id=${id}`),
+        fetch(`${API_BASE_URL}/api/discussions/comments?id=${id}`),
       ]);
       
       if (!disRes.ok) {
@@ -170,7 +170,7 @@ const DiscussionPage = () => {
   const handlePostVote = async (action) => {
     if (!user) return googleLogin();
     try {
-      const res = await fetch(`/api/discussions/details?id=${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/discussions/details?id=${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -188,7 +188,7 @@ const DiscussionPage = () => {
   const handleCommentVote = async (commentId, action) => {
     if (!user) return googleLogin();
     try {
-      const res = await fetch(`/api/discussions/comments?id=${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/discussions/comments?id=${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -213,7 +213,7 @@ const DiscussionPage = () => {
     if (!commentText.trim()) return;
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/discussions/comments?id=${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/discussions/comments?id=${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -314,15 +314,15 @@ const DiscussionPage = () => {
 
             <div className="flex-1 space-y-8">
               <div className="flex items-center gap-6 pb-8 border-b border-white/5">
-                {discussion.moviePosterPath && (
+                {discussion.eventImage && (
                   <img
-                    src={`https://image.tmdb.org/t/p/w92${discussion.moviePosterPath}`}
-                    alt={discussion.movieTitle}
+                    src={discussion.eventImage}
+                    alt={discussion.eventTitle}
                     className="w-16 h-24 rounded-2xl object-cover shadow-2xl transition-all duration-700 hover:scale-105"
                   />
                 )}
                 <div className="space-y-3">
-                  <h2 className="text-white font-black text-4xl uppercase tracking-tighter italic leading-none">{discussion.movieTitle}</h2>
+                  <h2 className="text-white font-black text-4xl uppercase tracking-tighter italic leading-none">{discussion.eventTitle}</h2>
                   <div className="pt-2">
                     <StarRating rating={discussion.rating} />
                   </div>
