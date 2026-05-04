@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/components/Navbar/Navbar.Component.jsx
+ *
+ * Purpose: Global navigation component for the Events application.
+ * Adapts to mobile and desktop views, integrates location fetching,
+ * and provides access to core routes and user actions like booking.
+ */
 import { BiChevronDown, BiMenu, BiSearch } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import CustomModal from "../Modal/Modal.Component";

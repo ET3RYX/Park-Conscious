@@ -1,3 +1,10 @@
+/**
+ * apps/admin/src/pages/Inquiries.jsx
+ *
+ * Purpose: Contact and proposal management page for the Admin Panel.
+ * Handles incoming support messages and event hosting proposals.
+ * Allows admins to approve/reject proposals and manage support tickets.
+ */
 import React, { useState, useEffect } from 'react';
 import { 
   MessageSquare, Send, CheckCircle2, Clock, 

@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/pages/Legal.Page.jsx
+ *
+ * Purpose: Centralized hub for platform legal documentation.
+ * Includes interactive, tabbed access to Terms & Conditions, Privacy Policy,
+ * Refund/Cancellation Policy, and Digital Pass Delivery guidelines.
+ */
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { useSearchParams } from "react-router-dom";

@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/pages/Event.Page.jsx
+ *
+ * Purpose: Dedicated details page for a specific event.
+ * Displays all event information including hosts, media gallery, and booking options.
+ * Integrates the BookingModal for the end-user ticket checkout flow.
+ */
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { backendAxios } from "../axios";

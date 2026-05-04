@@ -1,8 +1,11 @@
 import axios from 'axios';
 
 /**
- * Reusable utility for direct frontend-to-Cloudinary image uploads in the Events portal.
- * 
+ * apps/events/src/utils/cloudinary.js
+ *
+ * Purpose: Frontend-to-Cloudinary image upload utility for the Events portal.
+ * Enables direct media uploads bypassing Vercel serverless payload limits.
+ *
  * @param {File} file - The file object from a file input
  * @returns {Promise<string>} - The secure URL of the uploaded image
  */

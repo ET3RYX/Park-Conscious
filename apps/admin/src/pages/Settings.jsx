@@ -1,3 +1,10 @@
+/**
+ * apps/admin/src/pages/Settings.jsx
+ *
+ * Purpose: Team and role management page for Super Admins.
+ * Allows creation, assignment, and revocation of organizer accounts.
+ * Includes tools for generating secure credentials and copying them.
+ */
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Users, UserPlus, Trash2, Shield, Mail, Calendar, 

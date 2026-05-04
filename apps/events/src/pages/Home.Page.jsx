@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/pages/Home.Page.jsx
+ *
+ * Purpose: The main landing page for the public Events platform.
+ * Displays featured events, a categorized upcoming events grid, and the discussion board.
+ * Includes sophisticated animations and lazy-loaded components for optimal performance.
+ */
 import React, { useEffect, useState, useMemo, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
 import { backendAxios } from "../axios";

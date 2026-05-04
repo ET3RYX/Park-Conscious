@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/pages/MyBookings.Page.jsx
+ *
+ * Purpose: User dashboard for managing acquired event passes ("The Wallet").
+ * Displays active and past bookings fetched via the authenticated user's ID.
+ * Provides a detailed TicketModal with QR code for entry verification.
+ */
 import React, { useEffect, useState, useMemo } from "react";
 import { useAuth } from "../context/DiscussionAuth.context";
 import { backendAxios } from "../axios";

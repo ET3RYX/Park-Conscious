@@ -1,3 +1,11 @@
+/**
+ * apps/admin/src/components/EventForm.jsx
+ *
+ * Purpose: Centralized, reusable form component for creating and editing events.
+ * Handles complex state management for all event properties including
+ * dynamic ticket tiers, custom data collection fields, hosts, featured UI settings,
+ * and Cloudinary media uploads.
+ */
 import React, { useState, useEffect } from 'react';
 import { 
   Upload, X, MapPin, Calendar, Tag, Shield, 

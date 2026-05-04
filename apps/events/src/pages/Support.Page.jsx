@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/pages/Support.Page.jsx
+ *
+ * Purpose: Customer support and contact page for the Events platform.
+ * Provides a form for users to submit queries or report issues, with
+ * built-in error monitoring hooks for failed submissions.
+ */
 import React, { useState } from "react";
 import { backendAxios } from "../axios";
 import { Helmet } from "react-helmet";

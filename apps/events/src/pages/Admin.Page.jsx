@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/pages/Admin.Page.jsx
+ *
+ * Purpose: Secure global operations dashboard for platform administrators.
+ * Requires a client-side passcode to access global sales data, ticket
+ * scanners, and multi-event check-in capabilities.
+ */
 import React, { useState, useEffect, useCallback } from "react";
 import { backendAxios } from "../axios";
 import {

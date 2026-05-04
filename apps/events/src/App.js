@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/App.js
+ *
+ * Purpose: Main application component and routing hub for the Events platform.
+ * Defines all public routes, dynamically lazy-loads page components,
+ * and wraps the application in the global error boundary.
+ */
 import React, { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 // Triggering fresh SANGAM deployment build after quota reset.

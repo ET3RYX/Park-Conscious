@@ -1,3 +1,10 @@
+/**
+ * apps/admin/src/pages/Login.jsx
+ *
+ * Purpose: Authentication page for the Admin Panel.
+ * Handles credential submission, API authentication, and session initialization.
+ * Logs failed attempts via the centralized error monitoring utility.
+ */
 import React, { useState } from 'react';
 import { Shield, Mail, Lock, Activity, ChevronRight, RefreshCw, Star } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';

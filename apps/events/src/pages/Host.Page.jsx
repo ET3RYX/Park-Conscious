@@ -1,3 +1,10 @@
+/**
+ * apps/events/src/pages/Host.Page.jsx
+ *
+ * Purpose: Marketing and onboarding page for prospective event organisers.
+ * Outlines the benefits of hosting with Backstage and provides access to
+ * the RequestEventModal to initiate the onboarding process.
+ */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Zap, MapPin, Shield, Globe, Send, Sparkles, LogIn } from 'lucide-react';

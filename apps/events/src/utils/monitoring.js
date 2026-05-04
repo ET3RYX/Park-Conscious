@@ -1,6 +1,9 @@
 /**
- * Unified Monitoring Utility for Events Platform
- * Reports handled/soft errors to the centralized system log.
+ * apps/events/src/utils/monitoring.js
+ *
+ * Purpose: Error monitoring utility for the Events platform.
+ * Silently catches and reports non-critical client-side errors
+ * to the centralized administrative logging system.
  */
 export const reportSystemError = (message, type = 'api_failure', metadata = {}) => {
   // Filter out business logic errors (non-critical)

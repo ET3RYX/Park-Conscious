@@ -1,3 +1,10 @@
+/**
+ * apps/admin/src/pages/EditEvent.jsx
+ *
+ * Purpose: Page component for modifying an existing event in the Admin Panel.
+ * Fetches the event details by ID, populates the EventForm component,
+ * and handles the API submission to update the event record.
+ */
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import EventForm from '../components/EventForm';
