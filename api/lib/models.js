@@ -95,7 +95,14 @@ const eventSchema = new mongoose.Schema(
       capacity: { type: Number, default: 0 },
       requireApproval: { type: Boolean, default: false },
       description: String
-    }]
+    }],
+    themeConfig: {
+      primaryColor: { type: String, default: '#E33B76' },
+      themeStyle: { type: String, default: 'pastel-light' },
+      fontFamily: { type: String, default: 'Plus Jakarta Sans' },
+      displayMode: { type: String, default: 'light' },
+      backgroundVideoUrl: { type: String, default: '' }
+    }
   },
   { timestamps: true, strict: false }
 );

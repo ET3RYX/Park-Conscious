@@ -10,6 +10,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { backendAxios } from "../axios";
 import DefaultlayoutHoc from "../layout/Default.layout";
 import BookingModal from "../components/Booking/BookingModal.jsx";
+import PremiumBackground from "../components/PremiumBackground";
 import { 
   MapPin, Ticket, X, 
   Calendar, Clock, Users, ArrowUpRight, Share2, Instagram
@@ -31,7 +32,18 @@ const EventPage = () => {
   const [loading, setLoading] = useState(true);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedTier, setSelectedTier] = useState(null);
+  const [liveTheme, setLiveTheme] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleMessage = (e) => {
+      if (e.data?.type === 'UPDATE_THEME') {
+        setLiveTheme(e.data.themeConfig);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -52,6 +64,8 @@ const EventPage = () => {
         };
 
         setEvent(normalized);
+        if (normalized.themeConfig) setLiveTheme(normalized.themeConfig);
+        
         if (normalized.ticketTiers.length > 0) {
           setSelectedTier(normalized.ticketTiers[0]);
         }
@@ -67,7 +81,11 @@ const EventPage = () => {
   }, [id, navigate]);
 
   if (loading || !event) {
-    return <div className="bg-[#050507] min-h-screen" />;
+    return (
+      <div className="bg-[#050507] min-h-screen flex items-center justify-center">
+        <div className="w-12 h-12 border-2 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   const dateObj = new Date(event.displayDate);
@@ -87,232 +105,247 @@ const EventPage = () => {
     : dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
   const hostsList = Array.isArray(event.hosts) ? event.hosts : [];
+  const primaryColor = liveTheme?.primaryColor || '#E33B76';
+  const displayMode = liveTheme?.displayMode || 'light';
+  
+  const textTitleClass = displayMode === 'dark' ? 'text-white' : 'text-slate-900';
+  const textSubtitleClass = displayMode === 'dark' ? 'text-slate-400' : 'text-slate-500';
+  const textBodyClass = displayMode === 'dark' ? 'text-slate-300' : 'text-slate-700';
+  const cardBgClass = displayMode === 'dark' ? 'bg-black/40 border border-white/10 backdrop-blur-xl' : 'glass-card-light';
 
   return (
-    <div className="bg-[#050507] min-h-screen text-white font-['Inter'] pb-32">
-      <div className="container mx-auto px-6 md:px-12 lg:px-32 pt-24 lg:pt-32">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
-          
-          {/* Left Column: Poster & Action */}
-          <div className="lg:col-span-5 space-y-12">
-            <div className="sticky top-12 space-y-12">
-              <div className="relative rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
-                <img 
-                  src={clUrl(event.images?.[0] || event.image)} 
-                  className="w-full object-cover" 
-                  alt={event.displayTitle}
-                />
-              </div>
-
-              {/* Booking Information Card */}
-              <div className="bg-[#0A0A0C] border border-white/5 rounded-[3rem] p-10 space-y-10 shadow-2xl">
-                <div className="text-center">
-                  <h3 className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Booking Information</h3>
+    <PremiumBackground themeConfig={liveTheme}>
+      <div className={`pb-32 font-['Inter'] ${displayMode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+        <div className="container mx-auto px-6 md:px-12 lg:px-32 pt-24 lg:pt-32">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+            
+            {/* Left Column: Poster & Action */}
+            <div className="lg:col-span-5 space-y-12">
+              <div className="sticky top-12 space-y-12">
+                <div className="relative rounded-[2rem] overflow-hidden border border-white/60 shadow-2xl shadow-pink-500/10">
+                  <img 
+                    src={clUrl(event.images?.[0] || event.image)} 
+                    className="w-full object-cover" 
+                    alt={event.displayTitle}
+                  />
                 </div>
 
-                <div className="space-y-4 px-2">
-                  {event.ticketTiers && event.ticketTiers.length > 0 ? (
-                    <div className="space-y-4">
-                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Select Ticket Tier</p>
-                      <div className="space-y-3">
-                        {event.ticketTiers.map((tier, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setSelectedTier(tier)}
-                            className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${
-                              selectedTier?.name === tier.name 
-                                ? 'bg-[#6366f1]/10 border-[#6366f1] shadow-[0_0_20px_-5px_rgba(99,102,241,0.3)]' 
-                                : 'bg-white/5 border-white/5 hover:border-white/20'
-                            }`}
+                {/* Booking Information Card */}
+                <div className={`${cardBgClass} rounded-[3rem] p-10 space-y-10`}>
+                  <div className="text-center">
+                    <h3 className="text-[9px] font-black uppercase tracking-[0.4em] text-pink-500/80">Booking Information</h3>
+                  </div>
+
+                  <div className="space-y-4 px-2">
+                    {event.ticketTiers && event.ticketTiers.length > 0 ? (
+                      <div className="space-y-4">
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Select Ticket Tier</p>
+                        <div className="space-y-3">
+                          {event.ticketTiers.map((tier, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => setSelectedTier(tier)}
+                              className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                                selectedTier?.name === tier.name 
+                                  ? 'shadow-sm' 
+                                  : 'bg-white/40 border-white/60'
+                              }`}
+                              style={selectedTier?.name === tier.name ? { backgroundColor: `${primaryColor}15`, borderColor: `${primaryColor}40` } : {}}
+                            >
+                              <div className="text-left">
+                                <p className={`text-sm font-bold ${textTitleClass}`}>{tier.name}</p>
+                                {tier.description && <p className={`text-[10px] mt-1 ${textSubtitleClass}`}>{tier.description}</p>}
+                              </div>
+                              <div className="text-right">
+                                <p className={`text-lg font-heading font-bold ${textTitleClass}`}>₹{tier.price}</p>
+                                <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${textSubtitleClass}`}>{tier.capacity} Slots</p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Ticket Availability</p>
+                        <div className="flex items-baseline justify-between border-b border-black/5 pb-6">
+                          <span className={`text-5xl font-bold font-heading leading-none ${textTitleClass}`}>{event.capacity || 0}</span>
+                          <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${textSubtitleClass}`}>Global Capacity</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="space-y-4 pt-2">
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(window.location.href);
+                        const label = document.getElementById('share-label-left');
+                        if(label) label.innerText = "COPIED!";
+                        setTimeout(() => { if(label) label.innerText = "SHARE EVENT LINK"; }, 2000);
+                      }}
+                      className={`w-full py-5 rounded-3xl border text-[9px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all group ${displayMode === 'dark' ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-white/40 border-white/60 text-slate-700 hover:bg-white/60'}`}
+                    >
+                      <span id="share-label-left">Share Event Link</span>
+                      <Share2 size={14} className={`${displayMode === 'dark' ? 'text-slate-400' : 'text-slate-400'} group-hover:text-pink-500 transition-colors`} />
+                    </button>
+
+                    <button 
+                      onClick={() => setIsBookingOpen(true)}
+                      className="w-full py-5 rounded-full text-white text-[11px] font-black uppercase tracking-[0.4em] flex items-center justify-center gap-3 hover:scale-[1.01] active:scale-[0.99] transition-all shadow-xl"
+                      style={{ backgroundColor: primaryColor }}
+                    >
+                      <Ticket size={18} />
+                      <span>Book Now</span>
+                    </button>
+                  </div>
+
+                  <p className="text-center text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] leading-relaxed max-w-xs mx-auto">
+                    Guaranteed Entry • Non-Refundable Policy • Valid ID Required
+                  </p>
+                </div>
+
+                <div className="space-y-6">
+                  <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500">Presented By</h3>
+                  <div className="space-y-5">
+                    {hostsList.length > 0 ? hostsList.map((host, idx) => (
+                      <div key={idx} className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full border border-white/60 bg-white/40 shadow-sm overflow-hidden flex-shrink-0">
+                            {host.image ? (
+                              <img src={clUrl(host.image)} className="w-full h-full object-cover" alt={host.name} />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-pink-500">{host.name?.[0]}</div>
+                            )}
+                          </div>
+                          <div>
+                            <p className={`text-sm font-bold ${textTitleClass}`}>{host.name}</p>
+                            <p className={`text-[10px] font-medium ${textSubtitleClass}`}>{host.role}</p>
+                          </div>
+                        </div>
+                        
+                        {(host.instagram || host.socials?.instagram) && (
+                          <a 
+                            href={host.instagram || host.socials?.instagram} 
+                            target="_blank" rel="noreferrer"
+                            className="w-8 h-8 rounded-full bg-white/40 border border-white/60 flex items-center justify-center text-slate-400 hover:text-pink-500 hover:border-pink-300 transition-all shadow-sm"
                           >
-                            <div className="text-left">
-                              <p className="text-sm font-bold text-white">{tier.name}</p>
-                              {tier.description && <p className="text-[10px] text-slate-500 mt-1">{tier.description}</p>}
-                            </div>
-                            <div className="text-right">
-                              <p className="text-lg font-['Outfit'] font-bold text-white">₹{tier.price}</p>
-                              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">{tier.capacity} Slots</p>
-                            </div>
-                          </button>
-                        ))}
+                            <Instagram size={14} />
+                          </a>
+                        )}
                       </div>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Ticket Availability</p>
-                      <div className="flex items-baseline justify-between border-b border-white/5 pb-6">
-                        <span className="text-5xl font-bold font-['Outfit'] leading-none text-white">{event.capacity || 0}</span>
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Global Capacity</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                <div className="space-y-4 pt-2">
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(window.location.href);
-                      const label = document.getElementById('share-label-left');
-                      if(label) label.innerText = "COPIED!";
-                      setTimeout(() => { if(label) label.innerText = "SHARE EVENT LINK"; }, 2000);
-                    }}
-                    className="w-full py-5 rounded-3xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-[0.3em] flex items-center justify-center gap-3 hover:bg-white/10 transition-all group"
-                  >
-                    <span id="share-label-left">Share Event Link</span>
-                    <Share2 size={14} className="text-slate-500 group-hover:text-white transition-colors" />
-                  </button>
-
-                  <button 
-                    onClick={() => setIsBookingOpen(true)}
-                    className="w-full py-5 rounded-full bg-white text-black text-[11px] font-black uppercase tracking-[0.4em] flex items-center justify-center gap-3 hover:scale-[1.01] active:scale-[0.99] transition-all shadow-[0_20px_40px_-10px_rgba(255,255,255,0.1)]"
-                  >
-                    <Ticket size={18} />
-                    <span>Book Now</span>
-                  </button>
-                </div>
-
-                <p className="text-center text-[8px] font-black text-slate-600 uppercase tracking-[0.3em] leading-relaxed max-w-xs mx-auto">
-                  Guaranteed Entry • Non-Refundable Policy • Valid ID Required
-                </p>
-              </div>
-
-              <div className="space-y-6">
-                <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500">Presented By</h3>
-                <div className="space-y-5">
-                  {hostsList.length > 0 ? hostsList.map((host, idx) => (
-                    <div key={idx} className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full border border-white/10 bg-white/5 overflow-hidden flex-shrink-0">
-                          {host.image ? (
-                            <img src={clUrl(host.image)} className="w-full h-full object-cover" alt={host.name} />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-[10px] font-medium bg-white/5 text-white">{host.name?.[0]}</div>
-                          )}
+                    )) : (
+                      <div className="flex items-center gap-4 opacity-70">
+                        <div className="w-10 h-10 rounded-full border border-white/60 bg-white/40 flex items-center justify-center shadow-sm">
+                          <Users size={16} className="text-slate-500" />
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-white">{host.name}</p>
-                          <p className="text-[10px] text-slate-500">{host.role}</p>
-                        </div>
+                        <p className={`text-sm font-bold ${textTitleClass}`}>Backstage Events Official</p>
                       </div>
-                      
-                      {(host.instagram || host.socials?.instagram) && (
-                        <a 
-                          href={host.instagram || host.socials?.instagram} 
-                          target="_blank" rel="noreferrer"
-                          className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-pink-500 hover:border-pink-500/30 transition-all"
-                        >
-                          <Instagram size={14} />
-                        </a>
-                      )}
-                    </div>
-                  )) : (
-                    <div className="flex items-center gap-4 opacity-50">
-                      <div className="w-10 h-10 rounded-full border border-white/10 bg-white/5 flex items-center justify-center">
-                        <Users size={16} />
-                      </div>
-                      <p className="text-sm font-medium text-white">Backstage Events Official</p>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Right Column: Information */}
-          <div className="lg:col-span-7 space-y-16">
-            <div className="space-y-10">
-              <h1 className="text-5xl md:text-7xl font-['Outfit'] font-bold tracking-tight">
-                {event.displayTitle}
-              </h1>
-              
-              {/* Logistics Refinement */}
+            {/* Right Column: Information */}
+            <div className="lg:col-span-7 space-y-16">
               <div className="space-y-10">
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0 w-14 h-14 bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center justify-center overflow-hidden shadow-xl">
-                    <div className="bg-[#6366f1] w-full py-1 text-center">
-                      <span className="text-[8px] font-black uppercase tracking-widest text-white">{monthName}</span>
-                    </div>
-                    <div className="flex-1 flex items-center justify-center">
-                      <span className="text-xl font-bold text-white">{dayNum}</span>
-                    </div>
-                  </div>
-                  <div className="space-y-1 pt-1">
-                    <h4 className="text-lg font-semibold text-white tracking-tight">{dayName}, {monthName} {dayNum}</h4>
-                    <p className="text-sm text-slate-500 font-medium">{timeStr} GMT+5:30</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0 w-14 h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center shadow-xl">
-                    <MapPin size={24} className="text-[#6366f1]" />
-                  </div>
-                  <div className="space-y-1 pt-1">
-                    <a 
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.displayLocation)}`}
-                      target="_blank" rel="noreferrer"
-                      className="flex items-center gap-2 text-lg font-semibold text-white hover:text-[#6366f1] transition-all group"
-                    >
-                        {event.location?.name || event.venue || "NCR"}
-                        <ArrowUpRight size={16} className="text-slate-600 group-hover:text-[#6366f1] transition-colors" />
-                    </a>
-                    <p className="text-sm text-slate-500 font-medium">{event.displayLocation}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* About Section moved up */}
-              <div className="space-y-6 pt-12 border-t border-white/5">
-                <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500">About the Experience</h3>
-                <p className="text-slate-300 leading-relaxed text-xl font-medium whitespace-pre-wrap">
-                  {event.displayDescription || "No detailed description provided."}
-                </p>
-              </div>
-
-              {/* Media Gallery Section */}
-              {event.mediaGallery && event.mediaGallery.length > 0 && (
-                <div className="space-y-6 pt-12 border-t border-white/5">
-                  <h3 className="text-[11px] font-medium uppercase tracking-[0.2em] text-slate-500">Experience Gallery</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {event.mediaGallery.map((item, idx) => (
-                      <div key={idx} className="relative rounded-3xl overflow-hidden border border-white/5 bg-white/5 aspect-video group shadow-2xl">
-                        {item.type === 'video' ? (
-                          <video 
-                            className="w-full h-full object-cover"
-                            controls
-                            playsInline
-                            preload="metadata"
-                            key={idx}
-                          >
-                            <source src={clUrl(item.url, 'video')} type="video/mp4" />
-                            <source src={item.url} />
-                            Your browser does not support the video tag.
-                          </video>
-                        ) : (
-                          <img 
-                            src={clUrl(item.url)} 
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                            alt={`Gallery item ${idx + 1}`} 
-                          />
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6 pointer-events-none">
-                           <span className="text-[10px] font-black uppercase tracking-widest text-white/80">View Full {item.type === 'video' ? 'Video' : 'Image'}</span>
-                        </div>
+                <h1 className={`text-5xl md:text-7xl font-heading font-extrabold tracking-tight drop-shadow-sm ${textTitleClass}`}>
+                  {event.displayTitle}
+                </h1>
+                
+                {/* Logistics Refinement */}
+                <div className="space-y-10">
+                  <div className="flex items-start gap-6">
+                    <div className={`flex-shrink-0 w-16 h-16 ${cardBgClass} rounded-[1.5rem] flex flex-col items-center justify-center overflow-hidden p-0`}>
+                      <div className="w-full py-1 text-center" style={{ backgroundColor: primaryColor }}>
+                        <span className="text-[8px] font-black uppercase tracking-widest text-white">{monthName}</span>
                       </div>
-                    ))}
+                      <div className={`flex-1 flex items-center justify-center w-full ${displayMode === 'dark' ? 'bg-white/5' : 'bg-white/40'} backdrop-blur-md`}>
+                        <span className={`text-xl font-bold ${displayMode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{dayNum}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1 pt-2">
+                      <h4 className={`text-xl font-bold tracking-tight ${textTitleClass}`}>{dayName}, {monthName} {dayNum}</h4>
+                      <p className={`text-sm font-medium flex items-center gap-2 ${textSubtitleClass}`}><Clock size={14} /> {timeStr} GMT+5:30</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-6">
+                    <div className={`flex-shrink-0 w-16 h-16 ${cardBgClass} rounded-[1.5rem] flex items-center justify-center`}>
+                      <MapPin size={24} color={primaryColor} />
+                    </div>
+                    <div className="space-y-1 pt-2">
+                      <a 
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.displayLocation)}`}
+                        target="_blank" rel="noreferrer"
+                        className={`flex items-center gap-2 text-xl font-bold transition-all group ${textTitleClass}`}
+                      >
+                          {event.location?.name || event.venue || "NCR"}
+                          <ArrowUpRight size={18} color={primaryColor} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+                      </a>
+                      <p className={`text-sm font-medium ${textSubtitleClass}`}>{event.displayLocation}</p>
+                    </div>
                   </div>
                 </div>
-              )}
+
+                {/* About Section */}
+                <div className="space-y-6 pt-12 border-t border-black/5">
+                  <h3 className={`text-[11px] font-medium uppercase tracking-[0.2em] ${textSubtitleClass}`}>About the Experience</h3>
+                  <p className={`leading-relaxed text-lg font-medium whitespace-pre-wrap ${textBodyClass}`}>
+                    {event.displayDescription || "No detailed description provided."}
+                  </p>
+                </div>
+
+                {/* Media Gallery Section */}
+                {event.mediaGallery && event.mediaGallery.length > 0 && (
+                  <div className="space-y-6 pt-12 border-t border-black/5">
+                    <h3 className={`text-[11px] font-medium uppercase tracking-[0.2em] ${textSubtitleClass}`}>Experience Gallery</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      {event.mediaGallery.map((item, idx) => (
+                        <div key={idx} className="relative rounded-[2rem] overflow-hidden glass-card-light aspect-video group p-1">
+                          <div className="w-full h-full rounded-[1.5rem] overflow-hidden">
+                            {item.type === 'video' ? (
+                              <video 
+                                className="w-full h-full object-cover"
+                                controls
+                                playsInline
+                                preload="none"
+                                poster={clUrl(item.url.replace('.mp4', '.jpg'))}
+                                key={idx}
+                              >
+                                <source src={clUrl(item.url, 'video')} type="video/mp4" />
+                                <source src={item.url} />
+                                Your browser does not support the video tag.
+                              </video>
+                            ) : (
+                              <img 
+                                src={clUrl(item.url)} 
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                alt={`Gallery item ${idx + 1}`} 
+                              />
+                            )}
+                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6 pointer-events-none rounded-[2rem]">
+                             <span className="text-[10px] font-black uppercase tracking-widest text-white/90 drop-shadow-md">View Full {item.type === 'video' ? 'Video' : 'Image'}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <BookingModal
-        isOpen={isBookingOpen}
-        setIsOpen={setIsBookingOpen}
-        event={{...event, selectedTier}}
-      />
-    </div>
+        <BookingModal
+          isOpen={isBookingOpen}
+          setIsOpen={setIsBookingOpen}
+          event={{...event, selectedTier}}
+          themeConfig={liveTheme}
+        />
+      </div>
+    </PremiumBackground>
   );
 };
 

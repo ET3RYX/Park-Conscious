@@ -188,9 +188,10 @@ const DiscussionBoard = () => {
         {user ? (
           <div className="flex items-center gap-3 flex-shrink-0">
             <img
-              src={user.picture}
+              src={user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`}
               alt={user.name}
-              className="w-8 h-8 rounded-full border-2 border-premier-700"
+              className="w-8 h-8 rounded-full border-2 border-premier-700 object-cover"
+              onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`; }}
             />
             <button
               onClick={() => setShowForm(true)}

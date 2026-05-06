@@ -139,8 +139,8 @@ const MainLayout = () => {
         </header>
 
         {/* Dynamic Viewport */}
-        <div className="p-8 lg:p-12">
-          <div className="max-w-[1200px] mx-auto">
+        <div className="p-4 lg:p-8">
+          <div className="max-w-[1600px] mx-auto">
             <Outlet />
           </div>
         </div>

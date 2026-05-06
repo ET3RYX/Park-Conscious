@@ -32,9 +32,9 @@ const CommentItem = ({ comment, onVote, onReply, currentUser, isReply = false })
   const [replyText, setReplyText] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const score = comment.upvotes.length - comment.downvotes.length;
-  const userUpvoted = currentUser && comment.upvotes.includes(currentUser.uid);
-  const userDownvoted = currentUser && comment.downvotes.includes(currentUser.uid);
+  const score = (comment.upvotes?.length || 0) - (comment.downvotes?.length || 0);
+  const userUpvoted = currentUser && comment.upvotes?.includes(currentUser.uid);
+  const userDownvoted = currentUser && comment.downvotes?.includes(currentUser.uid);
 
   const handleReplySubmit = async (e) => {
     e.preventDefault();
@@ -47,43 +47,46 @@ const CommentItem = ({ comment, onVote, onReply, currentUser, isReply = false })
   };
 
   return (
-    <div className={`flex gap-6 py-8 ${isReply ? "ml-12 border-l border-white/5 pl-8" : "border-b border-white/5"} last:border-0 group animate-reveal`}>
-      <div className="flex flex-col items-center gap-2 min-w-[2.5rem]">
+    <div className={`flex gap-4 md:gap-6 py-6 md:py-8 ${isReply ? "ml-4 md:ml-12 border-l border-white/5 pl-4 md:pl-8" : "border-b border-white/5"} last:border-0 group animate-reveal`}>
+      <div className="flex flex-col items-center gap-2 min-w-[2rem] md:min-w-[2.5rem]">
         <button
           onClick={() => onVote(comment._id, "upvote")}
-          className={`p-2 rounded-xl transition-all ${userUpvoted ? "bg-indigo-500/10 text-indigo-400" : "text-slate-600 hover:text-white hover:bg-white/5"}`}
+          className={`p-1.5 md:p-2 rounded-xl transition-all ${userUpvoted ? "bg-indigo-500/10 text-indigo-400" : "text-slate-600 hover:text-white hover:bg-white/5"}`}
         >
-          <BiUpvote className="w-5 h-5" />
+          <BiUpvote className="w-4 h-4 md:w-5 md:h-5" />
         </button>
-        <span className={`text-[10px] font-black uppercase tracking-widest ${score > 0 ? "text-indigo-400" : score < 0 ? "text-rose-500" : "text-slate-500"}`}>
+        <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest ${score > 0 ? "text-indigo-400" : score < 0 ? "text-rose-500" : "text-slate-500"}`}>
           {score}
         </span>
         <button
           onClick={() => onVote(comment._id, "downvote")}
-          className={`p-2 rounded-xl transition-all ${userDownvoted ? "bg-rose-500/10 text-rose-500" : "text-slate-400 hover:text-rose-500 hover:bg-rose-500/5"}`}
+          className={`p-1.5 md:p-2 rounded-xl transition-all ${userDownvoted ? "bg-rose-500/10 text-rose-500" : "text-slate-400 hover:text-rose-500 hover:bg-rose-500/5"}`}
         >
-          <BiDownvote className="w-5 h-5" />
+          <BiDownvote className="w-4 h-4 md:w-5 md:h-5" />
         </button>
       </div>
-      <div className="flex-1 space-y-4">
-        <div className="flex items-center justify-between">
+      <div className="flex-1 space-y-3 md:space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
           <div className="flex items-center gap-3">
-            {comment.authorPhoto && (
-              <img src={comment.authorPhoto} alt={comment.authorName} className="w-6 h-6 rounded-lg opacity-80" />
-            )}
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/80">{comment.authorName}</span>
-            <span className="w-1 h-1 bg-white/10 rounded-full"></span>
-            <span className="text-slate-400 text-[9px] font-black uppercase tracking-widest">{formatDate(comment.createdAt)}</span>
+            <img 
+              src={comment.authorPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.authorName || 'User')}&background=random`} 
+              alt={comment.authorName} 
+              className="w-5 h-5 rounded-lg opacity-80 object-cover" 
+              onError={(e) => { e.target.src = "https://ui-avatars.com/api/?name=User&background=random"; }}
+            />
+            <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-white/80">{comment.authorName}</span>
+            <span className="hidden md:block w-1 h-1 bg-white/10 rounded-full"></span>
+            <span className="text-slate-400 text-[8px] md:text-[9px] font-black uppercase tracking-widest">{formatDate(comment.createdAt)}</span>
           </div>
         </div>
         
-        <p className="text-slate-400 text-base leading-relaxed font-medium italic">"{comment.text}"</p>
+        <p className="text-slate-400 text-sm md:text-base leading-relaxed font-medium italic break-words overflow-hidden">"{comment.text}"</p>
         
         <div className="flex items-center gap-6">
           {!isReply && currentUser && (
             <button
               onClick={() => setShowReplyForm(!showReplyForm)}
-              className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 hover:text-indigo-400 transition-colors"
+              className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 hover:text-indigo-400 transition-colors"
             >
               {showReplyForm ? "Cancel Reply" : "Reply"}
             </button>
@@ -91,9 +94,9 @@ const CommentItem = ({ comment, onVote, onReply, currentUser, isReply = false })
         </div>
 
         {showReplyForm && (
-          <form onSubmit={handleReplySubmit} className="mt-6 space-y-4 animate-reveal">
+          <form onSubmit={handleReplySubmit} className="mt-4 md:mt-6 space-y-4 animate-reveal">
             <textarea
-              className="w-full bg-[#050507] border border-white/5 text-white rounded-2xl px-6 py-4 text-sm resize-none focus:outline-none focus:border-white/20 transition-all font-medium placeholder:text-slate-500"
+              className="w-full bg-[#050507] border border-white/5 text-white rounded-2xl px-5 md:px-6 py-3 md:py-4 text-xs md:text-sm resize-none focus:outline-none focus:border-white/20 transition-all font-medium placeholder:text-slate-500 shadow-2xl"
               rows={2}
               placeholder="Write a reply..."
               value={replyText}
@@ -104,7 +107,7 @@ const CommentItem = ({ comment, onVote, onReply, currentUser, isReply = false })
               <button
                 type="submit"
                 disabled={submitting || !replyText.trim()}
-                className="px-6 py-2.5 text-[9px] bg-white text-black font-black rounded-full hover:bg-indigo-600 hover:text-white transition-all disabled:opacity-40 uppercase tracking-[0.3em]"
+                className="px-5 md:px-6 py-2 md:py-2.5 text-[8px] md:text-[9px] bg-white text-black font-black rounded-full hover:bg-indigo-600 hover:text-white transition-all disabled:opacity-40 uppercase tracking-[0.3em]"
               >
                 {submitting ? "Posting..." : "Post Reply"}
               </button>
@@ -154,8 +157,8 @@ const DiscussionPage = () => {
       if (!comRes.ok) throw new Error("Failed to load comments");
       const comData = await comRes.json();
       
-      setDiscussion(disData);
-      setComments(comData);
+      setDiscussion(disData.discussion || disData);
+      setComments(comData.comments || comData);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -221,7 +224,7 @@ const DiscussionPage = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        setComments((prev) => [...prev, data]);
+        setComments((prev) => [...(Array.isArray(prev) ? prev : []), data]);
         setCommentText("");
         setDiscussion((p) => ({ ...p, commentCount: (p.commentCount || 0) + 1 }));
       }
@@ -243,7 +246,7 @@ const DiscussionPage = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        setComments((prev) => [...prev, data]);
+        setComments((prev) => [...(Array.isArray(prev) ? prev : []), data]);
         setDiscussion((p) => ({ ...p, commentCount: (p.commentCount || 0) + 1 }));
       }
     } catch (err) {
@@ -274,8 +277,9 @@ const DiscussionPage = () => {
   const userUpvoted = user && discussion.upvotes.includes(user.uid);
   const userDownvoted = user && discussion.downvotes.includes(user.uid);
 
-  const parentComments = comments.filter(c => !c.parentId);
-  const getReplies = (parentId) => comments.filter(c => c.parentId === parentId);
+  const safeComments = Array.isArray(comments) ? comments : [];
+  const parentComments = safeComments.filter(c => !c.parentId);
+  const getReplies = (parentId) => safeComments.filter(c => c.parentId === parentId);
 
   return (
     <div className="bg-[#050507] min-h-screen pb-32 relative">
@@ -343,10 +347,9 @@ const DiscussionPage = () => {
           </div>
         </div>
 
-        {/* Comments Section */}
         <div className="space-y-12">
            <h3 className="text-[11px] font-black uppercase tracking-[0.5em] text-slate-500 border-l-4 border-indigo-500 pl-6">
-             Community Discussion: {comments.length} Comments
+             Community Discussion: {safeComments.length} Comments
            </h3>
 
            {/* Add Comment Form */}

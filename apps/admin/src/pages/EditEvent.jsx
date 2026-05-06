@@ -1,15 +1,8 @@
-/**
- * apps/admin/src/pages/EditEvent.jsx
- *
- * Purpose: Page component for modifying an existing event in the Admin Panel.
- * Fetches the event details by ID, populates the EventForm component,
- * and handles the API submission to update the event record.
- */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import EventForm from '../components/EventForm';
 import { eventService } from '../services/api';
-import { ChevronLeft, RefreshCw, Star } from 'lucide-react';
+import { ChevronLeft, RefreshCw, Star, Smartphone } from 'lucide-react';
 
 const EditEvent = () => {
   const { id } = useParams();
@@ -17,6 +10,7 @@ const EditEvent = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const navigate = useNavigate();
+  const iframeRef = useRef(null);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -45,6 +39,12 @@ const EditEvent = () => {
     }
   };
 
+  const handleThemeChange = (newTheme) => {
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({ type: 'UPDATE_THEME', themeConfig: newTheme }, '*');
+    }
+  };
+
   if (fetching) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -53,6 +53,8 @@ const EditEvent = () => {
       </div>
     );
   }
+
+  const frontendUrl = import.meta.env.VITE_FRONTEND_URL || 'http://localhost:3000';
 
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
@@ -79,11 +81,41 @@ const EditEvent = () => {
         </div>
       </div>
       
-      <div className="glass-card rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-12 opacity-[0.01] pointer-events-none rotate-12">
-            <RefreshCw size={320} className={loading ? 'animate-spin' : ''} />
+      <div className="flex flex-col xl:flex-row gap-8">
+        <div className="flex-1 xl:max-w-5xl min-w-0">
+          <div className="glass-card rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-12 opacity-[0.01] pointer-events-none rotate-12">
+                <RefreshCw size={320} className={loading ? 'animate-spin' : ''} />
+            </div>
+            <EventForm initialData={event} onSubmit={handleUpdate} loading={loading} onThemeChange={handleThemeChange} />
+          </div>
         </div>
-        <EventForm initialData={event} onSubmit={handleUpdate} loading={loading} />
+        
+        {/* Live Preview Iframe */}
+        <div className="hidden xl:block w-[420px] flex-shrink-0 relative">
+          <div className="sticky top-8 space-y-4">
+            <div className="flex items-center justify-between px-4">
+              <h3 className="text-[10px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-2">
+                <Smartphone size={14} className="text-sky-500" /> Live Preview
+              </h3>
+              <span className="flex items-center gap-2 text-[8px] font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-1 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Connected
+              </span>
+            </div>
+            
+            <div className="w-full h-[850px] rounded-[3rem] border-[12px] border-zinc-900 overflow-hidden shadow-[0_0_50px_-12px_rgba(0,0,0,0.8)] relative bg-black">
+              {/* Fake phone notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-zinc-900 rounded-b-xl z-20"></div>
+              <iframe
+                ref={iframeRef}
+                src={`${frontendUrl}/event/${id}?preview=true`}
+                className="w-full h-full border-0 rounded-[2.5rem]"
+                title="Live Theme Preview"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
