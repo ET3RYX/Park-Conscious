@@ -11,6 +11,17 @@ const PremiumBackground = ({ children, themeConfig }) => {
   const textClass = displayMode === 'dark' ? 'text-white selection:bg-indigo-500/30' : 'text-slate-900 selection:bg-pink-500/30';
   const bgBaseClass = displayMode === 'dark' ? 'bg-[#050507]' : 'bg-[#fdfbfb]';
 
+  // Sync document background for overscroll consistency
+  React.useEffect(() => {
+    const bgColor = displayMode === 'dark' ? '#050507' : '#fdfbfb';
+    document.documentElement.style.backgroundColor = bgColor;
+    document.body.style.backgroundColor = bgColor;
+    return () => {
+      document.documentElement.style.backgroundColor = '';
+      document.body.style.backgroundColor = '';
+    };
+  }, [displayMode]);
+
   return (
     <div className={`relative min-h-screen w-full overflow-x-hidden ${textClass} ${bgBaseClass}`}>
       
@@ -67,7 +78,7 @@ const PremiumBackground = ({ children, themeConfig }) => {
       {/* Subtle noise overlay for premium texture (applies to all non-video styles) */}
       {style !== 'video' && (
         <div 
-          className={`fixed inset-0 z-0 pointer-events-none mix-blend-overlay ${displayMode === 'dark' ? 'opacity-10' : 'opacity-[0.25]'}`}
+          className={`fixed top-0 left-0 w-full h-full z-0 pointer-events-none mix-blend-overlay ${displayMode === 'dark' ? 'opacity-[0.05]' : 'opacity-[0.08]'}`}
           style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }}
         ></div>
       )}
