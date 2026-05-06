@@ -166,17 +166,21 @@ const HomePage = () => {
            </div>
         </div>
   
-        {/* Premium Tagline Carousel */}
-        <div className="w-full h-10 md:h-16 bg-white relative z-20 flex items-center justify-center overflow-hidden">
-           <div 
-             key={currentAd}
-             className="flex items-center gap-6 md:gap-12 px-8 h-full animate-in fade-in slide-in-from-bottom-3 duration-1000"
-           >
-              <div className="w-1.5 h-1.5 bg-black/10 rounded-full shrink-0"></div>
-              <p className="text-black font-black text-[10px] md:text-[11px] uppercase tracking-[0.4em] text-center">
-                {adCopies[currentAd]}
-              </p>
-              <div className="w-1.5 h-1.5 bg-black/10 rounded-full shrink-0"></div>
+        {/* Premium White Glass Ticker */}
+        <div className="w-full relative z-20 -mt-8 md:-mt-12">
+           <div className="max-w-[1700px] mx-auto px-6">
+              <div className="w-full h-14 md:h-16 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl flex items-center justify-center overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                <div 
+                  key={currentAd}
+                  className="flex items-center gap-6 md:gap-12 px-8 h-full animate-in fade-in slide-in-from-bottom-3 duration-1000"
+                >
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full shrink-0 animate-pulse shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+                    <p className="text-white font-black text-[10px] md:text-[11px] uppercase tracking-[0.4em] text-center drop-shadow-md">
+                      {adCopies[currentAd]}
+                    </p>
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full shrink-0 animate-pulse shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+                </div>
+              </div>
            </div>
         </div>
 

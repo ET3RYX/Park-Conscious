@@ -6,7 +6,7 @@
  * and provides access to core routes and user actions like booking.
  */
 import { BiChevronDown, BiMenu, BiSearch } from "react-icons/bi";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import CustomModal from "../Modal/Modal.Component";
 import RequestEventModal from "../Modal/RequestEventModal";
 import { useAuth } from "../../context/DiscussionAuth.context";
@@ -181,6 +181,8 @@ function NavLg({ defaultLocation, onRequestOpen }) {
 
 const Navbar = ({ defaultLocation }) => {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const location = useLocation();
+  const isEventPage = location.pathname.startsWith('/event/');
 
   return (
     <>
@@ -195,7 +197,7 @@ const Navbar = ({ defaultLocation }) => {
           overflow: hidden;
         }
       `}</style>
-      <nav className="bg-[#050507] sticky top-0 z-[100] border-b border-white/5 shadow-[0_10px_50px_rgba(0,0,0,0.5)]">
+      <nav className={`sticky top-0 z-[100] border-b border-white/5 transition-all duration-500 ${isEventPage ? 'bg-black/10 backdrop-blur-xl shadow-none' : 'bg-[#050507] shadow-[0_10px_50px_rgba(0,0,0,0.5)]'}`}>
         <div className="max-w-[1700px] mx-auto px-6 py-5 md:py-6">
           <div className="lg:hidden">
             <NavSm defaultLocation={defaultLocation} />

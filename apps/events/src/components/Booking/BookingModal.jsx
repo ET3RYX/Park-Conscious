@@ -13,7 +13,7 @@ import { useAuth } from "../../context/DiscussionAuth.context";
 import { X, CheckCircle2, AlertCircle, Loader2, CreditCard, User, Mail, Phone, ShieldCheck } from 'lucide-react';
 import { reportSystemError } from "../../utils/monitoring";
 
-const BookingModal = ({ isOpen, setIsOpen, event }) => {
+const BookingModal = ({ isOpen, setIsOpen, event, themeConfig }) => {
   const { user } = useAuth();
   
   const [formData, setFormData] = useState({
@@ -165,6 +165,17 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
 
   const reqFields = event.requiredFields || { name: true, email: true, phone: true };
 
+  const activeTheme = themeConfig || event?.themeConfig || {};
+  const primaryColor = activeTheme.primaryColor || '#E33B76';
+  const displayMode = activeTheme.displayMode || 'light';
+  
+  const textTitleClass = displayMode === 'dark' ? 'text-white' : 'text-slate-900';
+  const textSubtitleClass = displayMode === 'dark' ? 'text-slate-400' : 'text-slate-500';
+  const bgCardClass = displayMode === 'dark' ? 'bg-black/80 backdrop-blur-3xl border border-white/10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]' : 'glass-card-light shadow-[0_50px_100px_-20px_rgba(255,154,158,0.3)]';
+  const inputBgClass = displayMode === 'dark' ? 'bg-white/5 border border-white/10 text-white placeholder:text-slate-600 focus:bg-white/10 focus:border-white/30' : 'bg-white/60 border border-white/80 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-pink-500';
+  const labelClass = displayMode === 'dark' ? 'text-slate-400' : 'text-slate-500';
+  const closeBtnClass = displayMode === 'dark' ? 'bg-white/10 text-slate-300 hover:text-white border-white/10' : 'bg-white/60 text-slate-500 hover:text-pink-600 border-white/80';
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-[100]" onClose={closeModal}>
@@ -177,7 +188,7 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
+          <div className={`fixed inset-0 backdrop-blur-xl ${displayMode === 'dark' ? 'bg-black/60' : 'bg-white/30'}`} />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -191,18 +202,18 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-[2.5rem] md:rounded-[3rem] bg-[#050507] border border-white/5 p-6 md:p-16 text-left align-middle shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] transition-all relative">
+              <Dialog.Panel className={`w-full max-w-xl transform overflow-hidden rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-16 text-left align-middle transition-all relative ${bgCardClass}`}>
                 {/* Dynamic Background Glow */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 blur-[100px] rounded-full pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 blur-[100px] rounded-full pointer-events-none opacity-20" style={{ backgroundColor: primaryColor }}></div>
 
                 <div className="flex justify-between items-start mb-12 relative z-10">
                   <div>
-                    <h3 className="text-3xl md:text-4xl font-black text-white tracking-tighter uppercase leading-none">Booking Summary</h3>
-                    <p className="text-slate-500 text-[10px] mt-3 font-black uppercase tracking-[0.3em]">{event.displayTitle}</p>
+                    <h3 className={`text-3xl md:text-4xl font-black tracking-tighter uppercase leading-none font-heading ${textTitleClass}`}>Booking Summary</h3>
+                    <p className={`text-[10px] mt-3 font-black uppercase tracking-[0.3em] ${textSubtitleClass}`}>{event.displayTitle}</p>
                   </div>
                   <button 
                     onClick={closeModal}
-                    className="p-3 text-slate-500 hover:text-white transition-colors bg-white/5 rounded-full border border-white/5"
+                    className={`p-3 transition-colors rounded-full border ${closeBtnClass}`}
                   >
                     <X size={20} />
                   </button>
@@ -212,13 +223,13 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
                   <div className="grid grid-cols-1 gap-6 md:gap-10">
                     {reqFields.name && (
                       <div className="space-y-3">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-1">Full Name</label>
+                        <label className={`block text-[10px] font-black uppercase tracking-[0.4em] ml-1 ${labelClass}`}>Full Name</label>
                         <div className="relative group">
-                          <User className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-700 group-focus-within:text-white transition-colors" size={18} />
+                          <User className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 transition-colors" style={{ color: displayMode === 'dark' ? '#94a3b8' : '#94a3b8' }} size={18} />
                           <input 
                             type="text" name="name" value={formData.name} onChange={handleInputChange}
                             placeholder="Full Legal Name"
-                            className="w-full bg-white/5 border border-white/5 rounded-2xl pl-16 pr-6 py-5 text-white text-sm focus:outline-none focus:border-white/20 transition-all font-medium placeholder:text-slate-500"
+                            className={`w-full rounded-2xl pl-16 pr-6 py-5 text-sm outline-none transition-all font-medium shadow-sm ${inputBgClass}`}
                           />
                         </div>
                       </div>
@@ -226,13 +237,13 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
 
                     {reqFields.email && (
                       <div className="space-y-3">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-1">Email Address</label>
+                        <label className={`block text-[10px] font-black uppercase tracking-[0.4em] ml-1 ${labelClass}`}>Email Address</label>
                         <div className="relative group">
-                          <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-700 group-focus-within:text-white transition-colors" size={18} />
+                          <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 transition-colors" size={18} />
                           <input 
                             type="email" name="email" value={formData.email} onChange={handleInputChange}
                             placeholder="your@email.com"
-                            className="w-full bg-white/5 border border-white/5 rounded-2xl pl-16 pr-6 py-5 text-white text-sm focus:outline-none focus:border-white/20 transition-all font-medium placeholder:text-slate-500"
+                            className={`w-full rounded-2xl pl-16 pr-6 py-5 text-sm outline-none transition-all font-medium shadow-sm ${inputBgClass}`}
                           />
                         </div>
                       </div>
@@ -240,13 +251,13 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
 
                     {reqFields.phone && (
                       <div className="space-y-3">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-1">Phone Number</label>
+                        <label className={`block text-[10px] font-black uppercase tracking-[0.4em] ml-1 ${labelClass}`}>Phone Number</label>
                         <div className="relative group">
-                          <Phone className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-700 group-focus-within:text-white transition-colors" size={18} />
+                          <Phone className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 transition-colors" size={18} />
                           <input 
                             type="tel" name="phone" value={formData.phone} onChange={handleInputChange}
                             placeholder="10 Digit Contact" maxLength={10}
-                            className="w-full bg-white/5 border border-white/5 rounded-2xl pl-16 pr-6 py-5 text-white text-sm focus:outline-none focus:border-white/20 transition-all font-medium placeholder:text-slate-500"
+                            className={`w-full rounded-2xl pl-16 pr-6 py-5 text-sm outline-none transition-all font-medium shadow-sm ${inputBgClass}`}
                           />
                         </div>
                       </div>
@@ -254,12 +265,12 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
 
                     {event.customForms && event.customForms.length > 0 && event.customForms.map(field => (
                       <div key={field.id} className="space-y-3">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] ml-1">
-                          {field.label} {field.required && <span className="text-amber-500">*</span>}
+                        <label className={`block text-[10px] font-black uppercase tracking-[0.4em] ml-1 ${labelClass}`}>
+                          {field.label} {field.required && <span style={{ color: primaryColor }}>*</span>}
                         </label>
                         <div className="relative group">
-                          <div className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 rounded-sm border-2 border-slate-700 group-focus-within:border-white transition-colors flex items-center justify-center">
-                            <div className="w-1.5 h-1.5 bg-slate-700 group-focus-within:bg-white rounded-[1px] transition-colors" />
+                          <div className={`absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 rounded-sm border-2 transition-colors flex items-center justify-center ${displayMode === 'dark' ? 'border-slate-600' : 'border-slate-400'}`}>
+                            <div className="w-1.5 h-1.5 rounded-[1px] transition-colors" style={{ backgroundColor: primaryColor, opacity: customData[field.id] ? 1 : 0 }} />
                           </div>
                           <input 
                             type="text" 
@@ -267,7 +278,7 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
                             value={customData[field.id] || ''} 
                             onChange={(e) => setCustomData(prev => ({ ...prev, [field.id]: e.target.value }))}
                             placeholder={`Your ${field.label}`}
-                            className="w-full bg-white/5 border border-white/5 rounded-2xl pl-16 pr-6 py-5 text-white text-sm focus:outline-none focus:border-white/20 transition-all font-medium placeholder:text-slate-500"
+                            className={`w-full rounded-2xl pl-16 pr-6 py-5 text-sm outline-none transition-all font-medium shadow-sm ${inputBgClass}`}
                           />
                         </div>
                       </div>
@@ -275,7 +286,7 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
                   </div>
 
                   {error && (
-                    <div className="p-6 bg-rose-500/5 border border-rose-500/10 text-rose-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl flex items-center gap-4">
+                    <div className="p-6 bg-rose-50 border border-rose-200 text-rose-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl flex items-center gap-4">
                       <AlertCircle size={20} /> {error}
                     </div>
                   )}
@@ -283,7 +294,8 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
                   <div className="pt-6 space-y-8">
                     <button 
                       type="submit" disabled={loading}
-                      className="w-full bg-indigo-600 text-white font-black py-6 rounded-full hover:bg-white hover:text-indigo-600 transition-all shadow-2xl active:scale-95 disabled:opacity-40 mt-4 uppercase tracking-[0.3em] text-[11px] flex items-center justify-center px-12"
+                      className="w-full text-white font-black py-6 rounded-full hover:scale-[1.02] transition-all shadow-xl active:scale-95 disabled:opacity-40 mt-4 uppercase tracking-[0.3em] text-[11px] flex items-center justify-center px-12"
+                      style={{ backgroundColor: primaryColor }}
                     >
                       {loading ? (
                         <>
@@ -300,12 +312,12 @@ const BookingModal = ({ isOpen, setIsOpen, event }) => {
                       )}
                     </button>
                     
-                    <div className="flex flex-col items-center gap-4 opacity-30">
+                    <div className="flex flex-col items-center gap-4 opacity-70">
                        <div className="flex items-center gap-2">
-                          <ShieldCheck size={12} className="text-white" />
-                          <span className="text-[8px] text-white font-black uppercase tracking-[0.4em]">Secure Checkout Gateway</span>
+                          <ShieldCheck size={14} className="text-slate-400" />
+                          <span className="text-[8px] text-slate-500 font-black uppercase tracking-[0.4em]">Secure Checkout Gateway</span>
                        </div>
-                       <p className="text-center text-[8px] text-slate-600 font-black uppercase leading-relaxed tracking-[0.3em]">
+                       <p className="text-center text-[8px] text-slate-400 font-black uppercase leading-relaxed tracking-[0.3em]">
                           Non-Refundable Ticket • Individual Assignment Only
                        </p>
                     </div>

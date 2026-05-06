@@ -21,6 +21,7 @@ const PlayPage = lazy(() => import("./pages/Play.Page"));
 const ErrorPage = lazy(() => import("./pages/404"));
 const CategoryPage = lazy(() => import("./pages/Category.Page"));
 const DiscussionPage = lazy(() => import("./pages/Discussion.Page"));
+const DiscussionListPage = lazy(() => import("./pages/DiscussionList.Page"));
 const TedxTicketsPage = lazy(() => import("./pages/custom/TedxTickets.Page"));
 const AfsanaPage = lazy(() => import("./pages/custom/Afsana.Page"));
 const EventPage = lazy(() => import("./pages/Event.Page"));
@@ -52,6 +53,7 @@ function App() {
           <Route path="/movie/:id" element={<MoviePage />} />
           <Route path="/plays" element={<PlayPage />} />
           <Route path="/category/:id" element={<CategoryPage />} />
+          <Route path="/discussion" element={<DiscussionListPage />} />
           <Route path="/discussion/:id" element={<DiscussionPage />} />
           <Route path="/tedx-tickets" element={<TedxTicketsPage />} />
           <Route path="/afsana-tickets" element={<AfsanaPage />} />

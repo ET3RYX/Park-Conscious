@@ -11,7 +11,7 @@ import {
   Upload, X, MapPin, Calendar, Tag, Shield, 
   Info, IndianRupee, Users, PlusCircle, 
   ChevronDown, ChevronUp, AlertCircle, Star,
-  Lock, Layout, Monitor, Globe, Trash2, RefreshCw, Ticket
+  Lock, Layout, Monitor, Globe, Trash2, RefreshCw, Ticket, Palette, PlayCircle
 } from 'lucide-react';
 import { uploadToCloudinary, uploadVideoToCloudinary } from '../utils/cloudinary';
 
@@ -24,7 +24,7 @@ const SessionIdDisplay = () => {
   );
 };
 
-const EventForm = ({ initialData = null, onSubmit, loading }) => {
+const EventForm = ({ initialData = null, onSubmit, loading, onThemeChange }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -54,8 +54,21 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
     customForms: [],
     mediaGallery: [],
     hosts: [],
-    ticketTiers: []
+    ticketTiers: [],
+    themeConfig: {
+      primaryColor: '#E33B76',
+      themeStyle: 'pastel-light',
+      fontFamily: 'Plus Jakarta Sans',
+      displayMode: 'light',
+      backgroundVideoUrl: ''
+    }
   });
+
+  useEffect(() => {
+    if (onThemeChange && formData.themeConfig) {
+      onThemeChange(formData.themeConfig);
+    }
+  }, [formData.themeConfig, onThemeChange]);
 
   const [showAdvancedLocation, setShowAdvancedLocation] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -91,7 +104,14 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
             phone: initialData.requiredFields?.phone ?? true,
           },
           hosts: initialData.hosts || [],
-          ticketTiers: initialData.ticketTiers || []
+          ticketTiers: initialData.ticketTiers || [],
+          themeConfig: initialData.themeConfig || {
+            primaryColor: '#E33B76',
+            themeStyle: 'pastel-light',
+            fontFamily: 'Plus Jakarta Sans',
+            displayMode: 'light',
+            backgroundVideoUrl: ''
+          }
         }));
         if (initialData.location?.coordinates?.lat || initialData.location?.coordinates?.lng) {
           setShowAdvancedLocation(true);
@@ -152,7 +172,8 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
         requiredFields: formData.requiredFields,
         mediaGallery: formData.mediaGallery || [],
         hosts: formData.hosts || [],
-        ticketTiers: formData.ticketTiers || []
+        ticketTiers: formData.ticketTiers || [],
+        themeConfig: formData.themeConfig
     };
     onSubmit(submissionData);
   };
@@ -167,16 +188,14 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        {/* Main Content Pane */}
-        <div className="lg:col-span-8 space-y-12">
-          {/* Identity Section */}
-          <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 space-y-8 shadow-sm">
-            <div className="flex items-center justify-between">
-              <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
-                <Layout className="text-sky-500" size={20} /> CORE IDENTITY
-              </h3>
-              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest bg-slate-950 px-3 py-1 rounded-full border border-slate-800">Section 01</span>
+      <div className="space-y-12">
+        {/* Identity Section */}
+        <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 space-y-8 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+              <Layout className="text-sky-500" size={20} /> EVENT DETAILS
+            </h3>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest bg-slate-950 px-3 py-1 rounded-full border border-slate-800">Section 01</span>
             </div>
             
             <div className="space-y-8">
@@ -216,7 +235,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
           <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 space-y-8 shadow-sm">
             <div className="flex items-center justify-between">
               <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
-                <Users className="text-[#6366f1]" size={20} /> EVENT HOSTS
+                <Users className="text-[#6366f1]" size={20} /> EVENT ORGANIZERS
               </h3>
               <button
                 type="button"
@@ -473,7 +492,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
           <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 space-y-8 shadow-sm relative overflow-hidden">
             <div className="flex items-center justify-between">
               <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
-                <Lock className="text-sky-500" size={20} /> ENTRY PROTOCOLS
+                <Lock className="text-sky-500" size={20} /> REGISTRATION DETAILS
               </h3>
               <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest bg-slate-950 px-3 py-1 rounded-full border border-slate-800">Section 04</span>
             </div>
@@ -594,7 +613,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
           <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 space-y-8 shadow-sm">
              <div className="flex items-center justify-between">
               <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
-                <Ticket className="text-[#6366f1]" size={20} /> TICKET TIERS
+                <Ticket className="text-[#6366f1]" size={20} /> TICKETING & PRICING
               </h3>
               <button
                 type="button"
@@ -707,7 +726,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
           {/* Timeline */}
           <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 space-y-8 shadow-sm">
             <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
-              <Calendar className="text-sky-500" size={20} /> TEMPORAL VECTOR
+              <Calendar className="text-sky-500" size={20} /> DATE & TIME
             </h3>
             <div className="space-y-8 max-w-xl">
               <div className="space-y-3">
@@ -738,16 +757,12 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
               </div>
             </div>
           </section>
-        </div>
-
-        {/* Sidebar Controls */}
-        <div className="lg:col-span-4 space-y-12">
           {/* Status */}
           <section className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 space-y-8 shadow-sm">
             <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
-              <Globe className="text-emerald-500" size={20} /> ECOSYSTEM STATE
+              <Globe className="text-emerald-500" size={20} /> PUBLISHING STATUS
             </h3>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
                 { id: 'published', label: 'DEPLOY LIVE', description: 'Immediate public visibility', icon: Star },
                 { id: 'draft', label: 'INCUBATING', description: 'Internal restricted access', icon: Monitor },
@@ -774,11 +789,147 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
               ))}
             </div>
           </section>
-        </div>
 
+        {/* Theme Engine Block */}
+        <section className="bg-slate-900 border border-slate-800 rounded-[3rem] p-12 space-y-10 shadow-2xl shadow-slate-950/20">
+            <div className="flex items-center justify-between">
+               <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                <Palette className="text-pink-500" size={24} /> BRANDING & DESIGN
+              </h3>
+              <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest bg-slate-950 px-4 py-2 rounded-full border border-slate-800">Live Preview Available</p>
+            </div>
+
+            <div className="space-y-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                {/* Color Palette */}
+                <div className="space-y-6">
+                  <label className="block text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Primary Accent Color</label>
+                  <div className="flex flex-wrap gap-4">
+                    {['#E33B76', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#14b8a6', '#f97316', '#6366f1', '#1e293b'].map(color => (
+                      <button key={color} type="button" onClick={() => setFormData(prev => ({ ...prev, themeConfig: { ...prev.themeConfig, primaryColor: color } }))}
+                        className={`w-12 h-12 rounded-full transition-all border-4 ${formData.themeConfig.primaryColor === color ? 'scale-110 border-white shadow-[0_0_20px_rgba(255,255,255,0.3)]' : 'border-transparent hover:scale-105'}`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Display Mode & Fonts */}
+                <div className="space-y-6">
+                  <label className="block text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Typography & Contrast</label>
+                  <div className="grid grid-cols-2 gap-6">
+                    <select
+                      value={formData.themeConfig.fontFamily}
+                      onChange={(e) => setFormData(prev => ({ ...prev, themeConfig: { ...prev.themeConfig, fontFamily: e.target.value } }))}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white text-sm focus:outline-none focus:border-pink-500/50 transition-all font-medium appearance-none cursor-pointer"
+                    >
+                      <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                      <option value="Inter">Inter</option>
+                      <option value="Outfit">Outfit</option>
+                      <option value="Roobert, sans-serif">Roobert</option>
+                    </select>
+                    
+                    <div className="flex bg-slate-950 border border-slate-800 rounded-2xl p-1">
+                      {['light', 'dark'].map(mode => (
+                        <button key={mode} type="button" onClick={() => setFormData(prev => ({ ...prev, themeConfig: { ...prev.themeConfig, displayMode: mode } }))}
+                          className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${formData.themeConfig.displayMode === mode ? 'bg-pink-500 text-white shadow-lg' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
+                        >
+                          {mode}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Background Styles */}
+              <div className="space-y-6">
+                <label className="block text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Background Atmosphere</label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  {[
+                    { id: 'pastel-light', label: 'Pastel Light', bg: 'bg-gradient-to-br from-pink-200 to-yellow-200' },
+                    { id: 'minimal', label: 'Minimal', bg: 'bg-slate-200' },
+                    { id: 'warp', label: 'Quantum Warp', bg: 'bg-slate-900 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900 to-black border-slate-800 border' },
+                    { id: 'video', label: 'Cinematic Video', bg: 'bg-slate-950 border-dashed border-2 border-slate-800' }
+                  ].map(style => (
+                    <button key={style.id} type="button" onClick={() => setFormData(prev => ({ ...prev, themeConfig: { ...prev.themeConfig, themeStyle: style.id } }))}
+                      className={`flex flex-col items-center gap-4 p-4 rounded-[2rem] border-2 transition-all group ${formData.themeConfig.themeStyle === style.id ? 'border-pink-500 bg-pink-500/10' : 'border-slate-800 bg-slate-950 hover:border-slate-700'}`}
+                    >
+                      <div className={`w-full h-20 rounded-2xl ${style.bg} flex items-center justify-center overflow-hidden transition-all group-hover:scale-[1.02]`}>
+                        {style.id === 'video' && <PlayCircle className="text-slate-600" size={32} />}
+                      </div>
+                      <span className="text-[10px] font-black text-white uppercase tracking-widest">{style.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {formData.themeConfig.themeStyle === 'video' && (
+                  <div className="p-8 bg-slate-950 border border-slate-800 rounded-3xl mt-6 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="flex items-center justify-between mb-6">
+                      <label className="block text-[11px] font-black text-pink-500 uppercase tracking-[0.2em]">Select Background Atmosphere</label>
+                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest border border-slate-800 px-3 py-1 rounded-full bg-slate-900">Optimized 4K / HD</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                      {[
+                        'https://res.cloudinary.com/dlyx0r3nn/video/upload/q_auto,f_auto/v1778008996/9145177-uhd_3840_2160_30fps_1_guvg1w.mp4',
+                        'https://res.cloudinary.com/dlyx0r3nn/video/upload/q_auto,f_auto/v1778008998/14471405_3840_2160_30fps_1_i1vy1v.mp4',
+                        'https://res.cloudinary.com/dlyx0r3nn/video/upload/q_auto,f_auto/v1778009012/14630687_1920_1080_30fps_1_haizbj.mp4',
+                        'https://res.cloudinary.com/dlyx0r3nn/video/upload/q_auto,f_auto/v1778009819/tunnel_1_cpjipb.mp4'
+                      ].map((vidUrl, idx) => {
+                        // Strip query params or transformations for comparison
+                        const isSelected = formData.themeConfig.backgroundVideoUrl?.includes(vidUrl.split('/upload/')[1]);
+                        return (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, themeConfig: { ...prev.themeConfig, backgroundVideoUrl: vidUrl } }))}
+                            className={`relative h-24 rounded-2xl overflow-hidden border-2 transition-all group ${isSelected ? 'border-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.4)]' : 'border-slate-800 hover:border-slate-600'}`}
+                          >
+                            <img src={vidUrl.replace('.mp4', '.jpg')} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" alt="Video Thumbnail" />
+                            <div className="absolute inset-0 flex items-center justify-center opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none">
+                               <PlayCircle className="text-white drop-shadow-md" size={24} />
+                            </div>
+                            {isSelected && (
+                              <div className="absolute inset-0 bg-pink-500/20 flex items-center justify-center">
+                                <div className="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center shadow-lg">
+                                  <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                                </div>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+
+                      {/* Custom Upload Button */}
+                      <label className={`relative h-24 flex flex-col items-center justify-center border-2 border-dashed border-slate-700 rounded-2xl cursor-pointer hover:border-pink-500/50 transition-all group ${uploading ? 'animate-pulse' : ''}`}>
+                        <input type="file" accept="video/mp4,video/webm" className="hidden" disabled={uploading} 
+                          onChange={async (e) => {
+                            const file = e.target.files[0];
+                            if(!file) return;
+                            setUploading(true);
+                            try {
+                              const url = await uploadVideoToCloudinary(file);
+                              // We can add q_auto to the custom upload too if it's from cloudinary
+                              const optimizedUrl = url.includes('cloudinary.com') ? url.replace('/upload/', '/upload/q_auto,f_auto/') : url;
+                              setFormData(prev => ({ ...prev, themeConfig: { ...prev.themeConfig, backgroundVideoUrl: optimizedUrl } }));
+                            } catch(err) { console.error(err); } finally { setUploading(false); }
+                          }} 
+                        />
+                        {uploading ? <RefreshCw className="animate-spin text-slate-400" size={24} /> : <PlusCircle className="text-slate-600 group-hover:text-pink-500 transition-colors mb-2" size={24} />} 
+                        <span className="text-[8px] font-bold text-slate-400 group-hover:text-pink-500 uppercase tracking-widest text-center px-2">
+                          {uploading ? 'UPLOADING...' : 'CUSTOM'}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+        </section>
 
         {/* Poster / Main Image Block */}
-        <div className="lg:col-span-12 bg-slate-900 border border-slate-800 rounded-[3rem] p-12 space-y-10 shadow-2xl shadow-slate-950/20">
+        <section className="bg-slate-900 border border-slate-800 rounded-[3rem] p-12 space-y-10 shadow-2xl shadow-slate-950/20">
             <div className="flex items-center justify-between">
                <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
                 <Upload className="text-sky-500" size={24} /> EVENT POSTER
@@ -808,10 +959,10 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
                 <span className="text-[9px] font-black text-slate-600 group-hover:text-sky-500 uppercase tracking-[0.3em]">{uploading ? 'Transmitting...' : 'Link Asset'}</span>
               </label>
             </div>
-        </div>
+        </section>
 
         {/* Media Gallery Block */}
-        <div className="lg:col-span-12 bg-slate-900 border border-slate-800 rounded-[3rem] p-12 space-y-10 shadow-2xl shadow-slate-950/20">
+        <section className="bg-slate-900 border border-slate-800 rounded-[3rem] p-12 space-y-10 shadow-2xl shadow-slate-950/20">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-[12px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
@@ -885,7 +1036,7 @@ const EventForm = ({ initialData = null, onSubmit, loading }) => {
               <span className="text-[9px] font-black text-slate-600 group-hover:text-violet-500 uppercase tracking-[0.3em]">{galleryUploading ? 'Uploading...' : 'Add Photo/Video'}</span>
             </label>
           </div>
-        </div>
+        </section>
       </div>
 
       {/* Global Actions */}
