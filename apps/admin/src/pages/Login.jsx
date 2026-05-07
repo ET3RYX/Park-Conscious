@@ -40,7 +40,7 @@ const Login = () => {
           const userData = JSON.parse(savedUser);
           login(userData);
           navigate('/');
-        } catch (e) {
+        } catch {
           setError('Your session has expired. Please log in with your password once.');
           localStorage.removeItem('last_admin_user');
         }
