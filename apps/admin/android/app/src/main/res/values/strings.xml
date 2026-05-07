@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ParkConsciousAdmin</string>
+    <string name="title_activity_main">ParkConsciousAdmin</string>
+    <string name="package_name">com.parkconscious.admin</string>
+    <string name="custom_url_scheme">com.parkconscious.admin</string>
+</resources>
