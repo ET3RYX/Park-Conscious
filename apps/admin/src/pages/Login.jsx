@@ -6,11 +6,13 @@
  * Logs failed attempts via the centralized error monitoring utility.
  */
 import React, { useState } from 'react';
-import { Shield, Mail, Lock, Activity, ChevronRight, RefreshCw, Star } from 'lucide-react';
+import { Shield, Mail, Lock, Activity, ChevronRight, RefreshCw, Star, Fingerprint } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { authService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { reportSystemError } from '../utils/monitoring';
+import { authenticateWithBiometrics, checkBiometricsAvailable } from '../utils/biometrics';
+import { useEffect } from 'react';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -19,6 +21,34 @@ const Login = () => {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [biometricsAvailable, setBiometricsAvailable] = useState(false);
+
+  useEffect(() => {
+    const initBiometrics = async () => {
+      const available = await checkBiometricsAvailable();
+      setBiometricsAvailable(available);
+    };
+    initBiometrics();
+  }, []);
+
+  const handleBiometricLogin = async () => {
+    const success = await authenticateWithBiometrics('Log in to Backstage Admin');
+    if (success) {
+      const savedUser = localStorage.getItem('last_admin_user');
+      if (savedUser) {
+        try {
+          const userData = JSON.parse(savedUser);
+          login(userData);
+          navigate('/');
+        } catch {
+          setError('Your session has expired. Please log in with your password once.');
+          localStorage.removeItem('last_admin_user');
+        }
+      } else {
+        setError('Please log in with your password once to enable Fingerprint unlock.');
+      }
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,6 +56,7 @@ const Login = () => {
     setError('');
     try {
       const { data } = await authService.login(username, password);
+      localStorage.setItem('last_admin_user', JSON.stringify(data));
       login(data); 
       navigate('/');
     } catch (err) {
@@ -114,6 +145,17 @@ const Login = () => {
                 </>
               )}
             </button>
+
+            {biometricsAvailable && (
+              <button 
+                type="button"
+                onClick={handleBiometricLogin}
+                className="w-full bg-white/[0.03] border border-white/10 hover:border-sky-500/30 text-zinc-400 hover:text-zinc-100 font-bold py-5 rounded-2xl active:scale-[0.98] transition-all uppercase tracking-[0.2em] text-[9px] flex items-center justify-center gap-3 group"
+              >
+                <Fingerprint size={18} className="text-sky-500 group-hover:scale-110 transition-transform" />
+                Biometric Unlock
+              </button>
+            )}
           </form>
 
           <div className="mt-16 flex items-center justify-between border-t border-white/[0.02] pt-8 opacity-40">

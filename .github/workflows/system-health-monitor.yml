@@ -91,3 +91,24 @@ jobs:
           ${{ steps.audit.outputs.is_healthy == 'true' && 'None. Everything is running smoothly.' || 'Please check the Admin Panel or Server Logs for more details.' }}
           
           Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+    - name: Create Health Alert Issue
+      if: steps.audit.outputs.is_healthy == 'false'
+      uses: imjohnbo/issue-bot@v3.4.5
+      with:
+        title: "🚨 System Alert: Ecosystem Health Issues Detected"
+        labels: "incident, priority-1"
+        body: |
+          ## System Health Alert
+          The automated health monitor has detected issues with the ecosystem.
+          
+          **Status Summary:**
+          - Main Website: ${{ steps.audit.outputs.main_status == '200' && '✅ Online' || '❌ Offline' }} (${{ steps.audit.outputs.main_status }})
+          - Events Platform: ${{ steps.audit.outputs.events_status == '200' && '✅ Online' || '❌ Offline' }} (${{ steps.audit.outputs.events_status }})
+          - Internal State: `${{ steps.audit.outputs.system_state }}`
+          
+          **Recent Logs:**
+          ${{ steps.audit.outputs.log_summary }}
+          
+          Please investigate the [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+        token: ${{ secrets.GITHUB_TOKEN }}
